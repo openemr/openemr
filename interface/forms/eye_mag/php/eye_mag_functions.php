@@ -3193,10 +3193,10 @@ function report_header($pid, $direction = 'shell', $allowLogoEdit = false)
 
     $DOB = oeFormatShortDate($titleres['DOB']);
     // Browser images fill their third of the header. mPDF resolves image
-    // percentages against the page, so give it a column-safe physical width.
+    // percentages against the page, so give it a column-safe physical size.
     $logoStyle = $direction === 'web'
         ? 'display:block;width:100%;max-width:100%;height:auto;'
-        : 'width:55mm;max-width:100%;height:auto;';
+        : 'max-height:22mm;width:auto;max-width:55mm;height:auto;';
     $siteDirectory = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
     /******************************************************************/
     ob_start();
@@ -5257,6 +5257,7 @@ function generate_specRx($W)
                             <div class="wear-header-bar">
                               <span class="wear-header-title"><?php echo xlt('Current Glasses'); ?>: #<?php echo attr($W); ?></span>
                               <span id="W_source_label_<?php echo attr($W); ?>" class="wear-source-label badge badge-info"></span>
+                              <span class="wear-header-actions"><button type="button" class="btn btn-secondary btn-sm wear-action or-toggle" data-rx="<?php echo attr($W); ?>" title="<?php echo xla('Over-refraction for this Wear Rx'); ?>"><?php echo xlt('Over Refraction'); ?></button></span>
                             </div>
                           </th>
                         </tr>
@@ -5310,6 +5311,31 @@ function generate_specRx($W)
                           <?php display_wear_comment_tail_cells(); ?>
                         </tr>
                       </table>
+    </div>
+    <div id="LayerVision_OR_<?php echo attr($W); ?>" class="refraction current_W borderShadow nodisplay">
+      <i class="closeButton fa fa-times or-toggle" data-rx="<?php echo attr($W); ?>" title="<?php echo xla('Close Over Refraction panel'); ?>"></i>
+      <i onclick="top.restoreSession(); doscript('OR','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','<?php echo attr($W); ?>'); return false;" title="<?php echo xla('Dispense Over Refraction'); ?>" class="closeButton_3 fa fa-print"></i>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><th colspan="6" class="right" style="text-align:left;"><?php echo xlt('Over Refraction'); ?> — <?php echo xlt('Current Glasses'); ?> #<?php echo attr($W); ?></th></tr>
+        <tr><td></td><td><?php echo xlt('Sph'); ?></td><td><?php echo xlt('Cyl'); ?></td><td><?php echo xlt('Axis'); ?></td><td><?php echo xlt('Add'); ?></td><td><?php echo xlt('Prism'); ?></td></tr>
+        <tr style="background:#f7f7f7;color:#555;"><td><b><?php echo xlt('Wearing OD'); ?></b></td><td><?php echo text($ODSPH ?? ''); ?></td><td><?php echo text($ODCYL ?? ''); ?></td><td><?php echo text($ODAXIS ?? ''); ?></td><td><?php echo text($ODADD ?? ''); ?></td><td><?php echo text($ODPRISM ?? ''); ?></td></tr>
+        <tr style="background:#f7f7f7;color:#555;"><td><b><?php echo xlt('Wearing OS'); ?></b></td><td><?php echo text($OSSPH ?? ''); ?></td><td><?php echo text($OSCYL ?? ''); ?></td><td><?php echo text($OSAXIS ?? ''); ?></td><td><?php echo text($OSADD ?? ''); ?></td><td><?php echo text($OSPRISM ?? ''); ?></td></tr>
+        <tr><td><b><?php echo xlt('OR OD'); ?></b></td>
+          <td><input type="text" class="sphere" name="ORODSPH_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORODSPH'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" class="cylinder" name="ORODCYL_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORODCYL'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" class="axis" name="ORODAXIS_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORODAXIS'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" name="ORODADD_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORODADD'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" name="ORODPRISM_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORODPRISM'] ?? ''); ?>" style="width:80px;"></td></tr>
+        <tr><td><b><?php echo xlt('OR OS'); ?></b></td>
+          <td><input type="text" class="sphere" name="OROSPH_<?php echo attr($W); ?>" value="<?php echo attr($wear['OROSPH'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" class="cylinder" name="OROSCYL_<?php echo attr($W); ?>" value="<?php echo attr($wear['OROSCYL'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" class="axis" name="OROSAXIS_<?php echo attr($W); ?>" value="<?php echo attr($wear['OROSAXIS'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" name="OROSADD_<?php echo attr($W); ?>" value="<?php echo attr($wear['OROSADD'] ?? ''); ?>" style="width:60px;"></td>
+          <td><input type="text" name="OROSPRISM_<?php echo attr($W); ?>" value="<?php echo attr($wear['OROSPRISM'] ?? ''); ?>" style="width:80px;"></td></tr>
+        <tr style="background:#eef6ff;color:#333;font-weight:bold;"><td><b><?php echo xlt('Final OD'); ?></b></td><td id="ORFINAL_ODSPH_<?php echo attr($W); ?>"></td><td id="ORFINAL_ODCYL_<?php echo attr($W); ?>"></td><td id="ORFINAL_ODAXIS_<?php echo attr($W); ?>"></td><td id="ORFINAL_ODADD_<?php echo attr($W); ?>"></td><td id="ORFINAL_ODPRISM_<?php echo attr($W); ?>"></td></tr>
+        <tr style="background:#eef6ff;color:#333;font-weight:bold;"><td><b><?php echo xlt('Final OS'); ?></b></td><td id="ORFINAL_OSSPH_<?php echo attr($W); ?>"></td><td id="ORFINAL_OSCYL_<?php echo attr($W); ?>"></td><td id="ORFINAL_OSAXIS_<?php echo attr($W); ?>"></td><td id="ORFINAL_OSADD_<?php echo attr($W); ?>"></td><td id="ORFINAL_OSPRISM_<?php echo attr($W); ?>"></td></tr>
+        <tr><td colspan="6"><?php echo xlt('Comments'); ?>: <input type="text" name="ORCOMMENTS_<?php echo attr($W); ?>" value="<?php echo attr($wear['ORCOMMENTS'] ?? ''); ?>" style="width:70%;"></td></tr>
+      </table>
     </div>
     <?php
     $output = ob_get_contents();

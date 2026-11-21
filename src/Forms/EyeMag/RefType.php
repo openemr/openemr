@@ -35,6 +35,9 @@ enum RefType: string
     /** Contact lens. */
     case CTL = 'CTL';
 
+    /** Over-refraction: adjustment over a current wearing (W) prescription. */
+    case OR = 'OR';
+
     /**
      * Translated label for the refraction method, as printed on the prescription.
      */
@@ -46,6 +49,7 @@ enum RefType: string
             self::MR => xlt('Manifest (Dry) Refraction'),
             self::CR => xlt('Cycloplegic (Wet) Refraction'),
             self::CTL => xlt('Contact Lens'),
+            self::OR => xlt('Over Refraction'),
         };
     }
 
@@ -70,7 +74,7 @@ enum RefType: string
     public function columnPrefix(): ?string
     {
         return match ($this) {
-            self::W => null,
+            self::W, self::OR => null,
             self::AR, self::MR, self::CR, self::CTL => $this->value,
         };
     }
@@ -87,6 +91,7 @@ enum RefType: string
         return match ($this) {
             self::AR, self::MR, self::CR => 'CRCOMMENTS',
             self::W, self::CTL => 'COMMENTS',
+            self::OR => 'ORCOMMENTS',
         };
     }
 
@@ -101,7 +106,7 @@ enum RefType: string
     public function hasAddPower(): bool
     {
         return match ($this) {
-            self::W, self::AR, self::MR => true,
+            self::W, self::AR, self::MR, self::OR => true,
             self::CR, self::CTL => false,
         };
     }

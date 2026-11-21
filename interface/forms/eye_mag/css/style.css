@@ -4214,8 +4214,8 @@ View.php
 
 #LayerVision_VAHx {
   display: inline-block;
-  max-width: 1500px;
-  padding: 0.75rem;
+  max-width: 1200px;
+  padding: 0.5rem;
   width: 96%;
 }
 
@@ -4223,13 +4223,13 @@ View.php
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 #LayerVision_VAHx .vahx-layout {
   display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(420px, 1fr) minmax(480px, 1.15fr);
+  gap: 0.75rem;
+  grid-template-columns: minmax(320px, 1fr) minmax(360px, 1fr);
 }
 
 #LayerVision_VAHx .vahx-table-wrap,
@@ -4239,12 +4239,13 @@ View.php
   border-radius: 0.5rem;
   box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.08);
   min-width: 0;
-  padding: 0.75rem;
+  padding: 0.5rem;
   text-align: center;
 }
 
 #LayerVision_VAHx .vahx-table-scroll {
-  overflow-x: auto;
+  max-height: 280px;
+  overflow: auto;
 }
 
 #LayerVision_VAHx table {
@@ -4255,15 +4256,16 @@ View.php
 #LayerVision_VAHx th,
 #LayerVision_VAHx td {
   border-color: var(--gray-300, #dee2e6);
-  padding: 0.35rem 0.45rem;
+  padding: 0.2rem 0.35rem;
   text-align: center;
   white-space: nowrap;
+  font-size: 0.78rem;
 }
 
 #LayerVision_VAHx thead th {
   background: var(--gray-100, #f8f9fa);
   color: var(--body-color, #212529);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 #LayerVision_VAHx tbody tr:nth-child(even) {
@@ -4276,7 +4278,7 @@ View.php
 }
 
 #LayerVision_VAHx .vahx-chart-wrap {
-  height: 360px;
+  height: 260px;
   position: relative;
 }
 

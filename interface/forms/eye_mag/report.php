@@ -2449,11 +2449,40 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full', ?Mpdf $m
                 echo '<b>' . xlt('Dispensed Glasses Rx') . '</b>';
                 foreach ($rxDocuments as $rxDoc) {
                     $rxDocId = EyeFormData::integer($rxDoc['id'] ?? 0);
-                    if ($rxDocId <= 0) continue;
+                    if ($rxDocId <= 0) {
+                        continue;
+                    }
                     $rxUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id='
                         . urlencode((string) $patientId) . '&doc_id=' . urlencode((string) $rxDocId);
                     echo '<div style="margin:4px 0;"><a href="' . attr($rxUrl) . '" target="_blank">'
                         . text($rxDoc['name'] ?? '') . '</a></div>';
+                    if ($PDF_OUTPUT && $reportPdf instanceof Mpdf) {
+                        try {
+                            $rxBytes = (new Document($rxDocId))->get_data();
+                        } catch (\Throwable) {
+                            $rxBytes = '';
+                        }
+                        if (is_string($rxBytes) && $rxBytes !== '') {
+                            // Attach original and append visible pages to the encounter/PDF report.
+                            $files = is_array($reportPdf->associatedFiles) ? $reportPdf->associatedFiles : [];
+                            $rxName = 'dispensed-rx-' . $patientId . '-' . $rxDocId . '.pdf';
+                            $dup = false;
+                            foreach ($files as $f) {
+                                if (is_array($f) && ($f['name'] ?? '') === $rxName && ($f['content'] ?? null) === $rxBytes) {
+                                    $dup = true;
+                                    break;
+                                }
+                            }
+                            if (!$dup) {
+                                $files[] = ['name' => $rxName, 'content' => $rxBytes, 'mime' => 'application/pdf', 'AFRelationship' => 'Supplement', 'description' => $rxDoc['name'] ?? $rxName];
+                                $reportPdf->SetAssociatedFiles($files);
+                            }
+                            if (function_exists('eye_mag_append_handout_pages') && !eye_mag_append_handout_pages($reportPdf, $rxBytes)) {
+                                $reportPdf->AddPage();
+                                $reportPdf->WriteHTML('<p>' . xlt('The dispensed Rx PDF could not be rendered as pages. Its original is included as an attachment.') . '</p><p>' . text($rxDoc['name'] ?? '') . '</p>');
+                            }
+                        }
+                    }
                 }
                 echo '</div>';
             }

@@ -116,6 +116,21 @@ $query = "select  *,form_encounter.date as encounter_date
 if ($data['BPDD'] === '' && is_numeric($data['ODMPDD']) && is_numeric($data['OSMPDD'])) {
     $data['BPDD'] = rtrim(rtrim(number_format(EyeFormData::number($data['ODMPDD']) + EyeFormData::number($data['OSMPDD']), 2, '.', ''), '0'), '.');
 }
+$pdCandidates = [];
+foreach (['BPDD','BPDN','ODPDMeasured','OSPDMeasured','ODMPDD','OSMPDD','ODMPDN','OSMPDN','ARBPDD','MRBPDD','CRBPDD','CTLBPDD'] as $pdKey) {
+    $v = trim(EyeFormData::text($data[$pdKey] ?? ''));
+    if ($v !== '' && is_numeric($v)) { $pdCandidates[] = (float)$v; }
+}
+foreach ([['ODMPDD','OSMPDD'],['ODMPDN','OSMPDN'],['ODPDMeasured','OSPDMeasured']] as $pair) {
+    $a = trim(EyeFormData::text($data[$pair[0]] ?? '')); $b = trim(EyeFormData::text($data[$pair[1]] ?? ''));
+    if ($a !== '' && $b !== '' && is_numeric($a) && is_numeric($b)) { $pdCandidates[] = (float)$a + (float)$b; }
+}
+$pdCandidates = array_values(array_unique($pdCandidates));
+$pdHighestRecorded = count($pdCandidates) > 1;
+if (!empty($pdCandidates)) {
+    $bestPd = max($pdCandidates);
+    $data['BPDD'] = rtrim(rtrim(number_format($bestPd, 2, '.', ''), '0'), '.');
+}
     @extract($data);
 
     // Defaults for the form columns extracted from the joined form_eye_*
@@ -163,12 +178,15 @@ if ($LENS_MATERIAL === '' || $LENS_TREATMENTS === '') {
     $CTLODQUANTITY ??= '';
     $CTLOSQUANTITY ??= '';
 
-    $ODMPDD     = $ODPDMeasured;
-    $OSMPDD     = $OSPDMeasured;
-    $BPDD       = trim(EyeFormData::text($BPDD ?? ''));
+    if (!isset($refType) || !in_array($refType, [RefType::W, RefType::OR], true)) {
+        $ODMPDD = $ODPDMeasured;
+        $OSMPDD = $OSPDMeasured;
+    }
+    $BPDD = trim(EyeFormData::text($data['BPDD'] ?? $BPDD ?? ''));
 if ($BPDD === '' && is_numeric($ODMPDD) && is_numeric($OSMPDD)) {
     $BPDD = rtrim(rtrim(number_format(EyeFormData::number($ODMPDD) + EyeFormData::number($OSMPDD), 2, '.', ''), '0'), '.');
 }
+$pdHighestRecorded = $pdHighestRecorded ?? (count($pdCandidates ?? []) > 1);
 
     // Mutation branches below (mode=update/remove, RXTYPE=..., dispensed=1)
     // do not send an encounter, so the querySingleRow above returns [] and
@@ -254,7 +272,7 @@ if ((CurrentRequest::get()->request->get('mode', CurrentRequest::get()->query->g
     QueryUtils::sqlStatementThrowException($query, [CurrentRequest::get()->request->get('delete_id', CurrentRequest::get()->query->get('delete_id')), $pid]);
     echo xlt('Prescription successfully removed.');
     exit;
-} elseif (CurrentRequest::get()->request->get('RXTYPE', CurrentRequest::get()->query->get('RXTYPE')) ?? '') {  //store any changed fields
+} elseif ((CurrentRequest::get()->request->get('RXTYPE', CurrentRequest::get()->query->get('RXTYPE')) ?? '') && (CurrentRequest::get()->request->get('save_pdf', CurrentRequest::get()->query->get('save_pdf')) ?? '') !== '1') {  //store any changed fields
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Scope the dispense mutation to the session patient (see remove branch above).
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=? AND pid=?";
@@ -361,11 +379,100 @@ if ($refType !== null) {
         $OSSPH = $wearing['OSSPH'] ?? null;
         $OSCYL = $wearing['OSCYL'] ?? null;
         $OSAXIS = $wearing['OSAXIS'] ?? null;
-        $COMMENTS = $wearing[$refType->commentsColumn()] ?? null;
+        $COMMENTS = $wearing[$refType->commentsColumn()] ?? ($wearing['COMMENTS'] ?? null);
         $ODMIDADD = $wearing['ODMIDADD'] ?? null;
         $ODADD2 = $wearing['ODADD'] ?? null;
         $OSMIDADD = $wearing['OSMIDADD'] ?? null;
         $OSADD2 = $wearing['OSADD'] ?? null;
+
+        // Over Refraction (OR) is attached to a specific Wear Rx: add OR delta to the W values.
+        $orAxisChangeOD = false;
+        $orAxisChangeOS = false;
+        if ($refType === RefType::OR) {
+            $round025 = static function (float $n): float {
+                return round($n / 0.25) * 0.25;
+            };
+            $fmtVal = static function (float $n) use ($round025): string {
+                $n = $round025($n);
+                if (abs($n) < 0.00001) { $n = 0.0; }
+                $s = number_format(abs($n), 2, '.', '');
+                if ($n > 0) { return '+' . $s; }
+                if ($n < 0) { return '-' . $s; }
+                return '0.00';
+            };
+            $orAdd = static function ($base, $delta) use ($round025, $fmtVal): ?string {
+                $b = trim((string)($base ?? ''));
+                $d = trim((string)($delta ?? ''));
+                if ($d === '' || !is_numeric($d)) { return $b === '' ? null : $b; }
+                $bv = ($b === '' || !is_numeric($b)) ? 0.0 : (float)$b;
+                return $fmtVal($bv + (float)$d);
+            };
+            $orSphCyl = static function ($sph, $cyl, $axis, $dSph, $dCyl, $dAxis) use ($round025): array {
+                $sph = is_numeric($sph) ? (float)$sph : 0.0;
+                $cyl = is_numeric($cyl) ? (float)$cyl : 0.0;
+                $axis = is_numeric($axis) ? (float)$axis : 0.0;
+                $dSph = is_numeric($dSph) ? (float)$dSph : 0.0;
+                $dCyl = is_numeric($dCyl) ? (float)$dCyl : 0.0;
+                $dAxis = is_numeric($dAxis) ? (float)$dAxis : $axis;
+                $sameAxis = (abs(fmod(abs($axis - $dAxis), 180.0)) < 0.00001);
+                $axisChanged = false;
+                if ($sameAxis) {
+                    $S = $round025($sph + $dSph);
+                    $C = $round025($cyl + $dCyl);
+                    $A = $axis;
+                } else {
+                    $toVec = static function (float $S, float $C, float $A): array {
+                        $r = deg2rad($A);
+                        return [$S + $C/2, -($C/2)*cos(2*$r), -($C/2)*sin(2*$r)];
+                    };
+                    [$M1,$J01,$J451] = $toVec($sph,$cyl,$axis);
+                    [$M2,$J02,$J452] = $toVec($dSph,$dCyl,$dAxis);
+                    $M=$M1+$M2; $J0=$J01+$J02; $J45=$J451+$J452;
+                    $Craw = -2 * sqrt($J0*$J0 + $J45*$J45);
+                    $Sraw = $M - $Craw/2;
+                    $Araw = (abs($Craw) < 0.00001) ? $axis : rad2deg(atan2(-$J45, -$J0) / 2);
+                    if ($Araw < 0) { $Araw += 180; }
+                    if ($Araw >= 180) { $Araw -= 180; }
+                    $C = $round025($Craw);
+                    $S = $round025($Sraw);
+                    $A = (int)round($Araw);
+                    if (abs($C - $round025($cyl)) < 0.00001 && abs($round025($dCyl)) > 0.00001) {
+                        $C = $round025($cyl);
+                        $S = $round025($sph + $dSph);
+                    }
+                    $axisChanged = ((int)round($axis) !== (int)round($A)) || (abs($C - $round025($cyl)) > 0.00001);
+                }
+                if (abs($C) < 0.00001) { $C = 0.0; $A = 0; $axisChanged = false; }
+                // Preserve wear/preferred cylinder sign convention.
+                $prefSign = 0;
+                if (abs($cyl) > 0.00001) { $prefSign = ($cyl > 0) ? 1 : -1; }
+                elseif (abs($dCyl) > 0.00001) { $prefSign = ($dCyl > 0) ? 1 : -1; }
+                if ($prefSign !== 0 && abs($C) > 0.00001 && (($C > 0) ? 1 : -1) !== $prefSign) {
+                    $S = $round025($S + $C);
+                    $C = $round025(-$C);
+                    $A = (int)round($A + 90);
+                    if ($A >= 180) { $A -= 180; }
+                    if ($A < 0) { $A += 180; }
+                    $axisChanged = true;
+                }
+                $fmt = static function (float $n) use ($round025): string {
+                    $n = $round025($n);
+                    if (abs($n) < 0.00001) { $n = 0.0; }
+                    $s = number_format(abs($n), 2, '.', '');
+                    if ($n > 0) { return '+' . $s; }
+                    if ($n < 0) { return '-' . $s; }
+                    return '0.00';
+                };
+                return [$fmt($S), $fmt($C), (string)((int)round($A)), $axisChanged];
+            };
+            [$ODSPH,$ODCYL,$ODAXIS,$orAxisChangeOD] = $orSphCyl($ODSPH,$ODCYL,$ODAXIS,$wearing['ORODSPH']??'',$wearing['ORODCYL']??'',$wearing['ORODAXIS']??'');
+            [$OSSPH,$OSCYL,$OSAXIS,$orAxisChangeOS] = $orSphCyl($OSSPH,$OSCYL,$OSAXIS,$wearing['OROSPH']??'',$wearing['OROSCYL']??'',$wearing['OROSAXIS']??'');
+            $ODADD2 = $orAdd($ODADD2, $wearing['ORODADD'] ?? '');
+            $OSADD2 = $orAdd($OSADD2, $wearing['OROSADD'] ?? '');
+            $ODMIDADD = $orAdd($ODMIDADD, $wearing['ORODMIDADD'] ?? '');
+            $OSMIDADD = $orAdd($OSMIDADD, $wearing['OROSMIDADD'] ?? '');
+            $COMMENTS = trim((string)($wearing['ORCOMMENTS'] ?? '')) !== '' ? $wearing['ORCOMMENTS'] : $COMMENTS;
+        }
 
         // The extended Wear view's prism, monocular PDs and binocular PD
         // (distance/near) travel with the duplicate dispense so the
@@ -380,12 +487,34 @@ if ($refType !== null) {
         $OSVBASE = $wearing['OSVBASE'] ?? '';
         $ODPRISM = trim(EyeFormData::text($wearing['ODPRISM'] ?? '')) ?: trim(trim($ODHPD . ' ' . $ODHBASE) . ' ' . trim($ODVPD . ' ' . $ODVBASE));
         $OSPRISM = trim(EyeFormData::text($wearing['OSPRISM'] ?? '')) ?: trim(trim($OSHPD . ' ' . $OSHBASE) . ' ' . trim($OSVPD . ' ' . $OSVBASE));
+        if ($refType === RefType::OR) {
+            $orOdPrism = trim((string)($wearing['ORODPRISM'] ?? ''));
+            $orOsPrism = trim((string)($wearing['OROSPRISM'] ?? ''));
+            if ($orOdPrism !== '') { $ODPRISM = $orOdPrism; }
+            if ($orOsPrism !== '') { $OSPRISM = $orOsPrism; }
+        }
         $ODMPDD = $wearing['ODMPDD'] ?? '';
         $ODMPDN = $wearing['ODMPDN'] ?? '';
         $OSMPDD = $wearing['OSMPDD'] ?? '';
         $OSMPDN = $wearing['OSMPDN'] ?? '';
         $BPDD   = $wearing['BPDD'] ?? '';
         $BPDN   = $wearing['BPDN'] ?? '';
+        // Include selected Wear Rx PD values in candidate/highest logic.
+        foreach (['BPDD','BPDN','ODMPDD','OSMPDD','ODMPDN','OSMPDN'] as $pdKey) {
+            $v = trim((string)($wearing[$pdKey] ?? ''));
+            if ($v !== '' && is_numeric($v)) { $pdCandidates[] = (float)$v; }
+        }
+        foreach ([['ODMPDD','OSMPDD'],['ODMPDN','OSMPDN']] as $pair) {
+            $a = trim((string)($wearing[$pair[0]] ?? '')); $b = trim((string)($wearing[$pair[1]] ?? ''));
+            if ($a !== '' && $b !== '' && is_numeric($a) && is_numeric($b)) { $pdCandidates[] = (float)$a + (float)$b; }
+        }
+        $pdCandidates = array_values(array_unique($pdCandidates));
+        $pdHighestRecorded = count($pdCandidates) > 1;
+        if (!empty($pdCandidates)) {
+            $bestPd = max($pdCandidates);
+            $BPDD = rtrim(rtrim(number_format($bestPd, 2, '.', ''), '0'), '.');
+            $data['BPDD'] = $BPDD;
+        }
 
         // Lens material/treatments travel with the duplicate dispense from the
         // SAME wear row (selected by rx_number above) — never row 1. The
@@ -475,20 +604,25 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
         <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>" type="text/css">
 
     <style>
-        @page { size: letter; margin: 0.75in; }
+        @page { size: letter; margin: 0.35in; }
         @media print {
-            html, body { background: #fff !important; color: #000 !important; }
+            html, body { background: #fff !important; color: #000 !important; font-size: 11px !important; }
             .borderShadow, .bordershadow { box-shadow: none !important; border: 1px solid #444 !important; }
             input[type="text"], textarea {
                 border: none !important;
                 border-bottom: 1px dotted #333 !important;
                 background: #fff !important;
                 color: #000 !important;
+                font-size: 11px !important;
             }
             input[type="radio"], input[type="checkbox"] { color: #000 !important; }
-            select { background: #fff !important; color: #000 !important; }
+            select { background: #fff !important; color: #000 !important; font-size: 11px !important; }
             .btn, .btn-print { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; }
             a { color: #000 !important; text-decoration: none !important; }
+            table { padding: 2px !important; }
+            .refraction td { font-size: 10px !important; padding: 1px 2px !important; }
+            #Spectacle { page-break-inside: avoid; }
+            br { line-height: 0.8; }
         }
     </style>
 
@@ -729,13 +863,13 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                                                             style="min-width:100px;">
                                                             <?php echo xlt('Rx Type'); ?><br/><br/>
                                                             <?php echo xlt('Single'); ?>
-                                                            <input type="radio" name="RXTYPE" value="Single" <?php echo text($Single); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
+                                                            <input type="radio" disabled <?php echo attr($Single); ?>><br/>
                                                             <?php echo xlt('Bifocal'); ?>
-                                                            <input type="radio" name="RXTYPE" value="Bifocal" <?php echo text($Bifocal); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
+                                                            <input type="radio" disabled <?php echo attr($Bifocal); ?>><br/>
                                                             <?php echo xlt('Trifocal'); ?>
-                                                            <input type="radio" name="RXTYPE" value="Trifocal" <?php echo text($Trifocal); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
+                                                            <input type="radio" disabled <?php echo attr($Trifocal); ?>><br/>
                                                             <?php echo xlt('Prog.{{Progressive lenses}}'); ?>
-                                                            <input type="radio" name="RXTYPE" value="Progressive" <?php echo text($Progressive); ?> onchange="$('#RXTYPE').val(this.value); submit_form();"><br/>
+                                                            <input type="radio" disabled <?php echo attr($Progressive); ?>><br/>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -1101,14 +1235,14 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                 $("[name$='MIDADD']").show();
                 $("[name$='ADD2']").show();
             } else if (rxtype == 'Bifocal') {
-                $("[name$='MIDADD']").hide().val('');
+                $("[name$='MIDADD']").hide();
                 $("[name$='ADD2']").show();
             } else if (rxtype == 'Progressive') {
-                $("[name$='MIDADD']").hide().val('');
+                $("[name$='MIDADD']").hide();
                 $("[name$='ADD2']").show();
             } else if (rxtype == "Single") {
-                $("[name$='MIDADD']").hide().val('');
-                $("[name$='ADD2']").hide().val('');
+                $("[name$='MIDADD']").hide();
+                $("[name$='ADD2']").hide();
             }
         }
 
@@ -1194,6 +1328,33 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
             var printButton = document.getElementById('printbutton');
+            var rxPdfTitle = (function () {
+                var d = new Date();
+                function pad(n) { return String(n).padStart(2, '0'); }
+                var ptName = <?php echo js_escape(preg_replace('/[^A-Za-z0-9_-]+/', '_', trim((string)($pat_data['fname'] ?? '') . '_' . (string)($pat_data['lname'] ?? '')))); ?>;
+                var ptId = <?php echo js_escape(preg_replace('/[^A-Za-z0-9_-]+/', '_', (string)($pat_data['pubpid'] ?? $pid))); ?>;
+                var ref = <?php echo js_escape(preg_replace('/[^A-Za-z0-9_-]+/', '_', (string)($REFTYPE ?? 'Rx'))); ?>;
+                var base = 'Glasses_Rx_' + (ptName ? ptName + '_' : '') + ptId + '_' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '_' + ref;
+                return base;
+            })();
+            var originalTitle = document.title;
+            var topTitle = null;
+            try { topTitle = top.document.title; } catch (e) {}
+            var setRxPrintTitle = function () {
+                document.title = rxPdfTitle;
+                try { top.document.title = rxPdfTitle; } catch (e) {}
+            };
+            var restoreRxPrintTitle = function () {
+                document.title = originalTitle;
+                try { if (topTitle !== null) top.document.title = topTitle; } catch (e) {}
+            };
+            window.addEventListener('beforeprint', setRxPrintTitle);
+            window.addEventListener('afterprint', restoreRxPrintTitle);
+            var nativePrint = window.print.bind(window);
+            window.print = function () {
+                setRxPrintTitle();
+                return nativePrint();
+            };
             win.printLogSetup(printButton);
             printButton.addEventListener('click', function (event) {
                 var pd = document.getElementById('BPDD');
@@ -1204,6 +1365,7 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                     pd.focus();
                     return;
                 }
+                document.title = rxPdfTitle;
                 // Auto-save as PDF before printing
                 if (typeof top.restoreSession === 'function') top.restoreSession();
                 var formData = new FormData(document.getElementById('Spectacle'));
@@ -1267,7 +1429,7 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
 </head>
 <body>
 <?php echo report_header(EyeFormData::text($pid), "web", $canEditLogo);  ?>
-<br/><br/>
+<div style="height:4px;" class="no-print"></div>
 <?php
 if ($refType?->isContactLens()) {
     $expir = date("Y-m-d", strtotime($CTL_expir, strtotime(EyeFormData::text($data['date']))));
@@ -1321,23 +1483,23 @@ if ($refType?->isContactLens()) {
                                         <br/><br/>
                                         <span id="SingleVision_span" name="SingleVision_span">
                                             <label for="RXTYPE_Single"><?php echo xlt('Single'); ?></label>
-                                            <input type="radio" disabled
-                                                   onclick="pick_rxType('Single',<?php echo attr_js($insert_this_id); ?>);"
+                                            <input type="radio"
+                                                   onclick="pick_rxType('Single',<?php echo attr_js($insert_this_id); ?>); $('#RXTYPE').val('Single');"
                                                    value="Single" id="RXTYPE_Single" name="RXTYPE"
                                                    <?php echo attr($Single); ?> />
                                         </span>
                                         <br/>
                                         <span id="Bifocal_span" name="Bifocal_span">
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
-                                            <input type="radio" disabled
-                                                   onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
+                                            <input type="radio"
+                                                   onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>); $('#RXTYPE').val('Bifocal');"
                                                    value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
                                             <label for="RXTYPE_Trifocal"><?php echo xlt('Trifocal'); ?></label>
-                                            <input type="radio" disabled
-                                                   onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
+                                            <input type="radio"
+                                                   onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>); $('#RXTYPE').val('Trifocal');"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
                                                    name="RXTYPE" <?php echo attr($Trifocal); ?>>
                                         </span>
@@ -1346,20 +1508,21 @@ if ($refType?->isContactLens()) {
                                             <label for="RXTYPE_Progressive">
                                                 <?php echo xlt('Prog.{{Progressive lenses}}'); ?>
                                             </label>
-                                            <input type="radio" disabled
-                                                   onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
+                                            <input type="radio"
+                                                   onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>); $('#RXTYPE').val('Progressive');"
                                                    value="Progressive" id="RXTYPE_Progressive"
                                                    name="RXTYPE" <?php echo attr($Progressive); ?>>
                                         </span>
                                         <br/>
                                     </td>
                                 </tr>
+                                <?php $orAxisChangeOD = $orAxisChangeOD ?? false; $orAxisChangeOS = $orAxisChangeOS ?? false; ?>
                                 <tr class="center">
                                     <td rowspan="2" colspan="1" class="text-right align-middle font-weight-bold"><?php echo xlt('Distance'); ?>: </td>
-                                    <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td><input type="text" id="ODSPH" name="ODSPH" disabled value="<?php echo attr($ODSPH); ?>"></td>
-                                    <td><input type="text" id="ODCYL" name="ODCYL" disabled value="<?php echo attr($ODCYL); ?>"></td>
-                                    <td><input type="text" id="ODAXIS" name="ODAXIS" disabled value="<?php echo attr($ODAXIS); ?>">
+                                    <td class="text-right align-middle font-weight-bold"><?php if ($orAxisChangeOD) { ?><span style="color:red;font-weight:bold;" class="no-print">* </span><?php } ?><?php echo xlt('OD{{right eye}}'); ?></td>
+                                    <td><input type="text" id="ODSPH" name="ODSPH" value="<?php echo attr($ODSPH); ?>"></td>
+                                    <td><input type="text" id="ODCYL" name="ODCYL" value="<?php echo attr($ODCYL); ?>"></td>
+                                    <td><input type="text" id="ODAXIS" name="ODAXIS" value="<?php echo attr($ODAXIS); ?>">
                                     </td>
                                     <?php if ($hasPrism) { ?>
                                     <td>
@@ -1373,10 +1536,10 @@ if ($refType?->isContactLens()) {
                                     <?php } ?>
                                 </tr>
                                 <tr class="center">
-                                    <td name="W_wide" class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
-                                    <td><input type="text" id="OSSPH" name="OSSPH" disabled value="<?php echo attr($OSSPH); ?>"></td>
-                                    <td><input type="text" id="OSCYL" name="OSCYL" disabled value="<?php echo attr($OSCYL); ?>"></td>
-                                    <td><input type="text" id="OSAXIS" name="OSAXIS" disabled value="<?php echo attr($OSAXIS); ?>">
+                                    <td name="W_wide" class="text-right align-middle font-weight-bold"><?php if ($orAxisChangeOS) { ?><span style="color:red;font-weight:bold;" class="no-print">* </span><?php } ?><?php echo xlt('OS{{left eye}}'); ?></td>
+                                    <td><input type="text" id="OSSPH" name="OSSPH" value="<?php echo attr($OSSPH); ?>"></td>
+                                    <td><input type="text" id="OSCYL" name="OSCYL" value="<?php echo attr($OSCYL); ?>"></td>
+                                    <td><input type="text" id="OSAXIS" name="OSAXIS" value="<?php echo attr($OSAXIS); ?>">
                                     </td>
                                     <?php if ($hasPrism) { ?>
                                     <td>
@@ -1394,18 +1557,18 @@ if ($refType?->isContactLens()) {
                                         <?php echo xlt("Mid{{Middle segment in a trifocal glasses prescription}}"); ?>
                                         /<?php echo xlt("Near"); ?></td>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OD{{right eye}}'); ?></td>
-                                    <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD" disabled
+                                    <td name="COLADD1"><input type="text" id="ODMIDADD" name="ODMIDADD"
                                                               value="<?php echo attr(EyeFormData::text($ODMIDADD)); ?>"></td>
-                                    <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2" disabled
+                                    <td class="WAdd2"><input type="text" id="ODADD2" name="ODADD2"
                                                              value="<?php echo attr($ODADD2); ?>"></td>
                                     <td colspan="<?php echo attr(EyeFormData::text($nearSpacerCols)); ?>"></td>
                                 </tr>
                                 <tr class="NEAR center">
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('OS{{left eye}}'); ?></td>
                                     <td name="COLADD1">
-                                        <input type="text" id="OSMIDADD" name="OSMIDADD" disabled value="<?php echo attr(EyeFormData::text($OSMIDADD)); ?>"></td>
+                                        <input type="text" id="OSMIDADD" name="OSMIDADD" value="<?php echo attr(EyeFormData::text($OSMIDADD)); ?>"></td>
                                     <td class="WAdd2">
-                                        <input type="text" id="OSADD2" name="OSADD2" disabled value="<?php echo attr($OSADD2); ?>"></td>
+                                        <input type="text" id="OSADD2" name="OSADD2" value="<?php echo attr($OSADD2); ?>"></td>
                                     <td colspan="<?php echo attr(EyeFormData::text($nearSpacerCols)); ?>"></td>
                                 </tr>
                                 <tr>
@@ -1414,9 +1577,19 @@ if ($refType?->isContactLens()) {
                                         <div class="dispense-pd-values">
                                             <input type="text" class="dispense-pd-input" id="BPDD" name="BPDD" required
                                                    value="<?php echo attr($BPDD); ?>" onchange="submit_form();">
+                                            <?php if (!empty($pdHighestRecorded)) { ?>
+                                                <span style="color:red;font-size:0.85em;margin-left:6px;">* <?php echo xlt('highest recorded'); ?></span>
+                                            <?php } ?>
                                         </div>
                                     </td>
                                 </tr>
+                                <?php $orAxisChangeOD = $orAxisChangeOD ?? false; $orAxisChangeOS = $orAxisChangeOS ?? false; if ($orAxisChangeOD || $orAxisChangeOS) { ?>
+                                <tr class="no-print">
+                                    <td colspan="<?php echo attr(EyeFormData::text($spectacleCols)); ?>" style="color:red;font-weight:bold;">
+                                        <span style="color:red;font-weight:bold;">*</span> <?php echo xlt('Values recalculated based on cylinder/axis changes. Confirm before printing.'); ?>
+                                    </td>
+                                </tr>
+                                <?php } ?>
                                 <tr>
                                     <td colspan="2" class="font-weight-bold" style="text-align:left;"><?php echo xlt('Comments'); ?>: </td>
                                     <td colspan="<?php echo attr(EyeFormData::text($spectacleCols - 2)); ?>">
@@ -1644,11 +1817,11 @@ if ($refType?->isContactLens()) {
                     // one in the browser instead of showing the cached copy.
                     $sigMtime = EyeFormData::integer(@filemtime($signature));
                     ?>
-                <td class="center" style="margin:25px auto;">
-                            <span style="position:relative;padding-left:40px;">
+                <td class="center" style="margin:25px auto;text-align:center;">
+                            <span style="display:inline-block;">
                                 <img src='<?php echo attr($providerSignature->url($sigUid) . '?t=' . $sigMtime); ?>'
-                                     style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
-                                    </span><br/>
+                                     style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px auto;display:block;"/>
+                            </span><br/>
 
                     <?php
                 } else {
@@ -1677,13 +1850,11 @@ if ($refType?->isContactLens()) {
             <tr class="no-print">
                 <td>
                     <div class="text-center">
-                        <div class="btn-group" role="group">
-                            <a href='#' class='btn btn-secondary btn-print mt-3' id='printbutton'>
-                                <?php echo xlt('Print'); ?>
-                            </a>
-                            <a href='#' class='btn btn-primary btn-print mt-3' id='savePdfButton'>
-                                <?php echo xlt('Save as PDF'); ?>
-                            </a>
+                        <a href='#' class='btn btn-primary btn-print mt-3' id='printbutton'>
+                            <?php echo xlt('Print Rx'); ?>
+                        </a>
+                        <div class="no-print mt-1" style="font-size:.85rem;color:#555;">
+                            <?php echo xlt('* Printing also saves a PDF copy in OpenEMR.'); ?>
                         </div>
                     </div>
                 </td>
@@ -1889,6 +2060,7 @@ if ($refType?->isContactLens()) {
     $savePdf = CurrentRequest::get()->request->get('save_pdf', CurrentRequest::get()->query->get('save_pdf')) ?? '';
     if ($savePdf === '1' || $savePdf === 1 || $savePdf === true) {
         header('Content-Type: application/json');
+        error_log('SpectacleRx save_pdf: hit pid=' . var_export($pid ?? null, true) . ' encounter=' . var_export($encounter ?? null, true));
         try {
             $config_mpdf = Config_Mpdf::getConfigMpdf();
             $pdf = new Mpdf($config_mpdf);
@@ -1901,15 +2073,22 @@ if ($refType?->isContactLens()) {
             $pid = EyeFormData::integer(CurrentRequest::get()->request->get('pid', CurrentRequest::get()->query->get('pid')) ?? $pid);
             $encounter = EyeFormData::integer(CurrentRequest::get()->request->get('encounter', CurrentRequest::get()->query->get('encounter')) ?? $encounter);
             $categoryId = 37; // Glasses Rx - Eye
-            $name = 'Glasses_Rx_' . date('Y-m-d_His') . '.pdf';
+            $ptName = trim((string)($pat_data['fname'] ?? '') . '_' . (string)($pat_data['lname'] ?? ''));
+            $ptName = preg_replace('/[^A-Za-z0-9_-]+/', '_', $ptName);
+            $ptName = trim((string)$ptName, '_');
+            $ptId = (string)($pat_data['pubpid'] ?? $pid);
+            $ptId = preg_replace('/[^A-Za-z0-9_-]+/', '_', $ptId);
+            $ref = preg_replace('/[^A-Za-z0-9_-]+/', '_', (string)($REFTYPE ?? 'Rx'));
+            $name = date('Y-m-d') . '_' . $ptId . '_' . ($ptName !== '' ? $ptName . '_' : '') . $ref . '.pdf';
 
             $document = new Document();
             $result = $document->createDocument(
                 (string) $pid, $categoryId, $name, 'application/pdf', $pdfBytes,
                 '', 1, 0, null, null, null, null, (string) $encounter
             );
+            error_log('SpectacleRx save_pdf: result=' . var_export($result, true) . ' pid=' . $pid . ' enc=' . $encounter . ' cat=' . $categoryId);
             if ($result !== '') {
-                echo json_encode(['success' => false, 'error' => xlt('The PDF could not be saved.')]);
+                echo json_encode(['success' => false, 'error' => xlt('The PDF could not be saved.') . ' ' . text($result)]);
             } else {
                 echo json_encode(['success' => true, 'message' => xlt('Glasses Rx saved as PDF.')]);
             }

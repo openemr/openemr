@@ -1355,7 +1355,11 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $fields ??= [];
             $fields['PLAN'] ??= '';
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
-            $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?)";
+            $ORDERS_sql = "INSERT INTO form_eye_mag_orders (form_id,pid,ORDER_DETAILS,ORDER_PRIORITY,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?,?) " .
+                "ON DUPLICATE KEY UPDATE " .
+                "form_id=IF(ORDER_STATUS='pending',VALUES(form_id),form_id), " .
+                "ORDER_PRIORITY=IF(ORDER_STATUS='pending',VALUES(ORDER_PRIORITY),ORDER_PRIORITY), " .
+                "ORDER_PLACED_BYWHOM=IF(ORDER_STATUS='pending',VALUES(ORDER_PLACED_BYWHOM),ORDER_PLACED_BYWHOM)";
             $okthen = sqlQuery($ORDERS_sql, [$form_id, $pid, $_POST['PLAN'][$i], $i, 'pending', $visit_date, $providerID]);
         }
 
@@ -1581,8 +1585,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
             `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
             `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-            `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
-            ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+            `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`,
+            `ORODSPH`,`ORODCYL`,`ORODAXIS`,`ORODADD`,`ORODMIDADD`,`ORODPRISM`,`ORODVA`,`ORODNEARVA`,
+            `OROSPH`,`OROSCYL`,`OROSAXIS`,`OROSADD`,`OROSMIDADD`,`OROSPRISM`,`OROSVA`,`OROSNEARVA`,`ORCOMMENTS`
+            ) VALUES (" . implode(',', array_fill(0, 59, '?')) . ")";
             $LENS_TREATMENTS_1 = implode("|", $_POST['LENS_TREATMENTS_1'] ?? []);
             sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_1'], $_POST['ODCYL_1'], $_POST['ODAXIS_1'],
                 $_POST['ODVA_1'], $_POST['ODADD_1'], $_POST['ODNEARVA_1'], $_POST['OSSPH_1'], $_POST['OSCYL_1'], $_POST['OSAXIS_1'],
@@ -1591,7 +1597,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
                 $_POST['ODHPD_1'], $_POST['ODHBASE_1'], $_POST['ODVPD_1'], $_POST['ODVBASE_1'], $_POST['ODSLABOFF_1'], $_POST['ODVERTEXDIST_1'],
                 $_POST['OSHPD_1'], $_POST['OSHBASE_1'], $_POST['OSVPD_1'], $_POST['OSVBASE_1'], $_POST['OSSLABOFF_1'], $_POST['OSVERTEXDIST_1'],
                 $_POST['ODMPDD_1'], $_POST['ODMPDN_1'], $_POST['OSMPDD_1'], $_POST['OSMPDN_1'], $_POST['BPDD_1'], $_POST['BPDN_1'], $_POST['LENS_MATERIAL_1'],
-                $LENS_TREATMENTS_1, $posted['ODPRISM_1'] ?? '', $posted['OSPRISM_1'] ?? '']);
+                $LENS_TREATMENTS_1, $posted['ODPRISM_1'] ?? '', $posted['OSPRISM_1'] ?? '',
+            $_POST['ORODSPH_1'] ?? '', $_POST['ORODCYL_1'] ?? '', $_POST['ORODAXIS_1'] ?? '', $_POST['ORODADD_1'] ?? '', $_POST['ORODMIDADD_1'] ?? '', $posted['ORODPRISM_1'] ?? '', $_POST['ORODVA_1'] ?? '', $_POST['ORODNEARVA_1'] ?? '',
+            $_POST['OROSPH_1'] ?? '', $_POST['OROSCYL_1'] ?? '', $_POST['OROSAXIS_1'] ?? '', $_POST['OROSADD_1'] ?? '', $_POST['OROSMIDADD_1'] ?? '', $posted['OROSPRISM_1'] ?? '', $_POST['OROSVA_1'] ?? '', $_POST['OROSNEARVA_1'] ?? '', $_POST['ORCOMMENTS_1'] ?? '']);
             $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1606,8 +1614,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
-        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`,
+            `ORODSPH`,`ORODCYL`,`ORODAXIS`,`ORODADD`,`ORODMIDADD`,`ORODPRISM`,`ORODVA`,`ORODNEARVA`,
+            `OROSPH`,`OROSCYL`,`OROSAXIS`,`OROSADD`,`OROSMIDADD`,`OROSPRISM`,`OROSVA`,`OROSNEARVA`,`ORCOMMENTS`
+        ) VALUES (" . implode(',', array_fill(0, 59, '?')) . ")";
         $LENS_TREATMENTS_2 = implode("|", $_POST['LENS_TREATMENTS_2'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_2'], $_POST['ODCYL_2'], $_POST['ODAXIS_2'],
             $_POST['ODVA_2'], $_POST['ODADD_2'], $_POST['ODNEARVA_2'] ?? '', $_POST['OSSPH_2'], $_POST['OSCYL_2'], $_POST['OSAXIS_2'],
@@ -1616,7 +1626,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_2'], $_POST['ODHBASE_2'], $_POST['ODVPD_2'], $_POST['ODVBASE_2'], $_POST['ODSLABOFF_2'], $_POST['ODVERTEXDIST_2'],
             $_POST['OSHPD_2'], $_POST['OSHBASE_2'], $_POST['OSVPD_2'], $_POST['OSVBASE_2'], $_POST['OSSLABOFF_2'], $_POST['OSVERTEXDIST_2'],
             $_POST['ODMPDD_2'], $_POST['ODMPDN_2'], $_POST['OSMPDD_2'], $_POST['OSMPDN_2'], $_POST['BPDD_2'], $_POST['BPDN_2'], $_POST['LENS_MATERIAL_2'],
-            $LENS_TREATMENTS_2, $posted['ODPRISM_2'] ?? '', $posted['OSPRISM_2'] ?? '']);
+            $LENS_TREATMENTS_2, $posted['ODPRISM_2'] ?? '', $posted['OSPRISM_2'] ?? '',
+            $_POST['ORODSPH_2'] ?? '', $_POST['ORODCYL_2'] ?? '', $_POST['ORODAXIS_2'] ?? '', $_POST['ORODADD_2'] ?? '', $_POST['ORODMIDADD_2'] ?? '', $posted['ORODPRISM_2'] ?? '', $_POST['ORODVA_2'] ?? '', $_POST['ORODNEARVA_2'] ?? '',
+            $_POST['OROSPH_2'] ?? '', $_POST['OROSCYL_2'] ?? '', $_POST['OROSAXIS_2'] ?? '', $_POST['OROSADD_2'] ?? '', $_POST['OROSMIDADD_2'] ?? '', $posted['OROSPRISM_2'] ?? '', $_POST['OROSVA_2'] ?? '', $_POST['OROSNEARVA_2'] ?? '', $_POST['ORCOMMENTS_2'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1631,8 +1643,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
-        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`,
+            `ORODSPH`,`ORODCYL`,`ORODAXIS`,`ORODADD`,`ORODMIDADD`,`ORODPRISM`,`ORODVA`,`ORODNEARVA`,
+            `OROSPH`,`OROSCYL`,`OROSAXIS`,`OROSADD`,`OROSMIDADD`,`OROSPRISM`,`OROSVA`,`OROSNEARVA`,`ORCOMMENTS`
+        ) VALUES (" . implode(',', array_fill(0, 59, '?')) . ")";
         $LENS_TREATMENTS_3 = implode("|", $_POST['LENS_TREATMENTS_3'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_3'], $_POST['ODCYL_3'], $_POST['ODAXIS_3'],
             $_POST['ODVA_3'], $_POST['ODADD_3'], $_POST['ODNEARVA_3'] ?? '', $_POST['OSSPH_3'], $_POST['OSCYL_3'], $_POST['OSAXIS_3'],
@@ -1641,7 +1655,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_3'], $_POST['ODHBASE_3'], $_POST['ODVPD_3'], $_POST['ODVBASE_3'], $_POST['ODSLABOFF_3'], $_POST['ODVERTEXDIST_3'],
             $_POST['OSHPD_3'], $_POST['OSHBASE_3'], $_POST['OSVPD_3'], $_POST['OSVBASE_3'], $_POST['OSSLABOFF_3'], $_POST['OSVERTEXDIST_3'],
             $_POST['ODMPDD_3'], $_POST['ODMPDN_3'], $_POST['OSMPDD_3'], $_POST['OSMPDN_3'], $_POST['BPDD_3'], $_POST['BPDN_3'], $_POST['LENS_MATERIAL_3'],
-            $LENS_TREATMENTS_3, $posted['ODPRISM_3'] ?? '', $posted['OSPRISM_3'] ?? '']);
+            $LENS_TREATMENTS_3, $posted['ODPRISM_3'] ?? '', $posted['OSPRISM_3'] ?? '',
+            $_POST['ORODSPH_3'] ?? '', $_POST['ORODCYL_3'] ?? '', $_POST['ORODAXIS_3'] ?? '', $_POST['ORODADD_3'] ?? '', $_POST['ORODMIDADD_3'] ?? '', $posted['ORODPRISM_3'] ?? '', $_POST['ORODVA_3'] ?? '', $_POST['ORODNEARVA_3'] ?? '',
+            $_POST['OROSPH_3'] ?? '', $_POST['OROSCYL_3'] ?? '', $_POST['OROSAXIS_3'] ?? '', $_POST['OROSADD_3'] ?? '', $_POST['OROSMIDADD_3'] ?? '', $posted['OROSPRISM_3'] ?? '', $_POST['OROSVA_3'] ?? '', $_POST['OROSNEARVA_3'] ?? '', $_POST['ORCOMMENTS_3'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1656,8 +1672,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
-        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`,
+            `ORODSPH`,`ORODCYL`,`ORODAXIS`,`ORODADD`,`ORODMIDADD`,`ORODPRISM`,`ORODVA`,`ORODNEARVA`,
+            `OROSPH`,`OROSCYL`,`OROSAXIS`,`OROSADD`,`OROSMIDADD`,`OROSPRISM`,`OROSVA`,`OROSNEARVA`,`ORCOMMENTS`
+        ) VALUES (" . implode(',', array_fill(0, 59, '?')) . ")";
         $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4'] ?? []);
         sqlQuery($query, [$encounter, $form_id, $pid, $rx_number, $_POST['ODSPH_4'], $_POST['ODCYL_4'], $_POST['ODAXIS_4'],
             $_POST['ODVA_4'], $_POST['ODADD_4'], $_POST['ODNEARVA_4'] ?? '', $_POST['OSSPH_4'], $_POST['OSCYL_4'], $_POST['OSAXIS_4'],
@@ -1666,7 +1684,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $_POST['ODHPD_4'], $_POST['ODHBASE_4'], $_POST['ODVPD_4'], $_POST['ODVBASE_4'], $_POST['ODSLABOFF_4'], $_POST['ODVERTEXDIST_4'],
             $_POST['OSHPD_4'], $_POST['OSHBASE_4'], $_POST['OSVPD_4'], $_POST['OSVBASE_4'], $_POST['OSSLABOFF_4'], $_POST['OSVERTEXDIST_4'],
             $_POST['ODMPDD_4'], $_POST['ODMPDN_4'], $_POST['OSMPDD_4'], $_POST['OSMPDN_4'], $_POST['BPDD_4'], $_POST['BPDN_4'], $_POST['LENS_MATERIAL_4'],
-            $LENS_TREATMENTS_4, $posted['ODPRISM_4'] ?? '', $posted['OSPRISM_4'] ?? '']);
+            $LENS_TREATMENTS_4, $posted['ODPRISM_4'] ?? '', $posted['OSPRISM_4'] ?? '',
+            $_POST['ORODSPH_4'] ?? '', $_POST['ORODCYL_4'] ?? '', $_POST['ORODAXIS_4'] ?? '', $_POST['ORODADD_4'] ?? '', $_POST['ORODMIDADD_4'] ?? '', $posted['ORODPRISM_4'] ?? '', $_POST['ORODVA_4'] ?? '', $_POST['ORODNEARVA_4'] ?? '',
+            $_POST['OROSPH_4'] ?? '', $_POST['OROSCYL_4'] ?? '', $_POST['OROSAXIS_4'] ?? '', $_POST['OROSADD_4'] ?? '', $_POST['OROSMIDADD_4'] ?? '', $posted['OROSPRISM_4'] ?? '', $_POST['OROSVA_4'] ?? '', $_POST['OROSNEARVA_4'] ?? '', $_POST['ORCOMMENTS_4'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
@@ -1681,8 +1701,10 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         `ODHPD`,`ODHBASE`,`ODVPD`,`ODVBASE`,`ODSLABOFF`,`ODVERTEXDIST`,
         `OSHPD`,`OSHBASE`,`OSVPD`,`OSVBASE`,`OSSLABOFF`,`OSVERTEXDIST`,
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
-        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`
-        ) VALUES (" . implode(',', array_fill(0, 42, '?')) . ")";
+        `LENS_TREATMENTS`,`ODPRISM`,`OSPRISM`,
+            `ORODSPH`,`ORODCYL`,`ORODAXIS`,`ORODADD`,`ORODMIDADD`,`ORODPRISM`,`ORODVA`,`ORODNEARVA`,
+            `OROSPH`,`OROSCYL`,`OROSAXIS`,`OROSADD`,`OROSMIDADD`,`OROSPRISM`,`OROSVA`,`OROSNEARVA`,`ORCOMMENTS`
+        ) VALUES (" . implode(',', array_fill(0, 59, '?')) . ")";
         $LENS_TREATMENTS_5 = implode("|", array_map(EyeFormData::text(...), is_array($posted['LENS_TREATMENTS_5'] ?? null) ? $posted['LENS_TREATMENTS_5'] : []));
         QueryUtils::querySingleRow($query, [$encounter, $form_id, $pid, $rx_number, $posted['ODSPH_5'] ?? '', $posted['ODCYL_5'] ?? '', $posted['ODAXIS_5'] ?? '',
             $posted['ODVA_5'] ?? '', $posted['ODADD_5'] ?? '', $posted['ODNEARVA_5'] ?? '', $posted['OSSPH_5'] ?? '', $posted['OSCYL_5'] ?? '', $posted['OSAXIS_5'] ?? '',
@@ -1691,7 +1713,9 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
             $posted['ODHPD_5'] ?? '', $posted['ODHBASE_5'] ?? '', $posted['ODVPD_5'] ?? '', $posted['ODVBASE_5'] ?? '', $posted['ODSLABOFF_5'] ?? '', $posted['ODVERTEXDIST_5'] ?? '',
             $posted['OSHPD_5'] ?? '', $posted['OSHBASE_5'] ?? '', $posted['OSVPD_5'] ?? '', $posted['OSVBASE_5'] ?? '', $posted['OSSLABOFF_5'] ?? '', $posted['OSVERTEXDIST_5'] ?? '',
             $posted['ODMPDD_5'] ?? '', $posted['ODMPDN_5'] ?? '', $posted['OSMPDD_5'] ?? '', $posted['OSMPDN_5'] ?? '', $posted['BPDD_5'] ?? '', $posted['BPDN_5'] ?? '', $posted['LENS_MATERIAL_5'] ?? '',
-            $LENS_TREATMENTS_5, $posted['ODPRISM_5'] ?? '', $posted['OSPRISM_5'] ?? '']);
+            $LENS_TREATMENTS_5, $posted['ODPRISM_5'] ?? '', $posted['OSPRISM_5'] ?? '',
+            $_POST['ORODSPH_5'] ?? '', $_POST['ORODCYL_5'] ?? '', $_POST['ORODAXIS_5'] ?? '', $_POST['ORODADD_5'] ?? '', $_POST['ORODMIDADD_5'] ?? '', $posted['ORODPRISM_5'] ?? '', $_POST['ORODVA_5'] ?? '', $_POST['ORODNEARVA_5'] ?? '',
+            $_POST['OROSPH_5'] ?? '', $_POST['OROSCYL_5'] ?? '', $_POST['OROSAXIS_5'] ?? '', $_POST['OROSADD_5'] ?? '', $_POST['OROSMIDADD_5'] ?? '', $posted['OROSPRISM_5'] ?? '', $_POST['OROSVA_5'] ?? '', $_POST['OROSNEARVA_5'] ?? '', $_POST['ORCOMMENTS_5'] ?? '']);
         $rx_number++;
     } else {
         $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";

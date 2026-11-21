@@ -660,3 +660,25 @@ UPDATE `categories` SET `parent` = 16, `value` = 'RX' WHERE `name` = 'Glasses Rx
 INSERT INTO `categories` (`id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`)
   SELECT 37, 'Glasses Rx - Eye', 'RX', 16, 29, 30, 'patients|docs'
   WHERE NOT EXISTS (SELECT 1 FROM `categories` WHERE `name` = 'Glasses Rx - Eye');
+
+-- Eye Form: Over Refraction (OR) columns attached to each wearing Rx row.
+#IfMissingColumn form_eye_mag_wearing ORODSPH
+ALTER TABLE `form_eye_mag_wearing`
+  ADD COLUMN `ORODSPH` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODCYL` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODAXIS` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODADD` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODMIDADD` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODPRISM` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `ORODVA` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORODNEARVA` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSSPH` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSCYL` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSAXIS` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSADD` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSMIDADD` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSPRISM` varchar(255) NOT NULL DEFAULT '',
+  ADD COLUMN `OROSVA` varchar(10) DEFAULT NULL,
+  ADD COLUMN `OROSNEARVA` varchar(10) DEFAULT NULL,
+  ADD COLUMN `ORCOMMENTS` text;
+#EndIf

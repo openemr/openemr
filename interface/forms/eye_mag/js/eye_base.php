@@ -5387,6 +5387,98 @@ $("body").on("click","[name^='old_canvas']", function() {
                                           }
                                           }
                                           });
+                  $(document).on('click', '.or-toggle', function () {
+                      var rx = $(this).data('rx');
+                      $('#LayerVision_OR_' + rx).toggleClass('nodisplay');
+                      updateORFinal(rx);
+                  });
+                  $(document).on('blur', "input[name^='ORODCYL_'],input[name^='OROSCYL_']", function () {
+                      var name = $(this).attr('name') || '';
+                      var m = name.match(/^OR(OD|OS)CYL_(\d+)$/);
+                      if (!m) return;
+                      var side = m[1], rx = m[2];
+                      var axisName = 'OR' + side + 'AXIS_' + rx;
+                      var wearAxis = $('#' + side + 'AXIS_' + rx).val() || '';
+                      var cyl = ($(this).val() || '').trim();
+                      if (cyl !== '' && !/sph/i.test(cyl)) {
+                          var $axis = $("input[name='" + axisName + "']");
+                          if (($axis.val() || '').trim() === '' && wearAxis !== '') {
+                              $axis.val(wearAxis);
+                          }
+                          $axis.focus();
+                      }
+                  });
+
+                  function eyeMagOrRound025(n) { return Math.round(n / 0.25) * 0.25; }
+                  function eyeMagOrFmt(n) {
+                      n = eyeMagOrRound025(Number(n) || 0);
+                      if (Math.abs(n) < 0.00001) n = 0;
+                      var s = Math.abs(n).toFixed(2);
+                      if (n > 0) return '+' + s;
+                      if (n < 0) return '-' + s;
+                      return '0.00';
+                  }
+                  function eyeMagOrNum(v) { var n = parseFloat((v || '').toString().replace(/[^0-9.+-]/g, '')); return isFinite(n) ? n : 0; }
+                  function eyeMagOrHas(v) { return /[0-9]/.test((v || '').toString()); }
+                  function eyeMagOrSphCyl(sph,cyl,axis,dSph,dCyl,dAxis) {
+                      sph=eyeMagOrNum(sph); cyl=eyeMagOrNum(cyl); axis=eyeMagOrNum(axis);
+                      dSph=eyeMagOrNum(dSph); dCyl=eyeMagOrNum(dCyl); dAxis=eyeMagOrHas(dAxis)?eyeMagOrNum(dAxis):axis;
+                      var sameAxis = Math.abs(((Math.abs(axis-dAxis)%180)+180)%180) < 0.00001;
+                      var S,C,A;
+                      if (sameAxis) {
+                          S=eyeMagOrRound025(sph+dSph); C=eyeMagOrRound025(cyl+dCyl); A=axis;
+                      } else {
+                          function toVec(Sv,Cv,Av){ var r=Av*Math.PI/180; return [Sv+Cv/2, -(Cv/2)*Math.cos(2*r), -(Cv/2)*Math.sin(2*r)]; }
+                          var v1=toVec(sph,cyl,axis), v2=toVec(dSph,dCyl,dAxis);
+                          var M=v1[0]+v2[0], J0=v1[1]+v2[1], J45=v1[2]+v2[2];
+                          var Craw=-2*Math.sqrt(J0*J0+J45*J45), Sraw=M-Craw/2;
+                          var Araw=(Math.abs(Craw)<0.00001)?axis:(Math.atan2(-J45,-J0)/2*180/Math.PI);
+                          if (Araw<0) Araw+=180; if (Araw>=180) Araw-=180;
+                          C=eyeMagOrRound025(Craw); S=eyeMagOrRound025(Sraw); A=Math.round(Araw);
+                          if (Math.abs(C-eyeMagOrRound025(cyl))<0.00001 && Math.abs(eyeMagOrRound025(dCyl))>0.00001) {
+                              C=eyeMagOrRound025(cyl); S=eyeMagOrRound025(sph+dSph);
+                          }
+                      }
+                      if (Math.abs(C)<0.00001) { C=0; A=0; }
+                      var prefSign=0;
+                      if (Math.abs(cyl)>0.00001) prefSign = cyl>0?1:-1;
+                      else if (Math.abs(dCyl)>0.00001) prefSign = dCyl>0?1:-1;
+                      if (prefSign!==0 && Math.abs(C)>0.00001 && ((C>0)?1:-1)!==prefSign) {
+                          S=eyeMagOrRound025(S+C); C=eyeMagOrRound025(-C); A=Math.round(A+90);
+                          if (A>=180) A-=180; if (A<0) A+=180;
+                      }
+                      return {S:eyeMagOrFmt(S), C:eyeMagOrFmt(C), A:String(Math.round(A))};
+                  }
+                  function eyeMagOrAdd(base, delta) {
+                      if (!eyeMagOrHas(delta)) return (base || '').toString();
+                      var b = eyeMagOrHas(base) ? eyeMagOrNum(base) : 0;
+                      return eyeMagOrFmt(b + eyeMagOrNum(delta));
+                  }
+                  function updateORFinal(rx) {
+                      ['OD','OS'].forEach(function(side){
+                          var sph=$('#'+side+'SPH_'+rx).val(), cyl=$('#'+side+'CYL_'+rx).val(), axis=$('#'+side+'AXIS_'+rx).val();
+                          var add=$('#'+side+'ADD_'+rx).val(), prism=$('#'+side+'PRISM_'+rx).val();
+                          var oSph=$("input[name='OR"+side+"SPH_"+rx+"']").val(), oCyl=$("input[name='OR"+side+"CYL_"+rx+"']").val(), oAxis=$("input[name='OR"+side+"AXIS_"+rx+"']").val();
+                          var oAdd=$("input[name='OR"+side+"ADD_"+rx+"']").val(), oPrism=$("input[name='OR"+side+"PRISM_"+rx+"']").val();
+                          var r=eyeMagOrSphCyl(sph,cyl,axis,oSph,oCyl,oAxis);
+                          $('#ORFINAL_'+side+'SPH_'+rx).text(r.S);
+                          $('#ORFINAL_'+side+'CYL_'+rx).text(r.C);
+                          $('#ORFINAL_'+side+'AXIS_'+rx).text(r.A);
+                          $('#ORFINAL_'+side+'ADD_'+rx).text(eyeMagOrAdd(add,oAdd));
+                          var p = (oPrism && oPrism.trim()!=='') ? oPrism : (prism || '');
+                          $('#ORFINAL_'+side+'PRISM_'+rx).text(p);
+                      });
+                  }
+                  $(document).on('input change blur', "input[name^='OROD'],input[name^='OROS']", function(){
+                      var m = (this.name||'').match(/_(\d+)$/);
+                      if (m) updateORFinal(m[1]);
+                  });
+                  $(document).on('input change blur', "[id$='_1'],[id$='_2'],[id$='_3'],[id$='_4'],[id$='_5']", function(){
+                      var id = this.id || '';
+                      var m = id.match(/^(OD|OS)(SPH|CYL|AXIS|ADD|PRISM)_(\d+)$/);
+                      if (m) updateORFinal(m[3]);
+                  });
+                  [1,2,3,4,5].forEach(function(rx){ updateORFinal(rx); });
                   $("[name='reverseme']").on('click', function() {
                                                 var target = this.id;
                                                 reverse_cylinder(target);

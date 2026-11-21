@@ -1743,6 +1743,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                               <span id="W_source_label_1" class="wear-source-label badge badge-info"></span>
                               <span class="wear-header-actions">
                                 <button type="button" id="Add_Glasses" name="Add_Glasses" class="btn btn-primary btn-sm wear-action" title="<?php echo xla('Open another blank Wear prescription'); ?>"><?php echo xlt('Add Rx'); ?></button>
+                                <button type="button" class="btn btn-secondary btn-sm wear-action or-toggle" data-rx="1" title="<?php echo xla('Over-refraction for this Wear Rx'); ?>"><?php echo xlt('Over Refraction'); ?></button>
                                 <?php if (!empty($wearImports['prior'])) { ?>
                                   <button type="button" id="Import_Prior_Wear" class="btn btn-secondary btn-sm wear-action" title="<?php echo xla('Bring forward Wear prescriptions from the last Eye Form encounter'); ?>"><?php echo xlt('Prior W'); ?></button>
                                 <?php } ?>
@@ -1801,6 +1802,31 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                           </td>
                           <?php display_wear_comment_tail_cells(); ?>
                         </tr>
+                      </table>
+                    </div>
+                    <div id="LayerVision_OR_1" class="refraction current_W borderShadow nodisplay">
+                      <i class="closeButton fa fa-times or-toggle" data-rx="1" title="<?php echo xla('Close Over Refraction panel'); ?>"></i>
+                      <i onclick="top.restoreSession(); doscript('OR','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','1'); return false;" title="<?php echo xla('Dispense Over Refraction'); ?>" class="closeButton_3 fa fa-print"></i>
+                      <table style="width:100%;border-collapse:collapse;">
+                        <tr><th colspan="6" class="right" style="text-align:left;"><?php echo xlt('Over Refraction'); ?> — <?php echo xlt('Current Glasses'); ?> #1</th></tr>
+                        <tr><td></td><td><?php echo xlt('Sph'); ?></td><td><?php echo xlt('Cyl'); ?></td><td><?php echo xlt('Axis'); ?></td><td><?php echo xlt('Add'); ?></td><td><?php echo xlt('Prism'); ?></td></tr>
+                        <tr style="background:#f7f7f7;color:#555;"><td><b><?php echo xlt('Wearing OD'); ?></b></td><td><?php echo text($wearValues[1]['ODSPH'] ?? ''); ?></td><td><?php echo text($wearValues[1]['ODCYL'] ?? ''); ?></td><td><?php echo text($wearValues[1]['ODAXIS'] ?? ''); ?></td><td><?php echo text($wearValues[1]['ODADD'] ?? ''); ?></td><td><?php echo text($wearValues[1]['ODPRISM'] ?? ''); ?></td></tr>
+                        <tr style="background:#f7f7f7;color:#555;"><td><b><?php echo xlt('Wearing OS'); ?></b></td><td><?php echo text($wearValues[1]['OSSPH'] ?? ''); ?></td><td><?php echo text($wearValues[1]['OSCYL'] ?? ''); ?></td><td><?php echo text($wearValues[1]['OSAXIS'] ?? ''); ?></td><td><?php echo text($wearValues[1]['OSADD'] ?? ''); ?></td><td><?php echo text($wearValues[1]['OSPRISM'] ?? ''); ?></td></tr>
+                        <tr><td><b><?php echo xlt('OR OD'); ?></b></td>
+                          <td><input type="text" class="sphere" name="ORODSPH_1" id="ORODSPH_1" value="<?php echo attr($wearValues[1]['ORODSPH'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" class="cylinder" name="ORODCYL_1" id="ORODCYL_1" value="<?php echo attr($wearValues[1]['ORODCYL'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" class="axis" name="ORODAXIS_1" id="ORODAXIS_1" value="<?php echo attr($wearValues[1]['ORODAXIS'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" name="ORODADD_1" id="ORODADD_1" value="<?php echo attr($wearValues[1]['ORODADD'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" name="ORODPRISM_1" id="ORODPRISM_1" value="<?php echo attr($wearValues[1]['ORODPRISM'] ?? ''); ?>" style="width:80px;"></td></tr>
+                        <tr><td><b><?php echo xlt('OR OS'); ?></b></td>
+                          <td><input type="text" class="sphere" name="OROSPH_1" id="OROSPH_1" value="<?php echo attr($wearValues[1]['OROSPH'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" class="cylinder" name="OROSCYL_1" id="OROSCYL_1" value="<?php echo attr($wearValues[1]['OROSCYL'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" class="axis" name="OROSAXIS_1" id="OROSAXIS_1" value="<?php echo attr($wearValues[1]['OROSAXIS'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" name="OROSADD_1" id="OROSADD_1" value="<?php echo attr($wearValues[1]['OROSADD'] ?? ''); ?>" style="width:60px;"></td>
+                          <td><input type="text" name="OROSPRISM_1" id="OROSPRISM_1" value="<?php echo attr($wearValues[1]['OROSPRISM'] ?? ''); ?>" style="width:80px;"></td></tr>
+                        <tr style="background:#eef6ff;color:#333;font-weight:bold;"><td><b><?php echo xlt('Final OD'); ?></b></td><td id="ORFINAL_ODSPH_1"></td><td id="ORFINAL_ODCYL_1"></td><td id="ORFINAL_ODAXIS_1"></td><td id="ORFINAL_ODADD_1"></td><td id="ORFINAL_ODPRISM_1"></td></tr>
+                        <tr style="background:#eef6ff;color:#333;font-weight:bold;"><td><b><?php echo xlt('Final OS'); ?></b></td><td id="ORFINAL_OSSPH_1"></td><td id="ORFINAL_OSCYL_1"></td><td id="ORFINAL_OSAXIS_1"></td><td id="ORFINAL_OSADD_1"></td><td id="ORFINAL_OSPRISM_1"></td></tr>
+                        <tr><td colspan="6"><?php echo xlt('Comments'); ?>: <input type="text" name="ORCOMMENTS_1" id="ORCOMMENTS_1" value="<?php echo attr($wearValues[1]['ORCOMMENTS'] ?? ''); ?>" style="width:70%;"></td></tr>
                       </table>
                     </div>
                     <?php
@@ -1923,7 +1949,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         <td><input type="text" id="ARODVA" name="ARODVA" value="<?php echo attr($ARODVA); ?>" tabindex="10228"></td>
                         <td><input type="text" id="ARODADD" name="ARODADD" value="<?php echo attr($ARODADD); ?>" tabindex="10226"></td>
                         <td><input class="jaeger" type="text" id="ARNEARODVA" name="ARNEARODVA" value="<?php echo attr($ARNEARODVA); ?>"></td>
-                        <td><input type="text" class="prism-summary-input" id="ARODPRISM" name="ARODPRISM" value="<?php echo attr($ARODPRISM); ?>"></td>
+                        <td><input type="text" class="prism-summary-input" id="ARODPRISM" name="ARODPRISM" value="<?php echo attr($ARODPRISM); ?>" tabindex="10230"></td>
                       </tr>
                       <tr>
                         <td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
@@ -1933,10 +1959,62 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                         <td><input type="text" id="AROSVA" name="AROSVA" value="<?php echo attr($AROSVA); ?>" tabindex="10229"></td>
                         <td><input type="text" id="AROSADD" name="AROSADD" value="<?php echo attr($AROSADD); ?>" tabindex="10227"></td>
                         <td><input class="jaeger" type="text" id="ARNEAROSVA" name="ARNEAROSVA" value="<?php echo attr($ARNEAROSVA); ?>"></td>
-                        <td><input type="text" class="prism-summary-input" id="AROSPRISM" name="AROSPRISM" value="<?php echo attr($AROSPRISM); ?>"></td>
+                        <td><input type="text" class="prism-summary-input" id="AROSPRISM" name="AROSPRISM" value="<?php echo attr($AROSPRISM); ?>" tabindex="10231"></td>
                       </tr>
                       <tr class="autoref-comments-heading">
-                        <th colspan="7" class="bold pad10"><br /><?php echo xlt('Refraction Comments'); ?>:</th>
+                        <th colspan="7" class="bold pad10"><br /><?php echo xlt('Refraction Comments'); ?>:
+<?php
+$refractionAdjusted = false;
+$pdAdjusted = false;
+try {
+    $dispRows = QueryUtils::fetchRecords(
+        "SELECT REFTYPE, ODSPH, ODCYL, ODAXIS, ODPRISM, OSPRISM, OSSPH, OSCYL, OSAXIS, ODADD, OSADD, ODMIDADD, OSMIDADD, BPDD, date FROM form_eye_mag_dispense WHERE pid=? AND encounter=? ORDER BY date DESC, id DESC",
+        [EyeFormData::integer($pid), EyeFormData::integer($encounter)]
+    );
+    $seen = [];
+    foreach ($dispRows as $dr) {
+        $rt = (string)($dr['REFTYPE'] ?? '');
+        if ($rt === '' || isset($seen[$rt])) { continue; }
+        $seen[$rt] = true;
+        $map = [
+            'AR' => ['ODSPH'=>'ARODSPH','ODCYL'=>'ARODCYL','ODAXIS'=>'ARODAXIS','ODPRISM'=>'ARODPRISM','OSSPH'=>'AROSSPH','OSCYL'=>'AROSCYL','OSAXIS'=>'AROSAXIS','OSPRISM'=>'AROSPRISM','ODADD'=>'ARODADD','OSADD'=>'AROSADD'],
+            'MR' => ['ODSPH'=>'MRODSPH','ODCYL'=>'MRODCYL','ODAXIS'=>'MRODAXIS','ODPRISM'=>'MRODPRISM','OSSPH'=>'MROSPH','OSCYL'=>'MROSCYL','OSAXIS'=>'MROSAXIS','OSPRISM'=>'MROSPRISM','ODADD'=>'MRODADD','OSADD'=>'MROSADD'],
+            'CR' => ['ODSPH'=>'CRODSPH','ODCYL'=>'CRODCYL','ODAXIS'=>'CRODAXIS','ODPRISM'=>'CRODPRISM','OSSPH'=>'CROSPH','OSCYL'=>'CROSCYL','OSAXIS'=>'CROSAXIS','OSPRISM'=>'CROSPRISM'],
+            'CTL'=> ['ODSPH'=>'CTLODSPH','ODCYL'=>'CTLODCYL','ODAXIS'=>'CTLODAXIS','ODPRISM'=>'CTLODPRISM','OSSPH'=>'CTLOSSPH','OSCYL'=>'CTLOSCYL','OSAXIS'=>'CTLOSAXIS','OSPRISM'=>'CTLOSPRISM'],
+        ];
+        if (!isset($map[$rt])) { continue; }
+        foreach ($map[$rt] as $dk => $sk) {
+            $dv = trim((string)($dr[$dk] ?? ''));
+            $sv = trim((string)($$sk ?? ''));
+            if ($dv !== $sv) { $refractionAdjusted = true; break; }
+        }
+        $pdField = $rt . 'BPDD';
+        $pdSource = '';
+        if (isset($$pdField) && trim((string)($$pdField)) !== '') {
+            $pdSource = $$pdField;
+        } elseif (isset($clinicalBPDD) && trim((string)$clinicalBPDD) !== '') {
+            $pdSource = $clinicalBPDD;
+        } elseif (isset($BPDD)) {
+            $pdSource = $BPDD;
+        }
+        $dispPd = trim((string)($dr['BPDD'] ?? ''));
+        $srcPd = trim((string)$pdSource);
+        if ($dispPd !== $srcPd) { $pdAdjusted = true; }
+    }
+} catch (\Throwable $e) { /* ignore */ }
+$adjustedLabel = '';
+if ($refractionAdjusted && $pdAdjusted) {
+    $adjustedLabel = xlt('Refraction and PD were adjusted');
+} elseif ($pdAdjusted) {
+    $adjustedLabel = xlt('PD was adjusted');
+} elseif ($refractionAdjusted) {
+    $adjustedLabel = xlt('Final refraction adjusted');
+}
+if ($adjustedLabel !== '') {
+    echo ' <span style="color:red;font-weight:bold;">* ' . text($adjustedLabel) . '</span>';
+}
+?>
+                        </th>
                         <th></th>
                       </tr>
                       <tr class="autoref-comments-row">
