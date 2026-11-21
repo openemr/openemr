@@ -288,7 +288,7 @@
             "ext-xsl": "8.4",
             "ext-zip": "8.4",
             "ext-zlib": "8.4",
-            "php": "8.4.28"
+            "php": "8.4"
         },
         "sort-packages": true
     },
