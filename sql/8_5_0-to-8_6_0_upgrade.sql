@@ -522,3 +522,9 @@ CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eve
 INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
 SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
 #EndIf
+
+-- v_database 580: the service facility's FDA (MQSA) mammography certification number, sent on a
+-- professional claim for a mammogram (837P loop 2300 REF*EW).
+#IfMissingColumn facility mammography_cert_number
+ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
+#EndIf
