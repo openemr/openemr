@@ -1,6 +1,6 @@
 # Demo seed file, format version 1.
 #
-# Read by the demo seed loader, bin/console openemr:seed-demo (development
+# Read by the demo seed loader, bin/console openemr:seed-demodata (development
 # only). Synthea makes the patients and their medical history; this file adds
 # everything Synthea doesn't: providers, facilities, related people, extra
 # addresses and phones, insurance, appointments and Visit Lists.
@@ -9,7 +9,7 @@
 # `apk add openjdk17-jre` as root):
 #
 #   openemr-cmd e 'su-exec apache env OPENEMR_ENABLE_DEMO_SEED=1 php
-#     /var/www/localhost/htdocs/openemr/bin/console openemr:seed-demo
+#     /var/www/localhost/htdocs/openemr/bin/console openemr:seed-demodata
 #     /var/www/localhost/htdocs/openemr/contrib/demo-seed/demo-seed.yaml'
 #
 # --validate-only checks the file without writing anything; --help lists the

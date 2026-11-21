@@ -1,7 +1,7 @@
 <?php
 
 /**
- * openemr:seed-demo — loads a demo data set described by a seed file.
+ * openemr:seed-demodata — loads a demo data set described by a seed file.
  *
  * Runs Synthea for the patients and their history, imports them through
  * the CCDA new-patient import, and writes a manifest of pid ↔ Synthea id.
@@ -68,7 +68,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
     protected function configure(): void
     {
         $this
-            ->setName('openemr:seed-demo')
+            ->setName('openemr:seed-demodata')
             ->setDescription('Load demo data described by a seed file (Synthea patients plus extras). Development only.')
             ->addUsage('--site=default contrib/demo-seed/demo-seed.yaml')
             ->addUsage('--validate-only contrib/demo-seed/demo-seed.yaml')

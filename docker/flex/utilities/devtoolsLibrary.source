@@ -511,7 +511,7 @@ importRandomPatients() {
 }
 
 # Loads a full demo practice from a seed file with bin/console
-# openemr:seed-demo: Synthea patients imported through CCDA, then providers,
+# openemr:seed-demodata: Synthea patients imported through CCDA, then providers,
 # facilities, related people, phones, addresses, insurance, appointments and
 # Visit Lists.
 #
@@ -519,14 +519,14 @@ importRandomPatients() {
 #   $1: Seed file, relative to the OpenEMR directory or absolute (optional;
 #       defaults to contrib/demo-seed/demo-seed.yaml). When $1 starts with
 #       "-" it is taken as an option and the default seed file is used.
-#   $@: Any further openemr:seed-demo options, passed through unchanged
+#   $@: Any further openemr:seed-demodata options, passed through unchanged
 #       (e.g. --count=5, --validate-only, --reuse-import).
 #
 # Needs OPENEMR_ENABLE_DEMO_SEED=1 in the container environment (the
 # development compose files set it); the command refuses to run otherwise.
 # Installs a Java runtime on first use; the command downloads the Synthea
 # jar into its own work directory (/tmp/demo-seed), which apache can read.
-seedDemo() {
+seedDemodata() {
     local openemrDir="/var/www/localhost/htdocs/openemr"
     local seedFile="contrib/demo-seed/demo-seed.yaml"
     if [[ $# -gt 0 && "${1}" != -* ]]; then
@@ -539,7 +539,7 @@ seedDemo() {
     fi
     (
         cd "${openemrDir}" || exit 1
-        run_php_as_apache php bin/console openemr:seed-demo "$@" "${seedFile}"
+        run_php_as_apache php bin/console openemr:seed-demodata "$@" "${seedFile}"
     )
 }
 
