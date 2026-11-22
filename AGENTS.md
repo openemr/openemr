@@ -784,3 +784,4 @@ exempt there instead: never add a GPL tag to code the project does not own.
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
 - `docs/pr-shepherding/` - Reviewing a batch of open PRs on a chosen subject (area, author, milestone)
+- `docs/maintainer-playbook/` - Recurring maintainer-side tasks on a predictable cadence (PHP/Alpine drops+adds, etc.)
