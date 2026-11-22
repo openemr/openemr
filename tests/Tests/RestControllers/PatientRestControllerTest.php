@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * PatientRestController tests
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Dixon Whitmire
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;

@@ -275,10 +275,16 @@ class PatientService extends BaseService
         $sql .= $query['set'];
         $sql .= " WHERE `pid` = ?";
 
-        array_push($query['bind'], $data['pid']);
-        $sqlResult = sqlStatement($sql, $query['bind']);
+        $binds = $query['bind'];
+        if (!is_array($binds)) {
+            throw new \LogicException('buildUpdateColumns() did not return a bind list');
+        }
+        $binds[] = $data['pid'];
 
-        if ($sqlResult) {
+        // Save the patient row and the portal fix-up together, so a failed
+        // fix-up can't leave a saved patient change that listeners never hear about.
+        QueryUtils::inTransaction(function () use ($sql, $binds, $data): void {
+            QueryUtils::sqlStatementThrowException($sql, $binds);
             // If portal access is enabled, ensure the portal login username exists
             if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
                 $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
@@ -288,14 +294,13 @@ class PatientService extends BaseService
                     QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
                 }
             }
-            // Tell subscribers that a new patient has been updated
-            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
+        });
 
-            return $data;
-        } else {
-            return false;
-        }
+        // Tell subscribers that a new patient has been updated
+        $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
+
+        return $data;
     }
 
     /**
