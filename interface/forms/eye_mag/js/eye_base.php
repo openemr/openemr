@@ -5447,12 +5447,52 @@ $("body").on("click","[name^='old_canvas']", function() {
                           S=eyeMagOrRound025(S+C); C=eyeMagOrRound025(-C); A=Math.round(A+90);
                           if (A>=180) A-=180; if (A<0) A+=180;
                       }
-                      return {S:eyeMagOrFmt(S), C:eyeMagOrFmt(C), A:String(Math.round(A))};
+                      var cStr = '';
+                      var aStr = '';
+                      if (Math.abs(C) > 0.00001) { cStr = eyeMagOrFmt(C); aStr = String(Math.round(A)).padStart(3, '0'); }
+                      return {S:eyeMagOrFmt(S), C:cStr, A:aStr};
                   }
                   function eyeMagOrAdd(base, delta) {
                       if (!eyeMagOrHas(delta)) return (base || '').toString();
                       var b = eyeMagOrHas(base) ? eyeMagOrNum(base) : 0;
                       return eyeMagOrFmt(b + eyeMagOrNum(delta));
+                  }
+                  function eyeMagOrParsePrism(v) {
+                      var h=0, vtot=0, has=false;
+                      var s=(v||'').toString().toUpperCase();
+                      var re=/([+-]?\d+(?:\.\d+)?)\s*(B[IOUD]|BI|BO|BU|BD)/g;
+                      var m;
+                      while ((m=re.exec(s)) !== null) {
+                          var amt=parseFloat(m[1]);
+                          var base=m[2];
+                          if (!isFinite(amt)) continue;
+                          has=true;
+                          if (base==='BI') h += amt;
+                          else if (base==='BO') h -= amt;
+                          else if (base==='BU') vtot += amt;
+                          else if (base==='BD') vtot -= amt;
+                      }
+                      if (!has) {
+                          var n=parseFloat(s);
+                          if (isFinite(n) && s.trim() !== '') { has=true; h=n; }
+                      }
+                      return {h:h, v:vtot, has:has};
+                  }
+                  function eyeMagOrFmtPrismAmount(n) {
+                      var a=Math.round(Math.abs(n)*100)/100;
+                      var out=a.toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1');
+                      return out;
+                  }
+                  function eyeMagOrAddPrism(base, delta) {
+                      var d=eyeMagOrParsePrism(delta);
+                      if (!d.has) return (base || '').toString();
+                      var b=eyeMagOrParsePrism(base);
+                      var h=b.h + d.h;
+                      var vv=b.v + d.v;
+                      var parts=[];
+                      if (Math.abs(h) > 0.00001) parts.push(eyeMagOrFmtPrismAmount(h) + ' ' + (h>0 ? 'BI' : 'BO'));
+                      if (Math.abs(vv) > 0.00001) parts.push(eyeMagOrFmtPrismAmount(vv) + ' ' + (vv>0 ? 'BU' : 'BD'));
+                      return parts.join(' ');
                   }
                   function updateORFinal(rx) {
                       ['OD','OS'].forEach(function(side){
@@ -5460,13 +5500,20 @@ $("body").on("click","[name^='old_canvas']", function() {
                           var add=$('#'+side+'ADD_'+rx).val(), prism=$('#'+side+'PRISM_'+rx).val();
                           var oSph=$("input[name='OR"+side+"SPH_"+rx+"']").val(), oCyl=$("input[name='OR"+side+"CYL_"+rx+"']").val(), oAxis=$("input[name='OR"+side+"AXIS_"+rx+"']").val();
                           var oAdd=$("input[name='OR"+side+"ADD_"+rx+"']").val(), oPrism=$("input[name='OR"+side+"PRISM_"+rx+"']").val();
+                          if (!eyeMagOrHas(oSph)) {
+                              $('#ORFINAL_'+side+'SPH_'+rx).text('');
+                              $('#ORFINAL_'+side+'CYL_'+rx).text('');
+                              $('#ORFINAL_'+side+'AXIS_'+rx).text('');
+                              $('#ORFINAL_'+side+'ADD_'+rx).text('');
+                              $('#ORFINAL_'+side+'PRISM_'+rx).text('');
+                              return;
+                          }
                           var r=eyeMagOrSphCyl(sph,cyl,axis,oSph,oCyl,oAxis);
                           $('#ORFINAL_'+side+'SPH_'+rx).text(r.S);
                           $('#ORFINAL_'+side+'CYL_'+rx).text(r.C);
                           $('#ORFINAL_'+side+'AXIS_'+rx).text(r.A);
                           $('#ORFINAL_'+side+'ADD_'+rx).text(eyeMagOrAdd(add,oAdd));
-                          var p = (oPrism && oPrism.trim()!=='') ? oPrism : (prism || '');
-                          $('#ORFINAL_'+side+'PRISM_'+rx).text(p);
+                          $('#ORFINAL_'+side+'PRISM_'+rx).text(eyeMagOrAddPrism(prism, oPrism));
                       });
                   }
                   $(document).on('input change blur', "input[name^='OROD'],input[name^='OROS']", function(){

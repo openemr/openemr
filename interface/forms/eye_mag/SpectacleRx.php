@@ -174,6 +174,62 @@ if ($LENS_MATERIAL === '' || $LENS_TREATMENTS === '') {
         }
     }
 }
+// POSTed dispense values (including save_pdf print flow) should override defaults.
+$postedLensMaterial = CurrentRequest::get()->request->get('LENS_MATERIAL', CurrentRequest::get()->query->get('LENS_MATERIAL'));
+if (is_string($postedLensMaterial) && $postedLensMaterial !== '') {
+    $LENS_MATERIAL = $postedLensMaterial;
+}
+$postedTreatPicked = [];
+foreach (CurrentRequest::get()->request->all() as $pKey => $pVal) {
+    $pKey = EyeFormData::text($pKey);
+    if (str_starts_with($pKey, 'LENS_TREATMENTS_') && is_array($pVal)) {
+        foreach ($pVal as $one) {
+            $one = trim(EyeFormData::text($one));
+            if ($one !== '' && !in_array($one, $postedTreatPicked, true)) {
+                $postedTreatPicked[] = $one;
+            }
+        }
+    }
+}
+if (!empty($postedTreatPicked)) {
+    $LENS_TREATMENTS = implode('|', $postedTreatPicked);
+} elseif (CurrentRequest::get()->request->has('LENS_TREATMENTS') || CurrentRequest::get()->request->get('save_pdf')) {
+    // Hidden LENS_TREATMENTS is always posted; if no checkboxes selected, clear.
+    $postedTreatments = CurrentRequest::get()->request->get('LENS_TREATMENTS', null);
+    if (is_string($postedTreatments)) {
+        $LENS_TREATMENTS = trim($postedTreatments);
+    } elseif (empty($postedTreatPicked)) {
+        // save_pdf with no selected treatment checkboxes means none selected.
+        $hasTreatField = false;
+        foreach (array_keys(CurrentRequest::get()->request->all()) as $k) {
+            if (str_starts_with(EyeFormData::text($k), 'LENS_TREATMENTS_')) { $hasTreatField = true; break; }
+        }
+        if ($hasTreatField) { $LENS_TREATMENTS = ''; }
+    }
+}
+// Pull PD values from Wear Rx rows so non-Wear dispense (MR/CR/AR/CTL etc.)
+// can use the highest recorded PD, including Wear-only PDs.
+$wearPdRows = QueryUtils::fetchRecords(
+    "SELECT BPDD,BPDN,ODMPDD,OSMPDD,ODMPDN,OSMPDN FROM form_eye_mag_wearing WHERE PID=? AND FORM_ID=? AND ENCOUNTER=?",
+    [$pid, $form_id ?? null, $encounter ?? null]
+);
+foreach ($wearPdRows as $wearPdRow) {
+    foreach (['BPDD','BPDN','ODMPDD','OSMPDD','ODMPDN','OSMPDN'] as $pdKey) {
+        $v = trim((string)($wearPdRow[$pdKey] ?? ''));
+        if ($v !== '' && is_numeric($v)) { $pdCandidates[] = (float)$v; }
+    }
+    foreach ([['ODMPDD','OSMPDD'],['ODMPDN','OSMPDN']] as $pair) {
+        $a = trim((string)($wearPdRow[$pair[0]] ?? '')); $b = trim((string)($wearPdRow[$pair[1]] ?? ''));
+        if ($a !== '' && $b !== '' && is_numeric($a) && is_numeric($b)) { $pdCandidates[] = (float)$a + (float)$b; }
+    }
+}
+$pdCandidates = array_values(array_unique($pdCandidates));
+$pdHighestRecorded = count($pdCandidates) > 1;
+if (!empty($pdCandidates)) {
+    $bestPd = max($pdCandidates);
+    $data['BPDD'] = rtrim(rtrim(number_format($bestPd, 2, '.', ''), '0'), '.');
+    $BPDD = $data['BPDD'];
+}
     $CTL_COMMENTS ??= '';
     $CTLODQUANTITY ??= '';
     $CTLOSQUANTITY ??= '';
@@ -407,11 +463,53 @@ if ($refType !== null) {
                 $bv = ($b === '' || !is_numeric($b)) ? 0.0 : (float)$b;
                 return $fmtVal($bv + (float)$d);
             };
+            $orParsePrism = static function ($v): array {
+                $h = 0.0; $vt = 0.0; $has = false;
+                $s = strtoupper(trim((string)($v ?? '')));
+                if ($s === '') { return ['h' => 0.0, 'v' => 0.0, 'has' => false]; }
+                if (preg_match_all('/([+-]?\d+(?:\.\d+)?)\s*(BI|BO|BU|BD)/', $s, $m, PREG_SET_ORDER)) {
+                    foreach ($m as $p) {
+                        $amt = (float)$p[1];
+                        $base = $p[2];
+                        $has = true;
+                        if ($base === 'BI') { $h += $amt; }
+                        elseif ($base === 'BO') { $h -= $amt; }
+                        elseif ($base === 'BU') { $vt += $amt; }
+                        elseif ($base === 'BD') { $vt -= $amt; }
+                    }
+                } elseif (is_numeric($s)) {
+                    $has = true; $h = (float)$s;
+                }
+                return ['h' => $h, 'v' => $vt, 'has' => $has];
+            };
+            $orFmtPrismAmt = static function (float $n): string {
+                $a = round(abs($n) * 100) / 100;
+                $out = number_format($a, 2, '.', '');
+                $out = preg_replace('/\.00$/', '', $out);
+                $out = preg_replace('/(\.\d)0$/', '$1', $out);
+                return $out ?? (string)$a;
+            };
+            $orAddPrism = static function ($base, $delta) use ($orParsePrism, $orFmtPrismAmt): string {
+                $d = $orParsePrism($delta);
+                $b = trim((string)($base ?? ''));
+                if (!$d['has']) { return $b; }
+                $bp = $orParsePrism($b);
+                $h = $bp['h'] + $d['h'];
+                $vt = $bp['v'] + $d['v'];
+                $parts = [];
+                if (abs($h) > 0.00001) { $parts[] = $orFmtPrismAmt($h) . ' ' . ($h > 0 ? 'BI' : 'BO'); }
+                if (abs($vt) > 0.00001) { $parts[] = $orFmtPrismAmt($vt) . ' ' . ($vt > 0 ? 'BU' : 'BD'); }
+                return implode(' ', $parts);
+            };
             $orSphCyl = static function ($sph, $cyl, $axis, $dSph, $dCyl, $dAxis) use ($round025): array {
+                $dSphRaw = trim((string)($dSph ?? ''));
+                if ($dSphRaw === '' || !is_numeric($dSphRaw)) {
+                    return ['', '', '', false];
+                }
                 $sph = is_numeric($sph) ? (float)$sph : 0.0;
                 $cyl = is_numeric($cyl) ? (float)$cyl : 0.0;
                 $axis = is_numeric($axis) ? (float)$axis : 0.0;
-                $dSph = is_numeric($dSph) ? (float)$dSph : 0.0;
+                $dSph = (float)$dSphRaw;
                 $dCyl = is_numeric($dCyl) ? (float)$dCyl : 0.0;
                 $dAxis = is_numeric($dAxis) ? (float)$dAxis : $axis;
                 $sameAxis = (abs(fmod(abs($axis - $dAxis), 180.0)) < 0.00001);
@@ -463,14 +561,32 @@ if ($refType !== null) {
                     if ($n < 0) { return '-' . $s; }
                     return '0.00';
                 };
-                return [$fmt($S), $fmt($C), (string)((int)round($A)), $axisChanged];
+                $cStr = '';
+                $aStr = '';
+                if (abs($C) > 0.00001) {
+                    $cStr = $fmt($C);
+                    $aStr = str_pad((string)((int)round($A)), 3, '0', STR_PAD_LEFT);
+                }
+                return [$fmt($S), $cStr, $aStr, $axisChanged];
             };
+            $orOdSphRaw = trim((string)($wearing['ORODSPH'] ?? ''));
+            $orOsSphRaw = trim((string)($wearing['OROSPH'] ?? ''));
             [$ODSPH,$ODCYL,$ODAXIS,$orAxisChangeOD] = $orSphCyl($ODSPH,$ODCYL,$ODAXIS,$wearing['ORODSPH']??'',$wearing['ORODCYL']??'',$wearing['ORODAXIS']??'');
             [$OSSPH,$OSCYL,$OSAXIS,$orAxisChangeOS] = $orSphCyl($OSSPH,$OSCYL,$OSAXIS,$wearing['OROSPH']??'',$wearing['OROSCYL']??'',$wearing['OROSAXIS']??'');
-            $ODADD2 = $orAdd($ODADD2, $wearing['ORODADD'] ?? '');
-            $OSADD2 = $orAdd($OSADD2, $wearing['OROSADD'] ?? '');
-            $ODMIDADD = $orAdd($ODMIDADD, $wearing['ORODMIDADD'] ?? '');
-            $OSMIDADD = $orAdd($OSMIDADD, $wearing['OROSMIDADD'] ?? '');
+            if ($orOdSphRaw !== '' && is_numeric($orOdSphRaw)) {
+                $ODADD2 = $orAdd($ODADD2, $wearing['ORODADD'] ?? '');
+                $ODMIDADD = $orAdd($ODMIDADD, $wearing['ORODMIDADD'] ?? '');
+            } else {
+                $ODADD2 = '';
+                $ODMIDADD = '';
+            }
+            if ($orOsSphRaw !== '' && is_numeric($orOsSphRaw)) {
+                $OSADD2 = $orAdd($OSADD2, $wearing['OROSADD'] ?? '');
+                $OSMIDADD = $orAdd($OSMIDADD, $wearing['OROSMIDADD'] ?? '');
+            } else {
+                $OSADD2 = '';
+                $OSMIDADD = '';
+            }
             $COMMENTS = trim((string)($wearing['ORCOMMENTS'] ?? '')) !== '' ? $wearing['ORCOMMENTS'] : $COMMENTS;
         }
 
@@ -490,8 +606,16 @@ if ($refType !== null) {
         if ($refType === RefType::OR) {
             $orOdPrism = trim((string)($wearing['ORODPRISM'] ?? ''));
             $orOsPrism = trim((string)($wearing['OROSPRISM'] ?? ''));
-            if ($orOdPrism !== '') { $ODPRISM = $orOdPrism; }
-            if ($orOsPrism !== '') { $OSPRISM = $orOsPrism; }
+            if ($orOdSphRaw !== '' && is_numeric($orOdSphRaw)) {
+                if ($orOdPrism !== '') { $ODPRISM = $orAddPrism($ODPRISM ?? '', $orOdPrism); }
+            } else {
+                $ODPRISM = '';
+            }
+            if ($orOsSphRaw !== '' && is_numeric($orOsSphRaw)) {
+                if ($orOsPrism !== '') { $OSPRISM = $orAddPrism($OSPRISM ?? '', $orOsPrism); }
+            } else {
+                $OSPRISM = '';
+            }
         }
         $ODMPDD = $wearing['ODMPDD'] ?? '';
         $ODMPDN = $wearing['ODMPDN'] ?? '';
@@ -605,9 +729,42 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
 
     <style>
         @page { size: letter; margin: 0.35in; }
+        .rx-form-wrap { text-align: center; }
+        .rx-form-wrap > table { margin: 0 auto !important; width: auto !important; }
+        .rx-prescription-panel {
+            width: auto !important;
+            max-width: 95%;
+            margin: 0 auto !important;
+            display: table;
+            background: #fff;
+            border: 1px solid #cfcfcf;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 10px 14px;
+        }
+        .rx-options-block {
+            display: inline-block;
+            text-align: left !important;
+            margin: 0 auto;
+        }
+        .rx-options-block,
+        .rx-options-block label,
+        .rx-options-block div,
+        .rx-options-block span {
+            text-align: left !important;
+        }
         @media print {
             html, body { background: #fff !important; color: #000 !important; font-size: 11px !important; }
-            .borderShadow, .bordershadow { box-shadow: none !important; border: 1px solid #444 !important; }
+            .rx-form-wrap, .rx-form-wrap > table { text-align: center !important; width: auto !important; margin: 0 auto !important; }
+            .borderShadow, .bordershadow, .rx-prescription-panel {
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10) !important;
+                border: 1px solid #555 !important;
+                background: #fff !important;
+                width: auto !important;
+                max-width: 95% !important;
+                margin: 0 auto !important;
+                display: table !important;
+            }
             input[type="text"], textarea {
                 border: none !important;
                 border-bottom: 1px dotted #333 !important;
@@ -615,7 +772,8 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
                 color: #000 !important;
                 font-size: 11px !important;
             }
-            input[type="radio"], input[type="checkbox"] { color: #000 !important; }
+            input[type="radio"], input[type="checkbox"] { color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .dispense-treatment-list { display: grid !important; text-align: left !important; }
             select { background: #fff !important; color: #000 !important; font-size: 11px !important; }
             .btn, .btn-print { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; }
             a { color: #000 !important; text-decoration: none !important; }
@@ -1174,22 +1332,23 @@ if (CurrentRequest::get()->request->get('dispensed', CurrentRequest::get()->quer
             margin-right: 4px;
         }
         .dispense-treatment-list {
-            align-items: center;
+            align-items: start;
             display: grid;
             gap: 4px 32px;
             grid-template-columns: repeat(2, minmax(180px, 1fr));
-            justify-content: center;
-            margin: 0 auto;
+            justify-content: start;
+            margin: 0;
             max-width: 460px;
-            text-align: left;
-            width: 100%;
+            text-align: left !important;
+            width: max-content;
         }
         .dispense-treatment-list .treat-row {
             align-items: center;
-            height: 100%;
+            display: flex;
             justify-content: flex-start;
             margin: 0;
             min-width: 0;
+            text-align: left !important;
         }
         .underline {
             text-decoration:underline !important
@@ -1438,7 +1597,8 @@ if ($refType?->isContactLens()) {
 }
     $expir_date = oeFormatShortDate($expir);
 ?>
-<p><span class="font-weight-bold"><?php echo xlt('Expiration Date'); ?>: </span>
+<div style="text-align:center;">
+<p style="text-align:center;"><span class="font-weight-bold"><?php echo xlt('Expiration Date'); ?>: </span>
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
 </p>
 
@@ -1467,7 +1627,7 @@ if ($refType?->isContactLens()) {
                         $spectacleCols = $hasPrism ? 7 : 6;
                         $nearSpacerCols = $hasPrism ? 2 : 1;
                         ?>
-                            <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
+                            <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow rx-prescription-panel"
                                    style="top:0px;margin:0 auto;">
                                 <tr class="font-weight-bold text-center">
                                     <td><i name="reverse" id="reverse" class="fa fa-gamepad fa-2x no-print"></i></td>
@@ -1668,9 +1828,10 @@ if ($refType?->isContactLens()) {
                                     <td colspan="<?php echo attr(EyeFormData::text($spectacleCols)); ?>"><?php echo xlt('Lens Material'); ?>:</td>
                                 </tr>
                                 <tr class="<?php echo $matPrint ? '' : 'no-print'; ?>">
-                                    <td colspan="<?php echo attr(EyeFormData::text($spectacleCols)); ?>" style="text-align:center;"><?php
+                                    <td colspan="<?php echo attr(EyeFormData::text($spectacleCols)); ?>" style="text-align:center;">
+                                        <div class="rx-options-block"><?php
                                         echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', ['style' => 'width:120px;height:25px;']);
-                                    ?>
+                                    ?></div>
                                     </td>
                                 </tr>
                                 <tr style="font-weight:bold;text-align:center;" class="<?php echo $treatPrint ? '' : 'no-print'; ?>">
@@ -1679,7 +1840,7 @@ if ($refType?->isContactLens()) {
                                 </tr>
                                 <tr style="text-align:center;vertical-align:top;" class="<?php echo $treatPrint ? '' : 'no-print'; ?>">
                                     <td colspan="<?php echo attr(EyeFormData::text($spectacleCols)); ?>" class="bold center">
-                                        <div class="dispense-treatment-list">
+                                        <div class="rx-options-block dispense-treatment-list">
                                         <input type="hidden" name="LENS_TREATMENTS" value="">
                                         <?php echo generate_lens_treatments($W ?? '', $LENS_TREATMENTS); ?>
                                         </div>
@@ -1690,7 +1851,7 @@ if ($refType?->isContactLens()) {
                     } else {
                         $adds = (bool) ($ODADD ?? null) || (bool) ($OSADD ?? null) ? 1 : '';
                         ?>
-                            <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
+                            <table id="CTLRx" name="CTLRx" class="refraction bordershadow rx-prescription-panel" style="margin:0 auto;">
                                 <tr class="bold center">
                                     <td class="right bold underline"><?php echo xlt('Right Lens'); ?></td>
                                 </tr>
@@ -1862,6 +2023,7 @@ if ($refType?->isContactLens()) {
         </table>
     </div>
 </form>
+</div>
 
 </body>
 <script>
@@ -2060,7 +2222,6 @@ if ($refType?->isContactLens()) {
     $savePdf = CurrentRequest::get()->request->get('save_pdf', CurrentRequest::get()->query->get('save_pdf')) ?? '';
     if ($savePdf === '1' || $savePdf === 1 || $savePdf === true) {
         header('Content-Type: application/json');
-        error_log('SpectacleRx save_pdf: hit pid=' . var_export($pid ?? null, true) . ' encounter=' . var_export($encounter ?? null, true));
         try {
             $config_mpdf = Config_Mpdf::getConfigMpdf();
             $pdf = new Mpdf($config_mpdf);
@@ -2086,7 +2247,6 @@ if ($refType?->isContactLens()) {
                 (string) $pid, $categoryId, $name, 'application/pdf', $pdfBytes,
                 '', 1, 0, null, null, null, null, (string) $encounter
             );
-            error_log('SpectacleRx save_pdf: result=' . var_export($result, true) . ' pid=' . $pid . ' enc=' . $encounter . ' cat=' . $categoryId);
             if ($result !== '') {
                 echo json_encode(['success' => false, 'error' => xlt('The PDF could not be saved.') . ' ' . text($result)]);
             } else {
