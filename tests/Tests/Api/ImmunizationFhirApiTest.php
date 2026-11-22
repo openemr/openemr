@@ -206,20 +206,65 @@ class ImmunizationFhirApiTest extends TestCase
      *
      * The fixture's site code is LA, which is also an option_id in the state and
      * nationality_with_country lists. A site join without a list_id repeated the row once per match.
+     * This test also creates a same-code CVX/CPT4 pair so a code-only vaccine join is deterministic.
      */
     public function testSearchByIdReturnsOnlySeededImmunization(): void
     {
-        $bundle = $this->assertCollectionBundle(
-            $this->testClient->get(self::ENDPOINT, ['_id' => $this->immunizationUuid])
+        $cvxType = QueryUtils::querySingleRow(
+            'SELECT ct_id FROM code_types WHERE ct_key = ?',
+            ['CVX']
         );
-        $entries = $bundle['entry'] ?? null;
-        $this->assertIsArray($entries);
-        $this->assertCount(1, $entries);
-        $entry = $entries[0];
-        $this->assertIsArray($entry);
-        $resource = $entry['resource'] ?? null;
-        $this->assertIsArray($resource);
-        $this->assertSeededImmunization($resource);
+        $this->assertIsArray($cvxType);
+        $otherType = QueryUtils::querySingleRow(
+            'SELECT ct_id FROM code_types WHERE ct_key = ?',
+            ['CPT4']
+        );
+        $this->assertIsArray($otherType);
+        $cvxTypeId = (int) $cvxType['ct_id'];
+        $otherTypeId = (int) $otherType['ct_id'];
+        $this->assertNotSame($cvxTypeId, $otherTypeId);
+
+        // Give this test its own CVX code and a same-code row in another system.
+        // A code-only join then duplicates the immunization; a CVX-scoped join does not.
+        $collisionCode = 'T' . substr(str_replace('-', '', $this->immunizationUuid), 0, 16);
+        $cvxCodeText = 'immunization-api-test-' . $this->immunizationUuid . '-cvx';
+        $otherCodeText = 'immunization-api-test-' . $this->immunizationUuid . '-cpt4';
+
+        try {
+            QueryUtils::sqlStatementThrowException(
+                'INSERT INTO codes (code_text, code, code_type) VALUES (?, ?, ?)',
+                [$cvxCodeText, $collisionCode, $cvxTypeId]
+            );
+            QueryUtils::sqlStatementThrowException(
+                'INSERT INTO codes (code_text, code, code_type) VALUES (?, ?, ?)',
+                [$otherCodeText, $collisionCode, $otherTypeId]
+            );
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE immunizations SET cvx_code = ? WHERE uuid = ?',
+                [$collisionCode, UuidRegistry::uuidToBytes($this->immunizationUuid)]
+            );
+
+            $bundle = $this->assertCollectionBundle(
+                $this->testClient->get(self::ENDPOINT, ['_id' => $this->immunizationUuid])
+            );
+            $entries = $bundle['entry'] ?? null;
+            $this->assertIsArray($entries);
+            $this->assertCount(1, $entries);
+            $entry = $entries[0];
+            $this->assertIsArray($entry);
+            $resource = $entry['resource'] ?? null;
+            $this->assertIsArray($resource);
+            $this->assertSeededImmunization($resource, $collisionCode);
+        } finally {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM codes WHERE code_text = ? AND code = ? AND code_type = ?',
+                [$cvxCodeText, $collisionCode, $cvxTypeId]
+            );
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM codes WHERE code_text = ? AND code = ? AND code_type = ?',
+                [$otherCodeText, $collisionCode, $otherTypeId]
+            );
+        }
     }
 
     /**
@@ -359,7 +404,10 @@ class ImmunizationFhirApiTest extends TestCase
      *
      * @param array<array-key, mixed> $resource
      */
-    private function assertSeededImmunization(array $resource): void
+    private function assertSeededImmunization(
+        array $resource,
+        string $expectedCvxCode = self::INFLUENZA_CVX
+    ): void
     {
         $this->assertSame('Immunization', $resource['resourceType'] ?? null);
         $this->assertSame($this->immunizationUuid, $resource['id'] ?? null);
@@ -380,7 +428,7 @@ class ImmunizationFhirApiTest extends TestCase
                 $cvxCodes[] = $coding['code'] ?? null;
             }
         }
-        $this->assertContains(self::INFLUENZA_CVX, $cvxCodes);
+        $this->assertContains($expectedCvxCode, $cvxCodes);
 
         $occurrence = $resource['occurrenceDateTime'] ?? null;
         $this->assertIsString($occurrence);
