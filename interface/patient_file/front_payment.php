@@ -372,7 +372,7 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
         "MAX(p.dtime) AS dtime, " .
         "MAX(p.user) AS user, " .
         "MAX(p.encounter) AS encounter, " .
-        "(SELECT CONCAT_WS(' ', u.fname, u.lname) " .
+        "(SELECT TRIM(CONCAT_WS(' ', u.fname, u.lname)) " .
         " FROM users u " .
         " WHERE u.username = MAX(p.user) " .
         " LIMIT 1) AS staff_fullname " .
