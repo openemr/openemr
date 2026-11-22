@@ -3,7 +3,10 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
@@ -117,6 +120,7 @@ class PatientServiceTest extends TestCase
         $this->assertArrayHasKey("uuid", $dataResult);
 
         $actualUuid = $dataResult["uuid"];
+        $this->assertIsString($actualUuid);
 
         $this->patientFixture["phone_home"] = "555-111-4444";
         $this->patientService->update($actualUuid, $this->patientFixture);
@@ -157,6 +161,128 @@ class PatientServiceTest extends TestCase
         } finally {
             QueryUtils::sqlStatementThrowException("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
         }
+    }
+
+    #[Test]
+    public function testUpdateRecordsUpdatedBy(): void
+    {
+        [, $uuid] = $this->insertFixturePatient();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('authUserID', 1);
+
+        try {
+            $this->patientFixture['phone_home'] = '555-111-4444';
+            $result = $this->patientService->update($uuid, $this->patientFixture);
+            $this->assertTrue($result->isValid());
+        } finally {
+            $session->remove('authUserID');
+        }
+
+        $updatedBy = QueryUtils::fetchSingleValue(
+            'SELECT `updated_by` FROM `patient_data` WHERE `uuid` = ?',
+            'updated_by',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertEquals(1, $updatedBy);
+    }
+
+    #[Test]
+    public function testUpdateBackfillsPortalLoginUsernameThroughApiUpdate(): void
+    {
+        [$pid, $uuid] = $this->insertFixturePatient();
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO patient_access_onsite (pid, portal_username, portal_login_username) VALUES (?, ?, '')",
+            [$pid, 'testportaluser']
+        );
+
+        try {
+            $this->patientFixture['allow_patient_portal'] = 'YES';
+            $result = $this->patientService->update($uuid, $this->patientFixture);
+            $this->assertTrue($result->isValid());
+
+            $row = QueryUtils::querySingleRow("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
+            $this->assertIsArray($row);
+            $this->assertSame('testportaluser', $row['portal_login_username']);
+        } finally {
+            QueryUtils::sqlStatementThrowException("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        }
+    }
+
+    #[Test]
+    public function testUpdateSendsTheSameEventPayloadAsDatabaseUpdate(): void
+    {
+        [$pid, $uuid] = $this->insertFixturePatient();
+        $events = [];
+        $listener = function (PatientUpdatedEvent $event) use (&$events): void {
+            $events[] = $event;
+        };
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        $dispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, $listener);
+
+        try {
+            $this->patientFixture['phone_home'] = '555-222-3333';
+            $this->patientService->update($uuid, $this->patientFixture);
+            $this->patientFixture['pid'] = $pid;
+            $this->patientFixture['phone_home'] = '555-444-5555';
+            $this->patientService->databaseUpdate($this->patientFixture);
+        } finally {
+            $dispatcher->removeListener(PatientUpdatedEvent::EVENT_HANDLE, $listener);
+        }
+
+        $this->assertCount(2, $events);
+        [$fromUpdate, $fromDatabaseUpdate] = $events;
+        foreach ([$fromUpdate, $fromDatabaseUpdate] as $event) {
+            $before = $event->getDataBeforeUpdate();
+            $this->assertIsArray($before);
+            $this->assertEquals($pid, $before['pid']);
+            $this->assertSame(UuidRegistry::uuidToBytes($uuid), $before['uuid'], 'the stored row, with the binary uuid');
+
+            $after = $event->getNewPatientData();
+            $this->assertIsArray($after);
+            $this->assertFalse(array_is_list($after), 'one patient record, not a list of records');
+            $this->assertEquals($pid, $after['pid']);
+            $this->assertArrayNotHasKey('uuid', $after);
+        }
+        $afterUpdate = $fromUpdate->getNewPatientData();
+        $this->assertIsArray($afterUpdate);
+        $this->assertSame('555-222-3333', $afterUpdate['phone_home']);
+        $beforeDatabaseUpdate = $fromDatabaseUpdate->getDataBeforeUpdate();
+        $this->assertIsArray($beforeDatabaseUpdate);
+        $this->assertSame('555-222-3333', $beforeDatabaseUpdate['phone_home'], 'the second save starts from what update() stored');
+    }
+
+    #[Test]
+    public function testUpdateIgnoresPidInTheRequestData(): void
+    {
+        [$pid, $uuid] = $this->insertFixturePatient();
+        $otherPid = $pid + 1000000;
+
+        $this->patientFixture['pid'] = $otherPid;
+        $this->patientFixture['phone_home'] = '555-666-7777';
+        $result = $this->patientService->update($uuid, $this->patientFixture);
+        $this->assertTrue($result->isValid());
+
+        $phone = QueryUtils::fetchSingleValue(
+            'SELECT `phone_home` FROM `patient_data` WHERE `uuid` = ?',
+            'phone_home',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        $this->assertSame('555-666-7777', $phone);
+        $this->assertFalse(QueryUtils::querySingleRow('SELECT `pid` FROM `patient_data` WHERE `pid` = ?', [$otherPid]));
+    }
+
+    /**
+     * @return array{int, string} the new patient's pid and string uuid
+     */
+    private function insertFixturePatient(): array
+    {
+        $result = $this->patientService->insert($this->patientFixture);
+        $this->assertTrue($result->isValid());
+        $ids = $result->getFirstDataResult();
+        $this->assertIsArray($ids);
+        $this->assertIsNumeric($ids['pid']);
+        $this->assertIsString($ids['uuid']);
+        return [(int) $ids['pid'], $ids['uuid']];
     }
 
     #[Test]

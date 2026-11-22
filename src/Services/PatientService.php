@@ -301,12 +301,12 @@ class PatientService extends BaseService
     /**
      * Updates an existing patient record.
      *
-     * @param $puuidString - The patient uuid identifier in string format used for update.
-     * @param $data - The updated patient data fields
+     * @param string $puuidString The patient uuid identifier in string format used for update.
+     * @param array<mixed> $data The updated patient data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($puuidString, $data)
+    public function update(string $puuidString, array $data): ProcessingResult
     {
         $data["uuid"] = $puuidString;
         $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
@@ -314,53 +314,25 @@ class PatientService extends BaseService
             return $processingResult;
         }
 
-        // Get the data before update to send to the event listener
-        $dataBeforeUpdate = $this->getOne($puuidString);
-        $recordsBeforeUpdate = $dataBeforeUpdate->getData();
-        $currentRecord = is_array($recordsBeforeUpdate) && is_array($recordsBeforeUpdate[0] ?? null) ? $recordsBeforeUpdate[0] : [];
-        if (is_array($data)) {
-            $data = $this->activeStatus->apply($data, $currentRecord);
-        }
-
-        // The `date` column is treated as an updated_date
-        $data['date'] = date("Y-m-d H:i:s");
-
-        // Fire the "before patient updated" event so listeners can do extra processing before data is updated
-        $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
-        $data = $beforePatientUpdatedEvent->getPatientData();
-
-        $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE patient_data SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE `uuid` = ?";
-
-        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
-        array_push($query['bind'], $puuidBinary);
-        $sqlResult = sqlStatement($sql, $query['bind']);
-
-        if (!$sqlResult) {
+        // The validator has confirmed the uuid exists. Save by pid through
+        // databaseUpdate(), the same path the demographics form uses, so every
+        // patient update records updated_by, backfills the portal login
+        // username and sends the same PatientUpdatedEvent payload.
+        $pid = $this->getPidByUuid(UuidRegistry::uuidToBytes($puuidString));
+        if ($pid === false) {
             $processingResult->addInternalError("error processing SQL Update");
-        } else {
-            $processingResult = $this->getOne($puuidString);
-            // Tell subscribers that a new patient has been updated
-            // We have to do this here and in the databaseUpdate() because this lookup is
-            // by uuid where the databseUpdate updates by pid.
-
-
-            $originalData = [];
-            if ($dataBeforeUpdate->hasData()) {
-                $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
-            }
-            // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
-            // we need the uuid to be the same binary format as the other event firing.
-            if (!empty($originalData['uuid'])) {
-                $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
-            }
-            $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
+            return $processingResult;
         }
-        return $processingResult;
+        unset($data['uuid']);
+        // Always the pid the uuid resolved to; a pid in the request body is ignored.
+        $data['pid'] = $pid;
+
+        if ($this->databaseUpdate($data) === false) {
+            $processingResult->addInternalError("error processing SQL Update");
+            return $processingResult;
+        }
+
+        return $this->getOne($puuidString);
     }
 
     /**

@@ -15,7 +15,8 @@ class PatientRestControllerTest extends TestCase
 {
     const PATIENT_API_URL = "/apis/api/patient";
 
-    private $patientData;
+    /** @var array<string, string> */
+    private array $patientData;
     private PatientRestController $patientController;
     private $fixtureManager;
 
@@ -84,6 +85,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
+        $this->assertIsString($actualUuid);
         $this->patientData["uuid"] = $actualUuid;
 
         $response = $this->patientController->put("not-a-pid", $this->patientData, $this->createMock(HttpRestRequest::class));
@@ -102,6 +104,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(2, count($actualResult["data"]));
 
         $patientUuid = $actualResult["data"]["uuid"];
+        $this->assertIsString($patientUuid);
         $this->patientData["phone_home"] = "111-111-1111";
         $response = $this->patientController->put($patientUuid, $this->patientData, $this->createMock(HttpRestRequest::class));
 
