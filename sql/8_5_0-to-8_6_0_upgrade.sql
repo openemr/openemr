@@ -527,17 +527,17 @@ SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed
 -- patients with a deceased date, who become inactive with reason Deceased as of that date.
 #IfMissingColumn patient_data active
 ALTER TABLE `patient_data` ADD `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = active patient record (FHIR Patient.active)';
-UPDATE `patient_data` SET `active` = 0 WHERE `deceased_date` IS NOT NULL;
+UPDATE `patient_data` SET `active` = 0 WHERE `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
 #EndIf
 
 #IfMissingColumn patient_data inactive_reason
 ALTER TABLE `patient_data` ADD `inactive_reason` varchar(63) NOT NULL DEFAULT '' COMMENT 'list_options patient_inactive_reason';
-UPDATE `patient_data` SET `inactive_reason` = 'deceased' WHERE `active` = 0 AND `deceased_date` IS NOT NULL;
+UPDATE `patient_data` SET `inactive_reason` = 'deceased' WHERE `active` = 0 AND `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
 #EndIf
 
 #IfMissingColumn patient_data inactive_date
 ALTER TABLE `patient_data` ADD `inactive_date` date DEFAULT NULL COMMENT 'Date the patient became inactive';
-UPDATE `patient_data` SET `inactive_date` = DATE(`deceased_date`) WHERE `active` = 0 AND `deceased_date` IS NOT NULL;
+UPDATE `patient_data` SET `inactive_date` = DATE(`deceased_date`) WHERE `active` = 0 AND `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
 #EndIf
 
 #IfNotIndex patient_data idx_patient_active
