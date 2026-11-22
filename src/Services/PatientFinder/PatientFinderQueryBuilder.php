@@ -42,6 +42,9 @@ final class PatientFinderQueryBuilder
     /** The patient-name column, expanded to last/first/middle name parts. */
     public const NAME_KEY = 'name';
 
+    /** The data query's alias for patient_data.active, selected when inactive patients show. */
+    public const ACTIVE_ALIAS = 'finder_patient_active';
+
     /** A patient's whole name, blank parts left out, in the orders a search may type it. */
     private const FULL_NAME_FIRST_MIDDLE_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(mname), ''), NULLIF(TRIM(lname), ''))";
     private const FULL_NAME_FIRST_LAST = "CONCAT_WS(' ', NULLIF(TRIM(fname), ''), NULLIF(TRIM(lname), ''))";
@@ -94,15 +97,23 @@ final class PatientFinderQueryBuilder
         ?array $onlyPids = null
     ): PatientFinderQueryPlan {
         [$selectList, $dataJoinMap, $selectBinds] = $this->buildSelect($columns);
+        if ($request->showInactive) {
+            // Lets each row say whether its patient is inactive.
+            $selectList[] = 'patient_data.active AS ' . self::ACTIVE_ALIAS;
+        }
         [$searchWhere, $searchBinds, $whereJoinMap] = $this->buildWhere($columns, $request, $globalSearchColumns);
         [$orderBy, $orderBinds] = $this->buildOrderBy($columns, $request, $onlyPids);
 
-        // The patient limit goes in front of the custom filter, so the total counts only
-        // those patients too.
+        // The patient limit and the active-patient limit go in front of the custom
+        // filter, so the total counts only those patients too.
         [$pidWhere, $pidBinds] = $this->buildPidWhere($onlyPids);
-        $customWhere = $pidWhere === ''
+        $limits = array_values(array_filter(
+            [$request->showInactive ? '' : 'patient_data.active = 1', $pidWhere],
+            static fn(string $clause): bool => $clause !== ''
+        ));
+        $customWhere = $limits === []
             ? $filter->getFilterClause()
-            : $pidWhere . ' AND ( ' . $filter->getFilterClause() . ' )';
+            : implode(' AND ', $limits) . ' AND ( ' . $filter->getFilterClause() . ' )';
         $filterBinds = array_merge($pidBinds, $filter->getBoundValues());
 
         $fullWhere = $searchWhere === ''

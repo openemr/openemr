@@ -118,8 +118,41 @@ function tabRefreshByName(name) {
     }
 }
 
+/**
+ * Whether the page in a tab, or any frame inside it, has edits that are not saved.
+ *
+ * Pages opt in with a global `somethingChanged` flag, the same one their
+ * beforeunload prompts read. Removing a tab's iframe fires no beforeunload
+ * prompt, so closing a tab has to check the flag itself.
+ */
+function tabHasUnsavedChanges(win)
+{
+    if (!win) {
+        return false;
+    }
+    try {
+        if (win.somethingChanged === true) {
+            return true;
+        }
+        for (let i = 0; i < win.frames.length; i++) {
+            if (tabHasUnsavedChanges(win.frames[i])) {
+                return true;
+            }
+        }
+    } catch {
+        // A cross-origin frame can't be read, so there is nothing to check.
+    }
+    return false;
+}
+
 function tabClose(data,evt)
 {
+    // Ask only when the user closes the tab (evt is set). Pages close their own
+    // tab through tabCloseByName after saving, which must not prompt.
+    if (evt && !top.timed_out && tabHasUnsavedChanges(data.window)
+        && !confirm(xl('You have unsaved changes. Do you want to proceed without saving?'))) {
+        return;
+    }
     //remove the tab
     app_view_model.application_data.tabs.tabsList.remove(data);
     //activate the next tab
@@ -439,6 +472,33 @@ function reportMenuClickData(data, evt = 'menuClick') {
     }).catch(error => {
         console.error('reportMenu POST error:', error);
     });
+}
+
+/**
+ * Whether the user may close the patient chart: true unless one of its tabs has
+ * unsaved changes and the user declines to discard them.
+ */
+function patientChartCanClose()
+{
+    if (top.timed_out) {
+        return true;
+    }
+    // The tabs clearPatient() closes along with the patient.
+    const chartTabs = ['enc', 'rev', 'pop', 'pat'];
+    const dirty = app_view_model.application_data.tabs.tabsList().some(
+        (tab) => chartTabs.includes(tab.name()) && tabHasUnsavedChanges(tab.window)
+    );
+    return !dirty || confirm(xl('You have unsaved changes. Do you want to proceed without saving?'));
+}
+
+// The user closes the patient chart (its close button or shortcut). Code that
+// clears the patient itself, after a delete or to switch patients, calls
+// clearPatient() directly and is not asked.
+function closePatientChart()
+{
+    if (patientChartCanClose()) {
+        clearPatient();
+    }
 }
 
 function clearPatient(openFinder = true)

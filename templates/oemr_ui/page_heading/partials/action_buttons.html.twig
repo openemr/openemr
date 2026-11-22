@@ -1,0 +1,28 @@
+{#
+The action icon links (expand, help, conceal, ...) from a PageHeadingRenderEvent.
+Shared by the page heading and by the patient tab row's right-hand controls.
+
+@package OpenEMR
+@subpackage OemrUi
+
+@author Robert Down <robertdown@live.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
+@author David Eschelbacher <psoas@tampabay.rr.com>
+@copyright Copyright (c) 2023 Robert Down
+@copyright Copyright (c) 2023 Providence Healthtech
+@copyright Copyright (c) 2025 Jerry Padgett
+@copyright Copyright (c) 2026 David Eschelbacher
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="navbar-nav ml-auto" id="pageHeadingNav">
+    {% for a in buttonList %}
+        <a href="{{ a.getHref()|attr }}" id="{{ a.getId()|attr }}" title="{{ a.getTitle()|attr }}" {{ _self.renderAttributeArray(a.getAttributes()) }} class="nav-link {{ a.getAnchorClasses()|join(' ')|attr }} "><i class="{{ a.getIconClass()|attr }}">&nbsp;</i>{{ a.getDisplayText()|text }}</a>
+    {% endfor %}
+</div>
+
+{# Convert a key/value array into a key="value" string for injection into an element tag. #}
+{% macro renderAttributeArray(attributes) %}
+    {% for attribute, value in attributes %}
+        {{ attribute|text }}="{{ value|attr }}"
+    {% endfor %}
+{% endmacro %}

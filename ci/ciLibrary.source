@@ -234,6 +234,25 @@ configure_coverage() {
     fi
 }
 
+##
+# Opt out of product registration and turn on the APIs and services the
+# CI suites exercise. The client runs in the openemr container, where
+# `mysql` is a deprecated alias for `mariadb`.
+apply_ci_globals() {
+    local stmt
+    for stmt in \
+        'INSERT INTO product_registration (opt_out) VALUES (1)' \
+        'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' \
+        'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' \
+        'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' \
+        'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' \
+        'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' \
+        'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"'
+    do
+        _exec mariadb -u openemr --password=openemr --ssl=false -h mysql -e "${stmt}" openemr
+    done
+}
+
 install_configure() {
     (
         toplevel="$(git rev-parse --show-toplevel)"
@@ -252,13 +271,7 @@ install_configure() {
     local web_user
     web_user=$(web_user_in_openemr)
     _exec sh -c "OPENEMR_ENABLE_INSTALLER_AUTO=1 su -p -s /bin/sh ${web_user} -c 'php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'"
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"' openemr
+    apply_ci_globals
 }
 
 ##
@@ -292,13 +305,7 @@ post_install_upgrade() {
     # demoData drops all tables and reseeds from the 5.0.0 dump (which
     # has its own globals values), so the CI-specific globals that
     # install_configure set originally are gone. Re-apply.
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
-    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"' openemr
+    apply_ci_globals
 }
 
 ##

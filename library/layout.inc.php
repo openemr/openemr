@@ -22,6 +22,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 // array of the data_types of the fields
@@ -34,7 +35,6 @@ $datatypes = [
     "10" => xl("Providers"),
     "11" => xl("Providers NPI"),
     "12" => xl("Pharmacies"),
-    "13" => xl("Squads"),
     "14" => xl("Organizations"),
     "15" => xl("Billing codes"),
     "16" => xl("Insurances"),

@@ -108,20 +108,36 @@
   document.forms[0].submit();
  }
 
- function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
-  // Guard: holiday / clinic-closed days must not open create dialog from the time gutter.
+ // Holiday / clinic-closed days must not open the create dialog.
+ function isClosedDay(eventdate) {
   var holidayDate = String(eventdate || '');
   var $holidayCell = $('#bigCal td.schedule[data-holiday="1"][date="' + holidayDate + '"]');
   if (!$holidayCell.length && typeof pcIsHolidayDay !== 'undefined' && pcIsHolidayDay) {
     // Day view: single Date applies to the whole grid.
     $holidayCell = $('#bigCal td.schedule.schedule-holiday');
   }
-  if ($holidayCell.length) {
+  return $holidayCell.length > 0;
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  if (isClosedDay(eventdate)) {
     return false;
   }
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
    '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+ }
+
+ // Add a patient to a Visit List: a new appointment with no time of its own, at the block's
+ // start (hour in 24-hour form), for the block's provider and date.
+ function newVisitListEvt(eventdate, providerid, starttimeh, starttimem) {
+  if (isClosedDay(eventdate)) {
+    return false;
+  }
+  dlgopen('add_edit_event.php?visitlist=1&starttimeh=' + encodeURIComponent(starttimeh) +
+   '&starttimem=' + encodeURIComponent(starttimem) + '&userid=' + encodeURIComponent(providerid) +
+   '&date=' + encodeURIComponent(eventdate)
    ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
  }
 
@@ -166,6 +182,7 @@
      document.getElementById('popup').style.display = "none";
  }
 </script>
+<script src="/library/js/calendarVisitList.js?v=82"></script>
 <script>
         var tsHeight="20px";
     var tsHeightNum=20;
@@ -199,6 +216,42 @@
         });
         $("#printview").click(function() { PrintView(this); });
         $(".event").dblclick(function() { EditEvent(this); });
+        // A Visit List's + adds a patient to it and a click on its header edits the
+        // block itself. A patient row works like a timed appointment: its number
+        // (in place of a time) and a double click edit the appointment, and the
+        // name opens the chart. All are kept from reaching the block, whose double
+        // click edits the block, and the number and name from the row's double
+        // click, so one double click cannot open two windows.
+        $(".visit-list-add").on("click", function(e) {
+            e.stopPropagation();
+            newVisitListEvt($(this).data("date"), $(this).data("provider"), $(this).data("hour"), $(this).data("minute"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-header").on("click", function(e) {
+            e.stopPropagation();
+            EditEvent($(this).closest(".event_visit_list").get(0));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        var editVisitListPatient = function(row) {
+            oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
+        };
+        $(".visit-list-entry").on("dblclick", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this));
+        });
+        $(".visit-list-sequence").on("click", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this).closest(".visit-list-entry"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-patient").on("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            goPid($(this).data("pid"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        // A Visit List block keeps the height of its time range. When its patients don't
+        // fit, it shows the rows that do and "+N more", which opens the whole list.
+        pcSetUpVisitLists(document, {
+            more: "+%s more",
+            fewer: "Show fewer"
+        });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
@@ -289,6 +342,50 @@
     #bigCal td.timeslot {
         box-sizing: border-box;
         white-space: nowrap;
+    }
+    /* Appointments are placed one slot height per slot, so each time row must be
+       exactly that tall for a time to line up with what starts then. A cell border
+       would add to the row (the table rounds 20px + 1px border to 20.2px, and the
+       times drift lower down the day), so the line between rows is drawn inside
+       the cell instead. */
+    #bigCal table.calendar-times-table td.timeslot {
+        border: 0;
+        box-shadow: inset 0 1px 0 var(--gray300, #dee2e6);
+        height: 20px;
+        line-height: 20px;
+    }
+    /* One text size for the times, the appointments and Visit Lists. A line of an
+       appointment is one slot less its 1px borders, so a one-slot appointment's text
+       sits centered in its box, level with its time, instead of overflowing it. */
+    #bigCal table.calendar-times-table td.timeslot,
+    #bigCal .calendar_day .event {
+        font-size: 0.875rem;
+    }
+    #bigCal .calendar_day .event:not(.event_visit_list) {
+        line-height: 18px;
+        padding-inline-start: 0.25rem;
+    }
+    /* Hovering an appointment makes its text bold and its border darker, but leaves
+       the box where it is: the theme's hover style pulls it up and left (a negative
+       margin) and thickens two borders, which moved it off its time. */
+    #bigCal .calendar_day .event.event_highlight {
+        border-width: 1px;
+        margin: 0;
+    }
+    /* The patient icon a little smaller than the name beside it, with a space's room
+       on each side, as the dash before it has. */
+    #bigCal .calendar_day .event .link_title > i {
+        font-size: 0.8em;
+        margin-inline: 0.25rem;
+    }
+    /* Day view: the times' top row (the provider icon) and each provider's name bar
+       above its appointments are the same height, so the first time and the top of
+       the appointments start level. */
+    #bigCal table.calendar-times-table td.timeslot.providerXbtn,
+    #bigCal .providerheader.providerday {
+        box-sizing: border-box;
+        height: 1.75rem;
+        line-height: calc(1.75rem - 2px);
     }
     /* Time gutter on holidays: show labels but do not offer new-appointment links. */
     #bigCal td.timeslot.timeslot-holiday .timeslot-holiday-label {

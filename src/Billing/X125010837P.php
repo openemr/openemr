@@ -44,6 +44,9 @@ class X125010837P
     private const SERVICE_POSTAL_LOSS_LOG = '*** Service facility postal code lost letters when reduced to digits. '
         . 'This 837P does not send the country code (N404), so the stored postal code was not sent.';
 
+    /** SBR05 is required when Medicare is not the primary payer; payers reject the claim without it. */
+    private const MSP_TYPE_LOG = '*** Medicare is not the primary payer and its Secondary Medicare Type is empty.';
+
     /**
      * Service-facility ZIP, loop 2310C. The 837P guide requires 9 digits for a US address.
      */
@@ -466,6 +469,10 @@ class X125010837P
             "*" .
             "*" . $claim->claimType() .
             "~\n";
+
+        if ($claim->secondaryMedicareTypeMissing()) {
+            $log .= self::MSP_TYPE_LOG . "\n";
+        }
 
         // Segment PAT omitted.
 
@@ -1179,6 +1186,10 @@ class X125010837P
                 "*" . $claim->claimType($ins) .
                 "~\n";
 
+            if ($claim->secondaryMedicareTypeMissing($ins)) {
+                $log .= self::MSP_TYPE_LOG . "\n";
+            }
+
             // Things that apply only to previous payers, not future payers.
             if ($claim->payerSequence($ins) < $claim->payerSequence()) {
                 // Generate claim-level adjustments.
@@ -1463,6 +1474,16 @@ class X125010837P
                 "*" . $claim->serviceDate() .
                 "~\n";
 
+            // The REF segments of loop 2400 come before its NTE.
+            $lineItemControlNumber = $claim->lineItemControlNumber($prockey);
+            if ($lineItemControlNumber !== '') {
+                ++$edicount;
+                $out .= "REF" .     // Line Item Control Number.
+                    "*" . "6R" .
+                    "*" . $lineItemControlNumber .
+                    "~\n";
+            }
+
             $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
@@ -1488,8 +1509,6 @@ class X125010837P
             // Segment REF*9B (Repriced Line Item Reference Number) omitted.
             // Segment REF*9D (Adjusted Repriced Line Item Reference Number) omitted.
             // Segment REF*G1 (Prior Authorization) omitted.
-            // Segment REF*6R (Line Item Control Number) omitted.
-            //   (Really oughta have this for robust 835 posting!)
             // Segment REF*EW (Mammography Certification Number) omitted.
             // Segment REF*X4 (CLIA Number) omitted.
             // Segment REF*F4 (Referring CLIA Facility Identification) omitted.

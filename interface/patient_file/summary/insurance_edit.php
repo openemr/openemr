@@ -25,6 +25,7 @@ $pid = \OpenEMR\Common\Session\PatientSessionUtil::getPid();
 require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\CurrentRequest;
@@ -63,10 +64,6 @@ if ($pid) {
         !AclMain::aclCheckCore('patients', 'demo', '', 'write')
     ) {
         AccessDeniedHelper::deny('Updating insurance is not authorized');
-    }
-
-    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
-        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write','addonly'])) {
@@ -109,8 +106,7 @@ echo $twig->render(
         ,'state_data_type' => $state_data_type
         ,'country_data_type' => $country_data_type
         ,'country_list' => OEGlobalsBag::getInstance()->getString('country_list')
-        // policy_types is defined in patient.inc.php
-        ,'policy_types' => OEGlobalsBag::getInstance()->get('policy_types')
+        ,'policy_types' => InsurancePolicyTypes::getTranslatedPolicyTypes()
         ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')
         ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
         ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics')

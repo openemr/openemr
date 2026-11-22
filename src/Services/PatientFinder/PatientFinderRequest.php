@@ -31,6 +31,9 @@ namespace OpenEMR\Services\PatientFinder;
 
 final readonly class PatientFinderRequest
 {
+    /** The user setting that keeps the "Show inactive" option ('1' when checked). */
+    public const SHOW_INACTIVE_SETTING = 'patient_finder.show_inactive';
+
     /**
      * @param int                      $echo          The sEcho token echoed back to DataTables.
      * @param int                      $displayStart  Row offset, or -1 when paging is not applicable.
@@ -43,6 +46,7 @@ final readonly class PatientFinderRequest
      * @param array<int, string>       $columnSearches Per-column search terms, keyed by client column index.
      * @param PatientFinderSearchMode  $searchMode    Which fields the global search term matches.
      * @param PatientFinderColumnList  $columnList    Which tab asked: the Patient List or Recent Patients.
+     * @param bool                     $showInactive  True to include inactive patients (patient_data.active = 0).
      */
     public function __construct(
         public int $echo,
@@ -56,6 +60,7 @@ final readonly class PatientFinderRequest
         public array $columnSearches,
         public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All,
         public PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList,
+        public bool $showInactive = false,
         public PatientFinderCriteria $criteria = new PatientFinderCriteria()
     ) {
     }
@@ -97,6 +102,7 @@ final readonly class PatientFinderRequest
             self::parseColumnSearches($get, count($columnKeys)),
             PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null)),
             PatientFinderColumnList::fromRequestValue(PatientFinderValue::string($get['finderList'] ?? null)),
+            PatientFinderValue::string($get['showInactive'] ?? null) === 'true',
             PatientFinderCriteria::fromArray($get)
         );
     }

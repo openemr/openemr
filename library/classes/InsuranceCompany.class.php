@@ -32,7 +32,7 @@ use OpenEMR\Services\PhoneType;
 class InsuranceCompany extends ORDataObject
 {
     public $name;
-    /** @var TypedPhoneNumber[] */
+    /** @var list<TypedPhoneNumber> */
     public array $phone_numbers = [];
     public $attn;
     public $cms_id;
@@ -247,8 +247,19 @@ class InsuranceCompany extends ORDataObject
 
     public function set_number(string $num, PhoneType $type): void
     {
+        // persist() clears only the WORK and FAX rows before it re-inserts, so a
+        // number of any other type would gain a copy on every save.
+        if ($type !== PhoneType::WORK && $type !== PhoneType::FAX) {
+            throw new \InvalidArgumentException("Only WORK and FAX numbers can be set, not {$type->name}");
+        }
         $typed = TypedPhoneNumber::tryCreate($num, $type);
         if ($typed === null) {
+            return;
+        }
+        // persist() deletes the saved row before it writes this one, and it
+        // cannot store a number without a 10-digit national number, so keep
+        // the saved number rather than lose it.
+        if ($typed->phoneNumber->getNationalDigits() === null) {
             return;
         }
 
@@ -319,20 +330,10 @@ class InsuranceCompany extends ORDataObject
     {
         parent::populate();
         $this->address = Address::factory_address($this->id);
-        $phoneService = new PhoneNumberService();
-        $this->phone_numbers = [];
-        foreach ($phoneService->getPhonesByForeignId($this->id) as $record) {
-            $areaCode = (string) ($record['area_code'] ?? '');
-            $prefix = (string) ($record['prefix'] ?? '');
-            $number = (string) ($record['number'] ?? '');
-            $phoneStr = $areaCode . $prefix . $number;
-            $typeValue = is_int($record['type']) ? $record['type'] : PhoneType::WORK->value;
-            $type = PhoneType::tryFrom($typeValue) ?? PhoneType::WORK;
-            $typed = TypedPhoneNumber::tryCreate($phoneStr, $type);
-            if ($typed !== null) {
-                $this->phone_numbers[] = $typed;
-            }
-        }
+        // persist() rewrites only the work and fax rows, so load no other
+        // type, or the next save would insert a copy of that row.
+        $id = filter_var($this->id, FILTER_VALIDATE_INT);
+        $this->phone_numbers = $id === false ? [] : (new PhoneNumberService())->getWorkAndFaxNumbers($id);
     }
 
     public function persist(): mixed
@@ -346,31 +347,17 @@ class InsuranceCompany extends ORDataObject
         return QueryUtils::inTransaction(function (): mixed {
             $ret = parent::persist();
             $this->address->persist($this->id);
-            $phoneService = new PhoneNumberService();
-            // Reset phone_numbers rows for this company so the table mirrors
-            // $this->phone_numbers after the loop. PhoneNumberService::insert
-            // is a plain INSERT (contrary to the earlier "handles upsert
-            // logic" comment), so without the clear persist() accumulates a
-            // fresh WORK + FAX row on every save and the list-view LEFT JOINs
-            // on phone_numbers multiply each company across
-            // (work_count * fax_count) result rows.
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM phone_numbers WHERE foreign_id = ?",
-                [$this->id]
-            );
-            foreach ($this->phone_numbers as $phone) {
-                $nationalDigits = $phone->phoneNumber->getNationalDigits();
-                if ($nationalDigits === null) {
-                    // The legacy phone_numbers table stores 10-digit NANP parts
-                    // (area_code / prefix / number). Skip numbers we can't
-                    // represent in that schema rather than throwing a TypeError
-                    // from PhoneNumberService::getPhoneParts().
-                    continue;
-                }
-                $phoneData = ['phone' => $nationalDigits];
-                $phoneService->type = $phone->type->value;
-                $phoneService->insert($phoneData, $this->id);
+            // Without the per-type clear in replaceNumbers(), every save would
+            // add a fresh WORK + FAX row, and the list-view LEFT JOINs on
+            // phone_numbers would multiply each company across
+            // (work_count * fax_count) result rows. set_number() admits only
+            // WORK and FAX, so rows of other types, written by other code,
+            // are never touched.
+            $id = filter_var($this->id, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                throw new \UnexpectedValueException('The saved insurance company has no integer id');
             }
+            (new PhoneNumberService())->replaceNumbers($id, $this->phone_numbers);
             return $ret;
         });
     }

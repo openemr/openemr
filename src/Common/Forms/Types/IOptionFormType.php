@@ -11,9 +11,27 @@
 
 namespace OpenEMR\Common\Forms\Types;
 
+/**
+ * $frow is a layout_options row; $currvalue is the field's stored value.
+ */
 interface IOptionFormType {
-    public function buildPrintView($frow, $currvalue, $value_allowed = true);
-    public function buildPlaintextView($frow, $currvalue);
-    public function buildDisplayView($frow, $currvalue): string;
-    public function buildFormView($frow, $currvalue): string;
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildPrintView(array $frow, ?string $currvalue, bool $value_allowed = true);
+
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildPlaintextView(array $frow, ?string $currvalue);
+
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildDisplayView(array $frow, ?string $currvalue): string;
+
+    /**
+     * @param array<mixed> $frow
+     */
+    public function buildFormView(array $frow, ?string $currvalue): string;
 }

@@ -1049,7 +1049,7 @@ function newPatientData(
     $phone_cell = "",
     $hipaa_mail = "",
     $hipaa_voice = "",
-    $squad = 0,
+    string $squad = "",
     $pharmacy_id = 0,
     $drivers_license = "",
     $hipaa_notice = "",

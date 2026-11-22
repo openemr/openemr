@@ -1,0 +1,33 @@
+{#
+The click handlers for the action icon links rendered by action_buttons.html.twig.
+
+@package OpenEMR
+@subpackage OemrUi
+
+@author Robert Down <robertdown@live.com>
+@author Jerry Padgett <sjpadgett@gmail.com>
+@author David Eschelbacher <psoas@tampabay.rr.com>
+@copyright Copyright (c) 2023 Robert Down
+@copyright Copyright (c) 2023 Providence Healthtech
+@copyright Copyright (c) 2025 Jerry Padgett
+@copyright Copyright (c) 2026 David Eschelbacher
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+{% for a in buttonList %}
+    {% if a.getClickHandlerFunctionName() %}
+        var actionButton = document.getElementById({{ a.getID()|js_escape }});
+        actionButton.addEventListener('click', () => {
+            {{ a.getClickHandlerFunctionName()|text }}();
+        });
+    {% endif %}
+{% endfor %}
+});
+
+{% for a in buttonList %}
+    {% if a.getClickHandlerTemplateName() %}
+        {% include a.getClickHandlerTemplateName() %}
+    {% endif %}
+{% endfor %}
+</script>

@@ -85,14 +85,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div class="row">
         <div class="col-12">
             <?php
-            if (AclMain::aclCheckCore('patients', 'med')) {
-                $tmp = getPatientData($pid, "squad");
-                if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-                    echo "<p>(" . xlt('History not authorized') . ")</p>\n";
-                    echo "</body>\n</html>\n";
-                    exit();
-                }
-            } else {
+            if (!AclMain::aclCheckCore('patients', 'med')) {
                 echo "<p>(" . xlt('History not authorized') . ")</p>\n";
                 echo "</body>\n</html>\n";
                 exit();
@@ -107,16 +100,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <?php
-    $list_id = "history"; // to indicate nav item is active, count and give correct id
-    if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {?>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
-            </div>
-        </div>
-        <?php
+    if (AclMain::aclCheckCore('patients', 'med', '', ['write','addonly'])) {
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu();
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'history', $oemr_ui->screenReaderHeading());
         ?>
         <div class="row">
             <div class="col-sm-12">
@@ -145,12 +131,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 </div><!--end of container div -->
 <?php $oemr_ui->oeBelowContainerDiv();?>
-<script>
-    var listId = '#' + <?php echo js_escape($list_id); ?>;
-    $(function () {
-        $(listId).addClass("active");
-    });
-</script>
 <script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [<?php echo !empty($condition_str) ? js_escape($condition_str) : ''; ?>];

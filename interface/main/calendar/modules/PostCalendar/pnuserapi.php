@@ -25,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\PostCalendar\ViewModel\VisitListLoader;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
@@ -555,6 +556,9 @@ function postcalendar_userapi_buildView($args): string
         $providersList = LegacyInputNarrowing::rowList($provinfo ?? null);
         $shortDayNames = LegacyInputNarrowing::stringList($pc_short_day_names);
         $dateStr = LegacyInputNarrowing::stringValue($Date);
+        $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+        $visitListLoader = new VisitListLoader();
+        $visitLists = $visitListLoader->schedule(array_keys($aEvents), $providersList);
         // TPL_IMAGE_PATH is what pcSmarty's constructor builds at
         // pcSmarty.class.php:120. Re-build it here from the same inputs
         // so the new path doesn't depend on the legacy class.
@@ -570,14 +574,15 @@ function postcalendar_userapi_buildView($args): string
                 $dateStr,
                 $shortDayNames,
                 $apptStyle,
-                $tplImagePath
+                $tplImagePath,
+                $visitLists,
+                $isTwelveHourFormat
             );
         } elseif ($vmType === ViewType::DayPrint) {
             $intervalInt = LegacyInputNarrowing::intValue(
                 OEGlobalsBag::getInstance()->get('calendar_interval'),
                 30
             );
-            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
             $renderData = $builder->buildDayPrintRenderData(
                 $aEvents,
                 $providersList,
@@ -587,7 +592,8 @@ function postcalendar_userapi_buildView($args): string
                 $shortDayNames,
                 $apptStyle,
                 $tplImagePath,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                $visitLists
             );
         } elseif ($vmType === ViewType::Month) {
             // Screen view — needs the picker + nav scaffolding.
@@ -637,7 +643,10 @@ function postcalendar_userapi_buildView($args): string
                 $chevRight,
                 LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
-                $currentMonthLabel
+                $currentMonthLabel,
+                $visitLists,
+                $visitListLoader->statuses(),
+                $isTwelveHourFormat
             );
         } elseif ($vmType === ViewType::Day) {
             // Day-screen: same scaffolding as month-screen plus timed-view
@@ -670,7 +679,6 @@ function postcalendar_userapi_buildView($args): string
                 OEGlobalsBag::getInstance()->get('calendar_interval'),
                 30
             );
-            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
 
             $renderData = $builder->buildDayScreenRenderData(
                 $aEvents,
@@ -692,7 +700,9 @@ function postcalendar_userapi_buildView($args): string
                 LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $dayHeaderLabel,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                $visitLists,
+                $visitListLoader->statuses()
             );
         } elseif ($vmType === ViewType::Week) {
             // Week-screen: like day-screen but 7 day-columns per provider.
@@ -732,7 +742,6 @@ function postcalendar_userapi_buildView($args): string
                 OEGlobalsBag::getInstance()->get('calendar_interval'),
                 30
             );
-            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
 
             $renderData = $builder->buildWeekScreenRenderData(
                 $aEvents,
@@ -754,7 +763,9 @@ function postcalendar_userapi_buildView($args): string
                 LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $weekHeaderLabel,
-                $isTwelveHourFormat
+                $isTwelveHourFormat,
+                visitLists: $visitLists,
+                appointmentStatuses: $visitListLoader->statuses()
             );
         } else {
             $renderData = $builder->buildMonthPrintRenderData(
@@ -762,7 +773,9 @@ function postcalendar_userapi_buildView($args): string
                 $providersList,
                 $dateStr,
                 $shortDayNames,
-                $apptStyle
+                $apptStyle,
+                $visitLists,
+                $isTwelveHourFormat
             );
         }
         $renderData['PRINT_VIEW'] = $print ? 1 : 0;

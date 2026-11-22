@@ -31,6 +31,10 @@ class X125010837PTest extends TestCase
     private const ADDRESS_PRIMARY = 99990581;
     private const ADDRESS_SECONDARY = 99990582;
     private const SESSION = 99990681;
+    private const MSP_TYPE_LOG = '*** Medicare is not the primary payer and its Secondary Medicare Type is empty.';
+
+    /** What the last generate() call wrote to the billing log. */
+    private string $log = '';
 
     protected function setUp(): void
     {
@@ -105,6 +109,43 @@ class X125010837PTest extends TestCase
         $this->assertSame(['HI', 'ABK:I10'], $this->elements($segments, 'HI')[0]);
     }
 
+    public function testTheServiceLineCarriesItsBillingIdAsTheLineItemControlNumber(): void
+    {
+        $billingId = QueryUtils::fetchSingleValue(
+            "SELECT id FROM billing WHERE pid = ? AND encounter = ? AND code = '99213'",
+            'id',
+            [self::PID, self::ENC]
+        );
+        $this->assertIsNumeric($billingId);
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        // Loop 2400: the REF follows the service date.
+        $this->assertSame(
+            ['DTP*472*D8*20260901', 'REF*6R*' . $billingId],
+            $this->loopAfter($segments, 'DTP*472*', 2)
+        );
+        $this->assertCount(1, $this->elements($segments, 'REF*6R'), 'one control number for the one service line');
+    }
+
+    public function testTheLineItemControlNumberComesBeforeTheLineNote(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET notecodes = 'LINE NOTE' WHERE pid = ? AND encounter = ? AND code = '99213'",
+            [self::PID, self::ENC]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame(
+            $this->position($segments, 'REF*6R*') + 1,
+            $this->position($segments, 'NTE*ADD*'),
+            'loop 2400 lists its REF segments before its NTE'
+        );
+    }
+
     public function testAPrimaryClaimNamesThePayerIn2010BBAndTheSecondaryIn2330B(): void
     {
         [$segments] = $this->generate();
@@ -130,21 +171,7 @@ class X125010837PTest extends TestCase
 
     public function testASecondaryClaimNamesTheOtherPayerWithItsAddressInLoop2330B(): void
     {
-        // The primary has paid 60.00 and written off 20.00, as its remit would have posted.
-        QueryUtils::sqlStatementThrowException(
-            "INSERT INTO ar_session (session_id, payer_id, user_id, reference, check_date, deposit_date, pay_total, " .
-            "payment_type, adjustment_code, post_to_date, patient_id, payment_method) " .
-            "VALUES (?, ?, 1, 'TESTERA', '2026-09-15', '2026-09-15', 60.00, 'insurance', 'insurance_payment', " .
-            "'2026-09-15', ?, 'electronic')",
-            [self::SESSION, self::PRIMARY, self::PID]
-        );
-        QueryUtils::sqlStatementThrowException(
-            "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, " .
-            "post_user, session_id, pay_amount, adj_amount, memo, account_code, post_date) " .
-            "VALUES (?, ?, 1, 'CPT4', '99213', '', 1, NOW(), 1, ?, 60.00, 0, '', 'IPP', '2026-09-15'), " .
-            "(?, ?, 2, 'CPT4', '99213', '', 1, NOW(), 1, ?, 0, 20.00, 'Ins1 adjust code 45', '', '2026-09-15')",
-            [self::PID, self::ENC, self::SESSION, self::PID, self::ENC, self::SESSION]
-        );
+        $this->postThePrimarysPayment();
 
         [$segments, $edicount] = $this->generate(self::SECONDARY);
 
@@ -183,6 +210,77 @@ class X125010837PTest extends TestCase
         $this->assertCount(2, $this->elements($segments, 'CAS'), 'no CAS outside loop 2430');
     }
 
+    public function testAMedicareSecondaryClaimWithoutItsTypeIsLogged(): void
+    {
+        // Both test payers are Medicare Part B (ins_type_code 2); neither policy has a type.
+        $this->postThePrimarysPayment();
+        [$segments] = $this->generate(self::SECONDARY);
+
+        // 2000B: the SBR05 a payer other than primary requires goes out empty.
+        $this->assertSame(['SBR', 'S', '18', '', '', ''], array_slice($this->elements($segments, 'SBR')[0], 0, 6));
+        $this->assertStringContainsString(self::MSP_TYPE_LOG, $this->log);
+    }
+
+    public function testAMedicareSecondaryClaimWithItsTypeSendsItAndIsNotLogged(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE insurance_data SET policy_type = '12' WHERE pid = ? AND type = 'secondary'",
+            [self::PID]
+        );
+
+        $this->postThePrimarysPayment();
+        [$segments] = $this->generate(self::SECONDARY);
+
+        $this->assertSame('12', $this->elements($segments, 'SBR')[0][5]);
+        $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $this->log);
+    }
+
+    public function testAPrimaryClaimLogsAMedicareSecondaryWithoutItsTypeInLoop2320(): void
+    {
+        // Billing the primary: the secondary is the other subscriber (2320), and its SBR05 is empty too.
+        [$segments] = $this->generate();
+
+        $this->assertSame(['SBR', 'S'], array_slice($this->elements($segments, 'SBR')[1], 0, 2));
+        $this->assertSame('', $this->elements($segments, 'SBR')[1][5]);
+        $this->assertStringContainsString(self::MSP_TYPE_LOG, $this->log);
+    }
+
+    public function testASecondaryThatIsNotMedicareIsNotLogged(): void
+    {
+        // ins_type_code 16: commercial insurance (CI).
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE insurance_companies SET ins_type_code = 16 WHERE id = ?",
+            [self::SECONDARY]
+        );
+
+        $this->postThePrimarysPayment();
+        $this->generate(self::SECONDARY);
+        $secondaryLog = $this->log;
+        $this->generate();
+
+        $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $secondaryLog);
+        $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $this->log);
+    }
+
+    private function postThePrimarysPayment(): void
+    {
+        // The primary has paid 60.00 and written off 20.00, as its remit would have posted.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO ar_session (session_id, payer_id, user_id, reference, check_date, deposit_date, pay_total, " .
+            "payment_type, adjustment_code, post_to_date, patient_id, payment_method) " .
+            "VALUES (?, ?, 1, 'TESTERA', '2026-09-15', '2026-09-15', 60.00, 'insurance', 'insurance_payment', " .
+            "'2026-09-15', ?, 'electronic')",
+            [self::SESSION, self::PRIMARY, self::PID]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, " .
+            "post_user, session_id, pay_amount, adj_amount, memo, account_code, post_date) " .
+            "VALUES (?, ?, 1, 'CPT4', '99213', '', 1, NOW(), 1, ?, 60.00, 0, '', 'IPP', '2026-09-15'), " .
+            "(?, ?, 2, 'CPT4', '99213', '', 1, NOW(), 1, ?, 0, 20.00, 'Ins1 adjust code 45', '', '2026-09-15')",
+            [self::PID, self::ENC, self::SESSION, self::PID, self::ENC, self::SESSION]
+        );
+    }
+
     /**
      * @return array{list<string>, int} the segments without their terminator, and the generator's segment count
      */
@@ -205,6 +303,8 @@ class X125010837PTest extends TestCase
             payerId: $payerId === null ? null : (string) $payerId,
         );
         $this->assertIsInt($edicount);
+        $this->assertIsString($log);
+        $this->log = $log;
         $segments = array_values(array_filter(
             array_map(trim(...), explode('~', $out)),
             static fn(string $s): bool => $s !== ''

@@ -1,0 +1,43 @@
+{# The inside of a Visit List block in the on-screen calendar views: a header (title, time
+   range, patient count, and + to add a patient), then its patients in list order, each row
+   colored by appointment status.
+
+   Inputs:
+   - visitList : {title, timeLabel, providerId, eventDate, startHour, startMinute, count,
+       rows}, as VisitListDayColumn builds it
+   - compact : true where the block is narrow (week and month views): rows show only the
+       number and the name, and the category and status are left to the row's tooltip
+   - addDisabled : true on a holiday or closed day, when no appointment can be added
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="visit-list-header">
+    <button type="button" class="visit-list-title" title="{{ 'Click to edit'|xla }}">{{ visitList.title|text }}</button>
+    <span class="visit-list-summary">{{ visitList.timeLabel|text }} · {{ visitList.count }} {% if visitList.count == 1 %}{{ 'patient'|xlt }}{% else %}{{ 'patients'|xlt }}{% endif %}</span>
+    <button type="button" class="visit-list-add btn btn-sm btn-primary"{% if addDisabled %} disabled{% endif %}
+            data-date="{{ visitList.eventDate|attr }}" data-provider="{{ visitList.providerId|attr }}"
+            data-hour="{{ visitList.startHour|attr }}" data-minute="{{ visitList.startMinute|attr }}"
+            title="{{ 'Add a patient to this Visit List'|xla }}" aria-label="{{ 'Add a patient to this Visit List'|xla }}">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<ol class="visit-list-entries">
+    {% for row in visitList.rows %}
+        {# As on a timed appointment: the number (in place of a time) and a
+           double click edit the appointment; the name opens the chart. #}
+        <li class="visit-list-entry" style="background-color: {{ row.bgColor }}"
+            data-eid="{{ row.eid|attr }}" data-date="{{ row.eventDate|attr }}" data-cattype="{{ row.pccattype|attr }}"
+            title="{{ row.tooltip|attr }}">
+            <button type="button" class="visit-list-sequence" title="{{ 'Click to edit'|xla }}">{{ row.sequenceLabel|text }}</button>
+            <a class="visit-list-patient" href="#" data-pid="{{ row.pid|attr }}" title="{{ row.patientTooltip|attr }}">{{ row.patientName|text }}</a>
+            {% if not compact %}
+                <span class="visit-list-category">{{ row.categoryName|text }}</span>
+                <span class="visit-list-status">{{ row.statusTitle|text }}</span>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ol>

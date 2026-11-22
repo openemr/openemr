@@ -1211,6 +1211,17 @@ class Claim
         }
     }
 
+    /**
+     * Whether SBR05 will go out empty where the 837 requires it: Medicare Part B as a payer
+     * other than primary, with no Secondary Medicare Type on the policy.
+     */
+    public function secondaryMedicareTypeMissing(int $ins = 0): bool
+    {
+        return $this->claimType($ins) === 'MB'
+            && $this->payerSequence($ins) !== 'P'
+            && in_array($this->insuredTypeCode($ins), ['', null], true);
+    }
+
   // Is the patient also the subscriber?
   //
     public function isSelfOfInsured($ins = 0): bool
@@ -1601,6 +1612,24 @@ class Claim
      *
      * @return string
      */
+    /**
+     * The service line's billing.id, sent as the line item control number (REF*6R, loop 2400)
+     * so that an 835 can name the line it pays.
+     *
+     * @return string empty when the line has no usable id
+     */
+    public function lineItemControlNumber(int $prockey): string
+    {
+        $procs = $this->procs;
+        $row = is_array($procs) ? ($procs[$prockey] ?? null) : null;
+        $id = is_array($row) ? ($row['id'] ?? null) : null;
+        if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+            return (string) $id;
+        }
+
+        return '';
+    }
+
     public function cptKey($prockey): string
     {
         $tmp = $this->cptModifier($prockey);
