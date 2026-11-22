@@ -41,31 +41,42 @@ Read these end-to-end before executing. They're the surface map.
 
 ### Alpine add (3-stage sequence) — [#13656](https://github.com/openemr/openemr/pull/13656), [#13657](https://github.com/openemr/openemr/pull/13657), [#13658](https://github.com/openemr/openemr/pull/13658) (Alpine 3.24 adoption)
 
-The 3.24 adoption split cleanly into three dependent PRs. Mirror that shape:
+The 3.24 adoption split cleanly into three PRs. Mirror that shape:
 
 1. **Build workflow** — [#13656](https://github.com/openemr/openemr/pull/13656)
    adds `.github/workflows/docker-build-3<XX>.yml` for the new Alpine, calling
    `docker-build-flex-core.yml` with the Alpine version and its supported PHP
-   list. `is_default_flex` stays **false** here so the new workflow builds
-   images but doesn't claim the floating `flex` tag yet.
+   list. Runs nightly on a cron schedule, publishing images to Docker Hub.
+   `is_default_flex` stays **false** here so the new workflow builds images
+   but doesn't claim the floating `flex` tag yet.
 
 2. **Test workflow** — [#13657](https://github.com/openemr/openemr/pull/13657)
    adds `.github/workflows/docker-test-flex-3<XX>.yml`, which calls
-   `docker-test-flex-core.yml` against the new Alpine's images (build-workflow
-   outputs). Must land after #13656 so the test workflow has real images to
-   pull.
+   `docker-test-core.yml`. That reusable workflow does a *local* build:
+   `docker compose build --build-arg ALPINE_VERSION=3.<XX>
+   --build-arg PHP_VERSION=<Y>` against `docker/flex`, then runs tests against
+   the locally-built image. It does not pull from Docker Hub, so it isn't
+   functionally dependent on stage 1 — the ordering is convention. Triggers
+   are `push` to master + `pull_request`, both path-filtered to `docker/flex`
+   and workflow files; no schedule.
 
 3. **Promote to default** — [#13658](https://github.com/openemr/openemr/pull/13658)
    flips the new Alpine's `docker-build-3<XX>.yml`'s `is_default_flex` **true**
-   and the previous default's `is_default_flex` **false**. Also bumps the
-   `openemr/openemr:flex-3.<XX>-php-<Y>@sha256:*` pins across ~26 CI and dev
-   compose files to the new Alpine's digests (dependabot keeps them fresh
-   going forward). Updates `CONTRIBUTING.md` PHP-swap examples and
+   and the previous default's `is_default_flex` **false**. Bumps `ARG
+   ALPINE_VERSION` in `docker/release/Dockerfile` to the new version (release
+   branches keep the Alpine they were cut with; this is a master-only flip).
+   Also bumps the `openemr/openemr:flex-3.<XX>-php-<Y>@sha256:*` pins across
+   ~26 CI and dev compose files to the new Alpine's digests (dependabot keeps
+   them fresh going forward). Updates `CONTRIBUTING.md` PHP-swap examples and
    `docker/README.md` flex tag enumeration.
 
-Land stage 3 only once the new Alpine's images have had time to shake out in
-scheduled nightly builds against stage 2's workflow — a week or two of green
-runs before the default flip.
+Land stage 3 only once the new Alpine's images have had time to shake out — a
+week or two of green nightly runs from stage 1 (which publishes to Docker Hub
+on cron), plus any stage-2 test runs that fired on PRs touching `docker/flex`
+during the window. The gate is "no publish-path or build-path regression has
+surfaced across repeated nightly cycles and whatever contributor-driven test
+runs happened in the window," not "a scheduled stage-2 test run went green"
+(stage 2 has no cron).
 
 ## Keeping older Alpines alive
 
@@ -76,3 +87,18 @@ whichever Alpine was current at their release, and those workflows are the
 authoritative source for their flex images. Alpine retirement is a separate,
 later decision tied to Alpine's own EOL schedule, not tied to adopting the
 next version.
+
+### Caveat: Alpine `community` package shelf-life
+
+Alpine distinguishes two package repositories: `main` is supported for the
+full ~2-year branch lifetime; `community` is supported only until the *next*
+stable release (~6 months). **PHP lives in `community`.** The moment Alpine
+3.<N+1> ships, Alpine 3.<N>'s `community/php*` packages stop getting upstream
+security fixes — well before the 3.<N> branch itself EOLs.
+
+Impact: retaining an older Alpine line for release-branch maintenance (e.g.
+`rel-830` on Alpine 3.23 after 3.24 ships) means that release branch's PHP
+packages are already past upstream security support. Factor that into
+release-branch maintenance decisions — the `rel-<NNN>` branch should move
+off an Alpine line sooner than the branch EOL suggests, or accept running on
+unpatched PHP for the gap.

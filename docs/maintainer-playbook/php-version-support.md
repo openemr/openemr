@@ -117,6 +117,21 @@ bump `platform.php` to the new safe patch as follow-up.
 The flag defeats roave's purpose and masks a real signal. Established on
 #15455.
 
+**What `platform.php` does and doesn't guarantee.** `platform.php` is
+Composer's *resolution* simulation — it tells Composer "assume PHP is this
+version when picking packages." It does **not** validate the deployed runtime.
+A deployment running PHP 8.4.0 (below a pinned safe `"8.4.28"`) will not
+trigger any Composer check; roave's conflict only fires during `composer
+update` on the maintainer's machine, not on the deployed server. The actual
+runtime gate is `src/Common/Compatibility/Checker.php`'s `$minimumPhpVersion`,
+which the project keeps at the *publicly-stated* floor (e.g. `"8.4.0"`),
+deliberately looser than the Composer platform pin. In practice, downstream
+users running the openemr Docker images get the latest `php:X.Y-fpm` patch
+automatically (docker-library/php tracks upstream), so the gap only matters
+for hand-installed deployments on an obsolete patch. If stricter enforcement
+is needed per-deployment, run `composer check-platform-reqs` in the
+deployment pipeline against the actual runtime.
+
 ### Deprecations surfaced at the new PHP target
 
 Bumping `platform.php` changes PHPStan's target, and that surfaces new

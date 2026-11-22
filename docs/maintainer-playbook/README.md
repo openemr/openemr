@@ -1,8 +1,10 @@
 # OpenEMR Maintainer Playbook
 
-**Status:** Living document — index of recurring maintenance tasks on OpenEMR
-that happen on a predictable calendar cadence, so they don't fall off the
-radar.
+**Status:** Living document — index of recurring maintainer-side tasks on
+OpenEMR that would otherwise rely on institutional memory, so they don't fall
+off the radar. Includes both calendar-triggered items (PHP drop, Alpine
+adoption) and event-triggered items (triggered by a new upstream release, a
+CVE, a dependency EOL, etc.).
 **Audience:** Maintainers (and coding agents assisting maintainers) on routine
 upkeep. Not for contributors writing feature or bugfix PRs.
 **Relationship to [`AGENTS.md`](../../AGENTS.md):** `AGENTS.md` carries the
@@ -11,8 +13,10 @@ are the layer above it: *when and why to kick off a maintenance pass*, not how
 to write the code inside one. When the two overlap, `AGENTS.md` wins on
 mechanics; these documents own the recurring-task triggers.
 
-Open a sub-document only for the item you're actioning. New admin items that
-recur predictably belong here; one-off plans belong in the parent `docs/`.
+Open a sub-document only for the item you're actioning. New entries belong
+here when the trigger is "a maintainer periodically does X" (calendar or
+event-driven) and the alternative is an unwritten tribal rule; one-off plans
+belong in the parent `docs/`.
 
 ---
 
