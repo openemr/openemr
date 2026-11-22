@@ -12,11 +12,11 @@ as upstream cuts RCs and ships GA.
 **Target:** Approximately 1 year before upstream PHP's end-of-security-support
 ("EOL") date for that minor.
 
-Upstream PHP's release cycle is ~2 years active support + ~1 year security-only
-support, for ~3 years total per minor. Dropping ~1 year before EOL means we
-drop about when active support ends — slightly before, to give the project a
-runway on modern syntax while the version still gets critical patches from
-upstream.
+Upstream PHP's release cycle is ~2 years active support + ~2 years security-only
+support, for ~4 years total per minor. Dropping ~1 year before EOL means we
+drop about midway through the security-only phase — the version still gets
+critical patches from upstream but has been out of active development for
+~1 year, giving the project a runway on modern syntax.
 
 The upstream schedule is published at <https://www.php.net/supported-versions.php>.
 Check it when deciding whether a drop is due; don't rely on memory.
