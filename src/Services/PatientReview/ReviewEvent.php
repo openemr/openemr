@@ -20,6 +20,8 @@ final readonly class ReviewEvent
 {
     /**
      * @param ?ReviewStatus $from null for the event that created the request
+     * @param ?array<array-key, mixed> $previousPayload what the request held before the submitter
+     *                                                  replaced it; null for a status change
      */
     public function __construct(
         public int $id,
@@ -30,6 +32,7 @@ final readonly class ReviewEvent
         public ?int $actorId,
         public DateTimeImmutable $createdAt,
         public ?string $note,
+        public ?array $previousPayload = null,
     ) {
     }
 }

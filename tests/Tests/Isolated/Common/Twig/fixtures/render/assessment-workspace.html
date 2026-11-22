@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+    <title>PHQ-9</title>
+    <!-- setupHeader stub -->
+    <link href="/q.css" media="screen" rel="stylesheet" />
+<script src="/q.js" data-openemr-version="8.5.0" data-openemr-strings="{}"></script>
+</head>
+<body class="bg-light">
+<div class="container-fluid py-2">
+            <div id="native-assessment-alert" class="d-none" role="alert"></div>
+        <div id="formContainer" class="bg-light text-dark"></div>
+    </div>
+<script>
+        const questionnaire = {"resourceType":"Questionnaire","title":"PHQ-9","description":"Depression screen"};
+    const questionnaireResponse = {"resourceType":"QuestionnaireResponse","status":"in-progress"};
+    const questionnaireRecordId = 1;
+    const responseId = "qr-11";
+    const saveUrl = "\/interface\/forms\/questionnaire_assessments\/native_save.php";
+    const csrfToken = "token";
+    const alertElement = document.getElementById('native-assessment-alert');
+
+    function showAssessmentAlert(message, type = 'danger') {
+        alertElement.className = 'alert alert-' + type;
+        alertElement.textContent = message;
+    }
+
+    function clearAssessmentAlert() {
+        alertElement.className = 'd-none';
+        alertElement.textContent = '';
+    }
+
+    const runtime = OpenEMRQuestionnaire.mount({
+        questionnaire,
+        questionnaireResponse,
+        container: document.getElementById('formContainer'),
+        options: {
+            questionLayout: 'vertical',
+        },
+    });
+
+    window.addEventListener('message', async (event) => {
+        // Control messages come only from the host page, so the sender must be the parent
+        // window, not just same-origin: any same-origin frame could otherwise post here. The
+        // page checks the source of the replies the same way.
+        if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.submitForm !== true) {
+            return;
+        }
+
+        clearAssessmentAlert();
+        const validation = runtime.validate();
+        if (!validation.valid) {
+            const message = validation.issues.map((issue) => issue.message).join(' ');
+            showAssessmentAlert(message || "Form validation failed.");
+            parent.postMessage({assessmentValidationFailed: true}, window.location.origin);
+            return;
+        }
+
+        const data = new FormData();
+        data.append('csrf_token_form', csrfToken);
+        data.append('questionnaire_id', String(questionnaireRecordId));
+        data.append('response_id', responseId);
+        data.append('questionnaire_response', JSON.stringify(runtime.getQuestionnaireResponse({ complete: true })));
+
+        try {
+            top.restoreSession();
+            const response = await fetch(saveUrl, {
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            });
+            const result = await response.json();
+            if (!response.ok || result.success !== true) {
+                throw new Error(result.message || "Assessment save failed.");
+            }
+
+            parent.postMessage({
+                assessmentSaved: true,
+                responseId: result.response_id,
+                recordId: result.id,
+            }, window.location.origin);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Assessment save failed.";
+            showAssessmentAlert(message);
+            parent.postMessage({assessmentSaveFailed: true}, window.location.origin);
+        }
+    });
+
+    // The listener is in place: the page may enable its Save button now. The URL tells the page
+    // which opening of the frame this is, so a late message from a closed one is ignored.
+    parent.postMessage({assessmentReady: true, href: window.location.href}, window.location.origin);
+</script>
+</body>
+</html>

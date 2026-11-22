@@ -94,7 +94,9 @@ class QuestionnaireService extends BaseService
      * @param $q_id
      * @param $lform
      * @param $type
-     * @param ?string $category the grouping category of the questionnaire
+     * @param ?string $category the grouping category of the questionnaire. Null on an update keeps
+     *                          the stored category: category availability rules read it, and a
+     *                          caller with no opinion must not take the questionnaire out of them
      * @return false|int|mixed
      * @throws Exception
      */
@@ -191,7 +193,7 @@ class QuestionnaireService extends BaseService
         ];
 
         $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`,`category`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?,?)";
-        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ?, `category` = ? WHERE `questionnaire_repository`.`id` = ?";
+        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = COALESCE(?, `lform`), `category` = COALESCE(?, `category`) WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;

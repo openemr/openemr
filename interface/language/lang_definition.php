@@ -21,6 +21,7 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\TranslationCache;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {
@@ -165,6 +166,7 @@ if (!empty($_POST['load'])) {
     }
 
     if ($go == 'yes') {
+        TranslationCache::bumpSharedVersion();
         echo xlt("New Definition set added");
     }
 }

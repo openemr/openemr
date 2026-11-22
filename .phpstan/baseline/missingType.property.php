@@ -247,31 +247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property eRxPage\\:\\:\\$authUserId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxPage\\:\\:\\$destination has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxPage\\:\\:\\$patientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxPage\\:\\:\\$prescriptionCount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxPage\\:\\:\\$prescriptionIds has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property eRxSOAP\\:\\:\\$authUserDetails has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
@@ -300,46 +275,6 @@ $ignoreErrors[] = [
     'message' => '#^Property eRxSOAP\\:\\:\\$soapSettings has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$demographicsCheckMessages has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$document has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$fieldEmptyMessages has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$ncScript has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$sentAllergyIds has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$sentMedicationIds has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$sentPrescriptionIds has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property eRxXMLBuilder\\:\\:\\$warningMessages has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property fee_sheet_option\\:\\:\\$fee_display has no type specified\\.$#',
@@ -10702,11 +10637,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\OeUI\\\\OemrUI\\:\\:\\$ed has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\OeUI\\\\OemrUI\\:\\:\\$expandTitle has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
@@ -10778,11 +10708,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\OeUI\\\\OemrUI\\:\\:\\$target has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\OeUI\\\\OemrUI\\:\\:\\$twig has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
@@ -11125,16 +11050,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateParse\\:\\:\\$templateData has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:\\$externalValidatorEnabled has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:\\$externalValidatorUrl has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Cda\\\\ClinicalNoteParser\\:\\:\\$xml has no type specified\\.$#',

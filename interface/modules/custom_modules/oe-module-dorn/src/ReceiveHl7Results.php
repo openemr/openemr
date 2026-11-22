@@ -53,7 +53,16 @@ class ReceiveHl7Results
         $returnValue = new ReceiveResultsResponseModel();
         $resultPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
 
+        // `orderNumber` is sourced from an external lab API response and is
+        // spliced into a filename below. basename() plus a path-component
+        // character allow-list normalize it to a single safe filename segment
+        // under the `procedure_results` directory tree.
         $orderNumber = $result->orderNumber;
+        $orderNumber = preg_replace(
+            '#[^A-Za-z0-9._-]#',
+            '_',
+            basename(is_string($orderNumber) ? $orderNumber : ''),
+        );
         $patientId = $result->patientId;
 
         $returnValue->resultsGuid = $result->resultGuid;

@@ -40,8 +40,6 @@ class InstallCommand extends Command
         #[Option(description: 'Database username for OpenEMR')] string $dbUser = '',
         #[Option(description: 'Database password for OpenEMR')] string $dbPassword = '',
         #[Option(description: 'Database name')] string $dbName = 'openemr',
-        #[Option(description: 'Database root username')] string $dbRootUser = 'root',
-        #[Option(description: 'Database root password')] string $dbRootPassword = '',
         #[Option(description: 'OpenEMR admin display name')] string $oeAdminName = 'Administrator',
         #[Option(description: 'OpenEMR admin username')] string $oeAdminUsername = 'admin',
         #[Option(description: 'OpenEMR admin password')] string $oeAdminPassword = '',
@@ -60,10 +58,14 @@ class InstallCommand extends Command
             return Command::FAILURE;
         }
 
+        if ($dbUser === 'root') {
+            $io->error('The database user must not be root. Create a dedicated user with full privileges on the database first.');
+            return Command::FAILURE;
+        }
+
         $params = [
-            // DB root
-            'root' => $dbRootUser,
-            'rootpass' => $dbRootPassword,
+            // The database and its user must already exist.
+            'no_root_db_access' => '1',
 
             // Runtime DB info
             'server' => $dbHost,
@@ -74,8 +76,6 @@ class InstallCommand extends Command
             // Future:
             // - sockets instead of host/port
             // - SSL
-
-            'loginhost' => '%', // FIXME: webserver for db user
 
             // Initial admin user seed
             'iuser' => $oeAdminUsername,

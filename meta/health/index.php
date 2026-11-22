@@ -16,7 +16,9 @@
 // Load autoloader
 require_once __DIR__ . "/../../vendor/autoload.php";
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Health\HealthChecker;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,18 +40,9 @@ try {
         // Set up site context - default to "default" site
         $siteId = 'default';
         $_GET['site'] = $siteId;
+        OEGlobalsBag::getInstance()->set('OE_SITE_DIR', dirname(__DIR__, 2) . "/sites/{$siteId}");
 
-        // Load sqlconf.php first to check installation status
-        $sqlconfPath = __DIR__ . "/../../sites/{$siteId}/sqlconf.php";
-        if (file_exists($sqlconfPath)) {
-            require_once $sqlconfPath;
-        }
-
-        // Check if OpenEMR is installed ($config is set in sqlconf.php)
-        global $config;
-        $isInstalled = isset($config) && $config === 1;
-
-        if ($isInstalled) {
+        if (ServiceContainer::getSiteInstallState()->isInstalled) {
             // Bootstrap OpenEMR globals (this sets up database connection)
             // NOTE: This loads the full OpenEMR framework on each probe request.
             // For high-frequency probes, a lighter bootstrap path that only

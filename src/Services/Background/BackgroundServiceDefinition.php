@@ -39,6 +39,10 @@ namespace OpenEMR\Services\Background;
  */
 final readonly class BackgroundServiceDefinition
 {
+    /**
+     * @param string $function a global function, or a public static method as `Class::method`
+     * @param ?string $requireOnce file that defines a global function; null for a class handler
+     */
     public function __construct(
         public readonly string $name,
         public readonly string $title,

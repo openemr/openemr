@@ -19,8 +19,10 @@ interface PhiMailDocumentStore
     /**
      * @param string $path the downloaded file; the caller removes it afterward
      * @param int $ownerId the OpenEMR user recorded as the document's owner
+     * @param ?int $patientId the patient whose chart it's filed in, or null for the Direct folder no
+     *     patient has, where a message nobody can match goes
      * @return ?PhiMailStoredDocument null when the document was not stored
      * @throws PhiMailDocumentException
      */
-    public function store(string $name, string $mimeType, string $path, int $ownerId): ?PhiMailStoredDocument;
+    public function store(string $name, string $mimeType, string $path, int $ownerId, ?int $patientId = null): ?PhiMailStoredDocument;
 }

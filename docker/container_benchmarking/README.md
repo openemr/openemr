@@ -433,6 +433,7 @@ Each test creates isolated Docker Compose environments and cleans up automatical
 | `ssl_configuration` | SSL/TLS certificate setup | Certificates mounted, HTTPS accessible |
 | `redis_sessions` | Redis session storage | Redis handler configured, marker file exists |
 | `swarm_mode` | Multi-container coordination | Leader election, completion marker, follower wait |
+| `swarm_takeover` | Leader crash recovery | First leader killed after claiming the lease; exactly one follower takes over, setup completes, lease files removed |
 | `kubernetes_mode` | K8s admin/worker roles | Admin exits after setup, worker serves traffic |
 | `xdebug_configuration` | XDebug development setup | XDebug module loaded, opcache disabled |
 | `document_upload` | File upload functionality | Documents directory writable, files can be created |

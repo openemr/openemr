@@ -91,12 +91,6 @@ use getMethod\\(\\) instead$#',
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:
-read from the \\-\\>logger property$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationController\\:
 read from the \\-\\>logger property$#',
     'count' => 6,
@@ -179,12 +173,6 @@ $ignoreErrors[] = [
 use setLogger\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
-read from the \\-\\>logger property$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
@@ -539,12 +527,6 @@ $ignoreErrors[] = [
 Use dispatch\\(\\) instead for order\\-independent routing\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/ControllerRoutingTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Cda/CdaValidateDocumentsTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:

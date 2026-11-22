@@ -244,7 +244,8 @@ function generate_select_list(
         // Populate the options array with pertinent values
 
         while ($lrow = sqlFetchArray($lres)) {
-            $selectedValues = explode("|", $currvalue ?? '');
+            // Only a multiple select stores several values joined with "|".
+            $selectedValues = $multiple ? explode("|", $currvalue ?? '') : [$currvalue ?? ''];
             $isSelected = false;
 
             $optionValue = attr($lrow ['option_id']);
@@ -309,13 +310,17 @@ function generate_select_list(
         $list_id = $backup_list;
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
+        // Keep the stored value selected, so saving the form doesn't replace it with the empty option.
+        if (($_options[0]['value'] ?? null) === '') {
+            $_options[0]['isSelected'] = false;
+        }
         $_options[] = [
             'value' => attr($currvalue),
-            'selected' => true,
+            'isSelected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if (empty($lrow) && empty($backup_list)) {
-            $metadata['error'] = [
+        if (!is_array($lrow)) {
+            $_metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
             ];
@@ -583,6 +588,7 @@ function genLabResults($frow, $currvalue, $outtype = 0, $disabled = ''): string
 function generate_form_field($frow, $currvalue): void
 {
     global $rootdir, $date_init, $code_types, $membership_group_number;
+    $frow = is_array($frow) ? $frow : [];
     $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -717,7 +723,7 @@ function generate_form_field($frow, $currvalue): void
 
         // Use type="email" for fields with email validation for native browser validation
         $fieldValidation = null;
-        if (is_array($frow) && array_key_exists('validation', $frow) && is_string($frow['validation'])) {
+        if (array_key_exists('validation', $frow) && is_string($frow['validation'])) {
             $fieldValidation = $frow['validation'];
         }
         $inputType = ($fieldValidation === 'email') ? 'email' : 'text';
@@ -884,25 +890,6 @@ function generate_form_field($frow, $currvalue): void
          * they would have to listen to this event.
         */
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION);
-    } elseif ($data_type == 13) { // squads
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
-        echo " $lbfonchange $disabled>";
-        echo "<option value=''>&nbsp;</option>";
-        $squads = AclExtended::aclGetSquads();
-        if ($squads) {
-            foreach ($squads as $key => $value) {
-                $optionValue = htmlspecialchars((string) $key, ENT_QUOTES);
-                $optionLabel = htmlspecialchars((string) $value[3], ENT_NOQUOTES);
-                echo "<option value='$optionValue'";
-                if ($currvalue == $key) {
-                    echo " selected";
-                }
-
-                echo ">$optionLabel</option>\n";
-            }
-        }
-
-        echo "</select>";
     } elseif ($data_type == 14) {
         // Address book, preferring organization name if it exists and is not in
         // parentheses, and excluding local users who are not providers.
@@ -967,7 +954,7 @@ function generate_form_field($frow, $currvalue): void
         echo "</select>";
     } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // A billing code. If description matches an existing code type then that type is used.
         $billingCodeType = new BillingCodeType();
-        echo $billingCodeType->buildFormView($frow, $currvalue);
+        echo $billingCodeType->buildFormView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
     } elseif ($data_type == 16) { // insurance company list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'>";
         echo "<option value='0'></option>";
@@ -1357,7 +1344,7 @@ function generate_form_field($frow, $currvalue): void
     } elseif ($data_type == 28 || $data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) { // special case for history of lifestyle status; 3 radio buttons
         if ($data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $obj = new SmokingStatusType();
-            echo $obj->buildFormView($frow, $currvalue);
+            echo $obj->buildFormView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return;
         }
         // and a date text field:
@@ -1695,6 +1682,7 @@ function generate_form_field($frow, $currvalue): void
 function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
     global $rootdir, $date_init;
+    $frow = is_array($frow) ? $frow : [];
     $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -1845,25 +1833,6 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             }
         }
         $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars($tmp, ENT_QUOTES);
-
-            echo $tmp;
-    } elseif ($data_type == 13) { // squads
-        $tmp = '';
-        if ($currvalue) {
-            $squads = AclExtended::aclGetSquads();
-            if ($squads) {
-                foreach ($squads as $key => $value) {
-                    if ($currvalue == $key) {
-                        $tmp = $value[3];
-                    }
-                }
-            }
-
-            if (empty($tmp)) {
-                $tmp = "($currvalue)";
-            }
-        }
-        $tmp = $tmp === '' ? '&nbsp;' : htmlspecialchars((string) $tmp, ENT_QUOTES);
 
             echo $tmp;
     } elseif ($data_type == 14) { // Address book.
@@ -2143,7 +2112,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 28 || $data_type == 32) {
         if ($data_type === SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $smokingType = new SmokingStatusType();
-            echo $smokingType->buildPrintView($frow, $currvalue, $value_allowed);
+            echo $smokingType->buildPrintView($frow, is_scalar($currvalue) ? (string) $currvalue : null, $value_allowed);
             return;
         }
         $tmp = explode('|', (string) $currvalue);
@@ -2357,6 +2326,7 @@ function generate_list_map($list_id, $translate = false): array
 
 function generate_display_field($frow, $currvalue): string
 {
+    $frow = is_array($frow) ? $frow : [];
     $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -2451,15 +2421,6 @@ function generate_display_field($frow, $currvalue): string
          * they would have to listen to this event.
         */
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION);
-    } elseif ($data_type == 13) { // squads
-        $squads = AclExtended::aclGetSquads();
-        if ($squads) {
-            foreach ($squads as $key => $value) {
-                if ($currvalue == $key) {
-                    $s .= htmlspecialchars((string) $value[3], ENT_NOQUOTES);
-                }
-            }
-        }
     } elseif ($data_type == 14) { // address book
         $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
         "WHERE id = ?", [$currvalue]);
@@ -2476,7 +2437,7 @@ function generate_display_field($frow, $currvalue): string
         $s = htmlspecialchars((string) $uname, ENT_NOQUOTES);
     } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // billing code
         $billingCodeType = new BillingCodeType();
-        $s = $billingCodeType->buildDisplayView($frow, $currvalue);
+        $s = $billingCodeType->buildDisplayView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
     } elseif ($data_type == 16) { // insurance company list
         $insprovs = getInsuranceProviders();
         foreach ($insprovs as $key => $ipname) {
@@ -2672,7 +2633,7 @@ function generate_display_field($frow, $currvalue): string
     } elseif ($data_type == 28 || $data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) { // special case for history of lifestyle status; 3 radio buttons
         if ($data_type === SmokingStatusType::OPTIONS_TYPE_INDEX) {
             $smokingType = new SmokingStatusType();
-            $s .= $smokingType->buildDisplayView($frow, $currvalue);
+            $s .= $smokingType->buildDisplayView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return $s;
         }
         // and a date text field:
@@ -2862,6 +2823,7 @@ function generate_display_field($frow, $currvalue): string
 //
 function generate_plaintext_field($frow, $currvalue)
 {
+    $frow = is_array($frow) ? $frow : [];
     $ISSUE_TYPES = IssueTypeRegistry::issueTypes();
 
     $data_type = $frow['data_type'];
@@ -2906,7 +2868,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $currvalue;
     } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) {
         $billingCodeType = new BillingCodeType();
-        $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
+        $s = $billingCodeType->buildPlaintextView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
     } elseif ($data_type == 4) { // date
         $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
         $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(DateFormatterUtils::oeFormatDateTime($currvalue));
@@ -3090,7 +3052,7 @@ function generate_plaintext_field($frow, $currvalue)
         if ($data_type == SmokingStatusType::OPTIONS_TYPE_INDEX) {
             // support for SmokingStatusType
             $smokingType = new SmokingStatusType();
-            $s = $smokingType->buildPlaintextView($frow, $currvalue);
+            $s = $smokingType->buildPlaintextView($frow, is_scalar($currvalue) ? (string) $currvalue : null);
             return $s;
         }
 
@@ -3304,7 +3266,7 @@ function accumActionConditions(&$frow, &$condition_str): void
         if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && str_contains((string) $frow['edit_options'], '2')) {
             $billingCodeType = new BillingCodeType();
             // For billing codes handle requirement to display its description.
-            $condition_str .= $billingCodeType->getAccumActionConditions($frow, $condition_str, $action);
+            $condition_str .= $billingCodeType->getAccumActionConditions(is_array($frow) ? $frow : [], is_string($condition_str) ? $condition_str : '', is_string($action) ? $action : '');
         }
         $condition_str .= "andor:" . js_escape($andor) . "}";
     }
@@ -4376,7 +4338,6 @@ function generate_layout_validation($form_id): void
                 case 1:
                 case 11:
                 case 12:
-                case 13:
                 case 14:
                 case 26:
                     echo
@@ -4659,6 +4620,13 @@ function billing_facility($name, $select): void
 //
 function getListItemTitle($list, $option)
 {
+    if (is_int($option)) {
+        $option = (string) $option;
+    }
+    // Hand back anything that cannot name a list option, as an unmatched lookup always has.
+    if (!is_string($list) || !(is_string($option) || $option === null)) {
+        return $option;
+    }
     return LayoutsUtils::getListItemTitle($list, $option);
 }
 
@@ -4857,11 +4825,11 @@ EOD;
 /**
  *  Test if modifier($test) is in array of options for data type.
  * @deprecated use LayoutsUtils::isOption
- * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
+ * @param mixed $options legacy callers pass raw layout values; only a string holds options
  * @param string $test
  * @return bool
  */
 function isOption($options, string $test): bool
 {
-    return LayoutsUtils::isOption($options, $test);
+    return LayoutsUtils::isOption(is_string($options) ? $options : null, $test);
 }

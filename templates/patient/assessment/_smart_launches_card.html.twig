@@ -1,0 +1,48 @@
+{#
+  SMART Context Test Launches: open each registered SMART app with standard patient,
+  encounter, main-tab or appointment context. Takes smartTestApps, intents,
+  currentEncounterId, smartLaunchesSection and smartLaunchesCollapsed.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% import 'super/_collapse_persist.html.twig' as collapse %}
+<div class="card my-3">
+    <div class="card-header">
+        {{ collapse.toggle(smartLaunchesSection, 'SMART Context Test Launches'|xl, smartLaunchesCollapsed) }}
+    </div>
+    <div id="{{ smartLaunchesSection|attr }}" class="collapse{{ smartLaunchesCollapsed ? '' : ' show' }}" data-persist-collapse>
+        <div class="card-body">
+            <div class="small text-muted mb-3">
+                {{ 'Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.'|xlt }}
+            </div>
+            {% for app in smartTestApps %}
+                <div class="border rounded p-2 mb-2">
+                    <div class="font-weight-bold mb-2">{{ app.name|text }}</div>
+                    <div class="d-flex flex-wrap align-items-center">
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="{{ app.name|attr }}" data-client-id="{{ app.clientId|attr }}" data-intent="{{ intents.patient|attr }}">
+                            {{ 'Patient'|xlt }}
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="{{ app.name|attr }}" data-client-id="{{ app.clientId|attr }}" data-intent="{{ intents.encounter|attr }}"{{ currentEncounterId is null ? ' disabled' : '' }}>
+                            {{ 'Current Encounter'|xlt }}
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="{{ app.name|attr }}" data-client-id="{{ app.clientId|attr }}" data-intent="{{ intents.mainTab|attr }}">
+                            {{ 'Main Tab'|xlt }}
+                        </button>
+                        <div class="input-group input-group-sm mb-2" style="max-width: 280px;">
+                            <input type="number" min="1" class="form-control smart-appointment-id" aria-label="{{ 'Appointment ID'|xla }}" placeholder="{{ 'Appointment ID'|xla }}">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary smart-context-launch" data-smart-name="{{ app.name|attr }}" data-client-id="{{ app.clientId|attr }}" data-intent="{{ intents.appointment|attr }}" data-appointment-launch="true">
+                                    {{ 'Appointment'|xlt }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

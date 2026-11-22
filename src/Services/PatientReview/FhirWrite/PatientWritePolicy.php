@@ -63,13 +63,49 @@ final readonly class PatientWritePolicy
     }
 
     /**
-     * The types to advertise in scopes_supported, which lists scopes the server must support.
-     * Nothing is advertised while the mode is Off, whichever types are switched on.
+     * The types to advertise in scopes_supported, which lists scopes the server must support,
+     * and to let through the API's permission gates. Nothing is advertised while the mode is
+     * Off, whichever types are switched on, and never a type the API doesn't serve yet.
      *
      * @return list<PatientWritableType>
      */
     public function advertisedTypes(): array
     {
-        return $this->mode === PatientWriteMode::Off ? [] : $this->enabledTypes;
+        if ($this->mode === PatientWriteMode::Off) {
+            return [];
+        }
+        return array_values(array_filter(
+            $this->enabledTypes,
+            static fn (PatientWritableType $type): bool => $type->servedByApi(),
+        ));
+    }
+
+    /**
+     * Whether the API's permission gates should let a patient app's write to this FHIR resource
+     * type through to the hold, where the client is checked. Only advertised types pass.
+     */
+    public function opensResource(string $fhirResourceType): bool
+    {
+        foreach ($this->advertisedTypes() as $type) {
+            if ($type->fhirResourceType()->value === $fhirResourceType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a token may be issued with a patient write scope for this resource type to this
+     * kind of client. Checked again on every request, so a token issued before the mode was
+     * turned down still can't write.
+     */
+    public function grantsWriteScope(PatientWriteClientType $client, string $fhirResourceType): bool
+    {
+        foreach ($this->advertisedTypes() as $type) {
+            if ($type->fhirResourceType()->value === $fhirResourceType && $this->allowsWrite($client, $type)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

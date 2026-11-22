@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,7 +21,10 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\MenuItems;
 use OpenEMR\Services\Globals\UserSettingsService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
@@ -59,8 +64,8 @@ class OemrUI
     private $print;
     private $target;
     private $web_root;
-    private $ed;
-    private $twig;
+    private readonly EventDispatcherInterface $ed;
+    private readonly Environment $twig;
     private $page_id;
 
     /**
@@ -148,24 +153,54 @@ class OemrUI
      */
     public function pageHeading(): string
     {
-        /**
-         * @var PageHeadingRenderEvent
-         */
+        return $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $this->headingVars());
+    }
+
+    /**
+     * Returns the page title as a heading only screen readers announce, for pages whose patient
+     * tab row names the section. It goes before the tab row, outside the collapsible part.
+     *
+     * @return string The Twig-rendered html content, suitable for PatientMenuRole::displayHorizNavBarMenu()
+     */
+    public function screenReaderHeading(): string
+    {
+        return $this->twig->render("oemr_ui/page_heading/partials/sr_heading.html.twig", [
+            "heading" => is_string($this->heading) ? $this->heading : '',
+        ]);
+    }
+
+    /**
+     * Returns the heading's controls (title nav content and action icons) without the visible
+     * title, for the right-hand end of the patient tab row. Pages that show the patient tab row
+     * use this and screenReaderHeading() instead of pageHeading(), since the active tab already
+     * names the section.
+     *
+     * @return string The Twig-rendered html content, suitable for PatientMenuRole::displayHorizNavBarMenu()
+     */
+    public function tabRowControls(): string
+    {
+        return $this->twig->render("oemr_ui/page_heading/partials/tab_row_controls.html.twig", $this->headingVars());
+    }
+
+    /**
+     * Collect the heading pieces from PageHeadingRenderEvent listeners.
+     *
+     * @return array{primaryMenu: MenuItems, buttonList: array<mixed>, heading: string, titleNavContent: string}
+     */
+    private function headingVars(): array
+    {
         $pageHeadingEvent = $this->ed->dispatch(
             new PageHeadingRenderEvent($this->page_id),
             PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER
         );
 
-        $vars = [
+        return [
             "primaryMenu" => $pageHeadingEvent->getPrimaryMenuItems(),
             "buttonList" => $pageHeadingEvent->getActions(),
-            "heading" => $this->heading,
+            "heading" => is_string($this->heading) ? $this->heading : '',
             // Title/Patient ---------- Context Dropdown when enabled --------- Action Buttons
             "titleNavContent" => $pageHeadingEvent->getTitleNavContent()
         ];
-
-        $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
-        return $html;
     }
 
 

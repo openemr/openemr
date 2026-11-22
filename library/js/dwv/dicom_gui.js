@@ -127,6 +127,9 @@ dwvOemr.gui.ToolboxContainer = function (app, infoController) {
         image.onclick = function () {
             let layerDialog = app.getElement("layerDialog");
             dwvOemr.html.toggleDisplay(layerDialog);
+            if (dwvOemr.fitLayerContainer) {
+                dwvOemr.fitLayerContainer();
+            }
         };
 
         // info

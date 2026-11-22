@@ -14,14 +14,6 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 interface QdmServiceInterface
 {
-    /**
-     * @return mixed
-     *
-     * For filtering in the WHERE clause, we need the field from the SELECT SQL statement that represents
-     * the patient ID. It's not always pid.
-     */
-    public function getPatientIdColumn();
-
     public function getSqlStatement();
 
     public function makeQdmModel(QdmRecord $recordObj);

@@ -19,6 +19,8 @@ namespace OpenEMR\Services\PatientReview\FhirWrite;
 
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
+use OpenEMR\Services\PatientReview\ReviewRequest;
+use OpenEMR\Services\PatientReview\ReviewType;
 
 final readonly class PatientWriteContext
 {
@@ -52,5 +54,18 @@ final readonly class PatientWriteContext
     public function pid(): int
     {
         return $this->actor->id ?? throw new \LogicException('A patient actor always has a pid');
+    }
+
+    /**
+     * Whether this app wrote the request, for this patient, as this type. Only then may the app
+     * read it back or change it; to anyone else it does not exist.
+     */
+    public function wrote(ReviewRequest $request, PatientWritableType $type): bool
+    {
+        return $request->type === ReviewType::FhirWrite
+            && $request->resourceType !== null
+            && $request->resourceType->equals($type->fhirResourceType())
+            && $request->pid === $this->pid()
+            && $request->clientId === $this->clientId;
     }
 }

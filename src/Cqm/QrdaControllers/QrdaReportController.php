@@ -136,7 +136,23 @@ class QrdaReportController
         $pids = is_array($pids) ? $pids : [$pids];
         if (!$bypid) {
             foreach ($measures as $measure) {
-                $dir_measure = is_array($measure) ? $measure['measure_id'] : $measure;
+                // measure_id arrives from POST and is spliced into two
+                // filesystem paths below (`$zip_directory` under
+                // `sys_get_temp_dir()` and `$directory` under
+                // `OE_SITE_DIR/documents/cat1_reports/measures`). Reject
+                // path-traversal-shaped values (empty, `.`/`..`, leading dot,
+                // or containing a path separator) so mkdir / glob-unlink /
+                // write stay inside each base directory. The validated raw
+                // value is used for both the directory name and downstream
+                // report resolution to avoid a mismatch between what gets
+                // cleared and what gets written.
+                $dir_measure = is_array($measure) ? ($measure['measure_id'] ?? '') : $measure;
+                if (!is_string($dir_measure) || $dir_measure === '') {
+                    continue;
+                }
+                if (preg_match('#[/\\\\]|^\.\.?$|^\.#', $dir_measure) === 1) {
+                    continue;
+                }
                 $measure_directory = $zip_directory . "/" . $dir_measure;
                 $local_directory = $directory . "/" . $dir_measure;
                 if (!is_dir($measure_directory)) {
@@ -187,7 +203,19 @@ class QrdaReportController
             }
             $zip_measure = 'measures';
             if (count($measures ?? []) === 1) {
-                $zip_measure = is_array($measures[0]) ? $measures[0]['measure_id'] : $measures[0];
+                // $zip_measure is spliced into $zip_name below. Only keep a
+                // single measure_id when it is not path-traversal-shaped
+                // (empty, `.`/`..`, leading dot, or containing a path
+                // separator); otherwise fall back to the generic label so the
+                // filename is always well-formed.
+                $candidate = is_array($measures[0]) ? ($measures[0]['measure_id'] ?? '') : $measures[0];
+                if (
+                    is_string($candidate)
+                    && $candidate !== ''
+                    && preg_match('#[/\\\\]|^\.\.?$|^\.#', $candidate) !== 1
+                ) {
+                    $zip_measure = $candidate;
+                }
             }
             $zip_name = "QRDA1_" . $zip_measure . "_" . time() . ".zip";
         } elseif ($bypid) {
@@ -297,7 +325,20 @@ class QrdaReportController
 
         // Generate files for each measure
         foreach ($measures as $measure) {
-            $measure_id = is_array($measure) ? $measure['measure_id'] : $measure;
+            // measure_id reaches the `$filename = $measure_id . ...` sinks
+            // below (and the error-path file_put_contents) as a path
+            // component. Reject path-traversal-shaped values (empty, `.`/`..`,
+            // leading dot, or containing a path separator) so the writes stay
+            // inside $zip_directory. The validated raw value is used for both
+            // the filename and the downstream report call to avoid a mismatch
+            // between the file name and the resolved measure.
+            $measure_id = is_array($measure) ? ($measure['measure_id'] ?? '') : $measure;
+            if (!is_string($measure_id) || $measure_id === '') {
+                continue;
+            }
+            if (preg_match('#[/\\\\]|^\.\.?$|^\.#', $measure_id) === 1) {
+                continue;
+            }
 
             try {
                 $xml = $this->getCategoryIIIReport($pids, $measure_id, $options);

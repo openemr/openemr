@@ -1507,36 +1507,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function array_key_exists_default\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function array_key_exists_default\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function array_key_exists_default\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxPage\\:\\:__construct\\(\\) has parameter \\$xmlBuilder with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxPage\\:\\:checkError\\(\\) has parameter \\$xml with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxPage\\:\\:errorLog\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method eRxSOAP\\:\\:fixHtmlEntities\\(\\) has parameter \\$array with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
@@ -1547,67 +1517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:getPatientAllergiesByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:getPatientDiagnosisByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:getPatientHealthplansByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method eRxStore\\:\\:getPatientVitalsByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectMedicationsNotUploadedByPatientId\\(\\) has parameter \\$limit with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectMedicationsNotUploadedByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectMedicationsNotUploadedByPatientId\\(\\) has parameter \\$uploadActive with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectPrescriptionIdsNotUploadedByPatientId\\(\\) has parameter \\$limit with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectPrescriptionIdsNotUploadedByPatientId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:selectPrescriptionIdsNotUploadedByPatientId\\(\\) has parameter \\$uploadActive with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$allergyId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxStore\\:\\:updateAllergyUploadedByPatientIdAllergyId\\(\\) has parameter \\$uploaded with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
@@ -1630,291 +1540,6 @@ $ignoreErrors[] = [
     'message' => '#^Method eRxStore\\:\\:updatePrescriptionsUploadActiveByPatientIdPrescriptionId\\(\\) has parameter \\$upload with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxStore.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:__construct\\(\\) has parameter \\$globals with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:__construct\\(\\) has parameter \\$store with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:addSentAllergyIds\\(\\) has parameter \\$allergyIds with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:addSentMedicationIds\\(\\) has parameter \\$medicationIds with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:addSentPrescriptionId\\(\\) has parameter \\$prescriptionIds with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:appendChildren\\(\\) has parameter \\$children with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:appendChildren\\(\\) has parameter \\$element with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:checkError\\(\\) has parameter \\$xml with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextDemographicsCheck\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextDemographicsCheck\\(\\) has parameter \\$validationText with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextDemographicsCheck\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextFieldEmpty\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextFieldEmpty\\(\\) has parameter \\$validationText with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementTextFieldEmpty\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementText\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:createElementText\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:demographicsCheck\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:demographicsCheck\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:fieldEmpty\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:fieldEmpty\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getAccountAddress\\(\\) has parameter \\$facility with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getDestination\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getDestination\\(\\) has parameter \\$page with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLicensedPrescriberName\\(\\) has parameter \\$prefix with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLicensedPrescriberName\\(\\) has parameter \\$prescriberType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLicensedPrescriberName\\(\\) has parameter \\$user with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLicensedPrescriber\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLocationAddress\\(\\) has parameter \\$facility with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getLocation\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getMidlevelPrescriber\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getOutsidePrescription\\(\\) has parameter \\$prescription with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientAddress\\(\\) has parameter \\$patient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientCharacteristics\\(\\) has parameter \\$patient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientContact\\(\\) has parameter \\$patient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientDiagnosis\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientElements\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientElements\\(\\) has parameter \\$requestedPrescriptionIds with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientElements\\(\\) has parameter \\$totalCount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientFreeformAllergy\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientFreeformHealthplans\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientMedication\\(\\) has parameter \\$count with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientMedication\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientMedication\\(\\) has parameter \\$uploadActive with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientName\\(\\) has parameter \\$patient with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatientPrescriptions\\(\\) has parameter \\$prescriptionIds with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getPatient\\(\\) has parameter \\$patientId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getStaffElements\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getStaffElements\\(\\) has parameter \\$destination with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getStaffName\\(\\) has parameter \\$user with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getStaff\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getSupervisingDoctor\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getUserRole\\(\\) has parameter \\$authUserId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:stripSpecialCharacter\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:trimData\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:trimData\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:warningMessage\\(\\) has parameter \\$message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:warningMessage\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function LicensedPrescriber\\(\\) has parameter \\$doc with no type specified\\.$#',
@@ -13102,17 +12727,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/base_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ParticipantsController\\:\\:add\\(\\) has parameter \\$groupId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ParticipantsController\\:\\:index\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ParticipantsController\\:\\:index\\(\\) has parameter \\$groupId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/participants_controller.php',
 ];
@@ -13153,11 +12768,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method TherapyGroupsController\\:\\:saveNewGroup\\(\\) has parameter \\$groupData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method TherapyGroupsController\\:\\:setSession\\(\\) has parameter \\$groupId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];
@@ -23422,11 +23032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function newPatientData\\(\\) has parameter \\$squad with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function newPatientData\\(\\) has parameter \\$ss with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -26582,51 +26187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$HLcount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$SEFLAG with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$edicount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$encounter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$encounter_claim with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$log with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$patSegmentCount with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\X125010837P\\:\\:genX12837P\\(\\) has parameter \\$x12_partner with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter\\:\\:__construct\\(\\) has parameter \\$action with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
@@ -27568,16 +27128,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclRemove\\(\\) has parameter \\$return_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclSquadCompare\\(\\) has parameter \\$a with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:aclSquadCompare\\(\\) has parameter \\$b with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
@@ -28677,76 +28227,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildDisplayView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildDisplayView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildFormView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildFormView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildPlaintextView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildPlaintextView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildPrintView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:buildPrintView\\(\\) has parameter \\$value_allowed with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:getAccumActionConditions\\(\\) has parameter \\$action with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:getAccumActionConditions\\(\\) has parameter \\$condition_str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:getAccumActionConditions\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:isOption\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\BillingCodeType\\:\\:isOption\\(\\) has parameter \\$test with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:__construct\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
@@ -28757,17 +28237,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildDisplayView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildFormView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildFormView\\(\\) has parameter \\$frow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
@@ -28777,17 +28247,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildPlaintextView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\EncounterListOptionType\\:\\:buildPrintView\\(\\) has parameter \\$frow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
@@ -28797,57 +28257,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/EncounterListOptionType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildDisplayView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildDisplayView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildFormView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildFormView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildPlaintextView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildPlaintextView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildPrintView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\IOptionFormType\\:\\:buildPrintView\\(\\) has parameter \\$value_allowed with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/IOptionFormType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildDisplayView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildDisplayView\\(\\) has parameter \\$frow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
@@ -28857,27 +28267,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildFormView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildPlaintextView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildPlaintextView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:buildPrintView\\(\\) has parameter \\$frow with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
 ];
@@ -28890,46 +28285,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\LocalProviderListType\\:\\:getProviderFromId\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/LocalProviderListType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildDisplayView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildDisplayView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildFormView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildFormView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPlaintextView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPlaintextView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPrintView\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPrintView\\(\\) has parameter \\$frow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/SmokingStatusType.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Forms\\\\Types\\\\SmokingStatusType\\:\\:buildPrintView\\(\\) has parameter \\$value_allowed with no type specified\\.$#',
@@ -29060,11 +28415,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:withoutHeader\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:\\:__construct\\(\\) has parameter \\$sessionType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttp\\:\\:__callStatic\\(\\) has parameter \\$args with no type specified\\.$#',
@@ -29200,16 +28550,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeOAuth\\:\\:usingAuthHeaders\\(\\) has parameter \\$headers with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:getListItemTitle\\(\\) has parameter \\$list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:getListItemTitle\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:auditSQLAuditTamper\\(\\) has parameter \\$enable with no type specified\\.$#',
@@ -33137,31 +32477,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:createSchematronHtml\\(\\) has parameter \\$amid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:ettValidateCcda\\(\\) has parameter \\$xml with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:ettValidateDocumentRequest\\(\\) has parameter \\$xml with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:fetchValidationLog\\(\\) has parameter \\$audit_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:formatXsdError\\(\\) has parameter \\$error with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:saveValidationLog\\(\\) has parameter \\$docId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -33178,16 +32493,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateDocument\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateXmlXsd\\(\\) has parameter \\$document with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateXmlXsd\\(\\) has parameter \\$type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
@@ -33908,11 +33213,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:uploadTemplate\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DocumentTemplates\\\\DocumentTemplateService\\:\\:uploadTemplate\\(\\) has parameter \\$q_only with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
@@ -36562,27 +35862,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:insertFacility\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:insert\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:updateFacility\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:updateUsersFacility\\(\\) has parameter \\$facility_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:updateUsersFacility\\(\\) has parameter \\$facility_name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
@@ -37850,16 +37130,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:searchProcedureReports\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ProductRegistrationService\\:\\:optInStrategy\\(\\) has parameter \\$email with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProductRegistrationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ProductRegistrationService\\:\\:registerProduct\\(\\) has parameter \\$email with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProductRegistrationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) has parameter \\$effectiveDate with no type specified\\.$#',
