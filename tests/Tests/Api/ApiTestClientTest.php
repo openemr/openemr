@@ -646,15 +646,27 @@ class ApiTestClientTest extends TestCase
         // Mirror ApiTestClient::setAuthToken() — it reads `OE_USER` with
         // `admin` as the fallback, so target that same account when flipping
         // `active` instead of hardcoding `admin`.
+        //
+        // Uses the configured test user rather than a dedicated fixture
+        // because the bearer has to come from a real password grant, which
+        // needs a users_secure row + ACL group assignments the test suite
+        // has no helper for yet. The snapshot/restore below keeps a
+        // sequential test run isolated; a truly parallel test runner would
+        // need the dedicated-fixture path.
         $testUsername = getenv("OE_USER", true) ?: "admin";
         // Snapshot the pre-test active value so the restore in `finally`
         // puts the row back exactly where it was rather than force-setting
         // it to 1 (a shared user may legitimately have been inactive).
-        $originalActive = QueryUtils::fetchSingleValue(
+        $originalActiveRaw = QueryUtils::fetchSingleValue(
             "SELECT `active` FROM `users` WHERE `username` = ?",
             'active',
             [$testUsername]
         );
+        $this->assertIsNumeric(
+            $originalActiveRaw,
+            'Pre-test users.active snapshot must be numeric — refusing to flip and risk a NULL restore'
+        );
+        $originalActive = (int) $originalActiveRaw;
 
         $actualValue = $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualValue->getStatusCode());
@@ -680,8 +692,9 @@ class ApiTestClientTest extends TestCase
                 'Bearer must be rejected once users.active is 0 even though the access-token row is still unrevoked'
             );
         } finally {
-            // Restore the pre-test active value so any failure above does
-            // not leave the shared account in a different state.
+            // Restore the pre-test active value as an int so any failure
+            // above does not leave the shared account in a different state
+            // or NULL out the column.
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `users` SET `active` = ? WHERE `username` = ?",
                 [$originalActive, $testUsername]

@@ -1100,6 +1100,22 @@ class AuthorizationController implements LoggerAwareInterface
         }
         $continueLogin = false;
         if ($request->request->has('user_role')) {
+            // The login form is rendered server-side with user_role set to
+            // 'api' (staff) or 'portal-api' (patient). Only those two
+            // values reach a legitimate MFA-aware branch downstream; any
+            // other value falls through AuthUtils' otherAuth path with no
+            // MFA gate applied. Reject anything outside the allowlist up
+            // front so the downstream flow can keep its user_role === 'api'
+            // MFA check without having to re-validate at every step.
+            if (!in_array($request->request->get('user_role'), ['api', 'portal-api'], true)) {
+                $this->logger->error("AuthorizationController->userLogin() user_role outside allowlist", [
+                    'user_role' => $request->request->get('user_role'),
+                ]);
+                $request->request->replace();
+                $request->overrideGlobals();
+                $loginTwigVars['invalid'] = xl("Sorry, verify the information you have entered is correct");
+                return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
+            }
             if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $session, 'oauth2')) {
                 $this->logger->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfViolation(toScreen: false);

@@ -165,7 +165,7 @@ class AuthUtils
             }
             $this->clearFromMemory($password);
             if ($returnArray['email_notification']) {
-                $this->notifyIpBlock($ip['ip']);
+                $this->notifyIpBlock($ip['ip'], $ip['ip_string']);
             }
             if (!$returnArray['skip_timing_attack']) {
                 $this->preventTimingAttack();
@@ -328,7 +328,7 @@ class AuthUtils
                 }
                 $this->clearFromMemory($password);
                 if ($returnArray['email_notification']) {
-                    $this->notifyIpBlock($ip['ip']);
+                    $this->notifyIpBlock($ip['ip'], $ip['ip_string']);
                 }
                 if (!$returnArray['skip_timing_attack']) {
                     $this->preventTimingAttack();
@@ -1529,7 +1529,7 @@ class AuthUtils
             $this->incrementLoginFailedCounter($username);
         }
         $ip = collectIpAddresses();
-        if ($ip['ip_string'] !== '') {
+        if ($ip['ip'] !== '') {
             $this->setupIpLoginFailedCounter($ip['ip']);
             $this->incrementIpLoginFailedCounter($ip['ip']);
         }
@@ -1553,7 +1553,7 @@ class AuthUtils
             $this->incrementMfaFailCounter($username);
         }
         $ip = collectIpAddresses();
-        if ($ip['ip_string'] !== '') {
+        if ($ip['ip'] !== '') {
             $this->incrementIpMfaLoginFailCounter($ip['ip']);
         }
     }
@@ -1898,18 +1898,23 @@ class AuthUtils
     }
 
     /**
-     * @param string $ip_string
-     * @return bool
+     * UPDATEs the ip_tracking row keyed on REMOTE_ADDR (the stable counter
+     * key) and sends an admin email naming the full `ip_string` display
+     * identifier so the email text matches what admins see in the audit
+     * log for the same event.
+     *
+     * @param string $ip        REMOTE_ADDR — stable counter-row key
+     * @param string $ipDisplay full composite shown in the audit log
      */
-    private function notifyIpBlock(string $ip_string): bool
+    private function notifyIpBlock(string $ip, string $ipDisplay): bool
     {
-        sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip_string]);
+        sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip]);
 
         if (!empty(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')) && !empty(OEGlobalsBag::getInstance()->getString('practice_return_email_path'))) {
             if (empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'))) {
-                $message = "IP address '" . text($ip_string) . "' has been blocked.";
+                $message = "IP address '" . text($ipDisplay) . "' has been blocked.";
             } else {
-                $message = "IP address '" . text($ip_string) . "' has been temporarily blocked.";
+                $message = "IP address '" . text($ipDisplay) . "' has been temporarily blocked.";
             }
             return MyMailer::emailServiceQueue(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'), OEGlobalsBag::getInstance()->getString('practice_return_email_path'), xl('IP Address Block Notification For OpenEMR Admin'), $message);
         } else {
