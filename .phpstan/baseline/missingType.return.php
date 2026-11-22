@@ -12147,11 +12147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/PatientMenuEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Menu\\\\PatientMenuRole\\:\\:displayHorizNavBarMenu\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\PatientMenuRole\\:\\:updateModulesDemographicsMenu\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',

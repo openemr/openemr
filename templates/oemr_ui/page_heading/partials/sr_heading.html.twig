@@ -1,0 +1,13 @@
+{#
+The page title for screen readers only, from OemrUI->screenReaderHeading(). Used on pages whose
+patient tab row names the section, and rendered before the tab row so a collapsed tab row does
+not hide it.
+
+@package OpenEMR
+@subpackage OemrUi
+
+@author David Eschelbacher <psoas@tampabay.rr.com>
+@copyright Copyright (c) 2026 David Eschelbacher
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<h1 class="sr-only">{{ heading|text }}</h1>
