@@ -19,7 +19,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Appointment\VisitList;
 
 use DateTimeImmutable;
+use DateTimeZone;
+use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Appointment\VisitList\VisitListBlockSave;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
+use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\AppointmentService;
@@ -287,6 +291,172 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->assertSame(
             [$this->eids['second'] => 1, $this->eids['timed'] => 2],
             $this->sequencesOn('2031-03-10')
+        );
+    }
+
+    /**
+     * Each patient's date, start and provider, by event ID.
+     *
+     * @param list<int> $eids
+     * @return array<int, string> "date start provider"
+     */
+    private function whereAre(array $eids): array
+    {
+        $where = [];
+        foreach ($eids as $eid) {
+            $rows = QueryUtils::fetchRecords('SELECT pc_eventDate, pc_startTime, pc_aid FROM openemr_postcalendar_events WHERE pc_eid = ?', [$eid]);
+            $row = $rows[0] ?? [];
+            $date = $row['pc_eventDate'] ?? '';
+            $start = $row['pc_startTime'] ?? '';
+            $provider = $row['pc_aid'] ?? null;
+            $provider = is_numeric($provider) ? (int) $provider : 0;
+            $where[$eid] = (is_string($date) ? $date : '') . ' ' . (is_string($start) ? $start : '')
+                . ' ' . ($provider === $this->providerId ? 'a' : ($provider === $this->otherProviderId ? 'b' : 'other'));
+        }
+        return $where;
+    }
+
+    private function blockSave(VisitListRepeatScope $scope, string $selectedDate): VisitListBlockSave
+    {
+        $save = $this->service->blockSave($this->eids['weekly'], $scope, $selectedDate);
+        $this->assertNotNull($save, 'the weekly block has patients');
+        return $save;
+    }
+
+    public function testSavingEveryDateAtANewTimeMovesThePatients(): void
+    {
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?',
+            ['13:00:00', $this->eids['weekly']]
+        );
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(2, $result->moved);
+        $this->assertSame(0, $result->stranded);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 13:00:00 a',
+                $this->eids['second'] => '2031-03-10 13:00:00 a',
+                $this->eids['on edited'] => '2031-03-17 10:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $this->eids['second'], $this->eids['on edited']]),
+            'the date edited into its own block is not part of the series'
+        );
+        $this->assertSame([$this->eids['first'] => 1, $this->eids['second'] => 2], $this->sequencesOn('2031-03-10'));
+    }
+
+    public function testSavingThisDateOnlyMovesOnlyThatDatesPatients(): void
+    {
+        $later = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        $save = $this->blockSave(VisitListRepeatScope::ThisDate, '2031-03-10');
+        // What the editor does: exclude March 10 from the series and add it as its own block at 11:00.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?',
+            [serialize(['event_repeat_freq' => '1', 'event_repeat_freq_type' => '1', 'event_repeat_on_num' => '1',
+                'event_repeat_on_day' => '0', 'event_repeat_on_freq' => '0', 'exdate' => '20310317,20310310']), $this->eids['weekly']]
+        );
+        $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-10', '11:00:00', 14400);
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(2, $result->moved);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 11:00:00 a',
+                $this->eids['second'] => '2031-03-10 11:00:00 a',
+                $later => '2031-03-24 09:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $this->eids['second'], $later])
+        );
+    }
+
+    public function testSavingThisAndLaterOnAnotherWeekdayMovesEachDateByItsPlaceInThePattern(): void
+    {
+        $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        $march31 = $this->insertEvent($this->providerId, 5, '1', '2031-03-31', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        $save = $this->blockSave(VisitListRepeatScope::ThisAndLater, '2031-03-10');
+        // What the editor does: end the series the day before, and start a new one on Tuesday March 11
+        // with the same repeat settings, ending March 31 (so it has no date for March 31's patient).
+        // It keeps the series' excluded dates, so March 17 (a Monday) is still listed, matching no Tuesday.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_endDate = ? WHERE pc_eid = ?',
+            ['2031-03-09', $this->eids['weekly']]
+        );
+        $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-11', '09:00:00', 28800, [
+            'recurrtype' => 1,
+            'endDate' => '2031-03-31',
+            'exdate' => '20310317',
+        ]);
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(3, $result->moved);
+        $this->assertSame(1, $result->stranded);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-11 09:00:00 a',
+                $this->eids['second'] => '2031-03-11 09:00:00 a',
+                $march24 => '2031-03-25 09:00:00 a',
+                $march31 => '2031-03-31 09:00:00 a',
+                $this->eids['on edited'] => '2031-03-17 10:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $this->eids['second'], $march24, $march31, $this->eids['on edited']]),
+            'March 17 was excluded but still counts: March 24 is the 3rd date, so it goes to the 3rd Tuesday'
+        );
+    }
+
+    public function testMovingTheBlockToAnotherProviderMovesThePatients(): void
+    {
+        $third = $this->insertProvider('c');
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_aid = ? WHERE pc_eid = ?', [(string) $third, $this->eids['weekly']]);
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(2, $result->moved);
+        $rows = QueryUtils::fetchRecords(
+            'SELECT pc_aid, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid IN (?, ?) ORDER BY pc_visit_seq',
+            [$this->eids['first'], $this->eids['second']]
+        );
+        $this->assertSame([['pc_aid' => (string) $third, 'pc_visit_seq' => 1], ['pc_aid' => (string) $third, 'pc_visit_seq' => 2]], $rows);
+    }
+
+    public function testABlockWithNoPatientsHasNothingToMove(): void
+    {
+        $empty = $this->insertEvent($this->otherProviderId, $this->categoryId, '', '2031-04-07', '09:00:00', 3600);
+
+        $this->assertNull($this->service->blockSave($empty, VisitListRepeatScope::AllDates, '2031-04-07'));
+    }
+
+    public function testAPatientAppointmentIsNotABlock(): void
+    {
+        $this->assertNull($this->service->blockSave($this->eids['first'], VisitListRepeatScope::AllDates, '2031-03-10'));
+    }
+
+    public function testSavingEveryDateLeavesPatientsOnDatesBeforeToday(): void
+    {
+        $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        // Today is March 20: March 10 is history, March 24 is not.
+        $this->service = new VisitListService(clock: new FrozenClock(new DateTimeImmutable('2031-03-20 12:00', new DateTimeZone('UTC'))));
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-24');
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?',
+            ['13:00:00', $this->eids['weekly']]
+        );
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(1, $result->moved);
+        $this->assertSame(2, $result->leftOnPastDates);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 a',
+                $this->eids['second'] => '2031-03-10 09:00:00 a',
+                $march24 => '2031-03-24 13:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $this->eids['second'], $march24])
         );
     }
 }

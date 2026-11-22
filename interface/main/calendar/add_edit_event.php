@@ -465,7 +465,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate")) {
 }
 
 $visitListEditor = new VisitListEditor();
-$visitListCopiesBefore = $visitListEditor->beforeSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid));
+$visitListBefore = $visitListEditor->beforeSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid));
 
 // If we are saving, then save and close the window.
 //
@@ -833,7 +833,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
     $appointmentService->deleteAppointment($eid, $_POST['recurr_affect'], $_POST['selected_date']);
 }
 
-$visitListEditor->afterSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid), $visitListCopiesBefore);
+$info_msg .= $visitListEditor->afterSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid), $visitListBefore);
 
 if (!empty($_POST['form_action'])) {
     $closeEvent = new AppointmentDialogCloseEvent();

@@ -17,9 +17,17 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Appointment\VisitList;
 
+use DateTimeImmutable;
+use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Appointment\VisitList\VisitList;
+use OpenEMR\Appointment\VisitList\VisitListBlock;
+use OpenEMR\Appointment\VisitList\VisitListBlockSave;
 use OpenEMR\Appointment\VisitList\VisitListCopies;
 use OpenEMR\Appointment\VisitList\VisitListEditor;
+use OpenEMR\Appointment\VisitList\VisitListEntry;
+use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
+use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -53,7 +61,10 @@ class VisitListEditorTest extends TestCase
             static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
             execute: function (string $sql, array $binds): void {
                 $this->statements[] = [$sql, $binds];
-            }
+            },
+            repeatPattern: static fn (array $row, string $from, string $to): array => [$from],
+            // Before every date in these tests, so no patient is on a past date.
+            clock: new FrozenClock(new DateTimeImmutable('2026-01-01 12:00')),
         ));
     }
 
@@ -286,5 +297,66 @@ class VisitListEditorTest extends TestCase
     public function testEventId(mixed $eid, ?int $expected): void
     {
         $this->assertSame($expected, VisitListEditor::eventId($eid));
+    }
+
+    public function testBeforeSavingABlockOfAnotherCategoryNotesNothing(): void
+    {
+        $post = new ParameterBag(['form_action' => 'save', 'form_category' => '9', 'recurr_affect' => 'all', 'selected_date' => '2026-03-09']);
+
+        $this->assertNull($this->editor([self::appointmentRow(42, 7)])->beforeSave($post, 42));
+    }
+
+    public function testBeforeSavingAVisitListBlockWithoutPatientsNotesNothing(): void
+    {
+        $block = self::appointmentRow(42, 7) + ['pc_catid' => '21', 'pc_recurrtype' => '0', 'pc_recurrspec' => ''];
+        $post = new ParameterBag(['form_action' => 'save', 'form_category' => '21', 'recurr_affect' => '', 'selected_date' => '2026-03-09']);
+
+        $this->assertNull($this->editor([$block], [self::blockRow(42, 7)])->beforeSave($post, 42));
+    }
+
+    public function testBeforeSavingAVisitListBlockNotesItsLists(): void
+    {
+        $block = self::appointmentRow(42, 7) + ['pc_catid' => '21', 'pc_recurrtype' => '0', 'pc_recurrspec' => ''];
+        $patient = ['pc_eid' => '10', 'pc_pid' => '510', 'pc_aid' => '7', 'pc_eventDate' => '2026-03-09', 'pc_startTime' => '09:00:00',
+            'pc_visit_seq' => '1', 'pc_visit_stop' => null, 'last' => '2026-03-09'];
+        $post = new ParameterBag(['form_action' => 'save', 'form_category' => '21', 'recurr_affect' => '', 'selected_date' => '2026-03-09']);
+
+        $save = $this->editor([$block], [self::blockRow(42, 7)], [$patient])->beforeSave($post, 42);
+
+        $this->assertInstanceOf(VisitListBlockSave::class, $save);
+        $this->assertSame(VisitListRepeatScope::AllDates, $save->scope, 'a block that does not repeat changes its one date');
+        $this->assertSame([42], $save->eventIds);
+        $this->assertSame([7], $save->providerIds);
+        $this->assertCount(1, $save->lists);
+        $this->assertSame([], $this->statements, 'nothing is written before the save');
+    }
+
+    public function testAfterSavingABlockItSaysWhichPatientsCouldNotMove(): void
+    {
+        $translation = OEGlobalsBag::getInstance()->getBoolean('disable_translation');
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        try {
+            $start = new DateTimeImmutable('2026-03-09 09:00');
+            $list = new VisitList(
+                new VisitListBlock(42, 7, 3, $start, $start->modify('+8 hours')),
+                [new VisitListEntry(10, 510, 7, $start, 1, null), new VisitListEntry(11, 511, 7, $start, 2, null)]
+            );
+            $before = new VisitListBlockSave(VisitListRepeatScope::AllDates, [42], [7], '0', ['2026-03-09'], $start, [$list], 99);
+
+            // The block is gone after the save, so neither patient has anywhere to go.
+            $message = $this->editor()->afterSave(new ParameterBag(['form_action' => 'save']), 42, $before);
+        } finally {
+            OEGlobalsBag::getInstance()->set('disable_translation', $translation);
+        }
+
+        $this->assertStringStartsWith('2 Visit List patients have no date on the block', $message);
+        $this->assertSame([], $this->statements);
+    }
+
+    public function testSavingAPatientSaysNothing(): void
+    {
+        $editor = $this->editor([self::appointmentRow(42, 7)], [self::blockRow(1, 7)]);
+
+        $this->assertSame('', $editor->afterSave(self::post('save', ['form_visit_seq' => '1']), 42, null));
     }
 }

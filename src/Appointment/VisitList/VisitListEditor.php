@@ -4,7 +4,8 @@
  * VisitListEditor
  *
  * The Visit List part of the appointment editor (add_edit_event.php). It works out what the
- * editor shows for a Visit List patient, and places a saved Visit List patient on its list.
+ * editor shows for a Visit List patient, places a saved Visit List patient on its list, and
+ * moves a saved Visit List block's patients with the block.
  *
  * A patient on a Visit List has no time or duration of its own, only a place on the list
  * (Order #) and an optional Stop #. It keeps the block's start time and no duration, so the
@@ -78,33 +79,52 @@ final readonly class VisitListEditor
     }
 
     /**
-     * Before the editor saves a Visit List patient: its copies as they are now, which the
-     * save changes. Null for anything else.
+     * Before the editor saves: for a Visit List patient, its copies as they are now, which the
+     * save changes; for a Visit List block that stays one, the lists on the dates the save
+     * changes, so its patients can move with it. Null for anything else.
      *
      * @param ParameterBag $post the editor's posted form
      */
-    public function beforeSave(ParameterBag $post, ?int $eventId): ?VisitListCopies
+    public function beforeSave(ParameterBag $post, ?int $eventId): VisitListCopies|VisitListBlockSave|null
     {
-        if ($eventId === null || !self::isVisitList($post) || $post->getString('form_action') !== 'save') {
+        if ($eventId === null || $post->getString('form_action') !== 'save') {
             return null;
         }
-        return $this->service->copiesBefore($eventId);
+        if (self::isVisitList($post)) {
+            return $this->service->copiesBefore($eventId);
+        }
+
+        $categoryId = self::positive($post->getString('form_category'));
+        if ($categoryId === null || $categoryId !== $this->service->categoryId()) {
+            return null;
+        }
+        return $this->service->blockSave(
+            $eventId,
+            VisitListRepeatScope::fromPosted($post->getString('recurr_affect')),
+            $post->getString('selected_date')
+        );
     }
 
     /**
      * After the editor saves or duplicates a Visit List patient: record its place on the list.
+     * After it saves a Visit List block: move the block's patients with it. Returns a message
+     * for the user when some patients could not move, else ''.
      *
-     * @param ParameterBag     $post   the editor's posted form
-     * @param ?VisitListCopies $before what beforeSave() returned
+     * @param ParameterBag                           $post   the editor's posted form
+     * @param VisitListCopies|VisitListBlockSave|null $before what beforeSave() returned
      */
-    public function afterSave(ParameterBag $post, ?int $eventId, ?VisitListCopies $before): void
+    public function afterSave(ParameterBag $post, ?int $eventId, VisitListCopies|VisitListBlockSave|null $before): string
     {
+        if ($before instanceof VisitListBlockSave) {
+            return self::moveMessage($this->service->moveWithBlock($before));
+        }
+
         if (
             $eventId === null
             || !self::isVisitList($post)
             || !in_array($post->getString('form_action'), ['save', 'duplicate'], true)
         ) {
-            return;
+            return '';
         }
 
         $this->service->place(
@@ -113,6 +133,34 @@ final readonly class VisitListEditor
             self::positive($post->getString('form_visit_stop')),
             $before
         );
+        return '';
+    }
+
+    /**
+     * What to tell the user about patients that did not move with their block.
+     */
+    private static function moveMessage(VisitListMoveResult $result): string
+    {
+        $lines = [];
+        if ($result->stranded > 0) {
+            $lines[] = sprintf(
+                xl('%s Visit List patients have no date on the block after this change. Their appointments stay where they were, no longer on a list.'),
+                $result->stranded
+            );
+        }
+        if ($result->keptForOtherCopy > 0) {
+            $lines[] = sprintf(
+                xl('%s Visit List patients stayed with their old provider, because the new provider already has their appointment that day.'),
+                $result->keptForOtherCopy
+            );
+        }
+        if ($result->leftOnPastDates > 0) {
+            $lines[] = sprintf(
+                xl('%s Visit List patients on dates before today were left where they were.'),
+                $result->leftOnPastDates
+            );
+        }
+        return implode("\n", $lines);
     }
 
     /**
