@@ -18,9 +18,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Appointment\VisitList;
 
 use DateTimeImmutable;
+use DomainException;
 use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Appointment\VisitList\VisitList;
 use OpenEMR\Appointment\VisitList\VisitListBlock;
+use OpenEMR\Appointment\VisitList\VisitListBlockRelease;
 use OpenEMR\Appointment\VisitList\VisitListBlockSave;
 use OpenEMR\Appointment\VisitList\VisitListCopies;
 use OpenEMR\Appointment\VisitList\VisitListEditor;
@@ -48,8 +50,12 @@ class VisitListEditorTest extends TestCase
      * @param list<array<string, mixed>> $blockRows
      * @param list<array<string, mixed>> $entryRows the Visit List patients already on lists
      */
-    private function editor(array $appointmentRows = [], array $blockRows = [], array $entryRows = []): VisitListEditor
-    {
+    private function editor(
+        array $appointmentRows = [],
+        array $blockRows = [],
+        array $entryRows = [],
+        string $now = '2026-01-01 12:00'
+    ): VisitListEditor {
         return new VisitListEditor(new VisitListService(
             function (string $sql, array $binds) use ($appointmentRows, $entryRows): array {
                 $this->queries[] = [$sql, $binds];
@@ -63,9 +69,9 @@ class VisitListEditorTest extends TestCase
                 $this->statements[] = [$sql, $binds];
             },
             repeatPattern: static fn (array $row, string $from, string $to): array => [$from],
-            // Before every date in these tests, so no patient is on a past date.
-            clock: new FrozenClock(new DateTimeImmutable('2026-01-01 12:00')),
-        ));
+            // By default before every date in these tests, so no patient is on a past date.
+            clock: new FrozenClock(new DateTimeImmutable($now)),
+        ), 15);
     }
 
     /**
@@ -203,10 +209,15 @@ class VisitListEditorTest extends TestCase
     {
         return [
             'a new appointment' => [self::post('save'), null],
-            'a timed appointment' => [new ParameterBag(['form_action' => 'save']), 42],
             'a duplicate' => [self::post('duplicate'), 42],
             'a delete' => [self::post('delete'), 42],
         ];
+    }
+
+    public function testBeforeSavingATimedAppointmentNotesNothing(): void
+    {
+        // It is checked for being a Visit List block, which it is not.
+        $this->assertNull($this->editor([self::appointmentRow(42, 7)])->beforeSave(new ParameterBag(['form_action' => 'save']), 42));
     }
 
     #[DataProvider('nothingToNoteProvider')]
@@ -358,5 +369,103 @@ class VisitListEditorTest extends TestCase
         $editor = $this->editor([self::appointmentRow(42, 7)], [self::blockRow(1, 7)]);
 
         $this->assertSame('', $editor->afterSave(self::post('save', ['form_visit_seq' => '1']), 42, null));
+    }
+
+    /**
+     * The editor for a Visit List block (event 42, provider 7, March 9 at 9:00, not repeating)
+     * with two patients on it.
+     */
+    private function blockEditor(string $now = '2026-01-01 12:00'): VisitListEditor
+    {
+        $block = self::appointmentRow(42, 7) + ['pc_catid' => '21', 'pc_recurrtype' => '0', 'pc_recurrspec' => ''];
+        $patients = [];
+        foreach ([10, 11] as $index => $eid) {
+            $patients[] = ['pc_eid' => (string) $eid, 'pc_pid' => (string) (500 + $eid), 'pc_aid' => '7', 'pc_eventDate' => '2026-03-09',
+                'pc_startTime' => '09:00:00', 'pc_visit_seq' => (string) ($index + 1), 'pc_visit_stop' => null, 'last' => '2026-03-09'];
+        }
+        return $this->editor([$block], [self::blockRow(42, 7)], $patients, $now);
+    }
+
+    public function testTheCalendarIntervalMustBePositive(): void
+    {
+        $this->expectException(DomainException::class);
+        new VisitListEditor(new VisitListService(), 0);
+    }
+
+    public function testBeforeDeletingAVisitListBlockNotesItsListsToRelease(): void
+    {
+        $post = new ParameterBag(['form_action' => 'delete', 'recurr_affect' => '', 'selected_date' => '2026-03-09']);
+
+        $release = $this->blockEditor()->beforeSave($post, 42);
+
+        $this->assertInstanceOf(VisitListBlockRelease::class, $release);
+        $this->assertCount(2, $release->before->lists[0]->entries);
+        $this->assertSame([], $this->statements, 'nothing is written before the delete');
+    }
+
+    public function testBeforeGivingAVisitListBlockAnotherCategoryNotesItsListsToRelease(): void
+    {
+        $post = new ParameterBag(['form_action' => 'save', 'form_category' => '9', 'recurr_affect' => '', 'selected_date' => '2026-03-09']);
+
+        $this->assertInstanceOf(VisitListBlockRelease::class, $this->blockEditor()->beforeSave($post, 42));
+    }
+
+    public function testAfterDeletingABlockItsPatientsGetTimesOneIntervalApart(): void
+    {
+        $editor = $this->blockEditor();
+        $release = $editor->beforeSave(new ParameterBag(['form_action' => 'delete', 'selected_date' => '2026-03-09']), 42);
+
+        $message = $editor->afterSave(new ParameterBag(['form_action' => 'delete']), 42, $release);
+
+        $this->assertSame('', $message);
+        $this->assertCount(2, $this->statements);
+        $this->assertStringContainsString('`pc_visit_list` = 0', $this->statements[0][0]);
+        $this->assertSame(['09:00:00', '09:15:00', 900, 10], $this->statements[0][1]);
+        $this->assertSame(['09:15:00', '09:30:00', 900, 11], $this->statements[1][1]);
+    }
+
+    public function testAfterDeletingABlockPatientsOnPastDatesAreLeft(): void
+    {
+        $editor = $this->blockEditor('2026-03-10 08:00');
+        $release = $editor->beforeSave(new ParameterBag(['form_action' => 'delete', 'selected_date' => '2026-03-09']), 42);
+
+        $editor->afterSave(new ParameterBag(['form_action' => 'delete']), 42, $release);
+
+        $this->assertSame([], $this->statements);
+    }
+
+    public function testAVisitListBlockWithPatientsWarnsBeforeItIsDeleted(): void
+    {
+        $translation = OEGlobalsBag::getInstance()->getBoolean('disable_translation');
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+        try {
+            $event = self::appointmentRow(42, 7) + ['pc_catid' => '21', 'pc_recurrtype' => '0'];
+            $warning = $this->blockEditor()->form(1, 42, $event, new ParameterBag(), '2026-03-09')->blockWarning;
+        } finally {
+            OEGlobalsBag::getInstance()->set('disable_translation', $translation);
+        }
+
+        $this->assertSame(21, $warning['categoryId'] ?? null);
+        $this->assertSame(['all'], array_keys($warning['messages']), 'a block that does not repeat has one date');
+        $this->assertStringStartsWith('2 patients are scheduled in this Visit List on ', $warning['messages']['all'] ?? '');
+        $this->assertStringContainsString('15 minutes apart', $warning['messages']['all'] ?? '');
+        $this->assertStringStartsWith('Deleting this event cannot be undone.', $warning['deleteText']);
+    }
+
+    public function testABlockOfAnotherCategoryHasNoWarning(): void
+    {
+        $event = self::appointmentRow(42, 7) + ['pc_catid' => '9', 'pc_recurrtype' => '0'];
+
+        $form = $this->blockEditor()->form(1, 42, $event, new ParameterBag(), '2026-03-09');
+
+        $this->assertSame([], $form->blockWarning);
+        $this->assertFalse($form->active);
+    }
+
+    public function testAVisitListBlockWhosePatientsArePastHasNoWarning(): void
+    {
+        $event = self::appointmentRow(42, 7) + ['pc_catid' => '21', 'pc_recurrtype' => '0'];
+
+        $this->assertSame([], $this->blockEditor('2026-03-10 08:00')->form(1, 42, $event, new ParameterBag(), '2026-03-09')->blockWarning);
     }
 }

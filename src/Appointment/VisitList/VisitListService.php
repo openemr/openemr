@@ -500,6 +500,59 @@ final class VisitListService
     }
 
     /**
+     * Turn the patients on these lists into timed appointments on their provider's schedule:
+     * in list order, one interval apart from the block's start (VisitListRelease), each one
+     * interval long. They are no longer on a list, so their Order # and Stop # are cleared.
+     * Lists on dates before today are left alone, as when a block moves. Returns how many
+     * patients got a time.
+     *
+     * @param list<VisitList> $lists the lists as they were before their block was deleted or changed
+     */
+    public function release(array $lists, int $intervalMinutes): int
+    {
+        $today = $this->today();
+        $released = 0;
+        foreach ($lists as $list) {
+            if ($list->block->date() < $today) {
+                continue;
+            }
+            foreach (VisitListRelease::starts($list, $intervalMinutes) as $eventId => $start) {
+                ($this->execute)(
+                    'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 0, `pc_visit_seq` = NULL,'
+                    . ' `pc_visit_stop` = NULL, `pc_startTime` = ?, `pc_endTime` = ?, `pc_duration` = ?'
+                    . ' WHERE `pc_eid` = ? AND `pc_visit_list` = 1',
+                    [
+                        $start->format('H:i:s'),
+                        $start->add(new DateInterval('PT' . $intervalMinutes . 'M'))->format('H:i:s'),
+                        $intervalMinutes * 60,
+                        $eventId,
+                    ]
+                );
+                $released++;
+            }
+        }
+        return $released;
+    }
+
+    /**
+     * How many patients on these lists are on today or later: the ones release() would give
+     * times to.
+     *
+     * @param list<VisitList> $lists
+     */
+    public function upcomingPatients(array $lists): int
+    {
+        $today = $this->today();
+        $count = 0;
+        foreach ($lists as $list) {
+            if ($list->block->date() >= $today) {
+                $count += count($list->entries);
+            }
+        }
+        return $count;
+    }
+
+    /**
      * Whether another appointment of this appointment's multi-provider group is with this
      * provider on this date.
      */

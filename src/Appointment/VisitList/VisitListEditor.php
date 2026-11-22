@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace OpenEMR\Appointment\VisitList;
 
 use DateTimeImmutable;
+use DomainException;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 final readonly class VisitListEditor
@@ -30,9 +32,20 @@ final readonly class VisitListEditor
     /** pc_cattype of patient appointments, the only kind a Visit List holds. */
     private const PATIENT_CATEGORY_TYPE = 0;
 
+    /** pc_cattype of provider events, the kind a Visit List block is. */
+    private const PROVIDER_CATEGORY_TYPE = 1;
+
+    /**
+     * @param int $calendarInterval minutes between the times a deleted block's patients get
+     *                              (the calendar_interval setting)
+     */
     public function __construct(
         private VisitListService $service = new VisitListService(),
+        private int $calendarInterval = 15,
     ) {
+        if ($calendarInterval <= 0) {
+            throw new DomainException('Calendar interval must be positive');
+        }
     }
 
     /**
@@ -41,12 +54,18 @@ final readonly class VisitListEditor
      * (visitlist=1), which passes the block's provider, date and start time; it gets the next
      * Order # on that list.
      *
+     * An existing Visit List block with patients from today on carries what to ask before it
+     * is deleted or given another category (blockWarning()).
+     *
      * @param ParameterBag $query the editor's query string
      * @param mixed        $event the appointment's row, when it exists
-     * @param mixed        $date  a new appointment's date (Y-m-d)
+     * @param mixed        $date  a new appointment's date, or the date an existing one was opened on (Y-m-d)
      */
     public function form(int $categoryType, ?int $eventId, mixed $event, ParameterBag $query, mixed $date): VisitListForm
     {
+        if ($categoryType === self::PROVIDER_CATEGORY_TYPE && $eventId !== null && is_array($event) && is_string($date)) {
+            return new VisitListForm(false, blockWarning: $this->blockWarning($eventId, $event, $date));
+        }
         if ($categoryType !== self::PATIENT_CATEGORY_TYPE) {
             return VisitListForm::inactive();
         }
@@ -79,42 +98,57 @@ final readonly class VisitListEditor
     }
 
     /**
-     * Before the editor saves: for a Visit List patient, its copies as they are now, which the
-     * save changes; for a Visit List block that stays one, the lists on the dates the save
-     * changes, so its patients can move with it. Null for anything else.
+     * Before the editor saves or deletes: for a Visit List patient being saved, its copies as
+     * they are now, which the save changes. For a Visit List block with patients on the dates
+     * the change affects: when it is saved as a Visit List block, those lists, so its patients
+     * can move with it; when it is deleted or saved with another category, the lists to
+     * release. Null for anything else.
      *
      * @param ParameterBag $post the editor's posted form
      */
-    public function beforeSave(ParameterBag $post, ?int $eventId): VisitListCopies|VisitListBlockSave|null
+    public function beforeSave(ParameterBag $post, ?int $eventId): VisitListCopies|VisitListBlockSave|VisitListBlockRelease|null
     {
-        if ($eventId === null || $post->getString('form_action') !== 'save') {
+        $action = $post->getString('form_action');
+        if ($eventId === null || !in_array($action, ['save', 'delete'], true)) {
             return null;
         }
         if (self::isVisitList($post)) {
-            return $this->service->copiesBefore($eventId);
+            return $action === 'save' ? $this->service->copiesBefore($eventId) : null;
         }
 
-        $categoryId = self::positive($post->getString('form_category'));
-        if ($categoryId === null || $categoryId !== $this->service->categoryId()) {
-            return null;
-        }
-        return $this->service->blockSave(
+        // A Visit List block, if the event is one with patients on the dates the change affects.
+        $block = $this->service->blockSave(
             $eventId,
             VisitListRepeatScope::fromPosted($post->getString('recurr_affect')),
             $post->getString('selected_date')
         );
+        if ($block === null) {
+            return null;
+        }
+        $categoryId = self::positive($post->getString('form_category'));
+        $staysABlock = $action === 'save' && $categoryId !== null && $categoryId === $this->service->categoryId();
+        return $staysABlock ? $block : new VisitListBlockRelease($block);
     }
 
     /**
      * After the editor saves or duplicates a Visit List patient: record its place on the list.
-     * After it saves a Visit List block: move the block's patients with it. Returns a message
-     * for the user when some patients could not move, else ''.
+     * After it saves a Visit List block: move the block's patients with it. After it deletes a
+     * block or gives it another category: the block's patients become timed appointments, one
+     * calendar interval apart. Returns a message for the user when some patients could not
+     * move with their block, else ''.
      *
-     * @param ParameterBag                           $post   the editor's posted form
-     * @param VisitListCopies|VisitListBlockSave|null $before what beforeSave() returned
+     * @param ParameterBag                                                $post   the editor's posted form
+     * @param VisitListCopies|VisitListBlockSave|VisitListBlockRelease|null $before what beforeSave() returned
      */
-    public function afterSave(ParameterBag $post, ?int $eventId, VisitListCopies|VisitListBlockSave|null $before): string
-    {
+    public function afterSave(
+        ParameterBag $post,
+        ?int $eventId,
+        VisitListCopies|VisitListBlockSave|VisitListBlockRelease|null $before
+    ): string {
+        if ($before instanceof VisitListBlockRelease) {
+            $this->service->release($before->before->lists, $this->calendarInterval);
+            return '';
+        }
         if ($before instanceof VisitListBlockSave) {
             return self::moveMessage($this->service->moveWithBlock($before));
         }
@@ -134,6 +168,58 @@ final readonly class VisitListEditor
             $before
         );
         return '';
+    }
+
+    /**
+     * What the editor asks before a Visit List block with patients from today on is deleted or
+     * given another category, for each repeat scope with such patients. Empty for any other
+     * event.
+     *
+     * @param array<mixed> $event        the event's row
+     * @param string       $selectedDate the date it was opened on (Y-m-d)
+     * @return array{categoryId: int, messages: array<string, string>, deleteText: string}|array{}
+     */
+    private function blockWarning(int $eventId, array $event, string $selectedDate): array
+    {
+        $categoryId = $this->service->categoryId();
+        if ($categoryId === null || self::positive(self::number($event['pc_catid'] ?? null)) !== $categoryId) {
+            return [];
+        }
+
+        $repeats = self::positive(self::number($event['pc_recurrtype'] ?? null)) !== null;
+        $start = self::number($event['pc_startTime'] ?? null);
+        $then = sprintf(
+            xl('Their appointments will stay on the schedule in list order, %1$s minutes apart, starting at %2$s. Continue?'),
+            $this->calendarInterval,
+            DateFormatterUtils::oeFormatTime($start)
+        );
+        $date = DateFormatterUtils::oeFormatShortDate($selectedDate);
+        $date = is_string($date) ? $date : $selectedDate;
+
+        $messages = [];
+        $scopes = $repeats ? VisitListRepeatScope::cases() : [VisitListRepeatScope::AllDates];
+        foreach ($scopes as $scope) {
+            $block = $this->service->blockSave($eventId, $scope, $selectedDate);
+            $count = $block === null ? 0 : $this->service->upcomingPatients($block->lists);
+            if ($count === 0) {
+                continue;
+            }
+            $scheduled = match ($repeats ? $scope : VisitListRepeatScope::ThisDate) {
+                VisitListRepeatScope::ThisDate => xl('%1$s patients are scheduled in this Visit List on %2$s.'),
+                VisitListRepeatScope::ThisAndLater => xl('%1$s patients are scheduled in this Visit List on %2$s and later.'),
+                VisitListRepeatScope::AllDates => xl('%1$s patients are scheduled in this Visit List from today on.'),
+            };
+            $messages[$scope->value] = sprintf($scheduled, $count, $date) . ' ' . $then;
+        }
+        if ($messages === []) {
+            return [];
+        }
+
+        return [
+            'categoryId' => $categoryId,
+            'messages' => $messages,
+            'deleteText' => xl('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?'),
+        ];
     }
 
     /**

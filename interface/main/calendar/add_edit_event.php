@@ -464,7 +464,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate")) {
     DOBandEncounter($eid);
 }
 
-$visitListEditor = new VisitListEditor();
+$visitListEditor = new VisitListEditor(calendarInterval: max(1, OEGlobalsBag::getInstance()->getInt('calendar_interval', 15)));
 $visitListBefore = $visitListEditor->beforeSave(CurrentRequest::get()->request, VisitListEditor::eventId($eid));
 
 // If we are saving, then save and close the window.
@@ -1105,6 +1105,7 @@ $addEditEventConfig = [
     'eid' => $eid,
     'userId' => $userid,
     'visitList' => $visitListMode,
+    'visitListBlock' => $visitListForm->blockWarning,
     'translations' => [
         'patientSearch' => xl('Patient Search'),
         'groupSearch' => xl('Group Search'),
@@ -1130,6 +1131,7 @@ window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
 <!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
      so that RENDER_JAVASCRIPT listeners can call these functions immediately -->
 <script src="add_edit_event.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+<script src="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/library/js/calendarVisitListBlock.js?v=<?php echo attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes')); ?>"></script>
 
 <!-- Event listener dispatch (must remain inline for PHP event system) -->
 <script>
@@ -1857,7 +1859,7 @@ function HideRecurrPopup() {
 }
 
 function deleteEvent() {
-    if (confirm(<?php echo xlj('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?'); ?>)) {
+    if (pcVisitListBlockAsksLater(addEditEventConfig.visitListBlock) || confirm(<?php echo xlj('Deleting this event cannot be undone. It cannot be recovered once it is gone. Are you sure you wish to delete this event?'); ?>)) {
         $('#form_action').val("delete");
 
         <?php if ($repeats) : ?>
@@ -1877,6 +1879,7 @@ function deleteEvent() {
 
 function SubmitForm() {
     var f = document.forms[0];
+    if (!pcVisitListBlockConfirm(addEditEventConfig.visitListBlock, f)) return false;
     <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
     if (f.form_action.value != 'delete' && !addEditEventConfig.visitList) {
         // Check slot availability (a Visit List patient has no slot of its own).

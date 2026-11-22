@@ -21,13 +21,16 @@ namespace OpenEMR\Tests\Services\Appointment\VisitList;
 use DateTimeImmutable;
 use DateTimeZone;
 use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Appointment\VisitList\VisitListBlockRelease;
 use OpenEMR\Appointment\VisitList\VisitListBlockSave;
+use OpenEMR\Appointment\VisitList\VisitListEditor;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\AppointmentService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class VisitListServiceDatabaseTest extends TestCase
 {
@@ -457,6 +460,122 @@ class VisitListServiceDatabaseTest extends TestCase
                 $march24 => '2031-03-24 13:00:00 a',
             ],
             $this->whereAre([$this->eids['first'], $this->eids['second'], $march24])
+        );
+    }
+
+    /**
+     * Each patient's start, length in seconds, and place on a list ("list seq stop", or
+     * "timed" when off the list), by event ID.
+     *
+     * @param list<int> $eids
+     * @return array<int, string>
+     */
+    private function timesOf(array $eids): array
+    {
+        $times = [];
+        foreach ($eids as $eid) {
+            $rows = QueryUtils::fetchRecords(
+                'SELECT pc_eventDate, pc_startTime, pc_endTime, pc_duration, pc_visit_list, pc_visit_seq, pc_visit_stop'
+                . ' FROM openemr_postcalendar_events WHERE pc_eid = ?',
+                [$eid]
+            );
+            $row = $rows[0] ?? [];
+            $text = static fn (string $column): string => is_scalar($row[$column] ?? null) ? (string) $row[$column] : '-';
+            $times[$eid] = $text('pc_eventDate') . ' ' . $text('pc_startTime') . ' ' . $text('pc_duration') . ' '
+                . ($text('pc_visit_list') === '1' ? 'list ' . $text('pc_visit_seq') . ' ' . $text('pc_visit_stop') : 'timed ' . $text('pc_visit_seq') . ' ' . $text('pc_visit_stop'));
+        }
+        return $times;
+    }
+
+    /**
+     * Deletes the weekly block through the editor's steps: note its lists, delete, release.
+     */
+    private function deleteWeekly(string $scope, string $selectedDate): void
+    {
+        $editor = new VisitListEditor($this->service, 15);
+        $post = new ParameterBag(['form_action' => 'delete', 'recurr_affect' => $scope, 'selected_date' => $selectedDate]);
+        $before = $editor->beforeSave($post, $this->eids['weekly']);
+        $this->assertInstanceOf(VisitListBlockRelease::class, $before);
+
+        // AppointmentService reads the date of a "this date" or "this and later" delete from $_POST.
+        $_POST['selected_date'] = $selectedDate;
+        try {
+            (new AppointmentService())->deleteAppointment($this->eids['weekly'], $scope, $selectedDate);
+        } finally {
+            unset($_POST['selected_date']);
+        }
+
+        $this->assertSame('', $editor->afterSave($post, $this->eids['weekly'], $before));
+    }
+
+    public function testDeletingEveryDateOfABlockKeepsItsPatientsAsTimedAppointments(): void
+    {
+        $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1, 'stop' => 4]);
+
+        $this->deleteWeekly('all', '2031-03-10');
+
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 900 timed - -',
+                $this->eids['second'] => '2031-03-10 09:15:00 900 timed - -',
+                $march24 => '2031-03-24 09:00:00 900 timed - -',
+                $this->eids['on edited'] => '2031-03-17 10:00:00 0 list 1 -',
+                $this->eids['timed'] => '2031-03-10 09:00:00 900 timed - -',
+            ],
+            $this->timesOf([$this->eids['first'], $this->eids['second'], $march24, $this->eids['on edited'], $this->eids['timed']]),
+            'the date edited into its own block keeps its list'
+        );
+        $this->assertSame([], QueryUtils::fetchRecords('SELECT pc_eid FROM openemr_postcalendar_events WHERE pc_eid = ?', [$this->eids['weekly']]));
+    }
+
+    public function testDeletingThisDateOfABlockKeepsOnlyThatDatesPatients(): void
+    {
+        $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+
+        $this->deleteWeekly('current', '2031-03-10');
+
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 900 timed - -',
+                $this->eids['second'] => '2031-03-10 09:15:00 900 timed - -',
+                $march24 => '2031-03-24 09:00:00 0 list 1 -',
+            ],
+            $this->timesOf([$this->eids['first'], $this->eids['second'], $march24])
+        );
+    }
+
+    public function testDeletingEveryDateLeavesPatientsOnDatesBeforeToday(): void
+    {
+        $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        $this->service = new VisitListService(clock: new FrozenClock(new DateTimeImmutable('2031-03-20 12:00', new DateTimeZone('UTC'))));
+
+        $this->deleteWeekly('all', '2031-03-24');
+
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 0 list 1 1',
+                $march24 => '2031-03-24 09:00:00 900 timed - -',
+            ],
+            $this->timesOf([$this->eids['first'], $march24])
+        );
+    }
+
+    public function testGivingABlockAnotherCategoryKeepsItsPatientsAsTimedAppointments(): void
+    {
+        $editor = new VisitListEditor($this->service, 20);
+        $post = new ParameterBag(['form_action' => 'save', 'form_category' => '5', 'recurr_affect' => 'all', 'selected_date' => '2031-03-10']);
+        $before = $editor->beforeSave($post, $this->eids['weekly']);
+        $this->assertInstanceOf(VisitListBlockRelease::class, $before);
+        QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_catid = 5 WHERE pc_eid = ?', [$this->eids['weekly']]);
+
+        $editor->afterSave($post, $this->eids['weekly'], $before);
+
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 1200 timed - -',
+                $this->eids['second'] => '2031-03-10 09:20:00 1200 timed - -',
+            ],
+            $this->timesOf([$this->eids['first'], $this->eids['second']])
         );
     }
 }
