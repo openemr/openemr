@@ -67,11 +67,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between 0\\.0\\|\'\'\\|false and \'0\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between string and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',
@@ -125,11 +120,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between int and \'200\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode and null will always evaluate to true\\.$#',

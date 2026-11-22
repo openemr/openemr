@@ -3,6 +3,7 @@
 /**
  * This the first of two pages to support posting of EOBs.
  * The second is sl_eob_invoice.php.
+ * Patient statements are sent from patient_statements.php (Fees > Patient Statements).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -28,7 +29,6 @@
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\Invoice\InvoiceCategory;
 use OpenEMR\Billing\Invoice\InvoiceList;
@@ -36,12 +36,6 @@ use OpenEMR\Billing\Invoice\InvoiceSearchCriteria;
 use OpenEMR\Billing\InvoiceServiceDates;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
-use OpenEMR\Billing\Statement\PatientNetDue;
-use OpenEMR\Billing\Statement\StatementInvoices;
-use OpenEMR\Billing\Statement\StatementListRows;
-use OpenEMR\Billing\Statement\StatementPageServices;
-use OpenEMR\Billing\Statement\StatementRunOnce;
-use OpenEMR\Billing\Statement\StatementRunRequest;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -52,22 +46,18 @@ use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 require_once("../globals.php");
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/appointments.inc.php');
-// The site's statement layout; it also sets $STMT_TEMP_FILE and $STMT_TEMP_FILE_PDF.
-require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
-require_once($srcDir . '/../controllers/C_Document.class.php');
-require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
 
-$statementTestMode = false; // true to test statement runs: nothing is recorded or printed
 $alertmsg = '';
 /** @var list<array{string, string}> $eraEncounters pid, encounter of each ERA claim */
 $eraEncounters = [];
@@ -76,54 +66,14 @@ $eracount = 0;
 $g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 
-/* Load dependencies only if we need them */
-if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
-    /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
-    require_once("../../portal/lib/portal_mail.inc.php");
-}
-
-$today = date("Y-m-d");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$statementServices = StatementPageServices::forSite(
-    OEGlobalsBag::getInstance(),
-    $session,
-    ServiceContainer::getLogger(),
-    $STMT_TEMP_FILE ?? null,
-    $STMT_TEMP_FILE_PDF ?? null,
-    $today
-);
-
-// Print, download, email or portal-send the checked statements, if asked.
-$statementRun = StatementRunRequest::fromPost(CurrentRequest::get()->request);
-if ($statementRun !== null && $statementRun->checkedInvoices !== []) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
-    if (!$statementServices->runOnce->claim(CurrentRequest::get()->request->getString(StatementRunOnce::FORM_FIELD) ?: StatementRunOnce::newId())) {
-        // A refresh or Back resubmitted a run that was already done.
-        $alertmsg = xl('These statements were already sent. Search again to send more.');
-    } else {
-        $alertmsg = $statementServices->runHandler->handle(
-            StatementInvoices::forRun($statementRun->checkedInvoices),
-            $statementRun->delivery,
-            $statementRun->withoutUpdate,
-            $statementTestMode,
-            InvoiceCategory::fromForm(CurrentRequest::get()->request->getString('form_category')) === InvoiceCategory::DuePt,
-            $today
-        );
-    }
-} elseif ($statementRun !== null) {
-    // let biller know no why statement was not generated
-    echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
-}
 
 $language_direction = $session->get('language_direction'); // fetch before the <html> output begins
 
-// Last Statement Before: the search lists only invoices last sent a statement before
-// this date, or never sent one.
 $searchRequest = CurrentRequest::get()->request;
-$lastStatementBeforeInput = $searchRequest->getString('form_last_stmt_before');
-$lastStatementBefore = fixDate($lastStatementBeforeInput, '');
+// The ERA (X12 835) file, when the form uploaded one.
+$eraFile = CurrentRequest::get()->files->get('form_erafile');
+$eraUploaded = $eraFile instanceof UploadedFile && $eraFile->isValid();
 $serviceDates = new InvoiceServiceDates(
     fixDate($searchRequest->getString('form_date'), ''),
     fixDate($searchRequest->getString('form_to_date'), '')
@@ -133,8 +83,7 @@ $searchCriteria = new InvoiceSearchCriteria(
     trim($searchRequest->getString('form_name')),
     trim($searchRequest->getString('form_pid')),
     trim($searchRequest->getString('form_encounter')),
-    $serviceDates,
-    $lastStatementBefore
+    $serviceDates
 );
 
 // What an invoice search was limited to, shown with its results: the search
@@ -160,12 +109,6 @@ if ($searchRequest->getString('form_search') === 'Search') {
         $searchFilters[] = xl('Service dates from') . ' ' . $shortDate($serviceDates->from);
     } elseif ($serviceDates->to !== '') {
         $searchFilters[] = xl('Service dates through') . ' ' . $shortDate($serviceDates->to);
-    }
-    if ($lastStatementBefore !== '') {
-        $searchFilters[] = xl('Last statement before') . ' ' . $shortDate($lastStatementBefore);
-    }
-    if ($searchRequest->getString('form_show_nothing_due') !== '') {
-        $searchFilters[] = xl('Showing patients with nothing due after credits');
     }
 }
 ?>
@@ -198,7 +141,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
                 isPosting: '1'
             });
             const url = './sl_eob_invoice.php?' + params;
-            <?php if (isset($_FILES['form_erafile']['size']) && !$_FILES['form_erafile']['size']) { ?>
+            <?php if (!$eraUploaded) { ?>
             dlgopen(url,'editInvoiceDlg','modal-full', false, false, '', {
                 sizeHeight: 'full',
                 onClosed: 'reSubmit'
@@ -209,15 +152,6 @@ if ($searchRequest->getString('form_search') === 'Search') {
                 onClosed: ''
             });
             <?php } ?>
-        }
-
-        function checkAll(checked) {
-            var f = document.forms[0];
-            for (var i = 0; i < f.elements.length; ++i) {
-                var ename = f.elements[i].name;
-                if (ename.indexOf('form_cb[') == 0)
-                    f.elements[i].checked = checked;
-            }
         }
 
         function persistCriteria(el, e) {
@@ -331,10 +265,14 @@ if ($searchRequest->getString('form_search') === 'Search') {
         </div>
     </div>
     <div class="row">
+        <div class="col-12">
+            <p class="text-muted small mb-2" id="statements-moved"><?php echo xlt('Patient statements are sent from'); ?> <a href="patient_statements.php"><?php echo xlt('Fees'); ?> &gt; <?php echo xlt('Patient Statements'); ?></a>.</p>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
-                <input type="hidden" name="<?php echo attr(StatementRunOnce::FORM_FIELD); ?>" value="<?php echo attr(StatementRunOnce::newId()); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -346,41 +284,38 @@ if ($searchRequest->getString('form_search') === 'Search') {
                             $insurancei = getInsuranceProviders();
                             echo "   <select name='form_payer_id'id='form_payer_id' class='form-control'>\n";
                             echo "    <option value='0'>-- " . xlt('Patient') . " --</option>\n";
+                            $selectedPayer = $searchRequest->getString('form_payer_id');
                             foreach ($insurancei as $iid => $iname) {
-                                echo "<option value='" . attr($iid) . "'";
-                                if (!empty($_REQUEST['form_payer_id']) && ($iid == $_REQUEST['form_payer_id'])) {
+                                echo "<option value='" . attr((string) $iid) . "'";
+                                if ($selectedPayer !== '' && (string) $iid === $selectedPayer) {
                                     echo " selected";
                                 }
-                                echo ">" . text($iname) . "</option>\n";
+                                echo ">" . text(is_string($iname) ? $iname : '') . "</option>\n";
                             }
                             echo "   </select>\n";
                             ?>
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
-                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_REQUEST['form_source'] ?? ''); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($searchRequest->getString('form_source')); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_paydate'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($searchRequest->getString('form_paydate')); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                             <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
-                            <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_deposit_date'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
+                            <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($searchRequest->getString('form_deposit_date')); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($_REQUEST['form_amount'] ?? ''); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
+                            <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($searchRequest->getString('form_amount')); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
-                            <input <?php echo (!empty($_REQUEST['only_with_debt'])) ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
-                        </div>
-                        <div class="form-group col-lg">
-                            <label class="control-label" for="form_show_nothing_due" title="<?php echo xla('Due Pt: also list patients whose credits on other visits cover what they owe (no statement goes out for them)'); ?>"><?php echo xlt('Show Nothing Due'); ?>:</label>
-                            <input <?php echo $searchRequest->getString('form_show_nothing_due') !== '' ? 'checked=checked' : ''; ?> type="checkbox" name="form_show_nothing_due" id="form_show_nothing_due" value="1" />
+                            <input <?php echo $searchRequest->getString('only_with_debt') !== '' ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
                         </div>
                     </div>
                 </fieldset>
@@ -407,28 +342,24 @@ if ($searchRequest->getString('form_search') === 'Search') {
                         <div class="form-row p-2">
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                                <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name'] ?? ''); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
+                                <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($searchRequest->getString('form_name')); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                                <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_REQUEST['form_pid'] ?? ''); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
+                                <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($searchRequest->getString('form_pid')); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                                <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_REQUEST['form_encounter'] ?? ''); ?>' title='<?php echo xla("Encounter number"); ?>' />
+                                <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($searchRequest->getString('form_encounter')); ?>' title='<?php echo xla("Encounter number"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
                                 <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
-                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date'] ?? ''); ?>' title='<?php echo xla("List invoices with a service date on or after this date"); ?>' />
+                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($searchRequest->getString('form_date')); ?>' title='<?php echo xla("List invoices with a service date on or after this date"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
-                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("List invoices with a service date on or before this date"); ?>' />
-                            </div>
-                            <div class="form-group col-lg">
-                                <label class="control-label" for="form_last_stmt_before"><?php echo xlt('Last Statement Before'); ?>:</label>
-                                <input type='text' name='form_last_stmt_before' id='form_last_stmt_before' class='form-control datepicker' value='<?php echo attr($lastStatementBeforeInput); ?>' title='<?php echo xla("List only invoices last sent a statement before this date, or never sent one"); ?>' />
+                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($searchRequest->getString('form_to_date')); ?>' title='<?php echo xla("List invoices with a service date on or before this date"); ?>' />
                             </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -480,90 +411,90 @@ if ($searchRequest->getString('form_search') === 'Search') {
                     </legend>
                     <div class="table-responsive">
                         <?php
-                        if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
-                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
+                        if ($searchRequest->getString('form_search') !== '') {
+                            if (!CsrfUtils::verifyCsrfToken($searchRequest->getString('csrf_token_form'), session: $session)) {
                                 CsrfUtils::csrfNotVerified();
                             }
 
                             // Handle X12 835 file upload.
                             //
-                            if ($_FILES['form_erafile']['size']) {
-                                $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
-                                if (!is_string($tmp_name)) {
-                                    $alertmsg .= xl("Invalid file upload") . " ";
-                                } else {
-                                    $shouldParseEra = true;
-                                    // Handle .zip extension if present.
-                                    if (strtolower(substr((string) $_FILES['form_erafile']['name'], -4)) == '.zip') {
-                                        $zip = new ZipArchive();
-                                        if ($zip->open($tmp_name) === true) {
-                                            if (!ZipExtractionGuard::isSafe($zip)) {
-                                                $zip->close();
-                                                $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
-                                                $shouldParseEra = false;
-                                            } else {
-                                                $contents = $zip->getFromIndex(0);
-                                                $zip->close();
-                                                if ($contents === false) {
-                                                    $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
-                                                    $shouldParseEra = false;
-                                                } elseif (file_put_contents($tmp_name, $contents) === false) {
-                                                    $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
-                                                    $shouldParseEra = false;
-                                                }
-                                            }
-                                        } else {
-                                            $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                            if ($eraFile instanceof UploadedFile && $eraFile->isValid()) {
+                                $tmp_name = $eraFile->getPathname();
+                                $shouldParseEra = true;
+                                // Handle .zip extension if present.
+                                if (strtolower(substr($eraFile->getClientOriginalName(), -4)) === '.zip') {
+                                    $zip = new ZipArchive();
+                                    if ($zip->open($tmp_name) === true) {
+                                        if (!ZipExtractionGuard::isSafe($zip)) {
+                                            $zip->close();
+                                            $alertmsg .= xl("ZIP archive exceeds extraction limits") . " ";
                                             $shouldParseEra = false;
-                                        }
-                                    }
-
-                                    echo "<!-- Notes from ERA upload processing:\n";
-                                    if ($shouldParseEra) {
-                                        // Called back once per claim: collects the invoices the ERA pays.
-                                        $eraCallback = static function (array &$out) use (&$eracount, &$eraname, &$eraEncounters): void {
-                                            ++$eracount;
-                                            // since it's always sent we use isa_sender_id if payer_id is not provided
-                                            $eraname = $out['gs_date'] . '_' . ltrim((string) $out['isa_control_number'], '0') .
-                                                '_' . ltrim((string) $out['payer_id'] ?: (string) $out['isa_sender_id'], '0');
-                                            if (!empty($out['our_claim_id'])) {
-                                                [$pid, $encounter] = SLEOB::slInvoiceNumber($out);
-                                                if ($pid && $encounter) {
-                                                    // As given: MySQL compares a payer-mangled id the way it always has.
-                                                    $eraEncounters[] = [(string) $pid, (string) $encounter];
-                                                }
+                                        } else {
+                                            $contents = $zip->getFromIndex(0);
+                                            $zip->close();
+                                            if ($contents === false) {
+                                                $alertmsg .= xl("Unable to read file from ZIP archive") . " ";
+                                                $shouldParseEra = false;
+                                            } elseif (file_put_contents($tmp_name, $contents) === false) {
+                                                $alertmsg .= xl("Unable to write extracted ZIP contents") . " ";
+                                                $shouldParseEra = false;
                                             }
-                                        };
-                                        $parseResult = ParseERA::parseERA($tmp_name, $eraCallback);
-                                        if (is_string($parseResult)) {
-                                            $alertmsg .= $parseResult;
                                         }
-                                    }
-                                    echo "-->\n";
-                                    $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
-                                    $eraDir = $siteDir . '/documents/era';
-                                    $historyDir = $siteDir . '/documents/edi/history/f835';
-                                    $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
-                                    $edihname = is_dir($historyDir)
-                                        ? EraFilenameValidator::resolveWithinDirectory($historyDir, $eraname, '.835')
-                                        : null;
-                                    $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
-                                    if ($erafullname === null || $htmlfullname === null) {
-                                        $alertmsg .= xl("Invalid ERA file name.") . " ";
-                                        $eraname = '';
                                     } else {
-                                        if (is_file($erafullname)) {
-                                            $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                            if (is_file($htmlfullname)) {
-                                                $alertmsg .= "and processed. ";
-                                            } else {
-                                                $alertmsg .= "but not yet processed. ";
+                                        $alertmsg .= xl("Unable to open ZIP archive") . " ";
+                                        $shouldParseEra = false;
+                                    }
+                                }
+
+                                echo "<!-- Notes from ERA upload processing:\n";
+                                if ($shouldParseEra) {
+                                    // The ERA's segments as strings; anything else (unset, an array) reads as empty.
+                                    $eraString = static fn(mixed $value): string => is_scalar($value) ? (string) $value : '';
+                                    // Called back once per claim: collects the invoices the ERA pays.
+                                    $eraCallback = static function (array &$out) use (&$eracount, &$eraname, &$eraEncounters, $eraString): void {
+                                        ++$eracount;
+                                        // since it's always sent we use isa_sender_id if payer_id is not provided
+                                        $eraname = $eraString($out['gs_date'] ?? null) . '_' . ltrim($eraString($out['isa_control_number'] ?? null), '0') .
+                                            '_' . ltrim($eraString($out['payer_id'] ?? null) ?: $eraString($out['isa_sender_id'] ?? null), '0');
+                                        if ($eraString($out['our_claim_id'] ?? null) !== '') {
+                                            [$pid, $encounter] = SLEOB::slInvoiceNumber($out);
+                                            $pid = $eraString($pid);
+                                            $encounter = $eraString($encounter);
+                                            if ($pid !== '' && $pid !== '0' && $encounter !== '' && $encounter !== '0') {
+                                                // As given: MySQL compares a payer-mangled id the way it always has.
+                                                $eraEncounters[] = [$pid, $encounter];
                                             }
                                         }
-                                        rename($tmp_name, $erafullname);
-                                        if ($edihname !== null) {
-                                            copy($erafullname, $edihname);
+                                    };
+                                    $parseResult = ParseERA::parseERA($tmp_name, $eraCallback);
+                                    if ($parseResult !== '') {
+                                        $alertmsg .= $parseResult;
+                                    }
+                                }
+                                echo "-->\n";
+                                $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                                $eraDir = $siteDir . '/documents/era';
+                                $historyDir = $siteDir . '/documents/edi/history/f835';
+                                $erafullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.edi');
+                                $edihname = is_dir($historyDir)
+                                    ? EraFilenameValidator::resolveWithinDirectory($historyDir, $eraname, '.835')
+                                    : null;
+                                $htmlfullname = EraFilenameValidator::resolveWithinDirectory($eraDir, $eraname, '.html');
+                                if ($erafullname === null || $htmlfullname === null) {
+                                    $alertmsg .= xl("Invalid ERA file name.") . " ";
+                                    $eraname = '';
+                                } else {
+                                    if (is_file($erafullname)) {
+                                        $alertmsg .= "Warning: Set $eraname was already uploaded ";
+                                        if (is_file($htmlfullname)) {
+                                            $alertmsg .= "and processed. ";
+                                        } else {
+                                            $alertmsg .= "but not yet processed. ";
                                         }
+                                    }
+                                    rename($tmp_name, $erafullname);
+                                    if ($edihname !== null) {
+                                        copy($erafullname, $edihname);
                                     }
                                 }
                             } // End 835 upload
@@ -605,23 +536,11 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                 <th class="dehead text-right" data-sort="number"><?php echo xlt('Paid'); ?>&nbsp;</th>
                                 <th class="dehead text-right" data-sort="number"><?php echo xlt('Balance'); ?>&nbsp;</th>
                                 <th class="dehead text-center" data-sort="number" title="<?php echo xla('Statements sent, or minus the insurance levels still open'); ?>"><?php echo xlt('Prv'); ?></th>
-                                <?php
-                                if (!$eracount) { ?>
-                                    <th class="dehead text-left"><?php echo xlt('Sel'); ?></th>
-                                    <th class="dehead text-center" data-sort="text"><?php echo xlt('Email'); ?></th>
-                                    <?php
-                                } ?>
                             </tr>
                             </thead>
                             <?php
                             // Cells' data-sort-value (sl_eob_search_sort.js) is raw, not display-formatted.
-                            $listRows = $searchCriteria->category === InvoiceCategory::DuePt
-                                ? StatementListRows::net($invoiceRows, $searchRequest->getString('form_show_nothing_due') !== '', PatientNetDue::nothingDue(...))
-                                : StatementListRows::asListed($invoiceRows);
-                            // A patient's portal and email flags are looked up once, not for each of their invoices.
-                            $portalByPid = [];
-                            $emailableByPid = [];
-                            foreach ($listRows->rows as $invoice) {
+                            foreach ($invoiceRows as $invoice) {
                                 $svcdate = $invoice->serviceDate();
                                 ?>
                                 <tr>
@@ -634,9 +553,9 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     <td class="detail" data-sort-value="<?php echo attr($invoice->pid . ':' . $invoice->encounter); ?>" data-encounter="<?php echo attr((string) $invoice->encounter); ?>">&nbsp;
                                         <a href="#" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js((string) $invoice->id); ?>)"><?php echo text((string) $invoice->pid) . '.' . text((string) $invoice->encounter); ?></a>
                                     </td>
-                                    <td class="detail" data-sort-value="<?php echo attr($svcdate); ?>">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
+                                    <td class="detail" data-sort-value="<?php echo attr($svcdate); ?>">&nbsp;<?php echo text($shortDate($svcdate)); ?></td>
                                     <td class="detail" data-sort-value="<?php echo attr($invoice->lastStatementDate); ?>">
-                                        &nbsp;<?php echo text(oeFormatShortDate($invoice->lastStatementDate)); ?></td>
+                                        &nbsp;<?php echo text($shortDate($invoice->lastStatementDate)); ?></td>
                                     <td class="detail text-right" data-sort-value="<?php echo attr($invoice->charges ?? ''); ?>"><?php echo text(FormatMoney::getBucks($invoice->charges)); ?>&nbsp;
                                     </td>
                                     <td class="detail text-right" data-sort-value="<?php echo attr($invoice->adjustments ?? ''); ?>"><?php echo text(FormatMoney::getBucks($invoice->adjustments)); ?>
@@ -647,75 +566,27 @@ if ($searchRequest->getString('form_search') === 'Search') {
                                     </td>
                                     <td class="detail text-right" data-sort-value="<?php echo attr($invoice->balance); ?>"><?php echo text(FormatMoney::getBucks($invoice->balance)); ?>&nbsp;</td>
                                     <td class="detail text-center" data-sort-value="<?php echo attr((string) $invoice->dunCount); ?>"><?php echo $invoice->dunCount ? text((string) $invoice->dunCount) : "&nbsp;" ?></td>
-                                    <?php if (!$eracount) { ?>
-                                        <td class="detail text-left">
-                                            <input type='checkbox'
-                                                   name='form_cb[<?php echo attr((string) $invoice->id) ?>]'<?php echo $invoice->preChecked ? ' checked' : ''; ?> />
-                                            <?php
-                                            if ($invoice->inCollections) {
-                                                echo "<span class='font-weight-bold text-danger'>IC</span>";
-                                            }
-                                            if ($invoice->netDue !== null) {
-                                                echo " <span class='badge badge-info' title='" . xla('Credits on other visits cover what is owed; no statement goes out') . "'>"
-                                                    . xlt('credit') . ' ' . text(FormatMoney::getBucks($invoice->netDue)) . "</span>";
-                                            } ?>
-                                            <?php
-                                            if ($portalByPid[$invoice->pid] ??= $statementServices->portal->listsAsPortalUser($invoice->pid)) {
-                                                echo(' PPt');
-                                                echo("<input type='hidden' name='form_invpids[" . attr((string) $invoice->id) . "][" . attr((string) $invoice->pid) . "]' />");
-                                                $is_portal = true;
-                                            } ?>
-                                        </td>
-                                    <?php } ?>
-                                    <td class="detail text-left">
-                                        <?php echo ($emailableByPid[$invoice->pid] ??= $statementServices->email->listsAsEmailable($invoice->pid)) ? xlt("YES") : xlt("NO"); ?>
-                                    </td>
                                 </tr>
                                 <?php
                             } // end foreach
-                            if ($listRows->hiddenPatients > 0) { ?>
-                                <tr id="nothing-due-hidden">
-                                    <td colspan="12" class="text-muted">
-                                        <?php echo xlt('Hidden, nothing due after credits') . ': ' . text((string) $listRows->hiddenPatients) . ' ' . xlt('patient(s). Their credits on other visits cover what they owe, so no statement goes out. Tick Show Nothing Due to list them.'); ?>
-                                    </td>
-                                </tr>
-                            <?php }
-                        } // end search/print logic
+                        } // end search logic
                         ?>
                         </table>
                     </div><!--End of table-responsive div-->
                 </fieldset>
-                <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                <?php if ($eracount && $eraname !== '') { ?>
                 <div class="form-group clearfix">
-                    <div class="form-row text-left position-override oe-show-hide" id="statement-download">
+                    <div class="form-row text-left position-override oe-show-hide" id="era-process">
                         <div class="btn-group" role="group">
-                            <?php
-                            if ($eracount && $eraname !== '') { ?>
-                                <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
-                                    <?php echo xlt('Process ERA File'); ?></button>
-                                <?php
-                            } else { ?>
-                                <button type="button" class="btn btn-secondary btn-save" name="Submit1" onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
-                                <button type="button" class="btn btn-secondary btn-undo" name="Submit2" onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
-                                <?php if (OEGlobalsBag::getInstance()->get('statement_appearance') != '1') { ?>
-                                    <button type="submit" class="btn btn-secondary btn-print" name='form_print' value="<?php echo xla('Print Selected Statements'); ?>"><?php echo xlt('Print Selected'); ?></button>
-                                    <button type="submit" class="btn btn-secondary btn-download" name='form_download' value="<?php echo xla('Download Selected Statements'); ?>"><?php echo xlt('Download Selected'); ?></button>
-                                <?php } ?>
-                                <button type="submit" class="btn btn-secondary btn-download" name='form_pdf' value="<?php echo xla('PDF Download Selected Statements'); ?>"><?php echo xlt('PDF Download Selected'); ?></button>
-                                <button type="submit" class="btn btn-secondary btn-mail" name='form_email' value="<?php echo xla('Email Selected Statements'); ?>"><?php echo xlt('Email Selected'); ?></button>
-                                <?php
-                                if (!empty($is_portal)) { ?>
-                                    <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify' value="<?php echo xla('Notify via Patient Portal'); ?>"><?php echo xlt('Notify Patients Portal'); ?></button>
-                                    <?php
-                                }
-                            }
-                            ?>
+                            <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
+                                <?php echo xlt('Process ERA File'); ?></button>
                             <label class="radio-inline btn"><?php echo xlt('Without Update'); ?>
                                 <input type='checkbox' name='form_without' value='1'/>
                             </label>
                         </div>
                     </div>
                 </div>
+                <?php } ?>
             </form>
         </div>
     </div>
@@ -812,7 +683,7 @@ if ($searchRequest->getString('form_search') === 'Search') {
             }
         });
 
-        <?php if (empty($_REQUEST['form_search'])) { ?>
+        <?php if ($searchRequest->getString('form_search') === '') { ?>
         $("#invoice_search").click();
         <?php } ?>
     });
@@ -827,20 +698,19 @@ if ($searchRequest->getString('form_search') === 'Search') {
 </script>
 <?php
 // not a good idea to do translate. it's a constant so pulling sjp.
-if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Search")) { ?>
+if ($searchRequest->getString('form_search') === 'Search') { ?>
     <script>
         $("#payment-allocate").insertAfter("#search-upload");
         $('#payment-allocate').show();
         $("#search-results").show();
-        $("#statement-download").show();
     </script>
     <?php
 }
-if (!empty($_REQUEST['form_search']) && ($_REQUEST['form_search'] == "Upload")) { ?>
+if ($searchRequest->getString('form_search') === 'Upload') { ?>
     <script>
         $('#era-upld').show();
         $('#search-results').show();
-        $("#statement-download").show();
+        $("#era-process").show();
     </script>
     <?php
 }

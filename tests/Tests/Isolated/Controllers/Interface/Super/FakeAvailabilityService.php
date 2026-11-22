@@ -37,6 +37,9 @@ class FakeAvailabilityService extends QuestionnaireAvailabilityService
     /** @var list<int> */
     public array $deleted = [];
 
+    /** @var list<array{int, string}> */
+    public array $categoryChanges = [];
+
     /** When set, assign() and updateAssignment() refuse with this service error code. */
     public ?int $refuseWith = null;
 
@@ -125,6 +128,11 @@ class FakeAvailabilityService extends QuestionnaireAvailabilityService
     public function deleteAssignment(int $assignmentId): void
     {
         $this->deleted[] = $assignmentId;
+    }
+
+    public function setQuestionnaireCategory(int $questionnaireId, string $category): void
+    {
+        $this->categoryChanges[] = [$questionnaireId, $category];
     }
 
     private function refuseIfAsked(): void

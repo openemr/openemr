@@ -1053,7 +1053,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$readonly might not be defined\\.$#',
-    'count' => 2,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
 ];
 $ignoreErrors[] = [
@@ -1548,7 +1548,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$new_str might not be defined\\.$#',
-    'count' => 2,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1717,11 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$form_pid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$payrow might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
@@ -1779,11 +1774,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$OE_SITES_BASE might not be defined\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../setup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$memory_limit_mb might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../setup.php',
 ];
 $ignoreErrors[] = [
@@ -1878,6 +1868,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$v_patch might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../sql_upgrade.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$v_realpatch might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sql_upgrade.php',
 ];

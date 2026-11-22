@@ -4,7 +4,10 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +22,7 @@ use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use SensitiveParameter;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[Small]
 class DatabaseConnectionOptionsTest extends TestCase
@@ -474,23 +478,84 @@ PHP
         self::assertNull($options->sslClientCert);
     }
 
+    public function testForSiteReadsTheSiteFilesOncePerRequest(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        mkdir($certDir, 0755, true);
+        file_put_contents($siteDir . '/sqlconf.php', <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'testdb',
+    'login' => 'testuser',
+    'pass' => 'testpass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+];
+PHP
+        );
+        file_put_contents($certDir . '/mysql-ca', 'ca-content');
+
+        $first = DatabaseConnectionOptions::forSite($siteDir);
+
+        // Neither file is read again: the second call would throw without
+        // sqlconf.php, and would find no CA without mysql-ca.
+        unlink($siteDir . '/sqlconf.php');
+        unlink($certDir . '/mysql-ca');
+
+        self::assertSame($first, DatabaseConnectionOptions::forSite($siteDir));
+        self::assertSame($certDir . '/mysql-ca', $first->sslCaPath);
+    }
+
+    public function testInferSslPathsIgnoresUnrelatedCertificates(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($certDir . '/README.md', 'readme');
+        $filesystem->dumpFile($certDir . '/oaprivate.key', 'unrelated');
+
+        self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
+    }
+
+    public function testInferSslPathsIgnoresDanglingSymlinks(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        (new Filesystem())->symlink($certDir . '/no-such-ca', $certDir . '/mysql-ca');
+
+        self::assertSame([], DatabaseConnectionOptions::inferSslPaths($siteDir));
+    }
+
+    public function testInferSslPathsChecksFixedPathsWhenDirectoryIsUnreadable(): void
+    {
+        $siteDir = $this->createTempSiteDir();
+        $certDir = $siteDir . '/documents/certificates';
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($certDir . '/mysql-ca', 'ca-content');
+        // Search permission without read permission: files resolve, listing fails.
+        $filesystem->chmod($certDir, 0311);
+        if (is_readable($certDir)) {
+            // @codeCoverageIgnoreStart
+            // Defensive — root ignores directory permissions; CI does not run tests as root.
+            $filesystem->chmod($certDir, 0755);
+            self::markTestSkipped('Directory permissions are not enforced for this user');
+            // @codeCoverageIgnoreEnd
+        }
+
+        try {
+            $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
+        } finally {
+            $filesystem->chmod($certDir, 0755);
+        }
+
+        self::assertSame(['ca' => $certDir . '/mysql-ca'], $ssl);
+    }
+
     private function cleanupTempDir(string $dir): void
     {
-        if (!is_dir($dir)) {
-            return;
-        }
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST,
-        );
-        foreach ($files as $file) {
-            /** @var \SplFileInfo $file */
-            if ($file->isDir()) {
-                rmdir($file->getRealPath());
-            } else {
-                unlink($file->getRealPath());
-            }
-        }
-        rmdir($dir);
+        // Filesystem::remove() deletes symlinks without following them, so a
+        // dangling one doesn't stop the cleanup.
+        (new Filesystem())->remove($dir);
     }
 }

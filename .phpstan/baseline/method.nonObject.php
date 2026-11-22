@@ -742,39 +742,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method saveXML\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method fix_html_entities\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
-    'count' => 91,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createElement\\(\\) on mixed\\.$#',
-    'count' => 24,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method createTextNode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAttribute\\(\\) on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method appendChild\\(\\) on mixed\\.$#',
@@ -1020,16 +990,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPageId\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setPrimaryMenuItem\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method MedExBank\\(\\) on mixed\\.$#',
@@ -1655,11 +1615,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method partial\\(\\) on Laminas\\\\View\\\\Renderer\\\\RendererInterface\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method addSubscriber\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/Module.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method attach\\(\\) on Laminas\\\\EventManager\\\\SharedEventManagerInterface\\|null\\.$#',
@@ -4085,16 +4040,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getMenu\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get_city\\(\\) on mixed\\.$#',

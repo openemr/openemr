@@ -4,6 +4,11 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -218,7 +223,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
 ];
 $ignoreErrors[] = [
@@ -245,11 +250,6 @@ $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',

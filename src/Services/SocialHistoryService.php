@@ -227,7 +227,7 @@ class SocialHistoryService extends BaseService
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
-        return ['puuid', 'uuid'];
+        return ['puuid', 'uuid', 'provider_uuid'];
     }
 
     public function updateHistoryDataForPatientPid($pid, $new)

@@ -1,0 +1,716 @@
+<!doctype html>
+<html>
+<head>
+    <!-- setupHeader stub -->
+    <title>Questionnaire Assessments</title>
+    <style>
+        #assessment-frame {
+            border: 0;
+            display: block;
+            height: 72vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="body_top">
+    <div id="container_div" class="container-fluid mt-2">
+        <div class="row">
+            <div class="col-sm-12">
+                <nav>menu</nav>
+            </div>
+        </div>
+
+                    <div id="assessment-workspace" class="card my-2 d-none">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span id="assessment-title" class="font-weight-bold"></span>
+        <div class="btn-group btn-group-sm">
+            <button type="button" id="assessment-save" class="btn btn-primary">
+                Save Assessment
+            </button>
+            <button type="button" id="assessment-close" class="btn btn-secondary">
+                Close
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <iframe id="assessment-frame" title="Questionnaire Assessment" data-fit-window></iframe>
+    </div>
+</div>
+                            <div class="card my-3">
+    <div class="card-header">
+            <a class="text-reset font-weight-bold" href="#questionnaire_smart_launches_expand" role="button" data-toggle="collapse" data-target="#questionnaire_smart_launches_expand" aria-expanded="true" aria-controls="questionnaire_smart_launches_expand">SMART Context Test Launches<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+
+    </div>
+    <div id="questionnaire_smart_launches_expand" class="collapse show" data-persist-collapse>
+        <div class="card-body">
+            <div class="small text-muted mb-3">
+                Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.
+            </div>
+                            <div class="border rounded p-2 mb-2">
+                    <div class="font-weight-bold mb-2">Growth Chart</div>
+                    <div class="d-flex flex-wrap align-items-center">
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-intent="patient.demographics.dialog">
+                            Patient
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-intent="encounter.forms.dialog">
+                            Current Encounter
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-intent="main.tab">
+                            Main Tab
+                        </button>
+                        <div class="input-group input-group-sm mb-2" style="max-width: 280px;">
+                            <input type="number" min="1" class="form-control smart-appointment-id" aria-label="Appointment ID" placeholder="Appointment ID">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary smart-context-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-intent="appointment.edit.dialog" data-appointment-launch="true">
+                                    Appointment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                            <div class="border rounded p-2 mb-2">
+                    <div class="font-weight-bold mb-2">Risk Calc</div>
+                    <div class="d-flex flex-wrap align-items-center">
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Risk Calc" data-client-id="app-2" data-intent="patient.demographics.dialog">
+                            Patient
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Risk Calc" data-client-id="app-2" data-intent="encounter.forms.dialog">
+                            Current Encounter
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch" data-smart-name="Risk Calc" data-client-id="app-2" data-intent="main.tab">
+                            Main Tab
+                        </button>
+                        <div class="input-group input-group-sm mb-2" style="max-width: 280px;">
+                            <input type="number" min="1" class="form-control smart-appointment-id" aria-label="Appointment ID" placeholder="Appointment ID">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary smart-context-launch" data-smart-name="Risk Calc" data-client-id="app-2" data-intent="appointment.edit.dialog" data-appointment-launch="true">
+                                    Appointment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+    </div>
+</div>
+
+            <div id="assessment-catalog" class="my-2">
+                <ul class="nav nav-tabs" id="assessment-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="available-assessments-tab" data-toggle="tab" href="#available-assessments" role="tab" aria-controls="available-assessments" aria-selected="true">
+                            Available Assessments
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="assessment-history-tab" data-toggle="tab" href="#assessment-history" role="tab" aria-controls="assessment-history" aria-selected="false">
+                            Assessment History
+                                                            <span class="badge badge-info ml-1">4</span>
+                                                    </a>
+                    </li>
+                        <li class="nav-item" role="presentation">
+        <a class="nav-link" id="questionnaire-availability-tab" data-toggle="tab" href="#questionnaire-availability" role="tab" aria-controls="questionnaire-availability" aria-selected="false">Availability</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="questionnaire-import-tab" data-toggle="tab" href="#questionnaire-import" role="tab" aria-controls="questionnaire-import" aria-selected="false">Import</a>
+    </li>
+                </ul>
+                <div class="tab-content border-left border-right border-bottom p-2 bg-light" id="assessment-tabs-content">
+                    <div class="tab-pane fade show active" id="available-assessments" role="tabpanel" aria-labelledby="available-assessments-tab">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-1">Available Assessments</h5>
+            <div class="small text-muted">
+                Active FHIR Questionnaires available from the repository. Dashboard launches are saved as patient assessments.
+            </div>
+        </div>
+    </div>
+
+            <h5 class="mt-2 mb-3">
+                <a class="text-reset font-weight-bold" href="#questionnaire_category_4290c7a4ee2a9a10_expand" role="button" data-toggle="collapse" data-target="#questionnaire_category_4290c7a4ee2a9a10_expand" aria-expanded="true" aria-controls="questionnaire_category_4290c7a4ee2a9a10_expand">Mental Health<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+
+            <span class="badge badge-light ml-1">2</span>
+        </h5>
+        <div id="questionnaire_category_4290c7a4ee2a9a10_expand" class="row collapse show" data-persist-collapse>
+                            <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title font-weight-bold mb-0">PHQ-9</h6>
+                                                                    <span class="badge badge-warning ml-2">in-progress</span>
+                                                            </div>
+                                                            <p class="card-text mb-2">Depression screen</p>
+                                                        <div class="small text-muted mb-3">
+                                                                    Version: 2
+                                                                <span class="badge badge-info ml-1">FHIR SDC</span>
+                            </div>
+                                                            <div class="small text-muted mb-2">
+                                    Last assessed: 2026-11-02 10:00:00
+                                </div>
+                                                        <div class="mt-auto">
+                                <button type="button" class="btn btn-warning btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?response_id=qr-11" data-assessment-title="PHQ-9">
+                                    Continue
+                                </button>
+                                                                    <div class="btn-group ml-1">
+    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Launch App
+    </button>
+    <div class="dropdown-menu">
+                    <button type="button" class="dropdown-item assessment-smart-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-questionnaire-id="1" data-questionnaire-response-id="11">
+                Growth Chart
+            </button>
+            </div>
+</div>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                            <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title font-weight-bold mb-0">GAD-7</h6>
+                                                                    <span class="badge badge-success ml-2">completed</span>
+                                                            </div>
+                                                            <p class="card-text mb-2">Anxiety screen</p>
+                                                        <div class="small text-muted mb-3">
+                                                                <span class="badge badge-info ml-1">FHIR R4</span>
+                            </div>
+                                                            <div class="small text-muted mb-2">
+                                    Last assessed: 2026-09-01 09:00:00
+                                </div>
+                                                        <div class="mt-auto">
+                                <button type="button" class="btn btn-primary btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?questionnaire_id=2" data-assessment-title="GAD-7">
+                                    Start Assessment
+                                </button>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+            <h5 class="mt-2 mb-3">
+                <a class="text-reset font-weight-bold" href="#questionnaire_category_unassigned_expand" role="button" data-toggle="collapse" data-target="#questionnaire_category_unassigned_expand" aria-expanded="false" aria-controls="questionnaire_category_unassigned_expand">Unassigned<i class="ml-1 fa fa-fw fa-expand" aria-hidden="true"></i></a>
+
+            <span class="badge badge-light ml-1">1</span>
+        </h5>
+        <div id="questionnaire_category_unassigned_expand" class="row collapse" data-persist-collapse>
+                            <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title font-weight-bold mb-0">Unnamed Questionnaire</h6>
+                                                            </div>
+                                                        <div class="small text-muted mb-3">
+                                                                <span class="badge badge-info ml-1">FHIR R4</span>
+                            </div>
+                                                        <div class="mt-auto">
+                                <button type="button" class="btn btn-primary btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?questionnaire_id=3" data-assessment-title="Unnamed Questionnaire">
+                                    Start Assessment
+                                </button>
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+    </div>
+                    <div class="tab-pane fade" id="assessment-history" role="tabpanel" aria-labelledby="assessment-history-tab">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-1">Assessment History</h5>
+            <div class="small text-muted">
+                Prior patient-level QuestionnaireResponses saved outside an encounter.
+            </div>
+        </div>
+    </div>
+
+            <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>Assessment</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Context</th>
+                    <th>Version</th>
+                    <th class="text-right">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                                    <tr>
+                        <td>PHQ-9</td>
+                        <td>
+                            <span class="badge badge-warning">in-progress</span>
+                        </td>
+                        <td>2026-11-02 10:00:00</td>
+                        <td>Patient</td>
+                        <td>2</td>
+                        <td class="text-right">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?response_id=qr-11" data-assessment-title="PHQ-9">
+                                    View / Edit
+                                </button>
+                                                                                        <div class="btn-group ml-1">
+    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Launch App
+    </button>
+    <div class="dropdown-menu dropdown-menu-right">
+                    <button type="button" class="dropdown-item assessment-smart-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-questionnaire-id="1" data-questionnaire-response-id="11">
+                Growth Chart
+            </button>
+            </div>
+</div>
+                                                    </td>
+                    </tr>
+                                    <tr>
+                        <td>PHQ-9</td>
+                        <td>
+                            <span class="badge badge-success">completed</span>
+                        </td>
+                        <td>2026-10-01 10:00:00</td>
+                        <td>Patient</td>
+                        <td></td>
+                        <td class="text-right">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?response_id=qr-10" data-assessment-title="PHQ-9">
+                                    View / Edit
+                                </button>
+                                                                                        <div class="btn-group ml-1">
+    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Launch App
+    </button>
+    <div class="dropdown-menu dropdown-menu-right">
+                    <button type="button" class="dropdown-item assessment-smart-launch" data-smart-name="Growth Chart" data-client-id="app-1" data-questionnaire-id="1" data-questionnaire-response-id="10">
+                Growth Chart
+            </button>
+            </div>
+</div>
+                                                    </td>
+                    </tr>
+                                    <tr>
+                        <td>GAD-7</td>
+                        <td>
+                            <span class="badge badge-success">completed</span>
+                        </td>
+                        <td>2026-09-01 09:00:00</td>
+                        <td>Patient</td>
+                        <td></td>
+                        <td class="text-right">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm assessment-launch" data-assessment-url="/interface/forms/questionnaire_assessments/native_questionnaire.php?response_id=qr-9" data-assessment-title="GAD-7">
+                                    View / Edit
+                                </button>
+                                                                                </td>
+                    </tr>
+                                    <tr>
+                        <td>Orphan</td>
+                        <td>
+                            <span class="badge badge-info">Unknown</span>
+                        </td>
+                        <td></td>
+                        <td>Patient</td>
+                        <td></td>
+                        <td class="text-right">
+                                                                                </td>
+                    </tr>
+                                </tbody>
+            </table>
+        </div>
+    </div>
+                            <div class="tab-pane fade position-relative" id="questionnaire-availability" role="tabpanel" aria-labelledby="questionnaire-availability-tab">
+                <div class="position-absolute text-center text-muted py-5 d-none frame-loading" style="top: 0; left: 0; right: 0;" data-frame="questionnaire-availability-frame" role="status">
+            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span>Loading...
+        </div>
+        <iframe id="questionnaire-availability-frame" title="Questionnaire Availability" class="w-100 border-0 d-block assessment-tab-frame" style="height: 80vh;" data-fit-window data-src="/interface/super/manage_questionnaire_availability.php"></iframe>
+    </div>
+
+        <div class="tab-pane fade position-relative" id="questionnaire-import" role="tabpanel" aria-labelledby="questionnaire-import-tab">
+                <div class="position-absolute text-center text-muted py-5 d-none frame-loading" style="top: 0; left: 0; right: 0;" data-frame="questionnaire-import-frame" role="status">
+            <span class="spinner-border spinner-border-sm mr-1" aria-hidden="true"></span>Loading...
+        </div>
+        <iframe id="questionnaire-import-frame" title="Import Questionnaires" class="w-100 border-0 d-block assessment-tab-frame" style="height: 80vh;" data-fit-window data-src="/interface/super/manage_questionnaire_availability.php?view=import"></iframe>
+    </div>
+
+<script>
+    (function () {
+        const availabilityFrame = document.getElementById('questionnaire-availability-frame')
+        const importFrame = document.getElementById('questionnaire-import-frame')
+        const availableTab = document.getElementById('available-assessments-tab')
+        let changed = false
+
+        // Load an embedded screen the first time its tab is opened, with a loading line until
+        // it arrives.
+        function loadOnFirstOpen (tab, frame) {
+            tab?.addEventListener('click', () => {
+                if (frame && !frame.getAttribute('src')) {
+                    top.restoreSession()
+                    const loader = document.querySelector('.frame-loading[data-frame="' + frame.id + '"]')
+                    if (loader) {
+                        loader.classList.remove('d-none')
+                        frame.addEventListener('load', () => loader.classList.add('d-none'), { once: true })
+                    }
+                    frame.setAttribute('src', frame.dataset.src)
+                }
+            })
+        }
+        loadOnFirstOpen(document.getElementById('questionnaire-availability-tab'), availabilityFrame)
+        loadOnFirstOpen(document.getElementById('questionnaire-import-tab'), importFrame)
+        loadOnFirstOpen(document.getElementById('document-templates-tab'), document.getElementById('document-templates-frame'))
+
+        // The first load is the screen itself; any later load is the screen coming back from a
+        // save, which can change what this patient's dashboard offers.
+        let loads = 0
+        availabilityFrame?.addEventListener('load', () => {
+            loads++
+            if (loads > 1) {
+                changed = true
+            }
+        })
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin || event.source !== importFrame?.contentWindow) {
+                return
+            }
+            if (event.data?.questionnaireImported === true) {
+                changed = true
+                if (availabilityFrame?.getAttribute('src')) {
+                    availabilityFrame.contentWindow.location.reload()
+                }
+            }
+        })
+        // The Available list was rendered before the change, so refresh it rather than show a
+        // list that no longer matches the rules just saved.
+        availableTab?.addEventListener('click', () => {
+            if (changed) {
+                top.restoreSession()
+                window.location.reload()
+            }
+        })
+    })()
+</script>
+                </div>
+            </div>
+            </div>
+    <!-- expand -->
+            <script>
+    (function () {
+        const settingsUrl = "\/library\/ajax\/user_settings.php"
+        const csrfToken = "token"
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
+        <script>
+    window.assessmentFeedback = (function () {
+        const launcherUrl = "\/interface\/patient_file\/assessment\/fhir_assessments.php"
+        const words = {
+            loading: "Loading...",
+            saving: "Saving...",
+            saved: "Assessment saved.",
+            dismiss: "Dismiss"
+        }
+        const save = document.getElementById('assessment-save')
+        const frame = document.getElementById('assessment-frame')
+        const workspace = document.getElementById('assessment-workspace')
+        const saveLabel = save.textContent.trim()
+
+        function spinner () {
+            const spin = document.createElement('span')
+            spin.className = 'spinner-border spinner-border-sm mr-1'
+            spin.setAttribute('aria-hidden', 'true')
+            return spin
+        }
+
+        const loadingLine = document.createElement('div')
+        loadingLine.id = 'assessment-loading'
+        loadingLine.className = 'text-center text-muted py-5 d-none'
+        loadingLine.setAttribute('role', 'status')
+        loadingLine.append(spinner(), document.createTextNode(words.loading))
+        frame.before(loadingLine)
+        frame.addEventListener('load', () => loadingLine.classList.add('d-none'))
+
+        // Back from a save: confirm it once, and drop the flag so a refresh does not repeat it.
+        if (new URLSearchParams(window.location.search).get('saved') === '1') {
+            const note = document.createElement('div')
+            note.id = 'assessment-saved'
+            note.className = 'alert alert-success alert-dismissible fade show mt-3'
+            note.setAttribute('role', 'status')
+            const close = document.createElement('button')
+            close.type = 'button'
+            close.className = 'close'
+            close.dataset.dismiss = 'alert'
+            close.setAttribute('aria-label', words.dismiss)
+            close.textContent = '×'
+            note.append(document.createTextNode(words.saved), close)
+            workspace.before(note)
+            setTimeout(() => $(note).alert('close'), 6000)
+            window.history.replaceState(null, '', launcherUrl)
+        }
+
+        return {
+            savedUrl: launcherUrl + '?saved=1',
+            // Save shows a spinner while the assessment is on its way, and goes back to normal
+            // if validation or the save fails so the user can correct it and try again.
+            saving (on) {
+                save.disabled = on
+                if (on) {
+                    save.replaceChildren(spinner(), document.createTextNode(words.saving))
+                } else {
+                    save.textContent = saveLabel
+                }
+            },
+            loading (on) {
+                loadingLine.classList.toggle('d-none', !on)
+            }
+        }
+    })()
+</script>
+        <script>
+    (function () {
+        // Below this a frame is too short to use; the page scrolls instead.
+        const minimumHeight = 300
+
+        // The space the frame's containers keep below it: each one's bottom padding, border
+        // and margin, up to and including the body.
+        function spaceBelow (frame) {
+            let space = parseFloat(getComputedStyle(frame).marginBottom) || 0
+            for (let element = frame.parentElement; element && element !== document.documentElement; element = element.parentElement) {
+                const style = getComputedStyle(element)
+                space += (parseFloat(style.paddingBottom) || 0)
+                    + (parseFloat(style.borderBottomWidth) || 0)
+                    + (parseFloat(style.marginBottom) || 0)
+            }
+            return space
+        }
+
+        // A frame inside a hidden tab or a closed workspace is skipped; it fits when shown.
+        function fit () {
+            document.querySelectorAll('iframe[data-fit-window]').forEach((frame) => {
+                if (frame.offsetParent === null) {
+                    return
+                }
+                const top = frame.getBoundingClientRect().top + window.scrollY
+                const height = Math.floor(window.innerHeight - top - spaceBelow(frame))
+                frame.style.height = Math.max(minimumHeight, height) + 'px'
+            })
+        }
+
+        window.assessmentFrameFit = { fit }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('iframe[data-fit-window]').forEach((frame) => {
+                frame.addEventListener('load', fit)
+            })
+            $('a[data-toggle="tab"]').on('shown.bs.tab', fit)
+            // Folding a section above a frame (the SMART test launches card, say) moves the frame.
+            $(document).on('shown.bs.collapse hidden.bs.collapse', fit)
+            fit()
+        })
+        window.addEventListener('resize', fit)
+    })()
+</script>
+        <script>
+    const assessmentWorkspace = document.getElementById('assessment-workspace')
+    const assessmentCatalog = document.getElementById('assessment-catalog')
+    const assessmentFrame = document.getElementById('assessment-frame')
+    const assessmentTitle = document.getElementById('assessment-title')
+    const assessmentSaveButton = document.getElementById('assessment-save')
+    const assessmentLauncherUrl = "\/interface\/patient_file\/assessment\/fhir_assessments.php";
+    const smartLaunchUrl = "\/interface\/smart\/ehr-launch-client.php";
+    const smartLaunchCsrfToken = "token";
+    const smartLaunchIntent = "questionnaire.assessment.dialog";
+    let assessmentSavePending = false
+    // Save waits for the workspace to say it can take submitForm. A refusal page never does.
+    let assessmentReady = false
+    // The frame's window stays the same object across navigations, so a ready message from an
+    // assessment that was just closed would pass the source check. Each open gets its own URL
+    // (open=<n>) and only a ready message reporting that URL counts.
+    let assessmentOpenCount = 0
+    let assessmentOpenHref = ''
+
+    function setAssessmentReady (ready) {
+        assessmentReady = ready
+        assessmentSaveButton.disabled = !ready
+    }
+
+    function openAssessment (url, title) {
+        top.restoreSession()
+        assessmentSavePending = false
+        assessmentFeedback.saving(false)
+        setAssessmentReady(false)
+        assessmentTitle.textContent = title
+        assessmentCatalog.classList.add('d-none')
+        assessmentWorkspace.classList.remove('d-none')
+        // Show the loading line first: it sits above the frame, so fit() has to account for it.
+        assessmentFeedback.loading(true)
+        assessmentFrameFit.fit()
+        const openUrl = new URL(url, window.location.href)
+        openUrl.searchParams.set('open', String(++assessmentOpenCount))
+        assessmentOpenHref = openUrl.href
+        assessmentFrame.src = assessmentOpenHref
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    function closeAssessment () {
+        assessmentSavePending = false
+        assessmentFeedback.saving(false)
+        assessmentFeedback.loading(false)
+        setAssessmentReady(false)
+        assessmentOpenHref = ''
+        assessmentFrame.src = 'about:blank'
+        assessmentWorkspace.classList.add('d-none')
+        assessmentCatalog.classList.remove('d-none')
+    }
+
+    document.querySelectorAll('.assessment-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            openAssessment(button.dataset.assessmentUrl, button.dataset.assessmentTitle)
+        })
+    })
+
+    function openSmartDialog (params, title) {
+        dlgopen(
+            smartLaunchUrl + '?' + params.toString(),
+            '_blank',
+            'modal-full',
+            window.top.innerHeight,
+            '',
+            title,
+            { allowExternal: true }
+        )
+    }
+
+    function launchSmartContext (button, extraParams = {}) {
+        const clientId = button.dataset.clientId || ''
+        const intent = button.dataset.intent || ''
+        if (clientId === '' || intent === '') {
+            return
+        }
+
+        top.restoreSession()
+        const params = new URLSearchParams({
+            client_id: clientId,
+            csrf_token: smartLaunchCsrfToken,
+            intent
+        })
+        Object.entries(extraParams).forEach(([name, value]) => {
+            if (value !== '') {
+                params.set(name, value)
+            }
+        })
+        openSmartDialog(params, button.dataset.smartName || "SMART App")
+    }
+
+    document.querySelectorAll('.smart-context-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            const extraParams = {}
+            if (button.dataset.appointmentLaunch === 'true') {
+                const container = button.closest('.input-group')
+                const appointmentInput = container?.querySelector('.smart-appointment-id')
+                const appointmentId = appointmentInput?.value || ''
+                if (appointmentId === '') {
+                    appointmentInput?.focus()
+                    return
+                }
+                extraParams.appointment_id = appointmentId
+            }
+            launchSmartContext(button, extraParams)
+        })
+    })
+
+    document.querySelectorAll('.assessment-smart-launch').forEach((button) => {
+        button.addEventListener('click', () => {
+            const clientId = button.dataset.clientId || ''
+            const questionnaireId = button.dataset.questionnaireId || ''
+            const questionnaireResponseId = button.dataset.questionnaireResponseId || ''
+            if (clientId === '' || questionnaireId === '') {
+                return
+            }
+
+            top.restoreSession()
+            const params = new URLSearchParams({
+                client_id: clientId,
+                csrf_token: smartLaunchCsrfToken,
+                intent: smartLaunchIntent,
+                questionnaire_id: questionnaireId
+            })
+            if (questionnaireResponseId !== '') {
+                params.set('questionnaire_response_id', questionnaireResponseId)
+            }
+            openSmartDialog(params, button.dataset.smartName || "SMART Assessment App")
+        })
+    })
+
+    assessmentSaveButton.addEventListener('click', () => {
+        if (assessmentSavePending || !assessmentReady) {
+            return
+        }
+        top.restoreSession()
+        assessmentSavePending = true
+        assessmentFeedback.saving(true)
+        assessmentFrame.contentWindow.postMessage({ submitForm: true }, window.location.origin)
+    })
+
+    document.getElementById('assessment-close').addEventListener('click', closeAssessment)
+
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin || event.source !== assessmentFrame.contentWindow) {
+            return
+        }
+
+        if (event.data?.assessmentReady === true) {
+            if (assessmentOpenHref !== '' && event.data.href === assessmentOpenHref) {
+                setAssessmentReady(true)
+            }
+            return
+        }
+
+        if (event.data?.assessmentSaved === true) {
+            window.location.href = assessmentFeedback.savedUrl
+            return
+        }
+
+        if (event.data?.assessmentValidationFailed === true || event.data?.assessmentSaveFailed === true) {
+            assessmentSavePending = false
+            assessmentFeedback.saving(false)
+        }
+    })
+</script>
+    </body>
+</html>

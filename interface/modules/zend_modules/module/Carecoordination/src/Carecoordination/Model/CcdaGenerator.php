@@ -122,18 +122,24 @@ class CcdaGenerator
             }
             $components = $str1;
         }
-        $data = $this->create_data(
-            $patient_id,
-            $encounter_id,
-            $sections,
-            $components,
-            $recipients,
-            $params,
-            $document_type,
-            $referral_reason,
-            $send,
-            $date_options
-        );
+        // The Reason for Referral is the chosen referral's, as the C-CDA is linked to it (logCCDA()).
+        $this->getEncounterccdadispatchTable()->setContentReferral($referralId);
+        try {
+            $data = $this->create_data(
+                $patient_id,
+                $encounter_id,
+                $sections,
+                $components,
+                $recipients,
+                $params,
+                $document_type,
+                $referral_reason,
+                $send,
+                $date_options
+            );
+        } finally {
+            $this->getEncounterccdadispatchTable()->setContentReferral(null);
+        }
         $content = $this->normalize($data);
         // When patient documents are exported with the C-CDA (patient_files in
         // the data), they travel in a separate unstructured document. The Node

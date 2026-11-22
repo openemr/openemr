@@ -166,7 +166,12 @@ $update = $this->listenerObject->z_xlt('Update');
                                     <input type='hidden' name='lists1-old-diagnosis[]' value='<?php echo $this->escapeHtml($res_existing_prob['diagnosis']);?>' >
                                 </td>
                                 <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
-                                <td><input type='text' name='lists1-activity[]' value='<?php echo $this->listenerObject->z_xlt($activity);?>' ></td>
+                                <td>
+                                    <select name='lists1-activity[]'>
+                                        <option value='Active' <?php if($activity == 'Active') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Active'); ?></option>
+                                        <option value='Inactive' <?php if($activity == 'Inactive') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Inactive'); ?></option>
+                                    </select>
+                                </td>
                                 <td rowspan='2' >
                                     <select name='lists1-sel[]'>
                                         <option value='ignore' ><?php echo $ignore; ?></option>
@@ -220,7 +225,12 @@ $update = $this->listenerObject->z_xlt('Update');
                         <td><?php echo $this->listenerObject->z_xlt('Code');?></td>
                         <td><input type='text' name='lists1-diagnosis[]' value='<?php echo $this->escapeHtml($val['diagnosis']);?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Status');?></td>
-                        <td><input type='text' name='lists1-activity[]' value='<?php echo $this->listenerObject->z_xlt($activity);?>' ></td>
+                        <td>
+                            <select name='lists1-activity[]'>
+                                <option value='Active' <?php if($activity == 'Active') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Active'); ?></option>
+                                <option value='Inactive' <?php if($activity == 'Inactive') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Inactive'); ?></option>
+                            </select>
+                        </td>
                         <td>
                             <select name='lists1-sel[]'>
                                 <option value='ignore' ><?php echo $ignore; ?></option>
@@ -338,7 +348,12 @@ $update = $this->listenerObject->z_xlt('Update');
                         <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
                         <td><input type='text' name='prescriptions-date_added[]' value='<?php echo \Application\Model\ApplicationTable::fixDate($val['date_added'], $date_format, 'yyyy-mm-dd');?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
-                        <td><input type='text' name='prescriptions-active[]' value='<?php echo $this->listenerObject->z_xlt($activity); ?>' ></td>
+                        <td>
+                            <select name='prescriptions-active[]'>
+                                <option value='Active' <?php if($activity == 'Active') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Active'); ?></option>
+                                <option value='Inactive' <?php if($activity == 'Inactive') echo "selected";?>><?php echo $this->listenerObject->z_xlt('Inactive'); ?></option>
+                            </select>
+                        </td>
                         <td rowspan='2' >
                             <select name='prescriptions-sel[]'>
                                 <option value='ignore' ><?php echo $ignore; ?></option>

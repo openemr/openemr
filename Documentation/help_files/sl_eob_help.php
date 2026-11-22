@@ -110,7 +110,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         </fieldset>
                 </form>
                 <br />
-                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on a patient name if you want to enter a note that the front office staff will see when the patient checks in, and you may select invoices to appear on patient statements and print those statements.");?></p>
+                <p><?php echo xlt("Upon a successful search you are presented with a list of invoices. You may click on one of the invoice numbers to open a second window, which is the data entry page for manual posting. You may also click on the chart ID in the Billing Note column if you want to enter a note that the front office staff will see when the patient checks in, or on a patient name to open their encounters. Patient statements are printed, downloaded or emailed from Fees, Patient Statements.");?></p>
 
                 <p><?php echo xlt("Upon clicking an invoice number the 'manual posting window' appears. Here you can change the due date and notes for the invoice, select the party for whom you are posting, and select the insurances for which all expected payments have been received. Most importantly, for each billing code for which an amount was charged, you can enter payment and adjustment information.");?></p>
 

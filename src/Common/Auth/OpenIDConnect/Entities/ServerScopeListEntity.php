@@ -23,6 +23,13 @@ class ServerScopeListEntity
 
     private array $v2ApiScopes = [];
 
+    /**
+     * FHIR resource types a site opened to patient app writes, held for staff review.
+     *
+     * @var list<string>
+     */
+    private array $patientWriteResources = [];
+
     public function __construct()
     {
     }
@@ -31,6 +38,17 @@ class ServerScopeListEntity
     {
         $this->systemScopesEnabled = $enabled;
         // reset the cached scopes so we can rebuild them
+        $this->clearCachedScopes();
+    }
+
+    /**
+     * The resource types to offer patient/<Resource>.cu for: what PatientWritePolicy advertises.
+     *
+     * @param list<string> $resources FHIR resource types
+     */
+    public function setPatientWriteResources(array $resources): void
+    {
+        $this->patientWriteResources = $resources;
         $this->clearCachedScopes();
     }
 
@@ -243,14 +261,18 @@ class ServerScopeListEntity
             // create+update+delete and requires a v2 permission to be an ordered CRUDS substring,
             // so 'cud' is what the endpoint's derived 'c' / 'u' / 'd' requirement resolves against.
             //
-            // No patient/ variant. FhirGenericRestController answers 403 for a patient-context
-            // token on every write path, so a patient/<Resource>.cud scope could be granted and
-            // never exercised -- advertising it would misrepresent what the server accepts.
+            // A patient/ variant only for a type the site opened to patient apps, and only
+            // create and update: each such write is held for staff review, and an app can't
+            // delete. Every other patient-context write is answered 403, so offering a scope for
+            // it would misrepresent what the server accepts.
             foreach ($writeResources as $resource) {
                 $scopes[] = "user/$resource.cud";
                 if ($systemEnabled) {
                     $scopes[] = "system/$resource.cud";
                 }
+            }
+            foreach ($this->patientWriteResources as $resource) {
+                $scopes[] = "patient/$resource.cu";
             }
             // now add the restrictions
             $restrictedScopes = [

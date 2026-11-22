@@ -15,11 +15,11 @@
 
 namespace OpenEMR\Services {
 
-    // Stub the unqualified xlt() the processor uses for its messages, in the same namespace as
+    // Stub the unqualified xl() the processor uses for its messages, in the same namespace as
     // the code under test so PHP resolves to this before the global fallback. Guarded so the
     // isolated suite can share a process without collision.
-    if (!function_exists('OpenEMR\\Services\\xlt')) {
-        function xlt(string $s): string
+    if (!function_exists('OpenEMR\\Services\\xl')) {
+        function xl(string $s): string
         {
             return $s;
         }

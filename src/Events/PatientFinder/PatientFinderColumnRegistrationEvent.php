@@ -12,12 +12,17 @@
  * {@see PatientFinderRowEnrichEvent}.
  *
  * The event carries the same registry instance on both the page and AJAX sides,
- * so the displayed columns and the queried columns stay in lockstep.
+ * so the displayed columns and the queried columns stay in lockstep. It is
+ * dispatched once for each tab's column set: {@see getColumnList()} says whether
+ * this is the Patient List's or the Recent Patients' (which has its own list
+ * unless the site has it share the Patient List's columns).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Open Plan IT Ltd
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +31,7 @@ declare(strict_types=1);
 namespace OpenEMR\Events\PatientFinder;
 
 use OpenEMR\Services\PatientFinder\PatientFinderColumn;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistry;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -36,8 +42,18 @@ final class PatientFinderColumnRegistrationEvent extends Event
      */
     public const EVENT_HANDLE = 'patientFinder.registerColumns';
 
-    public function __construct(private readonly PatientFinderColumnRegistry $registry)
+    public function __construct(
+        private readonly PatientFinderColumnRegistry $registry,
+        private readonly PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList
+    ) {
+    }
+
+    /**
+     * The list the registry's columns were seeded from.
+     */
+    public function getColumnList(): PatientFinderColumnList
     {
+        return $this->columnList;
     }
 
     public function getRegistry(): PatientFinderColumnRegistry

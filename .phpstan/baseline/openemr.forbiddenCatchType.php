@@ -443,7 +443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [
@@ -594,11 +594,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Health/Check/InstallationCheck.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Health/Check/OAuthKeysCheck.php',
 ];
 $ignoreErrors[] = [
@@ -663,7 +658,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [

@@ -1,0 +1,435 @@
+<?php
+
+/**
+ * VisitListService
+ *
+ * Finds the Visit Lists for some providers over a range of dates: each Visit List block
+ * occurrence, and the Visit List patients (pc_visit_list = 1) that belong on it. Blocks are
+ * found by the category's constant ID (visit_list), never its pc_catid, which differs from
+ * site to site. A repeating block's dates are worked out the way the calendar works them
+ * out (fetchEvents() in appointments.inc.php), so excluded dates are left out. Like the
+ * calendar, only active events (pc_eventstatus = 1) are read.
+ *
+ * Database access and the series expansion are injected, so the lookups are unit-testable
+ * without a database.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Appointment\VisitList;
+
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeZone;
+use DomainException;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
+
+final class VisitListService
+{
+    /** pc_constant_id of the Visit List category. */
+    public const CATEGORY_CONSTANT_ID = 'visit_list';
+
+    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
+    private $fetchRecords;
+
+    /** @var callable(string, string, string, array<int, string|int>): list<array<mixed>> */
+    private $fetchEvents;
+
+    /** @var callable(string, array<int, int|string|null>): void */
+    private $execute;
+
+    /**
+     * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
+     * @param callable(string, string, string, array<int, string|int>): list<array<mixed>>|null $fetchEvents
+     *        events from one date to another (Y-m-d) with repeating ones expanded to each date,
+     *        given an extra WHERE clause and its binds, as fetchEvents() returns them
+     * @param callable(string, array<int, int|string|null>): void|null $execute runs a statement that changes rows
+     */
+    public function __construct(
+        ?callable $fetchRecords = null,
+        ?callable $fetchEvents = null,
+        private readonly VisitListMatcher $matcher = new VisitListMatcher(),
+        ?callable $execute = null,
+    ) {
+        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
+        $this->fetchEvents = $fetchEvents ?? self::fetchCalendarEvents(...);
+        $this->execute = $execute ?? static function (string $sql, array $binds): void {
+            QueryUtils::sqlStatementThrowException($sql, $binds);
+        };
+    }
+
+    /**
+     * The Visit Lists of the given providers from one date to another, both included.
+     *
+     * @param list<int> $providerIds
+     */
+    public function forDates(DateTimeImmutable $from, DateTimeImmutable $to, array $providerIds): VisitListSchedule
+    {
+        $fromDate = $from->format('Y-m-d');
+        $toDate = $to->format('Y-m-d');
+        if ($toDate < $fromDate) {
+            throw new DomainException('Visit List date range cannot end before it starts');
+        }
+
+        $providerIds = array_values(array_unique($providerIds));
+        if ($providerIds === []) {
+            return VisitListSchedule::empty();
+        }
+        foreach ($providerIds as $providerId) {
+            if ($providerId <= 0) {
+                throw new DomainException('Visit List provider ID must be positive');
+            }
+        }
+
+        return $this->matcher->match(
+            $this->blocks($fromDate, $toDate, $providerIds),
+            $this->entries($fromDate, $toDate, $providerIds)
+        );
+    }
+
+    /**
+     * The Order # a patient added to the Visit List of this provider at this time gets: one
+     * past the highest on that list, or 1 when the list is empty or there is no such block.
+     */
+    public function nextSequence(int $providerId, DateTimeImmutable $start): int
+    {
+        $claiming = self::claimingList($this->forDates($start, $start, [$providerId]), $providerId, $start);
+        if ($claiming === null) {
+            return 1;
+        }
+
+        $highest = 0;
+        foreach ($claiming->entries as $entry) {
+            $highest = max($highest, $entry->sequence ?? 0);
+        }
+        return $highest + 1;
+    }
+
+    /**
+     * An appointment's copies as they are now, read before the editor saves it so that
+     * place() can find them and keep each one's start time afterwards.
+     */
+    public function copiesBefore(int $eventId): VisitListCopies
+    {
+        if ($eventId <= 0) {
+            throw new DomainException('Visit List patient event ID must be positive');
+        }
+
+        $multiple = null;
+        $startByProvider = [];
+        foreach ($this->copyRows($eventId, null) as $row) {
+            $multiple ??= self::positiveInt($row['pc_multiple'] ?? null);
+            $providerId = self::positiveInt($row['pc_aid'] ?? null);
+            $start = self::startOf($row);
+            if ($providerId !== null && $start !== null) {
+                $startByProvider[$providerId] = $start;
+            }
+        }
+        return new VisitListCopies($multiple, $startByProvider);
+    }
+
+    /**
+     * Mark an appointment as a Visit List patient with its Order # and Stop #, along with the
+     * copies of it for other providers (a multi-provider appointment shares pc_multiple). A
+     * Visit List patient has no time of its own, so each loses any duration.
+     *
+     * Pass the copies as they were before the save ($before) when the editor saved an existing
+     * appointment. The copies are then found by their group even when the editor deleted the
+     * copy it opened, and a copy whose provider and date are unchanged keeps its own start time
+     * rather than the one the editor wrote to every copy.
+     *
+     * Each copy's provider and date decide the list it belongs on. When no Visit List block of
+     * that provider claims its start time on that date (its date or provider was changed), it
+     * moves to the start of the provider's first block that day. With no block that day it
+     * keeps its time.
+     */
+    public function place(int $eventId, ?int $sequence, ?int $stop, ?VisitListCopies $before = null): void
+    {
+        if ($eventId <= 0) {
+            throw new DomainException('Visit List patient event ID must be positive');
+        }
+        if ($sequence !== null && $sequence <= 0) {
+            throw new DomainException('Visit List order must be positive');
+        }
+        if ($stop !== null && $stop <= 0) {
+            throw new DomainException('Visit List stop must be positive');
+        }
+
+        foreach ($this->copyRows($eventId, $before?->multiple) as $row) {
+            $copyId = self::positiveInt($row['pc_eid'] ?? null);
+            if ($copyId === null) {
+                continue;
+            }
+            $start = self::startOf($row);
+            $providerId = self::positiveInt($row['pc_aid'] ?? null);
+            $startTime = null;
+            if ($start !== null && $providerId !== null) {
+                $start = $before?->startOn($providerId, $start) ?? $start;
+                $startTime = $this->startOnABlock($providerId, $start)->format('H:i:s');
+            }
+
+            ($this->execute)(
+                'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 1, `pc_visit_seq` = ?, `pc_visit_stop` = ?,'
+                . ' `pc_startTime` = COALESCE(?, `pc_startTime`), `pc_endTime` = `pc_startTime`,'
+                . ' `pc_duration` = 0, `pc_alldayevent` = 0 WHERE `pc_eid` = ?',
+                [$sequence, $stop, $startTime, $copyId]
+            );
+        }
+    }
+
+    /**
+     * The appointment and the copies sharing its pc_multiple, or sharing the given group when
+     * one is known (the appointment itself may be gone).
+     *
+     * @return list<array<mixed>>
+     */
+    private function copyRows(int $eventId, ?int $multiple): array
+    {
+        $columns = 'SELECT `pc_eid`, `pc_aid`, `pc_multiple`, `pc_eventDate`, `pc_startTime` FROM `openemr_postcalendar_events`';
+        if ($multiple !== null) {
+            return ($this->fetchRecords)($columns . ' WHERE `pc_eid` = ? OR `pc_multiple` = ?', [$eventId, $multiple]);
+        }
+        return ($this->fetchRecords)(
+            $columns . ' WHERE `pc_eid` = ? OR (`pc_multiple` > 0 AND `pc_multiple` ='
+            . ' (SELECT `m`.`pc_multiple` FROM `openemr_postcalendar_events` AS `m` WHERE `m`.`pc_eid` = ?))',
+            [$eventId, $eventId]
+        );
+    }
+
+    /**
+     * When a Visit List patient of this provider starting then should start: unchanged when a
+     * block claims that time, else the start of the provider's first block that day, else
+     * unchanged.
+     */
+    private function startOnABlock(int $providerId, DateTimeImmutable $start): DateTimeImmutable
+    {
+        $schedule = $this->forDates($start, $start, [$providerId]);
+        if (self::claimingList($schedule, $providerId, $start) !== null) {
+            return $start;
+        }
+        foreach ($schedule->lists as $list) {
+            if ($list->block->providerId === $providerId) {
+                return $list->block->start;
+            }
+        }
+        return $start;
+    }
+
+    /**
+     * The list the matcher puts a patient of this provider starting then on: of the blocks that
+     * claim the time, the one that starts last, and of equal starts the first (lower pc_eid,
+     * as the lists are sorted).
+     */
+    private static function claimingList(VisitListSchedule $schedule, int $providerId, DateTimeImmutable $start): ?VisitList
+    {
+        $claiming = null;
+        foreach ($schedule->lists as $list) {
+            if (!$list->block->claims($providerId, $start)) {
+                continue;
+            }
+            if ($claiming === null || $list->block->start > $claiming->block->start) {
+                $claiming = $list;
+            }
+        }
+        return $claiming;
+    }
+
+    /**
+     * pc_catid of the Visit List category, or null when the site has none.
+     */
+    public function categoryId(): ?int
+    {
+        $rows = ($this->fetchRecords)(
+            'SELECT `pc_catid` FROM `openemr_postcalendar_categories` WHERE `pc_constant_id` = ?',
+            [self::CATEGORY_CONSTANT_ID]
+        );
+        return self::positiveInt($rows[0]['pc_catid'] ?? null);
+    }
+
+    /**
+     * @param non-empty-list<int> $providerIds
+     * @return list<VisitListBlock>
+     */
+    private function blocks(string $fromDate, string $toDate, array $providerIds): array
+    {
+        $categoryId = $this->categoryId();
+        if ($categoryId === null) {
+            return [];
+        }
+
+        $rows = ($this->fetchEvents)(
+            $fromDate,
+            $toDate,
+            ' AND e.pc_catid = ? AND e.pc_eventstatus = 1 AND e.pc_aid IN (' . self::placeholders($providerIds) . ')',
+            [$categoryId, ...array_map(strval(...), $providerIds)]
+        );
+
+        $blocks = [];
+        foreach ($rows as $row) {
+            $block = self::blockFromRow($row);
+            if ($block !== null) {
+                $blocks[] = $block;
+            }
+        }
+        return $blocks;
+    }
+
+    /**
+     * Visit List patients are single appointments, so they are read directly rather than
+     * through the series expansion.
+     *
+     * @param non-empty-list<int> $providerIds
+     * @return list<VisitListEntry>
+     */
+    private function entries(string $fromDate, string $toDate, array $providerIds): array
+    {
+        $rows = ($this->fetchRecords)(
+            'SELECT `pc_eid`, `pc_pid`, `pc_aid`, `pc_eventDate`, `pc_startTime`, `pc_visit_seq`, `pc_visit_stop`'
+            . ' FROM `openemr_postcalendar_events`'
+            . ' WHERE `pc_aid` IN (' . self::placeholders($providerIds) . ')'
+            . ' AND `pc_eventDate` BETWEEN ? AND ? AND `pc_visit_list` = 1 AND `pc_eventstatus` = 1',
+            [...array_map(strval(...), $providerIds), $fromDate, $toDate]
+        );
+
+        $entries = [];
+        foreach ($rows as $row) {
+            $entry = self::entryFromRow($row);
+            if ($entry !== null) {
+                $entries[] = $entry;
+            }
+        }
+        return $entries;
+    }
+
+    /**
+     * A block occurrence from a fetchEvents() row, or null for a row missing what a block
+     * needs. fetchEvents() gives the provider as uprovider_id and each occurrence's date as
+     * pc_eventDate.
+     *
+     * @param array<mixed> $row
+     */
+    private static function blockFromRow(array $row): ?VisitListBlock
+    {
+        $eventId = self::positiveInt($row['pc_eid'] ?? null);
+        $providerId = self::positiveInt($row['uprovider_id'] ?? null);
+        $start = self::startOf($row);
+        if ($eventId === null || $providerId === null || $start === null) {
+            return null;
+        }
+
+        $durationSeconds = self::nonNegativeInt($row['pc_duration'] ?? null) ?? 0;
+
+        return new VisitListBlock(
+            $eventId,
+            $providerId,
+            self::nonNegativeInt($row['pc_facility'] ?? null) ?? 0,
+            $start,
+            $start->add(new DateInterval('PT' . $durationSeconds . 'S'))
+        );
+    }
+
+    /**
+     * @param array<mixed> $row
+     */
+    private static function entryFromRow(array $row): ?VisitListEntry
+    {
+        $eventId = self::positiveInt($row['pc_eid'] ?? null);
+        $patientId = self::positiveInt($row['pc_pid'] ?? null);
+        $providerId = self::positiveInt($row['pc_aid'] ?? null);
+        $start = self::startOf($row);
+        if ($eventId === null || $patientId === null || $providerId === null || $start === null) {
+            return null;
+        }
+
+        return new VisitListEntry(
+            $eventId,
+            $patientId,
+            $providerId,
+            $start,
+            self::int($row['pc_visit_seq'] ?? null),
+            self::int($row['pc_visit_stop'] ?? null)
+        );
+    }
+
+    /**
+     * When a row starts, or null for a row without a usable date.
+     *
+     * @param array<mixed> $row
+     */
+    private static function startOf(array $row): ?DateTimeImmutable
+    {
+        $date = $row['pc_eventDate'] ?? null;
+        $time = $row['pc_startTime'] ?? null;
+        if (!is_string($date) || $date === '0000-00-00') {
+            return null;
+        }
+        if (!is_string($time) || $time === '') {
+            $time = '00:00:00';
+        }
+
+        $start = DateTimeImmutable::createFromFormat(
+            '!Y-m-d H:i:s',
+            $date . ' ' . $time,
+            new DateTimeZone(date_default_timezone_get())
+        );
+        return $start === false ? null : $start;
+    }
+
+    /**
+     * An integer from a database value: an int, or a string of digits with an optional
+     * leading minus. Anything else (null, empty, text) is null.
+     */
+    private static function int(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+        if (!is_string($value)) {
+            return null;
+        }
+        $parsed = filter_var(trim($value), FILTER_VALIDATE_INT);
+        return $parsed === false ? null : $parsed;
+    }
+
+    private static function positiveInt(mixed $value): ?int
+    {
+        $int = self::int($value);
+        return $int !== null && $int > 0 ? $int : null;
+    }
+
+    private static function nonNegativeInt(mixed $value): ?int
+    {
+        $int = self::int($value);
+        return $int !== null && $int >= 0 ? $int : null;
+    }
+
+    /**
+     * @param non-empty-list<int> $values
+     */
+    private static function placeholders(array $values): string
+    {
+        return implode(', ', array_fill(0, count($values), '?'));
+    }
+
+    /**
+     * Events between two dates, worked out by the calendar's own fetchEvents().
+     *
+     * @param array<int, string|int> $binds
+     * @return list<array<mixed>>
+     */
+    private static function fetchCalendarEvents(string $from, string $to, string $where, array $binds): array
+    {
+        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php';
+        return array_values(array_filter(
+            fetchEvents($from, $to, $where, null, false, 0, $binds),
+            is_array(...)
+        ));
+    }
+}

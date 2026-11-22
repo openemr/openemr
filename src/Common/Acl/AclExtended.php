@@ -57,16 +57,6 @@ class AclExtended
         return self::$gaclApiObject;
     }
 
-    // Return an array keyed on squad ACO names.
-    // This is only applicable for sports team use.
-    //
-    public static function aclGetSquads(): array
-    {
-        $squads = self::aclGetSectionAcos('squads');
-        uasort($squads, self::aclSquadCompare(...));
-        return $squads;
-    }
-
     // Return an array keyed on encounter sensitivity level ACO names.
     // Sensitivities are useful when some encounter notes are not
     // medically sensitive (e.g. a physical fitness test), and/or if
@@ -100,19 +90,6 @@ class AclExtended
             }
         }
         return $arr;
-    }
-
-    // Sort squads by their order value.  Used only by aclGetSquads().
-    private static function aclSquadCompare($a, $b): int
-    {
-        if ($a[2] == $b[2]) {
-            // If order value is the same, sort by squad name.
-            if ($a[3] == $b[3]) {
-                return 0;
-            }
-            return ($a[3] < $b[3]) ? -1 : 1;
-        }
-        return ($a[2] < $b[2]) ? -1 : 1;
     }
 
     //

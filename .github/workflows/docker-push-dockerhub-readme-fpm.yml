@@ -55,7 +55,7 @@ jobs:
     # *declares* it will build (parsed from the workflow YAML at the
     # triggering head_sha), not what individual jobs pushed. That stays
     # accurate even when some builds fail -- a common state while
-    # PHP 8.6 tracks pre-release master and periodically breaks on
+    # PHP 8.7 tracks pre-release master and periodically breaks on
     # upstream extension incompatibilities like pcov. Requiring
     # all-green would let a long-standing single-job failure freeze
     # the readme indefinitely, forcing manual dispatch every Sunday.

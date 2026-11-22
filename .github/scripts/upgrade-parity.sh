@@ -57,7 +57,7 @@ fi
 # whose docker_tags list the version or whose openemr_version_ref is its tag.
 # One branch serves a release line (8.4.0 and 8.4.1 are both rel-840), so the
 # name can't be built from the version's digits. Inline "# ..." comments and
-# quotes are ignored, as in lib/release-targets-queries.sh.
+# quotes are ignored.
 release_branch_for() {
     awk -v version="$2" -v tag="$3" -v squote="'" '
         function value(line) {

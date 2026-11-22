@@ -77,11 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with non\\-empty\\-array will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with array will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportJob.php',

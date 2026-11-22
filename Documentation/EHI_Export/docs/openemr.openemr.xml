@@ -6601,6 +6601,7 @@
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="5" name="actor_id" nullable="true" remarks="pid for a patient, users.id for a user" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_at" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="NULL" digits="0" id="7" name="note" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="NULL" digits="0" id="8" name="payload" nullable="true" remarks="What the request held before its submitter replaced it; NULL for a status change" size="2147483647" type="LONGTEXT" typeCode="-1"/>
          <primaryKey column="id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="id"/>

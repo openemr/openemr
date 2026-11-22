@@ -126,9 +126,82 @@ class CcdaReferralChoiceTest extends TestCase
         $this->assertIsInt($ccdaId);
         try {
             $this->assertEquals($older, QueryUtils::fetchSingleValue('SELECT transaction_id FROM ccda WHERE id = ?', 'transaction_id', [$ccdaId]));
+            $this->assertEquals(1, QueryUtils::fetchSingleValue('SELECT transaction_chosen FROM ccda WHERE id = ?', 'transaction_chosen', [$ccdaId]));
         } finally {
             $this->removeCcda($ccdaId);
         }
+    }
+
+    /**
+     * With no choice the C-CDA still links the most recent referral, but marked as a guess, so a Direct
+     * send doesn't carry it and a reply isn't filed by it.
+     */
+    #[Test]
+    public function aGuessedReferralIsMarkedAsNotChosen(): void
+    {
+        $newest = $this->saveTransaction(self::PATIENT, 'LBTref');
+        $document = base64_encode('<ClinicalDocument/>');
+
+        $guessed = $this->table->logCCDA(self::PATIENT, null, $document, date('Y-m-d H:i:s'), 0, 1, 'referral');
+
+        $ccdaId = $guessed->getId();
+        $this->assertIsInt($ccdaId);
+        try {
+            $row = QueryUtils::querySingleRow('SELECT transaction_id, transaction_chosen FROM ccda WHERE id = ?', [$ccdaId]);
+            $this->assertEquals(['transaction_id' => $newest, 'transaction_chosen' => 0], $row);
+        } finally {
+            $this->removeCcda($ccdaId);
+        }
+    }
+
+    /**
+     * The C-CDA's Reason for Referral is the chosen referral's, not the newest one's, and goes back to
+     * the newest once the choice is cleared.
+     */
+    #[Test]
+    public function theReasonForReferralIsTheChosenReferrals(): void
+    {
+        $older = $this->saveTransaction(self::PATIENT, 'LBTref', $this->referralFields('Zq older reason'));
+        $this->saveTransaction(self::PATIENT, 'LBTref', $this->referralFields('Zq newer reason'));
+
+        $this->table->setContentReferral($older);
+        $chosen = $this->table->getReferrals(self::PATIENT);
+        $this->table->setContentReferral(null);
+
+        $this->assertStringContainsString('<text>Zq older reason</text>', $chosen);
+        $this->assertStringNotContainsString('Zq newer reason', $chosen);
+    }
+
+    /**
+     * Another patient's referral gives the section no reason.
+     */
+    #[Test]
+    public function anotherPatientsReferralGivesTheSectionNoReason(): void
+    {
+        $this->saveTransaction(self::PATIENT, 'LBTref', $this->referralFields('Zq own reason'));
+        $others = $this->saveTransaction(self::OTHER_PATIENT, 'LBTref', $this->referralFields('Zq other reason'));
+
+        $this->table->setContentReferral($others);
+        $section = $this->table->getReferrals(self::PATIENT);
+        $this->table->setContentReferral(null);
+
+        $this->assertSame('<referral_reason></referral_reason>', $section);
+    }
+
+    /**
+     * The fields the Reason for Referral section reads, each of which it requires.
+     *
+     * @return array<string, string>
+     */
+    private function referralFields(string $reason): array
+    {
+        return [
+            'body' => $reason,
+            'refer_to' => (string)$this->orgId,
+            'refer_from' => '1',
+            'refer_date' => '2026-11-01',
+            'billing_facility_id' => '3',
+        ];
     }
 
     /**

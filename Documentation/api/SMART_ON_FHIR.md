@@ -557,6 +557,47 @@ Applications registered only for standalone launch will not appear in the **SMAR
 - Clinical workflows
 - Specialty-specific tools
 
+### Patient Portal Launch
+
+A patient can launch a SMART app from the patient portal dashboard. The portal shows a **Health Apps**
+tile when the FHIR API is on and at least one portal app is registered. Its card lists each app with a
+**Launch** button that opens the app in a new window.
+
+#### Which apps the portal offers
+
+An enabled client with all of these:
+
+- the `launch` scope,
+- at least one `patient/` scope,
+- no `user/` or `system/` scope (an app that also acts for staff belongs on the staff launch card),
+- a launch URI.
+
+#### What the app receives
+
+The usual EHR launch parameters: `iss`, `aud` and an opaque `launch` token. The patient signs in with
+their portal credentials on the authorization page. The token response carries the portal patient as
+`patient` and `intent` `patient.portal`.
+
+#### Who may use the launch
+
+The launch token names the portal patient. The authorization server refuses it (`invalid_launch_context`)
+unless the signed-in user is that patient. A patient login also can't use any other launch that names a
+different patient.
+
+#### Example registration
+
+```json
+{
+  "application_type": "private",
+  "client_name": "My Patient App",
+  "redirect_uris": ["https://app.example.com/callback"],
+  "initiate_login_uri": "https://app.example.com/launch?mode=portal",
+  "scope": "openid fhirUser launch patient/Patient.rs patient/Questionnaire.rs patient/QuestionnaireResponse.rs"
+}
+```
+
+A launch URI with a query string keeps it; the launch parameters are appended with `&`.
+
 ### Choosing Launch Type
 
 | Factor | Standalone | EHR Launch |

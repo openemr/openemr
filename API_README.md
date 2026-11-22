@@ -85,6 +85,7 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Patient' \
 
 ### New FHIR Resources
 - ✨ **[ServiceRequest](Documentation/api/FHIR_API.md#servicerequest-)** - Lab orders, imaging requests, referrals
+- ✨ **[Task](Documentation/api/FHIR_API.md#referrals-and-tasks)** - Referral tracking. See [Referral Workflows](Documentation/REFERRAL_WORKFLOWS.md)
 - ✨ **[Specimen](Documentation/api/FHIR_API.md#specimen-)** - Laboratory specimen tracking
 - ✨ **[MedicationDispense](Documentation/api/FHIR_API.md#medicationdispense-)** - Pharmacy dispensing records
 - ✨ **[RelatedPerson](Documentation/api/FHIR_API.md#relatedperson-)** - Patient relationships and contacts

@@ -29,6 +29,38 @@ final readonly class EventAuditReviewTrail implements ReviewAuditTrailInterface
     ) {
     }
 
+    /**
+     * One entry for the read, naming every request shown, filed under the patient of the first
+     * (they are all one patient's).
+     */
+    public function recordAccess(array $requests, ReviewActor $actor): void
+    {
+        $first = $requests[0];
+        $ids = implode(', ', array_map(static fn(ReviewRequest $request): string => (string) $request->id, $requests));
+        $comment = (count($requests) === 1 ? 'Review request ' : 'Review requests ') . $ids
+            . ' (' . $first->type->value . ') read';
+        if ($first->resourceType !== null) {
+            $comment .= ' for ' . $first->resourceType->value;
+        }
+        if ($first->clientId !== null) {
+            $comment .= ' via API client ' . $first->clientId;
+        }
+
+        $this->auditLogger->recordLogItem(
+            1,
+            self::EVENT,
+            $actor->name,
+            $this->group,
+            $comment,
+            $first->pid,
+            self::EVENT,
+            $first->source === ReviewSource::Api ? 'api' : 'onsite-portal',
+            null,
+            null,
+            '',
+        );
+    }
+
     public function record(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void
     {
         $comment = $from === null

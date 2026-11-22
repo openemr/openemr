@@ -27,6 +27,7 @@ enum GlobalConnectorsEnum: string
     case CCDA_ALT_SERVICE_ENABLE = 'ccda_alt_service_enable';
     case SMART_TEST_LAUNCHES_ENABLE = 'smart_context_test_launches';
     case FHIR_REFERRAL_TASKS = 'fhir_referral_tasks';
+    case FHIR_REFERRAL_NOTIFY_RECIPIENT = 'fhir_referral_notify_recipient';
     case FHIR_PATIENT_WRITE_MODE = 'fhir_patient_write_mode';
     case FHIR_PATIENT_WRITE_QUESTIONNAIRE_RESPONSE = 'fhir_patient_write_questionnaire_response';
     case FHIR_PATIENT_WRITE_VITAL_SIGNS = 'fhir_patient_write_vital_signs';

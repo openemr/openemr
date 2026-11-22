@@ -20,18 +20,6 @@ Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#'
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostAdjustment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method arPostPayment\\(\\) of class OpenEMR\\\\Billing\\\\SLEOB\\:
-Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method toNationalDigits\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
 Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
     'count' => 2,
@@ -186,7 +174,7 @@ https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryServiceTest.php',
 ];
 

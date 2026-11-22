@@ -33,7 +33,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'NUMER\' might not exist on array\\{\'Numerator 1\'\\: array\\{IPP\\: \'1C936855\\-E644\\-44C0…\', DENOM\\: \'27F1591C\\-2060\\-462C…\', DENEX\\: \'9B0C3C26\\-D621\\-4EA3…\', NUMER\\: \'3095531C\\-24D7\\-4AFB…\'\\}, \'Numerator 2\'\\: array\\{IPP\\: \'6E701B1C\\-6CA5\\-4AD5…\', DENOM\\: \'E4DC29B8\\-EB26\\-4A01…\', DENEX\\: \'BB1B4301\\-C275\\-4BAC…\', NUMER\\: \'7669026D\\-3683\\-44CC…\'\\}\\}\\|array\\{\'Population Criteria 1\'\\: array\\{\'Numerator 1\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'FD4649BD\\-B962\\-4CBE…\'\\}, \'Numerator 2\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'52FBD726\\-4DD1\\-48F5…\'\\}, \'Numerator 3\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'C43CE779\\-C5EE\\-4C15…\'\\}\\}, \'Population Criteria 2\'\\: array\\{\'Numerator 1\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'FD4649BD\\-B962\\-4CBE…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'BMI Recorded, RS1\\:…\'\\}, \'Numerator 2\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'52FBD726\\-4DD1\\-48F5…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'BMI Recorded, RS2\\:…\'\\}, \'Numerator 3\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'C43CE779\\-C5EE\\-4C15…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'Nutrition…\'\\}\\}, \'Population Criteria 3\'\\: array\\{\'Numerator 1\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'FD4649BD\\-B962\\-4CBE…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'Nutrition…\'\\}, \'Numerator 2\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'52FBD726\\-4DD1\\-48F5…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'Physical Activity…\'\\}, \'Numerator 3\'\\: array\\{IPP\\: \'10127790\\-AE94\\-4070…\', DENOM\\: \'3B3C1568\\-F875\\-49B1…\', DENEX\\: \'B288D5A4\\-D573\\-4FAA…\', NUMER\\: \'C43CE779\\-C5EE\\-4C15…\', STRAT\\: \'40280381\\-3D61\\-56A7…\', DISPLAY_TEXT\\: \'Physical Activity…\'\\}\\}, STRAT1\\: \'40280381\\-3D61\\-56A7…\', STRAT2\\: \'40280381\\-3D61\\-56A7…\'\\}\\|array\\{IPP\\: \'2448B0C6\\-6848\\-4DCB…\', DENOM\\: \'EC400908\\-35BE\\-439B…\', NUMER\\: \'663FB12B\\-0FF4\\-49AB…\', DENEXCEP\\: \'FEC7251A\\-BF8D\\-4472…\'\\}\\|array\\{IPP\\: \'4E118B62\\-2AF8\\-4F51…\', DENOM\\: \'FA1B3953\\-AE58\\-4541…\', NUMER\\: \'35B1A6DF\\-1871\\-4633…\', DENEXCEP\\: \'3EE6DFF5\\-AB17\\-482F…\'\\}\\|array\\{IPP\\: \'6ED6A787\\-C871\\-49B9…\', DENOM\\: \'545DA813\\-89ED\\-4DCD…\', NUMER\\: \'00193FC7\\-AEE4\\-4507…\'\\}\\|array\\{IPP\\: \'873AECC7\\-E15B\\-49E7…\', DENOM\\: \'FF7016E1\\-E8C7\\-43BA…\', NUMER\\: \'201F5A6E\\-4DDE\\-43A2…\'\\}\\|array\\{IPP\\: \'9D1135EA\\-BA90\\-45E7…\', DENOM\\: \'D04EFECB\\-A901\\-4565…\', NUMER\\: \'3F4CDE57\\-1C5C\\-4250…\', DENEX\\: \'0525FBA2\\-F068\\-4706…\'\\}\\|array\\{IPP\\: \'A72855CE\\-3C60\\-41F9…\', DENOM\\: \'26046A5C\\-E2CC\\-4A27…\', NUMER\\: \'0899A359\\-0CD8\\-4977…\', DENEX\\: \'4327D845\\-6194\\-410D…\'\\}\\|array\\{IPP\\: \'C29B6555\\-3BC7\\-416F…\', DENOM\\: \'E5F80C25\\-6816\\-4992…\', NUMER\\: \'C948D0D2\\-D6E9\\-4099…\'\\}\\|array\\{IPP\\: \'EDED90E9\\-E4FE\\-47E6…\', DENOM\\: \'6721D6DA\\-E87D\\-4E42…\', NUMER\\: \'7549BA9E\\-1841\\-4231…\'\\}\\|array\\{IPP\\: \'F48702E6\\-D39A\\-49D8…\', DENOM\\: \'B61EC2DC\\-0841\\-4906…\', NUMER\\: \'0ED7B212\\-369B\\-489A…\', DENEXCEP\\: \'B5C9EC50\\-3011\\-43DC…\'\\}\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',
 ];
 $ignoreErrors[] = [
@@ -517,11 +517,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'date\' does not exist on non\\-empty\\-list\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',
@@ -537,12 +532,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/load_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: 0\\|float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, code\\: mixed, code_type\\: mixed, charges\\: 0\\|float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
 ];
@@ -710,26 +705,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset int\\<1, 12\\> might not exist on non\\-empty\\-array\\{0\\?\\: mixed, 1\\?\\: int\\<0, max\\>, 2\\?\\: int\\<0, max\\>, 3\\?\\: int\\<0, max\\>, 4\\?\\: int\\<0, max\\>, 5\\?\\: int\\<0, max\\>, 6\\?\\: int\\<0, max\\>, 7\\?\\: int\\<0, max\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'date\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'provider_id\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'reason\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'name\' might not exist on array\\{name\\?\\: string, phone\\?\\: string, fax\\?\\: string, street\\?\\: string, city\\?\\: string, state\\?\\: string, postal_code\\?\\: string, country_code\\?\\: string, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/facilities.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'username\' might not exist on array\\{password\\: \'NoLongerUsed\', username\\?\\: string, fname\\?\\: string, mname\\?\\: string, lname\\?\\: string, suffix\\?\\: string, email\\?\\: string, valedictory\\?\\: string, \\.\\.\\.\\}\\.$#',
@@ -902,34 +877,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'code_type\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'reason\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
+    'message' => '#^Offset \'reason\' might not exist on array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: 0\\|float, payments\\: 0, reason\\: mixed, code_type\\: mixed, code\\: mixed\\}\\|array\\{encounter\\: mixed, date\\: mixed, last_level_closed\\: mixed, charges\\: float, payments\\: 0\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'date\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'provider_id\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'reason\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, string, numeric\\-string\\}\\.$#',
@@ -947,27 +907,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'context\' might not exist on array\\{id\\: int, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\?\\: literal\\-string&non\\-falsy\\-string, 1\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'context\' might not exist on array\\{id\\: int\\<min, 0\\>\\|int\\<3, max\\>, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\?\\: literal\\-string&non\\-falsy\\-string, 1\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'end_date\' might not exist on array\\{id\\: int, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\: \'EB\', 1\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'message\' might not exist on array\\{type\\?\\: string, benefit_type\\?\\: mixed, start_date\\: mixed, end_date\\: mixed, coverage_level\\?\\: mixed, coverage_type\\?\\: mixed, plan_type\\?\\: mixed, plan_description\\?\\: string, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'start_date\' might not exist on array\\{id\\: int, parent\\: int, error\\: int, start_date\\?\\: string, end_date\\?\\: string, context\\: \'EB\', 1\\?\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];

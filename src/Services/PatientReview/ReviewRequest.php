@@ -43,4 +43,15 @@ final readonly class ReviewRequest
         public ?string $reviewNote,
     ) {
     }
+
+    /**
+     * Names the content as it is now: it changes when the payload is replaced, and only then.
+     *
+     * A reviewer's decision carries the revision they were shown, so it can be refused if the
+     * submitter replaced the content in the meantime.
+     */
+    public function revision(): string
+    {
+        return hash('sha256', json_encode($this->payload, JSON_THROW_ON_ERROR));
+    }
 }

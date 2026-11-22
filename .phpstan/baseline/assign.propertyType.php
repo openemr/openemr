@@ -67,11 +67,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Forms\\\\NewPatient\\\\C_EncounterVisitForm\\:\\:\\$mode \\(string\\) does not accept string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property C_FormVitals\\:\\:\\$vitals \\(OpenEMR\\\\Common\\\\Forms\\\\FormVitals\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
@@ -153,7 +148,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportKeyDefinition\\:\\:\\$localTable \\(string\\) does not accept string\\|null\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
 ];
 $ignoreErrors[] = [
@@ -737,11 +732,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:\\:\\$sessionType \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:\\$bodyFormat \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
@@ -807,11 +797,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$predisMaster \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$predisMasterPassword \\(string\\|null\\) does not accept string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
@@ -830,11 +815,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$sessionStorageMode \\(string\\) does not accept string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property OpenEMR\\\\Common\\\\Translation\\\\TranslationCache\\:\\:\\$cache \\(array\\<int, array\\<string, string\\>\\>\\) does not accept array\\<int, array\\<mixed\\>\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Translation/TranslationCache.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Core\\\\ModulesApplication\\:\\:\\$application \\(Laminas\\\\Mvc\\\\Application\\) does not accept mixed\\.$#',
@@ -1087,7 +1067,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<array\\<string, string\\>\\|string\\>\\.$#',
+    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<string, array\\<string, string\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
 ];

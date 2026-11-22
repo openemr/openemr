@@ -32,11 +32,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property eRxPage\\:\\:\\$prescriptions\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRxPage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$GetPatientAllergyHistoryV3Result\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
@@ -225,11 +220,6 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$use\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$label\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNameSpaceNode\\|DOMNode\\:\\:\\$textContent\\.$#',

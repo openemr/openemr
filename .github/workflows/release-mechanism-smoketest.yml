@@ -65,7 +65,7 @@ concurrency:
 
 jobs:
   smoketest:
-    name: openemr:release-prep smoketest against rel-820
+    name: openemr:release-prep smoketest against latest-shipped rel-branch
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -100,7 +100,49 @@ jobs:
     - name: Install Composer dependencies
       run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: Run openemr:release-prep against rel-820 (smoketest)
+    - name: Pick smoketest target (latest-shipped from release-targets.yml)
+      id: pick
+      run: |
+        # Any shipped (version, rel-branch) pair works for this
+        # smoketest -- the mutator pipeline doesn't care which pair
+        # it's exercised against, only that `gh api` has auth and
+        # all mutators + supporting classes are wired correctly for
+        # the shipped-state env shape. Picking the CURRENTLY-latest
+        # shipped pair keeps the smoketest exercising code paths
+        # that interact with the newest GHSA / ChangelogMutator /
+        # release-targets state. Prior to this change the pair was
+        # hardcoded to 8.2.0 / rel-820 at the time the workflow
+        # landed; stale targets still "worked" but exercised older
+        # patterns and missed newer-release-specific mutator paths
+        # (e.g., the Security block regen for 8.5.0's bundle).
+        #
+        # Shared predicate: pick-smoketest-target.sh reads
+        # .github/release-targets.yml and returns the row whose
+        # docker_tags contains "latest" (the slot that identifies
+        # the current-shipped GA per the docker Hub tag model).
+        # Same script used by recovery-path-smoketest.yml to pick
+        # its own target -- single source of truth for "which
+        # rel-branch is current latest" across the smoketest surface.
+        LATEST_ROW=$(.github/scripts/pick-smoketest-target.sh)
+        PICKED_REL_BRANCH=$(echo "${LATEST_ROW}" | awk '{print $1}')
+        PICKED_TAG=$(echo "${LATEST_ROW}" | awk '{print $2}')
+        # Derive human X.Y.Z from the tag (v8_5_0 -> 8.5.0). Shape
+        # already validated by pick-smoketest-target.sh.
+        PICKED_VERSION=$(echo "${PICKED_TAG}" | sed -E 's/^v([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/')
+        echo "==> Picker chose: rel-branch=${PICKED_REL_BRANCH}, tag=${PICKED_TAG}, version=${PICKED_VERSION}"
+        {
+          echo "rel_branch=${PICKED_REL_BRANCH}"
+          echo "version=${PICKED_VERSION}"
+        } >> "${GITHUB_OUTPUT}"
+        {
+          echo "### Smoketest target"
+          echo ""
+          echo "- rel-branch: \`${PICKED_REL_BRANCH}\`"
+          echo "- target version: \`${PICKED_VERSION}\`"
+          echo "- shipped tag: \`${PICKED_TAG}\`"
+        } >> "${GITHUB_STEP_SUMMARY}"
+
+    - name: Run openemr:release-prep against latest-shipped pair (smoketest)
       env:
         # Explicit GH_TOKEN mirrors release-amendment.yml's env-block
         # pattern. The runner-provided github.token is fine here -- the
@@ -112,8 +154,10 @@ jobs:
         # will fail this step because ChangelogMutator shells out to
         # `gh api` and needs a token.
         GH_TOKEN: ${{ github.token }}
+        TARGET_VERSION: ${{ steps.pick.outputs.version }}
+        TARGET_REL_BRANCH: ${{ steps.pick.outputs.rel_branch }}
       run: |
-        # Target = 8.2.0 / rel-820: a shipped version + rel branch, so
+        # The picked target is a SHIPPED version + rel branch, so
         # every mutator except ChangelogMutator + CompatibilityMutator
         # is idempotent no-op. ChangelogMutator will produce a real diff
         # (regenerates the section from live gh api state); we discard
@@ -121,15 +165,10 @@ jobs:
         # successfully. If it did, `gh api` had auth, ChangelogMutator
         # + CompatibilityMutator + all supporting classes are wired
         # correctly for the intended env shape.
-        #
-        # Version+branch hardcoded here -- update when we cut a new
-        # release and want to smoke-test against the newer shipped pair.
-        # Not a big deal to leave stale as long as v8_1_0 / v8_2_0 tags
-        # continue to exist.
         php bin/console openemr:release-prep \
           --skip-globals \
-          --target-version=8.2.0 \
-          --rel-branch=rel-820 \
+          --target-version="${TARGET_VERSION}" \
+          --rel-branch="${TARGET_REL_BRANCH}" \
           --scope=rel
 
     - name: Show diff (informational, does not fail the job)
@@ -138,9 +177,10 @@ jobs:
           echo '## release-prep mutator diff (informational)'
           echo ''
           echo 'This job only verifies the mutator process completes cleanly.'
-          echo 'Diff below is expected on rel-820 (Security section regen from'
-          echo 'live advisories) -- shown here for eyeball verification but not'
-          echo 'gated. If diff is empty, that is also fine.'
+          echo 'Diff below is expected (Security section regen from live'
+          echo 'advisories against the picked target) -- shown here for'
+          echo 'eyeball verification but not gated. If diff is empty, that'
+          echo 'is also fine.'
           echo ''
           echo '```diff'
           git diff --stat || true

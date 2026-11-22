@@ -39,7 +39,7 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
     // UPLOAD_ERR_OK
     private const UPLOAD_OK = '0';
 
-    /** @var \Closure(string, string, string, int, int): mixed */
+    /** @var \Closure(string, string, string, int, int, ?int): mixed */
     private \Closure $addNewDocument;
 
     // The same closure must be passed to removeListener() as to addListener().
@@ -47,7 +47,7 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
 
     /**
      * @param ?EventDispatcherInterface $dispatcher where the file-type check runs, or null when there is no kernel
-     * @param ?\Closure(string, string, string, int, int): mixed $addNewDocument stands in for addNewDocument() in tests;
+     * @param ?\Closure(string, string, string, int, int, ?int): mixed $addNewDocument stands in for addNewDocument() in tests;
      *     takes the name, MIME type, path, size, and owner
      */
     public function __construct(
@@ -58,13 +58,16 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
         $this->allowAnyFileTypeListener = $this->allowAnyFileType(...);
     }
 
-    public function store(string $name, string $mimeType, string $path, int $ownerId): ?PhiMailStoredDocument
+    /**
+     * Stores a received document, in the patient's chart when one is given.
+     */
+    public function store(string $name, string $mimeType, string $path, int $ownerId, ?int $patientId = null): ?PhiMailStoredDocument
     {
         // Allow every file type while this document is stored, then stop.
         $this->dispatcher?->addListener(IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE, $this->allowAnyFileTypeListener);
         try {
             $size = (new \SplFileInfo($path))->getSize();
-            $result = ($this->addNewDocument)($name, $mimeType, $path, $size, $ownerId);
+            $result = ($this->addNewDocument)($name, $mimeType, $path, $size, $ownerId, $patientId);
         } catch (\RuntimeException $e) {
             throw new PhiMailDocumentException('Failed storing a Direct message document', 0, $e);
         } finally {
@@ -96,10 +99,14 @@ final readonly class LegacyPhiMailDocumentStore implements PhiMailDocumentStore
         return $event->setAllowedFile(true);
     }
 
-    private static function addNewDocument(string $name, string $mimeType, string $path, int $size, int $ownerId): mixed
+    /**
+     * Stores the file through library/documents.php addNewDocument().
+     */
+    private static function addNewDocument(string $name, string $mimeType, string $path, int $size, int $ownerId, ?int $patientId): mixed
     {
         require_once dirname(__DIR__, 3) . '/library/documents.php';
         // addNewDocument() fills in an upload's $_FILES entry, so the error and size are strings.
-        return addNewDocument($name, $mimeType, $path, self::UPLOAD_OK, (string) $size, $ownerId, self::DIRECTORY, self::CATEGORY_ID, '', 1, true);
+        // A patient's id files it in their chart; the directory name files it where no patient has it.
+        return addNewDocument($name, $mimeType, $path, self::UPLOAD_OK, (string) $size, $ownerId, $patientId === null ? self::DIRECTORY : (string) $patientId, self::CATEGORY_ID, '', 1, true);
     }
 }

@@ -55,6 +55,12 @@ class FhirGenericRestController implements IGlobalsAware {
 
     private ResourceConstraintFilterer $resourcePolicyEnforcementDecisionChecker;
 
+    /**
+     * Where a patient-context write goes on a route that accepts them: held for staff review,
+     * never written to the chart. Null on every other route, which refuses them with 403.
+     */
+    private ?FhirPatientAppWriteController $patientAppWrites = null;
+
     public function __construct(protected HttpRestRequest $request, protected FhirServiceBase $fhirService, OEGlobalsBag $globalsBag)
     {
         $this->setGlobalsBag($globalsBag);
@@ -81,6 +87,48 @@ class FhirGenericRestController implements IGlobalsAware {
     public function setExpectedResourceType(string $resourceType): void
     {
         $this->expectedResourceType = $resourceType;
+    }
+
+    /**
+     * Lets this route accept patient app writes, held for staff review. The permission gates
+     * still decide whether the token may write here at all.
+     */
+    public function setPatientAppWrites(FhirPatientAppWriteController $patientAppWrites): void
+    {
+        $this->patientAppWrites = $patientAppWrites;
+    }
+
+    /**
+     * A patient-context write: held for review on a route that accepts them, 403 otherwise.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    private function patientWrite(array $fhirJson, ?string $fhirId): Response
+    {
+        if ($this->patientAppWrites === null) {
+            // The OperationOutcome is what makes this a 403. responseHandler() treats a falsy
+            // service result as "nothing found" and answers an empty 404, discarding the status
+            // code it was passed -- so returning null here rejected the write with the wrong
+            // status and no diagnostic for the client to act on.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'forbidden',
+                    'FHIR write endpoints do not accept patient-context tokens'
+                ),
+                null,
+                403
+            );
+        }
+        $validationResult = (new FhirValidationService())->validate($fhirJson);
+        if ($validationResult !== null) {
+            return RestControllerHelper::responseHandler($validationResult, null, 400);
+        }
+        // The hold forces the patient, the id and the other server-set fields, and checks the
+        // resource type, so the compartment check and deserializing are not needed here.
+        return $fhirId === null
+            ? $this->patientAppWrites->create($this->getHttpRestRequest(), $fhirJson)
+            : $this->patientAppWrites->update($this->getHttpRestRequest(), $fhirId, $fhirJson);
     }
 
     protected function getFhirResourcesService(): FhirResourcesService
@@ -189,19 +237,7 @@ class FhirGenericRestController implements IGlobalsAware {
     public function post(array $fhirJson): Response
     {
         if ($this->getHttpRestRequest()->isPatientRequest()) {
-            // The OperationOutcome is what makes this a 403. responseHandler() treats a falsy
-            // service result as "nothing found" and answers an empty 404, discarding the status
-            // code it was passed -- so returning null here rejected the write with the wrong
-            // status and no diagnostic for the client to act on.
-            return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource(
-                    'error',
-                    'forbidden',
-                    'FHIR write endpoints do not accept patient-context tokens'
-                ),
-                null,
-                403
-            );
+            return $this->patientWrite($fhirJson, null);
         }
 
         foreach ($this->aclChecks as $aclCheck) {
@@ -268,16 +304,7 @@ class FhirGenericRestController implements IGlobalsAware {
     public function put(string $fhirId, array $fhirJson): Response
     {
         if ($this->getHttpRestRequest()->isPatientRequest()) {
-            // Same as post(): a null service result becomes an empty 404, not the 403 asked for.
-            return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource(
-                    'error',
-                    'forbidden',
-                    'FHIR write endpoints do not accept patient-context tokens'
-                ),
-                null,
-                403
-            );
+            return $this->patientWrite($fhirJson, $fhirId);
         }
 
         foreach ($this->aclChecks as $aclCheck) {

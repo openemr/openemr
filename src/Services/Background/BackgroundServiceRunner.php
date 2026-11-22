@@ -515,6 +515,10 @@ class BackgroundServiceRunner
     }
 
     /**
+     * The `function` column names either a global function or a public
+     * static method as `Class::method`, called with no arguments. A class
+     * handler is autoloaded, so its row leaves `require_once` empty.
+     *
      * @param BackgroundServicesRow $service
      */
     protected function executeService(array $service): void
@@ -533,15 +537,17 @@ class BackgroundServiceRunner
             require_once($resolvedPath);
         }
 
-        $function = $service['function'];
-        if (!function_exists($function)) {
+        // is_callable() rejects instance and non-public methods named as
+        // Class::method, so only the two documented forms get through.
+        $handler = $service['function'];
+        if (!is_callable($handler)) {
             throw new \RuntimeException(sprintf(
-                'Background service "%s" is misconfigured: function "%s" does not exist.',
+                'Background service "%s" is misconfigured: handler "%s" is not callable.',
                 $service['name'],
-                $function,
+                $handler,
             ));
         }
 
-        $function();
+        $handler();
     }
 }

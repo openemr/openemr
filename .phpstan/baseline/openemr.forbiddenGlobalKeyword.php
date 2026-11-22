@@ -122,16 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$invoice_total, \\$last_code, \\$paydate\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$invoice_total\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$last_ptname, \\$last_invnumber, \\$last_code\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
@@ -1700,11 +1690,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$pid, \\$encounter\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/PatientSessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$config\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Health/Check/InstallationCheck.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$v_js_includes\\)\\. Use dependency injection instead\\.$#',

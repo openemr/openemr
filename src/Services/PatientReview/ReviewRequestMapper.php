@@ -61,6 +61,7 @@ final class ReviewRequestMapper
     public function toEvent(array $row): ReviewEvent
     {
         $from = $this->nullableString($row, 'from_status');
+        $previous = $this->nullableString($row, 'payload');
 
         return new ReviewEvent(
             id: $this->int($row, 'id'),
@@ -71,6 +72,7 @@ final class ReviewRequestMapper
             actorId: $this->nullableInt($row, 'actor_id'),
             createdAt: $this->dateTime($row, 'created_at'),
             note: $this->nullableString($row, 'note'),
+            previousPayload: $previous === null ? null : $this->decodePayload($previous, PayloadFormat::Json),
         );
     }
 

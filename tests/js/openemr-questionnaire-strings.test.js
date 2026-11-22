@@ -63,7 +63,7 @@ test('the host\'s strings, with placeholders in their own order', () => {
 });
 
 test('the include translates the same keys and English text the runtime uses', () => {
-    const php = fs.readFileSync(path.resolve(__dirname, '../../interface/forms/questionnaire_assessments/openemr_questionnaire_components.php'), 'utf8');
+    const php = fs.readFileSync(path.resolve(__dirname, '../../src/Services/Questionnaire/QuestionnaireRuntimeAssets.php'), 'utf8');
     const table = Object.fromEntries([...php.matchAll(/^\s+'(\w+)' => xl\('((?:[^'\\]|\\.)*)'\),$/gm)].map((match) => [match[1], match[2]]));
     expect(Object.keys(table)).toHaveLength(Object.keys(runtimeApi.DEFAULT_STRINGS).length);
     expect(table).toEqual({ ...runtimeApi.DEFAULT_STRINGS });
