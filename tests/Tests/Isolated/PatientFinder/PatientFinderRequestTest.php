@@ -86,6 +86,13 @@ class PatientFinderRequestTest extends TestCase
         $this->assertFalse($like->exactSearch);
     }
 
+    public function testShowInactiveToggle(): void
+    {
+        $this->assertTrue(PatientFinderRequest::fromArray(['showInactive' => 'true'])->showInactive);
+        $this->assertFalse(PatientFinderRequest::fromArray(['showInactive' => 'false'])->showInactive);
+        $this->assertFalse(PatientFinderRequest::fromArray([])->showInactive);
+    }
+
     public function testSearchAnyActivatesOnlyWhenSearchBoxEmpty(): void
     {
         $any = PatientFinderRequest::fromArray(['search_any' => 'jones', 'sSearch' => '']);

@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
@@ -27,6 +28,7 @@ use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
+use OpenEMR\Services\Patient\PatientActiveStatus;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchConfigClauseBuilder;
@@ -79,6 +81,8 @@ class PatientService extends BaseService
      */
     private $patientValidator;
 
+    private readonly PatientActiveStatus $activeStatus;
+
     /**
      * Key of translated suffix values that can be in a patient's name.
      * @var array|null
@@ -88,10 +92,11 @@ class PatientService extends BaseService
     /**
      * Default constructor.
      */
-    public function __construct($base_table = null)
+    public function __construct($base_table = null, ?PatientActiveStatus $activeStatus = null)
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
         $this->patientValidator = new PatientValidator();
+        $this->activeStatus = $activeStatus ?? new PatientActiveStatus(ServiceContainer::getClock());
     }
 
     /**
@@ -176,6 +181,9 @@ class PatientService extends BaseService
         if (empty($data['pubpid'])) {
             $data['pubpid'] = $freshPid;
         }
+        if (is_array($data)) {
+            $data = $this->activeStatus->apply($data, []);
+        }
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
@@ -255,6 +263,7 @@ class PatientService extends BaseService
         $updatedBy = $session->get('authUserID'); // we don't let anyone else but the current user be the updatedBy
         $data['updated_by'] = $updatedBy; // for an insert this is the same
         $table = PatientService::TABLE_NAME;
+        $data = $this->activeStatus->apply($data, $dataBeforeUpdate);
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
@@ -307,6 +316,11 @@ class PatientService extends BaseService
 
         // Get the data before update to send to the event listener
         $dataBeforeUpdate = $this->getOne($puuidString);
+        $recordsBeforeUpdate = $dataBeforeUpdate->getData();
+        $currentRecord = is_array($recordsBeforeUpdate) && is_array($recordsBeforeUpdate[0] ?? null) ? $recordsBeforeUpdate[0] : [];
+        if (is_array($data)) {
+            $data = $this->activeStatus->apply($data, $currentRecord);
+        }
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
