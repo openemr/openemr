@@ -124,15 +124,22 @@ final class VisitListService
 
         $multiple = null;
         $startByProvider = [];
+        $lists = [];
         foreach ($this->copyRows($eventId, null) as $row) {
             $multiple ??= self::positiveInt($row['pc_multiple'] ?? null);
+            $copyId = self::positiveInt($row['pc_eid'] ?? null);
             $providerId = self::positiveInt($row['pc_aid'] ?? null);
             $start = self::startOf($row);
-            if ($providerId !== null && $start !== null) {
-                $startByProvider[$providerId] = $start;
+            if ($providerId === null || $start === null) {
+                continue;
+            }
+            $startByProvider[$providerId] = $start;
+            $list = $copyId === null ? null : $this->forDates($start, $start, [$providerId])->listFor($copyId);
+            if ($list !== null) {
+                $lists[self::listKey($list)] = $list;
             }
         }
-        return new VisitListCopies($multiple, $startByProvider);
+        return new VisitListCopies($multiple, $startByProvider, array_values($lists));
     }
 
     /**
@@ -149,6 +156,10 @@ final class VisitListService
      * that provider claims its start time on that date (its date or provider was changed), it
      * moves to the start of the provider's first block that day. With no block that day it
      * keeps its time.
+     *
+     * Each list a copy lands on is then renumbered with that copy at place $sequence (last when
+     * null), moving the others down; each list a copy left ($before) is renumbered to close the
+     * gap.
      */
     public function place(int $eventId, ?int $sequence, ?int $stop, ?VisitListCopies $before = null): void
     {
@@ -162,6 +173,7 @@ final class VisitListService
             throw new DomainException('Visit List stop must be positive');
         }
 
+        $copyIds = [];
         foreach ($this->copyRows($eventId, $before?->multiple) as $row) {
             $copyId = self::positiveInt($row['pc_eid'] ?? null);
             if ($copyId === null) {
@@ -181,7 +193,96 @@ final class VisitListService
                 . ' `pc_duration` = 0, `pc_alldayevent` = 0 WHERE `pc_eid` = ?',
                 [$sequence, $stop, $startTime, $copyId]
             );
+            $copyIds[] = $copyId;
         }
+
+        $renumbered = [];
+        foreach ($copyIds as $copyId) {
+            $list = $this->listOf($copyId);
+            if ($list !== null) {
+                $this->renumber($list, $copyId, $sequence);
+                $renumbered[self::listKey($list)] = true;
+            }
+        }
+        foreach ($before->lists ?? [] as $left) {
+            if (isset($renumbered[self::listKey($left)])) {
+                continue;
+            }
+            $list = $this->current($left);
+            if ($list !== null) {
+                $this->renumber($list);
+            }
+        }
+    }
+
+    /**
+     * Number a list's patients 1 to n in list order, with one patient put at a place (last
+     * when the place is null or past the end) and the others moved down to make room. Only the
+     * Order # of patients whose number changes is written; Stop # is never changed.
+     */
+    public function renumber(VisitList $list, ?int $movingEventId = null, ?int $position = null): void
+    {
+        $numbers = VisitListOrder::place($list->entries, $movingEventId, $position);
+        foreach ($list->entries as $entry) {
+            $number = $numbers[$entry->eventId] ?? null;
+            if ($number === null || $number === $entry->sequence) {
+                continue;
+            }
+            ($this->execute)(
+                'UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?',
+                [$number, $entry->eventId]
+            );
+        }
+    }
+
+    /**
+     * The list a Visit List patient is on now, or null when it is not a Visit List patient,
+     * is inactive, or no block claims it.
+     */
+    public function listOf(int $eventId): ?VisitList
+    {
+        if ($eventId <= 0) {
+            throw new DomainException('Visit List patient event ID must be positive');
+        }
+
+        $rows = ($this->fetchRecords)(
+            'SELECT `pc_aid`, `pc_eventDate`, `pc_startTime` FROM `openemr_postcalendar_events`'
+            . ' WHERE `pc_eid` = ? AND `pc_visit_list` = 1 AND `pc_eventstatus` = 1',
+            [$eventId]
+        );
+        $row = $rows[0] ?? null;
+        if ($row === null) {
+            return null;
+        }
+        $providerId = self::positiveInt($row['pc_aid'] ?? null);
+        $start = self::startOf($row);
+        if ($providerId === null || $start === null) {
+            return null;
+        }
+        return $this->forDates($start, $start, [$providerId])->listFor($eventId);
+    }
+
+    /**
+     * The same block occurrence's list as it is now (its patients may have changed), or null
+     * when the block is no longer there.
+     */
+    public function current(VisitList $list): ?VisitList
+    {
+        $block = $list->block;
+        foreach ($this->forDates($block->start, $block->start, [$block->providerId])->lists as $now) {
+            if (self::listKey($now) === self::listKey($list)) {
+                return $now;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Identifies a block occurrence: its event, provider, and start on that date.
+     */
+    private static function listKey(VisitList $list): string
+    {
+        return $list->block->eventId . '|' . $list->block->providerId . '|' . $list->block->start->format('Y-m-d H:i:s');
     }
 
     /**

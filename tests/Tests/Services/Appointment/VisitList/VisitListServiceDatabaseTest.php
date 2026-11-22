@@ -22,6 +22,7 @@ use DateTimeImmutable;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\AppointmentService;
 use PHPUnit\Framework\TestCase;
 
 class VisitListServiceDatabaseTest extends TestCase
@@ -218,8 +219,74 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->service->place($opened, 4, null, $before);
 
         $this->assertSame(
-            [['pc_startTime' => '13:00:00', 'pc_visit_seq' => 4]],
-            QueryUtils::fetchRecords('SELECT pc_startTime, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid = ?', [$other])
+            [['pc_startTime' => '13:00:00', 'pc_visit_seq' => 1]],
+            QueryUtils::fetchRecords('SELECT pc_startTime, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid = ?', [$other]),
+            'saved as #4, but it is the only patient on its list'
+        );
+    }
+
+    /**
+     * Order # of each patient on the provider's list on a date, in list order.
+     *
+     * @return array<int, ?int>
+     */
+    private function sequencesOn(string $date): array
+    {
+        $schedule = $this->service->forDates(new DateTimeImmutable($date), new DateTimeImmutable($date), [$this->providerId]);
+        $sequences = [];
+        foreach ($schedule->lists[0]->entries ?? [] as $entry) {
+            $sequences[$entry->eventId] = $entry->sequence;
+        }
+        return $sequences;
+    }
+
+    public function testSavingAPatientAtAPlaceMovesTheOthersDown(): void
+    {
+        $this->service->place($this->eids['timed'], 1, null);
+
+        $this->assertSame(
+            [$this->eids['timed'] => 1, $this->eids['first'] => 2, $this->eids['second'] => 3],
+            $this->sequencesOn('2031-03-10')
+        );
+    }
+
+    public function testMovingAPatientDownTheList(): void
+    {
+        $this->service->place($this->eids['timed'], null, null);
+        $before = $this->service->copiesBefore($this->eids['first']);
+
+        $this->service->place($this->eids['first'], 2, 1, $before);
+
+        $this->assertSame(
+            [$this->eids['second'] => 1, $this->eids['first'] => 2, $this->eids['timed'] => 3],
+            $this->sequencesOn('2031-03-10')
+        );
+    }
+
+    public function testMovingAPatientToAnotherDayClosesTheGapTheyLeft(): void
+    {
+        $before = $this->service->copiesBefore($this->eids['first']);
+        // What the editor writes when the date is changed to the next Monday.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_eventDate = ? WHERE pc_eid = ?',
+            ['2031-03-24', $this->eids['first']]
+        );
+
+        $this->service->place($this->eids['first'], 1, 1, $before);
+
+        $this->assertSame([$this->eids['second'] => 1], $this->sequencesOn('2031-03-10'), '#2 moves up to #1');
+        $this->assertSame([$this->eids['first'] => 1], $this->sequencesOn('2031-03-24'));
+    }
+
+    public function testDeletingAPatientClosesTheGap(): void
+    {
+        $this->service->place($this->eids['timed'], null, null);
+
+        (new AppointmentService())->deleteAppointmentRecord($this->eids['first']);
+
+        $this->assertSame(
+            [$this->eids['second'] => 1, $this->eids['timed'] => 2],
+            $this->sequencesOn('2031-03-10')
         );
     }
 }
