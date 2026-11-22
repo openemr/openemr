@@ -59,6 +59,19 @@ final class VisitListMatcher
     }
 
     /**
+     * The block the entry goes on, by the same rule as match(), or null when no block
+     * contains it.
+     *
+     * @param list<VisitListBlock> $blocks
+     */
+    public function blockFor(array $blocks, VisitListEntry $entry): ?VisitListBlock
+    {
+        usort($blocks, self::compareBlocks(...));
+        $index = self::blockIndexFor($blocks, $entry);
+        return $index === null ? null : $blocks[$index];
+    }
+
+    /**
      * Index of the block the entry goes on, or null when no block contains it: the containing
      * block that started latest. $blocks is sorted by pc_eid within a start, so keeping the
      * first of equal starts picks the lower pc_eid.

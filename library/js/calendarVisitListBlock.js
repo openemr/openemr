@@ -29,8 +29,8 @@ function pcVisitListBlockAsksLater(config) {
 }
 
 /**
- * Asks before the form is submitted, when the submit deletes the block or changes its
- * category and patients are in the scope it affects. Returns whether to go on. On cancel
+ * Asks before the form is submitted, when the submit deletes the block or saves it with
+ * another category and patients are in the scope it affects. Returns whether to go on. On cancel
  * the form is set back as it was before the save or delete was started.
  */
 function pcVisitListBlockConfirm(config, form) {
@@ -38,7 +38,12 @@ function pcVisitListBlockConfirm(config, form) {
         return true;
     }
     var fields = form.elements;
-    var deleting = fields.form_action.value === 'delete';
+    var action = fields.form_action.value;
+    if (action !== 'save' && action !== 'delete') {
+        // A duplicate is a new event: the block and its patients stay as they are.
+        return true;
+    }
+    var deleting = action === 'delete';
     if (!deleting && String(fields.form_category.value) === String(config.categoryId)) {
         return true;
     }

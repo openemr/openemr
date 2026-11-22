@@ -25,6 +25,7 @@ final readonly class VisitListMoveResult
         public int $stranded,
         public int $keptForOtherCopy,
         public int $leftOnPastDates = 0,
+        public int $takenByOtherBlock = 0,
     ) {
     }
 

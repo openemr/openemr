@@ -46,7 +46,8 @@ class VisitListServiceDatabaseTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->service = new VisitListService();
+        // Before every fixture date, so no patient is on a past date unless a test says so.
+        $this->service = new VisitListService(clock: new FrozenClock(new DateTimeImmutable('2031-01-01 12:00', new DateTimeZone('UTC'))));
         $categoryId = $this->service->categoryId();
         $this->assertNotNull($categoryId, 'the Visit List category is installed');
         $this->categoryId = $categoryId;
@@ -103,8 +104,8 @@ class VisitListServiceDatabaseTest extends TestCase
         ]);
         return QueryUtils::sqlInsert(
             'INSERT INTO openemr_postcalendar_events (uuid, pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_eventDate, pc_endDate,'
-            . ' pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_eventstatus, pc_facility, pc_visit_list, pc_visit_seq, pc_visit_stop)'
-            . ' VALUES (UNHEX(REPLACE(UUID(), \'-\', \'\')), ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, 3, ?, ?, ?)',
+            . ' pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_eventstatus, pc_facility, pc_visit_list, pc_visit_seq, pc_visit_stop)'
+            . ' VALUES (UNHEX(REPLACE(UUID(), \'-\', \'\')), ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ADDTIME(?, SEC_TO_TIME(?)), ?, 3, ?, ?, ?)',
             [
                 $categoryId,
                 $options['multiple'] ?? 0,
@@ -117,6 +118,8 @@ class VisitListServiceDatabaseTest extends TestCase
                 $options['recurrtype'] ?? 0,
                 $recurrspec,
                 $start,
+                $start,
+                $duration,
                 $options['eventStatus'] ?? 1,
                 $options['visitList'] ?? 0,
                 $options['seq'] ?? null,
@@ -312,7 +315,9 @@ class VisitListServiceDatabaseTest extends TestCase
             $date = $row['pc_eventDate'] ?? '';
             $start = $row['pc_startTime'] ?? '';
             $provider = $row['pc_aid'] ?? null;
-            $provider = is_numeric($provider) ? (int) $provider : 0;
+            $provider = is_int($provider) || is_string($provider)
+                ? filter_var($provider, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+                : false;
             $where[$eid] = (is_string($date) ? $date : '') . ' ' . (is_string($start) ? $start : '')
                 . ' ' . ($provider === $this->providerId ? 'a' : ($provider === $this->otherProviderId ? 'b' : 'other'));
         }
@@ -481,7 +486,7 @@ class VisitListServiceDatabaseTest extends TestCase
             );
             $row = $rows[0] ?? [];
             $text = static fn (string $column): string => is_scalar($row[$column] ?? null) ? (string) $row[$column] : '-';
-            $times[$eid] = $text('pc_eventDate') . ' ' . $text('pc_startTime') . ' ' . $text('pc_duration') . ' '
+            $times[$eid] = $text('pc_eventDate') . ' ' . $text('pc_startTime') . '-' . $text('pc_endTime') . ' ' . $text('pc_duration') . ' '
                 . ($text('pc_visit_list') === '1' ? 'list ' . $text('pc_visit_seq') . ' ' . $text('pc_visit_stop') : 'timed ' . $text('pc_visit_seq') . ' ' . $text('pc_visit_stop'));
         }
         return $times;
@@ -489,20 +494,31 @@ class VisitListServiceDatabaseTest extends TestCase
 
     /**
      * Deletes the weekly block through the editor's steps: note its lists, delete, release.
+     *
+     * @param ?callable(): void $meanwhile what another request does between the note and the release
      */
-    private function deleteWeekly(string $scope, string $selectedDate): void
+    private function deleteWeekly(string $scope, string $selectedDate, ?callable $meanwhile = null): void
     {
         $editor = new VisitListEditor($this->service, 15);
         $post = new ParameterBag(['form_action' => 'delete', 'recurr_affect' => $scope, 'selected_date' => $selectedDate]);
         $before = $editor->beforeSave($post, $this->eids['weekly']);
         $this->assertInstanceOf(VisitListBlockRelease::class, $before);
+        if ($meanwhile !== null) {
+            $meanwhile();
+        }
 
         // AppointmentService reads the date of a "this date" or "this and later" delete from $_POST.
+        $hadDate = array_key_exists('selected_date', $_POST);
+        $oldDate = $_POST['selected_date'] ?? null;
         $_POST['selected_date'] = $selectedDate;
         try {
             (new AppointmentService())->deleteAppointment($this->eids['weekly'], $scope, $selectedDate);
         } finally {
-            unset($_POST['selected_date']);
+            if ($hadDate) {
+                $_POST['selected_date'] = $oldDate;
+            } else {
+                unset($_POST['selected_date']);
+            }
         }
 
         $this->assertSame('', $editor->afterSave($post, $this->eids['weekly'], $before));
@@ -516,11 +532,11 @@ class VisitListServiceDatabaseTest extends TestCase
 
         $this->assertSame(
             [
-                $this->eids['first'] => '2031-03-10 09:00:00 900 timed - -',
-                $this->eids['second'] => '2031-03-10 09:15:00 900 timed - -',
-                $march24 => '2031-03-24 09:00:00 900 timed - -',
-                $this->eids['on edited'] => '2031-03-17 10:00:00 0 list 1 -',
-                $this->eids['timed'] => '2031-03-10 09:00:00 900 timed - -',
+                $this->eids['first'] => '2031-03-10 09:00:00-09:15:00 900 timed - -',
+                $this->eids['second'] => '2031-03-10 09:15:00-09:30:00 900 timed - -',
+                $march24 => '2031-03-24 09:00:00-09:15:00 900 timed - -',
+                $this->eids['on edited'] => '2031-03-17 10:00:00-10:00:00 0 list 1 -',
+                $this->eids['timed'] => '2031-03-10 09:00:00-09:15:00 900 timed - -',
             ],
             $this->timesOf([$this->eids['first'], $this->eids['second'], $march24, $this->eids['on edited'], $this->eids['timed']]),
             'the date edited into its own block keeps its list'
@@ -534,11 +550,13 @@ class VisitListServiceDatabaseTest extends TestCase
 
         $this->deleteWeekly('current', '2031-03-10');
 
+        $this->assertSame(['2031-03-03', '2031-03-24', '2031-03-31'], $this->weeklyDates(), 'only March 10 is gone (March 17 was already excluded)');
+
         $this->assertSame(
             [
-                $this->eids['first'] => '2031-03-10 09:00:00 900 timed - -',
-                $this->eids['second'] => '2031-03-10 09:15:00 900 timed - -',
-                $march24 => '2031-03-24 09:00:00 0 list 1 -',
+                $this->eids['first'] => '2031-03-10 09:00:00-09:15:00 900 timed - -',
+                $this->eids['second'] => '2031-03-10 09:15:00-09:30:00 900 timed - -',
+                $march24 => '2031-03-24 09:00:00-09:00:00 0 list 1 -',
             ],
             $this->timesOf([$this->eids['first'], $this->eids['second'], $march24])
         );
@@ -553,8 +571,8 @@ class VisitListServiceDatabaseTest extends TestCase
 
         $this->assertSame(
             [
-                $this->eids['first'] => '2031-03-10 09:00:00 0 list 1 1',
-                $march24 => '2031-03-24 09:00:00 900 timed - -',
+                $this->eids['first'] => '2031-03-10 09:00:00-09:00:00 0 list 1 1',
+                $march24 => '2031-03-24 09:00:00-09:15:00 900 timed - -',
             ],
             $this->timesOf([$this->eids['first'], $march24])
         );
@@ -572,10 +590,65 @@ class VisitListServiceDatabaseTest extends TestCase
 
         $this->assertSame(
             [
-                $this->eids['first'] => '2031-03-10 09:00:00 1200 timed - -',
-                $this->eids['second'] => '2031-03-10 09:20:00 1200 timed - -',
+                $this->eids['first'] => '2031-03-10 09:00:00-09:20:00 1200 timed - -',
+                $this->eids['second'] => '2031-03-10 09:20:00-09:40:00 1200 timed - -',
             ],
             $this->timesOf([$this->eids['first'], $this->eids['second']])
         );
+    }
+
+    /**
+     * The dates the weekly block shows on in March 2031.
+     *
+     * @return list<string>
+     */
+    private function weeklyDates(): array
+    {
+        $dates = [];
+        $from = new DateTimeImmutable('2031-03-01');
+        foreach ($this->service->forDates($from, $from->modify('+30 days'), [$this->providerId])->lists as $list) {
+            if ($list->block->eventId === $this->eids['weekly']) {
+                $dates[] = $list->block->date();
+            }
+        }
+        return $dates;
+    }
+
+    public function testDeletingLeavesAPatientMovedMeanwhileWhereItWasMoved(): void
+    {
+        // Another request moves the second patient to March 24 after the delete noted the lists.
+        $this->deleteWeekly('all', '2031-03-10', function (): void {
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE openemr_postcalendar_events SET pc_eventDate = ? WHERE pc_eid = ?',
+                ['2031-03-24', $this->eids['second']]
+            );
+        });
+
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00-09:15:00 900 timed - -',
+                $this->eids['second'] => '2031-03-24 09:00:00-09:00:00 0 list 2 1',
+            ],
+            $this->timesOf([$this->eids['first'], $this->eids['second']])
+        );
+    }
+
+    public function testAMoveOntoAnotherBlocksStartLeavesThePatientsWhereTheyAre(): void
+    {
+        // Two blocks of one provider on April 7: the earlier-made one at 13:00, ours at 9:00.
+        $earlier = $this->insertEvent($this->otherProviderId, $this->categoryId, '', '2031-04-07', '13:00:00', 3600);
+        $ours = $this->insertEvent($this->otherProviderId, $this->categoryId, '', '2031-04-07', '09:00:00', 3600);
+        $patient = $this->insertEvent($this->otherProviderId, 5, '1', '2031-04-07', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);
+        $save = $this->service->blockSave($ours, VisitListRepeatScope::AllDates, '2031-04-07');
+        $this->assertNotNull($save);
+        // Ours moves to 13:00 too: a patient there goes on the block made first (lower ID).
+        QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?', ['13:00:00', $ours]);
+
+        $result = $this->service->moveWithBlock($save);
+
+        $this->assertSame(0, $result->moved);
+        $this->assertSame(1, $result->takenByOtherBlock);
+        $this->assertSame([$patient => '2031-04-07 09:00:00 b'], $this->whereAre([$patient]));
+        $this->assertGreaterThan(0, $earlier);
     }
 }

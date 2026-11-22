@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Appointment\VisitList;
 
+use Closure;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -33,22 +34,28 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 
-final class VisitListService
+final readonly class VisitListService
 {
     /** pc_constant_id of the Visit List category. */
     public const CATEGORY_CONSTANT_ID = 'visit_list';
 
-    /** @var callable(string, array<int, string|int>): list<array<mixed>> */
-    private $fetchRecords;
+    /**
+     * Narrows an update of a patient to the row as it was recorded before the save: still on a
+     * Visit List, with the same provider, date and start.
+     */
+    private const STILL_THERE = ' AND `pc_visit_list` = 1 AND `pc_aid` = ? AND `pc_eventDate` = ? AND `pc_startTime` = ?';
 
-    /** @var callable(string, string, string, array<int, string|int>): list<array<mixed>> */
-    private $fetchEvents;
+    /** @var Closure(string, array<int, string|int>): list<array<mixed>> */
+    private Closure $fetchRecords;
 
-    /** @var callable(string, array<int, int|string|null>): void */
-    private $execute;
+    /** @var Closure(string, string, string, array<int, string|int>): list<array<mixed>> */
+    private Closure $fetchEvents;
 
-    /** @var callable(array<mixed>, string, string): list<string> */
-    private $repeatPattern;
+    /** @var Closure(string, array<int, int|string|null>): void */
+    private Closure $execute;
+
+    /** @var Closure(array<mixed>, string, string): list<string> */
+    private Closure $repeatPattern;
 
     /**
      * @param callable(string, array<int, string|int>): list<array<mixed>>|null $fetchRecords
@@ -62,17 +69,17 @@ final class VisitListService
     public function __construct(
         ?callable $fetchRecords = null,
         ?callable $fetchEvents = null,
-        private readonly VisitListMatcher $matcher = new VisitListMatcher(),
+        private VisitListMatcher $matcher = new VisitListMatcher(),
         ?callable $execute = null,
         ?callable $repeatPattern = null,
-        private readonly ClockInterface $clock = new SystemClock(new DateTimeZone('UTC')),
+        private ClockInterface $clock = new SystemClock(new DateTimeZone('UTC')),
     ) {
-        $this->fetchRecords = $fetchRecords ?? QueryUtils::fetchRecords(...);
-        $this->fetchEvents = $fetchEvents ?? self::fetchCalendarEvents(...);
-        $this->execute = $execute ?? static function (string $sql, array $binds): void {
+        $this->fetchRecords = Closure::fromCallable($fetchRecords ?? QueryUtils::fetchRecords(...));
+        $this->fetchEvents = Closure::fromCallable($fetchEvents ?? self::fetchCalendarEvents(...));
+        $this->execute = Closure::fromCallable($execute ?? static function (string $sql, array $binds): void {
             QueryUtils::sqlStatementThrowException($sql, $binds);
-        };
-        $this->repeatPattern = $repeatPattern ?? self::calendarRepeatPattern(...);
+        });
+        $this->repeatPattern = Closure::fromCallable($repeatPattern ?? self::calendarRepeatPattern(...));
     }
 
     /**
@@ -457,28 +464,46 @@ final class VisitListService
 
     /**
      * Carry out a move plan: give each patient its block occurrence's date, start and
-     * provider, then renumber each list patients landed on. A multi-provider copy whose new
-     * provider already has a copy of that appointment on that date stays where it is.
+     * provider, then renumber each list patients landed on. A patient stays where it is when:
+     * - it is a multi-provider copy whose new provider already has a copy of that appointment
+     *   on that date;
+     * - another Visit List block of the provider would claim it at the new time (the calendar
+     *   shows a patient on the block that started latest, VisitListMatcher), so it would not
+     *   land on its own block.
+     * Each update applies only while the patient is still where it was recorded before the
+     * save, so a change made meanwhile by someone else is kept.
      */
     private function apply(VisitListMovePlan $plan): VisitListMoveResult
     {
         $moved = 0;
         $keptForOtherCopy = 0;
+        $takenByOtherBlock = 0;
         $targets = [];
+        $claims = [];
         foreach ($plan->moves as $move) {
             $entry = $move->entry;
             $to = $move->to;
-            if ($entry->providerId !== $to->providerId && $this->groupHasCopy($entry->eventId, $to->providerId, $to->date())) {
+            $movesAway = $entry->providerId !== $to->providerId || $entry->start->format('Y-m-d') !== $to->date();
+            if ($movesAway && $this->groupHasCopy($entry->eventId, $to->providerId, $to->date())) {
                 $keptForOtherCopy++;
+                continue;
+            }
+            $key = self::blockKey($to);
+            $claims[$key] ??= $this->claimsItsStart($to);
+            if (!$claims[$key]) {
+                $takenByOtherBlock++;
                 continue;
             }
             ($this->execute)(
                 'UPDATE `openemr_postcalendar_events` SET `pc_aid` = ?, `pc_eventDate` = ?, `pc_startTime` = ?,'
-                . ' `pc_endTime` = ? WHERE `pc_eid` = ?',
-                [(string) $to->providerId, $to->date(), $to->start->format('H:i:s'), $to->start->format('H:i:s'), $entry->eventId]
+                . ' `pc_endTime` = ? WHERE `pc_eid` = ?' . self::STILL_THERE,
+                [
+                    (string) $to->providerId, $to->date(), $to->start->format('H:i:s'), $to->start->format('H:i:s'),
+                    $entry->eventId, ...self::stillThereBinds($entry),
+                ]
             );
             $moved++;
-            $targets[self::blockKey($to)] = $to;
+            $targets[$key] = $to;
         }
 
         foreach ($targets as $block) {
@@ -488,7 +513,30 @@ final class VisitListService
             }
         }
 
-        return new VisitListMoveResult($moved, count($plan->stranded), $keptForOtherCopy, count($plan->past));
+        return new VisitListMoveResult($moved, count($plan->stranded), $keptForOtherCopy, count($plan->past), $takenByOtherBlock);
+    }
+
+    /**
+     * Whether a patient at this block occurrence's start would be shown on it, and not on
+     * another Visit List block of the same provider.
+     */
+    private function claimsItsStart(VisitListBlock $block): bool
+    {
+        $blocks = array_map(
+            static fn (VisitList $list): VisitListBlock => $list->block,
+            $this->forDates($block->start, $block->start, [$block->providerId])->lists
+        );
+        $probe = new VisitListEntry(PHP_INT_MAX, 1, $block->providerId, $block->start, null, null);
+        $claimer = $this->matcher->blockFor($blocks, $probe);
+        return $claimer === null || self::blockKey($claimer) === self::blockKey($block);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function stillThereBinds(VisitListEntry $entry): array
+    {
+        return [(string) $entry->providerId, $entry->start->format('Y-m-d'), $entry->start->format('H:i:s')];
     }
 
     /**
@@ -503,8 +551,9 @@ final class VisitListService
      * Turn the patients on these lists into timed appointments on their provider's schedule:
      * in list order, one interval apart from the block's start (VisitListRelease), each one
      * interval long. They are no longer on a list, so their Order # and Stop # are cleared.
-     * Lists on dates before today are left alone, as when a block moves. Returns how many
-     * patients got a time.
+     * Lists on dates before today are left alone, as when a block moves. A patient changed
+     * since the lists were read (moved, or taken off the list) is left as it is now. Returns
+     * how many patients were on the lists it released.
      *
      * @param list<VisitList> $lists the lists as they were before their block was deleted or changed
      */
@@ -516,16 +565,21 @@ final class VisitListService
             if ($list->block->date() < $today) {
                 continue;
             }
+            $entries = [];
+            foreach ($list->entries as $entry) {
+                $entries[$entry->eventId] = $entry;
+            }
             foreach (VisitListRelease::starts($list, $intervalMinutes) as $eventId => $start) {
                 ($this->execute)(
                     'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 0, `pc_visit_seq` = NULL,'
                     . ' `pc_visit_stop` = NULL, `pc_startTime` = ?, `pc_endTime` = ?, `pc_duration` = ?'
-                    . ' WHERE `pc_eid` = ? AND `pc_visit_list` = 1',
+                    . ' WHERE `pc_eid` = ?' . self::STILL_THERE,
                     [
                         $start->format('H:i:s'),
                         $start->add(new DateInterval('PT' . $intervalMinutes . 'M'))->format('H:i:s'),
                         $intervalMinutes * 60,
                         $eventId,
+                        ...self::stillThereBinds($entries[$eventId]),
                     ]
                 );
                 $released++;

@@ -420,8 +420,9 @@ class VisitListEditorTest extends TestCase
         $this->assertSame('', $message);
         $this->assertCount(2, $this->statements);
         $this->assertStringContainsString('`pc_visit_list` = 0', $this->statements[0][0]);
-        $this->assertSame(['09:00:00', '09:15:00', 900, 10], $this->statements[0][1]);
-        $this->assertSame(['09:15:00', '09:30:00', 900, 11], $this->statements[1][1]);
+        $this->assertSame(['09:00:00', '09:15:00', 900, 10, '7', '2026-03-09', '09:00:00'], $this->statements[0][1]);
+        $this->assertSame(['09:15:00', '09:30:00', 900, 11, '7', '2026-03-09', '09:00:00'], $this->statements[1][1]);
+        $this->assertStringContainsString('`pc_aid` = ? AND `pc_eventDate` = ? AND `pc_startTime` = ?', $this->statements[0][0], 'only while the patient is still where it was');
     }
 
     public function testAfterDeletingABlockPatientsOnPastDatesAreLeft(): void

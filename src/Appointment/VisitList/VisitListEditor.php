@@ -240,6 +240,12 @@ final readonly class VisitListEditor
                 $result->keptForOtherCopy
             );
         }
+        if ($result->takenByOtherBlock > 0) {
+            $lines[] = sprintf(
+                xl('%s Visit List patients stayed where they were, because another Visit List block of their provider starts at the new time.'),
+                $result->takenByOtherBlock
+            );
+        }
         if ($result->leftOnPastDates > 0) {
             $lines[] = sprintf(
                 xl('%s Visit List patients on dates before today were left where they were.'),

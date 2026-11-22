@@ -27,10 +27,15 @@ final readonly class VisitListBlockSave
      * @param list<int>            $providerIds  the providers of those copies, sorted
      * @param string               $repeatRule   how the block repeated (VisitListService::repeatRule())
      * @param list<string>         $pattern      the dates of the block's repeat pattern the save changes
-     *                                           (Y-m-d), excluded dates included, up to the last list
+     *                                           (Y-m-d), excluded dates included, from $scopeStart to the
+     *                                           end of the window $lists covers
      * @param DateTimeImmutable    $scopeStart   the first date the save changes
-     * @param list<VisitList>      $lists        every occurrence the save changes, from $scopeStart up to the
-     *                                           last one with patients, with or without patients, by date
+     * @param list<VisitList>      $lists        every occurrence the save changes, with or without patients,
+     *                                           by date: for "this date" just that date; otherwise from
+     *                                           $scopeStart to the last date any of these providers has a
+     *                                           Visit List patient (VisitListService::lastPatientDate()), so
+     *                                           the last ones may be empty, and occurrences after that date
+     *                                           are left out because they have no patients to move
      * @param int                  $lastEventId  the highest pc_eid before the save, to find the events it adds
      */
     public function __construct(

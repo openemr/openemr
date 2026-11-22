@@ -50,6 +50,8 @@ final class VisitListDeleteSubscriber implements EventSubscriberInterface
         if ($eventId === null) {
             return;
         }
+        // A list noted by an earlier attempt that never finished (no post-delete) is stale.
+        unset($this->pending[$eventId]);
         $list = $this->service->listOf($eventId);
         if ($list !== null) {
             $this->pending[$eventId] = $list;

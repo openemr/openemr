@@ -64,6 +64,11 @@ describe('pcVisitListBlockConfirm', () => {
         expect(confirmSpy).not.toHaveBeenCalled();
     });
 
+    test('a duplicate with another category goes on without asking', () => {
+        expect(block.pcVisitListBlockConfirm(CONFIG, form('duplicate', '9', ''))).toBe(true);
+        expect(confirmSpy).not.toHaveBeenCalled();
+    });
+
     test('a delete of a block that does not repeat asks with the message for all dates', () => {
         confirmSpy.mockReturnValue(true);
 

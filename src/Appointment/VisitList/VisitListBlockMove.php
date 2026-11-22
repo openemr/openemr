@@ -55,12 +55,17 @@ final class VisitListBlockMove
                 continue;
             }
             $to = $afterByProvider[$providerMap[$list->block->providerId] ?? 0][$dateMap[$list->block->date()] ?? ''] ?? null;
+            if ($to === null) {
+                array_push($stranded, ...$list->entries);
+                continue;
+            }
+            // Same provider and start (only the length changed): the patients are still on
+            // the block, including any that start inside it rather than at its start.
+            if ($to->providerId === $list->block->providerId && $to->start == $list->block->start) {
+                continue;
+            }
             foreach ($list->entries as $entry) {
-                if ($to === null) {
-                    $stranded[] = $entry;
-                } elseif ($entry->providerId !== $to->providerId || $entry->start != $to->start) {
-                    $moves[] = new VisitListMove($entry, $to);
-                }
+                $moves[] = new VisitListMove($entry, $to);
             }
         }
         return new VisitListMovePlan($moves, $stranded, $past);
