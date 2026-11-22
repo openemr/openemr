@@ -234,6 +234,7 @@ class PatientFinderCriteriaTest extends TestCase
             'sColumns' => 'sex',
             'iDisplayStart' => '0',
             'iDisplayLength' => '10',
+            'showInactive' => 'true',
         ] + self::request([['key' => 'sex', 'operator' => 'is', 'value' => 'Female']]));
 
         $plan = $builder->build([], $request, new BoundFilter());
