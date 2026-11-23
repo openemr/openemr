@@ -64,7 +64,15 @@ function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
     // The parts of the line under the name (ID, sex, DOB, age), built on the server so every
     // page that sets the patient shows the same ones. The theme draws the bullets.
     self.infoParts = ko.observableArray([]);
+    // Counts the requests, so a slow earlier answer can't overwrite a newer one.
+    let latestInfoRequest = 0;
     self.loadInfo = function () {
+        const request = ++latestInfoRequest;
+        const show = (parts) => {
+            if (request === latestInfoRequest) {
+                self.infoParts(parts);
+            }
+        };
         top.restoreSession();
         fetch(webroot_url + '/library/ajax/set_pt.php?' + new URLSearchParams({csrf_token_form: top.csrf_token_js}), {
             method: 'POST',
@@ -72,8 +80,8 @@ function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
             body: new URLSearchParams({mode: 'patient_bar_info', pid: self.pid()})
         })
             .then((response) => response.ok ? response.json() : {parts: []})
-            .then((body) => self.infoParts(body.parts || []))
-            .catch(() => self.infoParts([]));
+            .then((body) => show(body.parts || []))
+            .catch(() => show([]));
     };
     self.loadInfo();
     return this;
