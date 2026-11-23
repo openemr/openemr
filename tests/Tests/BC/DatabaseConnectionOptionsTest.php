@@ -298,6 +298,12 @@ class DatabaseConnectionOptionsTest extends TestCase
     /** @var list<string> */
     private array $tempDirs = [];
 
+    protected function setUp(): void
+    {
+        // Isolate from the real environment, which may set OPENEMR_DB_*.
+        OEEnvBag::getInstance()->replace([]);
+    }
+
     protected function tearDown(): void
     {
         foreach ($this->tempDirs as $dir) {

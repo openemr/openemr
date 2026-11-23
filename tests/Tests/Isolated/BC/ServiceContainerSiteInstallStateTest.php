@@ -29,6 +29,8 @@ class ServiceContainerSiteInstallStateTest extends TestCase
     protected function setUp(): void
     {
         ServiceContainer::reset();
+        // Isolate from the real environment, which may set OPENEMR_DB_*.
+        OEEnvBag::getInstance()->replace([]);
         $this->siteDir = sys_get_temp_dir() . '/site-install-state-' . uniqid();
         mkdir($this->siteDir);
         OEGlobalsBag::getInstance()->set('OE_SITE_DIR', $this->siteDir);
