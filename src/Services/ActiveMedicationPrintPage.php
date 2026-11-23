@@ -103,11 +103,9 @@ final class ActiveMedicationPrintPage
     {
         $loaded = getPatientData($pid, 'squad');
         $squad = '';
-        if (is_array($loaded)) {
-            $value = $loaded['squad'] ?? null;
-            if (is_string($value)) {
-                $squad = $value;
-            }
+        $value = $loaded['squad'] ?? null;
+        if (is_string($value)) {
+            $squad = $value;
         }
         if ($squad !== '' && !AclMain::aclCheckCore('squads', $squad)) {
             AccessDeniedHelper::deny('Not authorized for squad: ' . $squad);
