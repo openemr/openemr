@@ -104,6 +104,15 @@ switch ($search_any_type) {
                         <span data-bind="text: pname()"></span>
                         <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
                     </a>
+                    <div class="<?php echo ($classes !== '') ? 'btn-group btn-group-sm' : 'dropdown d-inline-block'; ?>">
+                        <a href="#" class="pt-1 <?php echo ($classes !== '') ? $classes : 'text-muted'; ?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="<?php echo xla('Open Patient in a New Window or Tab'); ?>" aria-label="<?php echo xla('Open Patient in a New Window or Tab'); ?>">
+                            <i class="fa fa-arrow-up-right-from-square<?php echo ($closeIconClass !== "") ? " " . $closeIconClass : ""; ?>" aria-hidden="true"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewWindow"><?php echo xlt('Open in New Window'); ?></a>
+                            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewTab"><?php echo xlt('Open in New Tab'); ?></a>
+                        </div>
+                    </div>
                     <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
                     <a href="#" class="pt-1<?php echo (($classes ?? '') !== '') ? ' ' . $classes : '';?> <?php echo ($closeAnchorClasses !== '') ? ' ' . $closeAnchorClasses : ''; ?>" data-bind="click:closePatientChart" title="<?php echo xla('Close Patient Chart') ?>">
                         <i class="fa fa-times<?php echo ($closeIconClass !== "") ? " " . $closeIconClass : ""; ?>"></i>

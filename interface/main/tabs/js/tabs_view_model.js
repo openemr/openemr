@@ -501,6 +501,52 @@ function closePatientChart()
     }
 }
 
+// Opens the current patient (and its open encounter) in another copy of OpenEMR, as the
+// Patient Finder's "new window" option does. main_screen.php gives that copy its own
+// session, so each window keeps its own patient.
+function openPatientElsewhere(target)
+{
+    const patient = app_view_model.application_data.patient();
+    if (!patient) {
+        return;
+    }
+    const fields = {
+        csrf_token_form: csrf_token_js,
+        patientID: patient.pid(),
+    };
+    if (patient.selectedEncounterID()) {
+        fields.encounterID = patient.selectedEncounterID();
+    }
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.target = target;
+    form.action = webroot_url + '/interface/main/main_screen.php?auth=login&site=' + encodeURIComponent(site_id_js);
+    for (const [name, value] of Object.entries(fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    top.restoreSession();
+    form.submit();
+    form.remove();
+}
+
+function openPatientInNewWindow()
+{
+    // A size makes the browser open a window rather than a tab.
+    const name = 'openemr_patient_' + Date.now();
+    const opened = window.open('', name, 'popup,width=' + window.outerWidth + ',height=' + window.outerHeight);
+    openPatientElsewhere(opened ? name : '_blank');
+}
+
+function openPatientInNewTab()
+{
+    openPatientElsewhere('_blank');
+}
+
 function clearPatient(openFinder = true)
 {
     top.restoreSession();
