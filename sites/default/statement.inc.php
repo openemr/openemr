@@ -863,8 +863,9 @@ function create_statement($stmt): string
     // This generates the detail lines.  Again, note that the values must
     // be specified in the order used.
     //
-
-
+    // A windowed sheet keeps the footer on this page. Charges that do not
+    // fit are named once and are not moved onto a second sheet.
+    $omitted = false;
     foreach ($stmt['lines'] as $line) {
         $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
@@ -910,16 +911,18 @@ function create_statement($stmt): string
                 $desc = $description;
             }
 
-            if ($windowed && $pageLines > 0 && $count >= $pageLines) {
-                $out .= "\014";
-                $count = 0;
+            if ($windowed && $pageLines > 0 && $count >= $padTo) {
+                $omitted = true;
+                break 2;
             }
             $descWidth = 45;
             if ($windowed) {
                 $descWidth = max(1, StatementEnvelope::textPageColumns() - 20);
-                if (strlen($desc) > $descWidth) {
-                    $desc = substr($desc, 0, $descWidth);
+                $descText = is_string($desc) ? $desc : '';
+                if (strlen($descText) > $descWidth) {
+                    $descText = substr($descText, 0, $descWidth);
                 }
+                $desc = $descText;
             }
             $out .= sprintf("%-10s  %-" . $descWidth . "s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             $dos = '';
@@ -927,10 +930,9 @@ function create_statement($stmt): string
         }
     }
 
-    if ($windowed && $pageLines > 0 && $count > $padTo) {
-        $out .= "\014";
-        $count = 0;
-        $padTo = 0;
+    if ($omitted && $count < $padTo) {
+        $out .= xl('Further charges are not on this page.') . "\n";
+        ++$count;
     }
 
     while ($count < $padTo) {
