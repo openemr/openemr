@@ -88,15 +88,6 @@ use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 
-// OS-dependent stuff.
-if (stristr(PHP_OS, 'WIN')) {
-    // MS Windows
-    $temporary_files_dir = 'C:/windows/temp';
-} else {
-    // Everything else
-    $temporary_files_dir = '/tmp';
-}
-
 function getDefaultRenderListOptions(): array
 {
     return [
@@ -2973,13 +2964,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '1',                              // default
             xl('Enable Database Connection Pooling')
-        ],
-
-        'temporary_files_dir' => [
-            xl('Path to Temporary Files'),
-            'text',                           // data type
-            $temporary_files_dir,             // default
-            xl('Full path to directory used for temporary files.')
         ],
 
         'state_data_type' => [
