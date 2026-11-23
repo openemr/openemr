@@ -7547,11 +7547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Util/CalendarUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$instituationId of method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\UserVideoRegistrationRequest\\:\\:setInstituationId\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/tests/Tests/Unit/TeleHealthVideoRegistrationControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$institutionName of method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\UserVideoRegistrationRequest\\:\\:setInstitutionName\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/tests/Tests/Unit/TeleHealthVideoRegistrationControllerTest.php',
@@ -16037,11 +16032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, \\(float\\|int\\) given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
@@ -17238,7 +17228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function trim expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/facilities.php',
 ];
 $ignoreErrors[] = [
@@ -21850,11 +21840,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$siteDir of static method OpenEMR\\\\BC\\\\DatabaseConnectionOptions\\:\\:forSite\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function errorLogEscape expects string, int given\\.$#',
@@ -54942,16 +54927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$user_id of static method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:zhAclCheck\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
@@ -59852,17 +59827,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$active of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRPatient\\:\\:setActive\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRBoolean, true given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$birthDate of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRPatient\\:\\:setBirthDate\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDate, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(mixed\\)\\: mixed\\)\\|null, Closure\\(OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue\\)\\: OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];

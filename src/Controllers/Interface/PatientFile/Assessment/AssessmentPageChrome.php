@@ -2,7 +2,8 @@
 
 /**
  * The parts of the assessments page drawn by legacy helpers, already rendered: the OemrUI
- * container class, heading and expand script, and the patient menu bar.
+ * container class and expand script, and the patient menu bar, which carries the OemrUI
+ * heading controls at its right-hand end in place of a page title.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,7 +20,6 @@ final readonly class AssessmentPageChrome
 {
     public function __construct(
         public string $containerClass,
-        public string $heading,
         public string $belowContainer,
         public string $patientMenu,
     ) {

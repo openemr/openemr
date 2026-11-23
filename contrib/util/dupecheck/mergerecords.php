@@ -112,10 +112,10 @@ foreach ($parameters['otherid'] as $otherID) {
     UpdateTable("documents", "foreign_id", $otherPID, $masterPID);
 
     // update all the forms* tables
-    $sqlstmt = "show tables like 'form%'";
+    $sqlstmt = "SELECT table_name AS name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'form%'";
     $qResults = sqlStatement($sqlstmt);
     while ($row = sqlFetchArray($qResults)) {
-        UpdateTable($row['Tables_in_' . $sqlconf["dbase"] . ' (form%)'], "pid", $otherPID, $masterPID);
+        UpdateTable($row['name'], "pid", $otherPID, $masterPID);
     }
 
     // How to handle the data that should be unique to each patient:

@@ -19,9 +19,15 @@
        - catcolor      : raw color string for background-color
        - content       : pre-built HTML string for the event body
        - eventDateYmd  : YYYYMMDD form of the event's date key (consumer derives)
+       - visitList     : only for a Visit List block (see _visit_list_print.html.twig);
+                         its patients are not among the day's other events
    - dowOfDate : map of "YYYY-MM-DD" => int weekday (0=Sun..6=Sat), used by the
        row open/close logic. Pre-computed by consumer to avoid mid-template
        date math.
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 
 <!DOCTYPE html>
@@ -86,6 +92,7 @@
         .event_appointment { height: 1.4em; }
         .event_in { background-color: white; width: 100%; }
         .event_out { background-color: pink; width: 100%; }
+        {% include 'calendar/default/views/_visit_list_print_styles.html.twig' %}
     </style>
 </head>
 <body>
@@ -138,9 +145,15 @@
                         {% for event in events %}
                             {% if event.aid == provider.id and event.catid != 2 and event.catid != 3 %}
                                 {% set rendered = rendered + 1 %}
+                                {% if event.visitList is defined %}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }}">
+                                        {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                                    </div>
+                                {% else %}
                                 <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }}" style="background-color:{{ event.catcolor|attr }};">
                                     {{ event.content|raw }}
                                 </div>
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                         {% if rendered == 0 %}&nbsp;{% endif %}

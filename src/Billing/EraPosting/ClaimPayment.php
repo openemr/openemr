@@ -27,6 +27,7 @@ final readonly class ClaimPayment
      * @param string            $serviceDate       the last DTM*472 date read, else the claim date (DTM*232/233)
      * @param int               $crossover         1 when the payer forwarded the claim to the next payer (NM1*TT)
      * @param list<ServiceLine> $serviceLines
+     * @param float             $paymentAmount     CLP04, what the payer paid on the claim
      */
     public function __construct(
         public string $checkNumber,
@@ -41,6 +42,7 @@ final readonly class ClaimPayment
         public string $warnings,
         public int $crossover,
         public array $serviceLines,
+        public float $paymentAmount = 0.0,
     ) {
     }
 
@@ -96,6 +98,7 @@ final readonly class ClaimPayment
             warnings: self::string($out, 'warnings'),
             crossover: is_int($crossover) ? $crossover : 0,
             serviceLines: $serviceLines,
+            paymentAmount: self::float($out, 'amount_approved'),
         );
     }
 

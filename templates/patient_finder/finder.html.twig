@@ -33,6 +33,12 @@ dynamic_finder.js), and the options below the list.
                 <div id="finder-options" class="d-flex flex-wrap align-items-center">
                     <form name="myform">
                         <div class="form-check form-check-inline">
+                            <label for="form_show_inactive" class="form-check-label" id="form_show_inactive_label">
+                                <input type="checkbox" class="form-check-input" id="form_show_inactive" name="form_show_inactive" value="1"{% if showInactiveChecked %} checked{% endif %} />
+                                {{ "Show inactive"|xlt }}
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
                             <label for="form_new_window" class="form-check-label" id="form_new_window_label">
                                 <input type="checkbox" class="form-check-input" id="form_new_window" name="form_new_window" value="1"{{ newWindowChecked ? ' checked' : '' }} />
                                 {{ "Open in New Browser Tab"|xlt }}
