@@ -120,7 +120,11 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
 
-        $log .= $claim->patientFirstName() . ' ' .
+        // Name the claim in the billing log as the HCFA and 837I generators do.
+        $claimId = (is_int($pid) || is_string($pid) ? $pid : '') . '-'
+            . (is_int($encounter) || is_string($encounter) ? $encounter : '');
+        $log .= "Generating 837P claim $claimId for " .
+        $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
         $claim->patientLastName() . ' on ' .
         date('Y-m-d H:i', $today) . ".\n";
