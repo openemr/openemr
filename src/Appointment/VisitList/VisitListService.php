@@ -235,7 +235,8 @@ final readonly class VisitListService
     /**
      * Number a list's patients 1 to n in list order, with one patient put at a place (last
      * when the place is null or past the end) and the others moved down to make room. Only the
-     * Order # of patients whose number changes is written; Stop # is never changed.
+     * Order # of patients whose number changes is written; Stop # is never changed. A patient
+     * that has left the list since it was read is not written.
      */
     public function renumber(VisitList $list, ?int $movingEventId = null, ?int $position = null): void
     {
@@ -246,8 +247,8 @@ final readonly class VisitListService
                 continue;
             }
             ($this->execute)(
-                'UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?',
-                [$number, $entry->eventId]
+                'UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?' . self::STILL_THERE,
+                [$number, $entry->eventId, ...self::stillThereBinds($entry)]
             );
         }
     }

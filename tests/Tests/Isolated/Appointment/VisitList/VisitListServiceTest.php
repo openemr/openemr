@@ -547,8 +547,12 @@ class VisitListServiceTest extends TestCase
         // Patient 12 is saved as #1; patient 11 stays #3.
         self::writingService($statements)->renumber(self::list([10 => 1, 11 => 3, 12 => 3]), 12, 1);
 
-        $this->assertSame([[2, 10], [1, 12]], array_column($statements, 1));
-        $this->assertSame('UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?', $statements[0][0]);
+        $this->assertSame([[2, 10, '7', '2026-03-09', '09:00:00'], [1, 12, '7', '2026-03-09', '09:00:00']], array_column($statements, 1));
+        $this->assertSame(
+            'UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?'
+            . ' AND `pc_visit_list` = 1 AND `pc_aid` = ? AND `pc_eventDate` = ? AND `pc_startTime` = ?',
+            $statements[0][0]
+        );
     }
 
     public function testRenumberClosesGaps(): void
@@ -556,7 +560,7 @@ class VisitListServiceTest extends TestCase
         $statements = [];
         self::writingService($statements)->renumber(self::list([10 => 1, 11 => 4, 12 => null]));
 
-        $this->assertSame([[2, 11], [3, 12]], array_column($statements, 1));
+        $this->assertSame([[2, 11, '7', '2026-03-09', '09:00:00'], [3, 12, '7', '2026-03-09', '09:00:00']], array_column($statements, 1));
     }
 
     public function testRenumberOfAListInOrderWritesNothing(): void

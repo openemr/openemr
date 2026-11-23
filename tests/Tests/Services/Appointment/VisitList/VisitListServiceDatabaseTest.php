@@ -288,6 +288,23 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->assertSame([$this->eids['first'] => 1], $this->sequencesOn('2031-03-24'));
     }
 
+    public function testRenumberLeavesAPatientThatLeftTheListMeanwhile(): void
+    {
+        $list = $this->service->listOf($this->eids['first']);
+        $this->assertNotNull($list);
+        // Another save moves the second patient to the next Monday's list as #3.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_eventDate = ?, pc_visit_seq = 3 WHERE pc_eid = ?',
+            ['2031-03-24', $this->eids['second']]
+        );
+
+        // The list as read before that move would put the second patient at #1.
+        $this->service->renumber($list, $this->eids['second'], 1);
+
+        $this->assertSame([$this->eids['first'] => 2], $this->sequencesOn('2031-03-10'));
+        $this->assertSame([$this->eids['second'] => 3], $this->sequencesOn('2031-03-24'));
+    }
+
     public function testDeletingAPatientClosesTheGap(): void
     {
         $this->service->place($this->eids['timed'], null, null);
