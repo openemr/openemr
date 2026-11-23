@@ -67,7 +67,7 @@ services:
   # always want it up for this stack — the stack has no non-selenium
   # test shape to care about.
   selenium:
-    image: selenium/standalone-chromium:156.0.8078.79@sha256:b211549a4c35f11826bc1a7559b9f23ff055198517f8cb7d49ef74df01c5e38d
+    image: selenium/standalone-chromium:156.0.8078.79@sha256:15e4837078779917bc81dc3815019e0f955e31ac09bd43b07a523d78e7808b46
     environment:
       SE_SCREEN_WIDTH: 1920
       SE_SCREEN_HEIGHT: 1080
