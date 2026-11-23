@@ -557,6 +557,7 @@ class X125010837PZipTest extends TestCase
             $probe = $this->versionProbe();
             $probe->openUnbilled = 4;
             $probe->storedFile = 'old-batch.txt';
+            $probe->storedPartner = 3;
             $probe->fileOnDisk = true;
             $probe->generate($this->versionClaim());
 
@@ -564,6 +565,24 @@ class X125010837PZipTest extends TestCase
             $this->assertSame([2], $probe->writeStatus);
             $this->assertSame([], $probe->storedClaims());
             $this->assertContains(UnbilledFileDecision::ALREADY_WRITTEN, $probe->screen);
+        });
+    }
+
+    /**
+     * A file already on disk is not billed for a different partner.
+     */
+    public function testHoldOnDoesNotSettleAFileForAnotherPartner(): void
+    {
+        $this->withGlobals(true, function (): void {
+            $probe = $this->versionProbe();
+            $probe->openUnbilled = 4;
+            $probe->storedFile = 'old-batch.txt';
+            $probe->storedPartner = 9;
+            $probe->fileOnDisk = true;
+            $probe->generate($this->versionClaim());
+
+            $this->assertSame([], $probe->writes);
+            $this->assertSame([], $probe->storedClaims());
         });
     }
 

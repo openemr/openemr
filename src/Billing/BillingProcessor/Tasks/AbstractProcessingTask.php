@@ -18,6 +18,7 @@ use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Billing\FacilityZipDenial;
 use OpenEMR\Billing\UnbilledFileDecision;
 
@@ -544,13 +545,31 @@ abstract class AbstractProcessingTask
     protected function markStoredFileBilled(BillingClaim $claim): bool
     {
         $version = $this->settledVersion;
-        if ($version === null) {
+        $filename = $this->settledFileName;
+        if ($version === null || $filename === '') {
+            return false;
+        }
+
+        $assignment = $this->openUnbilledAssignment($claim);
+        if ($assignment === null) {
+            return false;
+        }
+        $partner = BillingUtilities::partnerForRecoveredFile(
+            $assignment['x12_partner_id'],
+            $claim->getPartner()
+        );
+        if ($partner === null) {
+            return false;
+        }
+        try {
+            BillingClaimBatch::queuePartnerFile($partner, $filename, '[]');
+        } catch (SqlQueryException) {
             return false;
         }
 
         $this->insertedClaimVersion = $version;
 
-        return $this->settleClaimFile($claim, $version, $this->settledFileName);
+        return $this->settleClaimFile($claim, $version, $filename);
     }
 
     /**
