@@ -174,20 +174,48 @@ final readonly class VisitListDayColumn
      * starts before the appointments beside it would otherwise end up in the same place as
      * them, drawn over by them. Last, it stays on the right and the appointments on the left.
      *
+     * When two of those blocks overlap each other, the order is left as it is: moving both last
+     * can give the earlier one the later one's place.
+     *
      * @return list<array<string, mixed>>
      */
     public function overlapOrder(): array
     {
         $others = [];
         $blocks = [];
+        $spans = [];
         foreach ($this->gridEvents as $event) {
             if (isset($this->lists[self::eventId($event) ?? 0])) {
                 $blocks[] = $event;
+                $spans[] = self::minutes($event);
             } else {
                 $others[] = $event;
             }
         }
+        foreach ($spans as $index => [$start, $end]) {
+            foreach (array_slice($spans, $index + 1) as [$otherStart, $otherEnd]) {
+                if ($start < $otherEnd && $otherStart < $end) {
+                    return $this->gridEvents;
+                }
+            }
+        }
         return [...$others, ...$blocks];
+    }
+
+    /**
+     * An event's start and end, in minutes from midnight.
+     *
+     * @param array<string, mixed> $event
+     * @return array{int, int}
+     */
+    private static function minutes(array $event): array
+    {
+        $startTime = self::string($event['startTime'] ?? null);
+        $parts = explode(':', $startTime);
+        $start = (int) $parts[0] * 60 + (int) ($parts[1] ?? 0);
+        $duration = $event['duration'] ?? 0;
+        $seconds = is_numeric($duration) ? (int) $duration : 0;
+        return [$start, $start + intdiv($seconds, 60)];
     }
 
     /**

@@ -330,6 +330,37 @@ final class VisitListDayColumnTest extends TestCase
         $this->assertSame(['42', '40'], self::eids($column->overlapOrder()));
     }
 
+    /**
+     * The column of a day with two blocks, A (pc_eid 40) and B (pc_eid 45), and a 9:00
+     * appointment (pc_eid 42) between them in the day's events.
+     */
+    private static function twoBlocks(string $aEnd, string $bStart, string $bEnd): VisitListDayColumn
+    {
+        $date = new DateTimeImmutable(self::DATE);
+        $schedule = (new VisitListMatcher())->match([
+            new VisitListBlock(40, self::PROVIDER, 3, $date->modify('09:00'), $date->modify($aEnd)),
+            new VisitListBlock(45, self::PROVIDER, 3, $date->modify($bStart), $date->modify($bEnd)),
+        ], []);
+        $block = static fn (string $eid, string $start, string $end): array => [
+            ...self::blockEvent(),
+            'eid' => $eid,
+            'startTime' => $start . ':00',
+            'duration' => (string) ((new DateTimeImmutable(self::DATE . ' ' . $end))->getTimestamp() - (new DateTimeImmutable(self::DATE . ' ' . $start))->getTimestamp()),
+        ];
+        return self::column([$block('40', '09:00', $aEnd), self::patientEvent(42, 'Ruiz, Ana'), $block('45', $bStart, $bEnd)], $schedule);
+    }
+
+    public function testOverlapOrderMovesBlocksThatFollowEachOther(): void
+    {
+        $this->assertSame(['42', '40', '45'], self::eids(self::twoBlocks('10:00', '10:00', '11:00')->overlapOrder()));
+    }
+
+    public function testOverlapOrderKeepsTheOrderWhenBlocksOverlap(): void
+    {
+        // Moved last, A would take B's place in the 10:00 slot and keep it.
+        $this->assertSame(['40', '42', '45'], self::eids(self::twoBlocks('11:00', '10:00', '11:00')->overlapOrder()));
+    }
+
     public function testAppointmentsBesideABlockAreDrawnToItsLeft(): void
     {
         $builder = new CalendarRenderDataBuilder(new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0));
