@@ -629,6 +629,21 @@ if ($type) { // note this only happens when its new
 ?>
 
 <script>
+<?php
+$currentType = AddressBookReferrerFields::asString($row['abook_type'] ?? '');
+if ($currentType !== '') {
+    $inactiveType = QueryUtils::querySingleRow(
+        "SELECT option_id, option_value FROM list_options WHERE list_id = 'abook_type' AND option_id = ? AND activity = 0",
+        [$currentType]
+    );
+    if (is_array($inactiveType)) {
+        $inactiveId = AddressBookReferrerFields::asString($inactiveType['option_id'] ?? '');
+        if ($inactiveId !== '') {
+            echo " type_options_js[" . js_escape($inactiveId) . "]=" . js_escape($inactiveType['option_value'] ?? '') . ";\n";
+        }
+    }
+}
+?>
  $(function () {
   // customize the form via the type options
   typeSelect(<?php echo js_escape($row['abook_type'] ?? null); ?>);
