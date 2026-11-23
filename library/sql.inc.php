@@ -26,6 +26,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\System\MissingSiteException;
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!defined('ADODB_FETCH_ASSOC')) {
