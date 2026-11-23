@@ -54,6 +54,17 @@ class AuditTableWriteGuardTest extends TestCase
         self::assertSame($rejected, AuditTableWriteGuard::rejects($sql));
     }
 
+    public function testUpgradeMayAlterAnAuditTable(): void
+    {
+        $alter = "ALTER TABLE `log_comment_encrypt` ADD COLUMN `chain` char(128) DEFAULT NULL";
+
+        self::assertTrue(AuditTableWriteGuard::rejects($alter));
+        self::assertTrue(AuditTableWriteGuard::isUpgradeSchemaChange($alter));
+        self::assertFalse(AuditTableWriteGuard::isUpgradeSchemaChange('UPDATE log SET comments = 1'));
+        self::assertFalse(AuditTableWriteGuard::isUpgradeSchemaChange('DELETE FROM log WHERE id = 1'));
+        self::assertFalse(AuditTableWriteGuard::isUpgradeSchemaChange('ALTER TABLE patient_data ADD COLUMN extra int'));
+    }
+
     public function testParsesTheCurrentDatabaseAccount(): void
     {
         self::assertSame(

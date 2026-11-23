@@ -11,8 +11,10 @@
  * @author    Teny <teny@zhservices.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (C) 2008-2012 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -20,6 +22,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Logging\Audit\AuditTableWriteGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -832,7 +835,10 @@ class SQLUpgradeService implements ISQLUpgradeService
                 try {
                     // if a statement returns 0 we need to still throw an exception as that is how the old query was
                     // structured and we don't want to be backwards compatible.
-                    if (!QueryUtils::sqlStatementThrowException($query, [])) {
+                    // ALTER on an audit table is the upgrade's job. The
+                    // application connection refuses that statement.
+                    $schemaChange = AuditTableWriteGuard::isUpgradeSchemaChange($query);
+                    if (!QueryUtils::sqlStatementThrowException($query, [], $schemaChange)) {
                         if ($this->isThrowExceptionOnError()) {
                             $error = QueryUtils::getLastError();
                             throw new SqlQueryException(

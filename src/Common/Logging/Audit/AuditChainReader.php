@@ -58,12 +58,15 @@ final class AuditChainReader
         // The date window picks the first and last log id to report. The walk
         // then includes every link between those ids. A row whose date falls
         // outside the window can still sit between them, and dropping it
-        // would look like a break in the chain.
+        // would look like a break in the chain. A chain row whose version
+        // was lowered still belongs in that window. Rows from before the
+        // chain have no chain value, so they stay out.
         $span = QueryUtils::querySingleRow(
             'SELECT MIN(c.log_id) AS min_id, MAX(c.log_id) AS max_id'
             . ' FROM log_comment_encrypt c'
             . ' INNER JOIN log l ON l.id = c.log_id'
-            . ' WHERE c.version >= 5 AND l.date >= ? AND l.date <= ?',
+            . " WHERE (c.version >= 5 OR (c.chain IS NOT NULL AND c.chain <> ''))"
+            . ' AND l.date >= ? AND l.date <= ?',
             $bounds,
             false,
         );

@@ -46,6 +46,19 @@ final class AuditTableWriteGuard
     }
 
     /**
+     * The upgrade applicator may add a column to an audit table.
+     * Application code still cannot.
+     */
+    public static function isUpgradeSchemaChange(string $sql): bool
+    {
+        if (!self::rejects($sql)) {
+            return false;
+        }
+
+        return preg_match('/^alter\s+table\b/i', self::withoutLeadingComments($sql)) === 1;
+    }
+
+    /**
      * DROP TABLE IF EXISTS and a multi-table list both name the target after
      * the first keyword the simpler pattern looks for.
      */
