@@ -28,6 +28,30 @@ class DatabaseConnectionOptionsDefinitionTest extends TestCase
         'OPENEMR_DB_PORT' => '3307',
     ];
 
+    public function testEnvReadsTcpConnection(): void
+    {
+        $options = $this->resolve(self::ENV_TCP);
+
+        self::assertSame('envdb', $options->dbname, 'dbname comes from OPENEMR_DB_NAME');
+        self::assertSame('envuser', $options->user, 'user comes from OPENEMR_DB_USER');
+        self::assertSame('envpass', $options->password, 'password comes from OPENEMR_DB_PASSWORD');
+        self::assertSame('db.example.com', $options->host, 'host comes from OPENEMR_DB_HOST');
+        self::assertSame(3307, $options->port, 'port is parsed from OPENEMR_DB_PORT');
+        self::assertNull($options->unixSocket, 'no socket was configured');
+    }
+
+    public function testEnvReadsSocketConnection(): void
+    {
+        $options = $this->resolve([
+            'OPENEMR_DB_NAME' => 'envdb',
+            'OPENEMR_DB_SOCKET' => '/run/mysqld/mysqld.sock',
+        ]);
+
+        self::assertSame('/run/mysqld/mysqld.sock', $options->unixSocket, 'socket comes from OPENEMR_DB_SOCKET');
+        self::assertNull($options->host, 'no host was configured');
+        self::assertNull($options->port, 'no port was configured');
+    }
+
     public function testEnvReadsSsl(): void
     {
         $options = $this->resolve(self::ENV_TCP + [
