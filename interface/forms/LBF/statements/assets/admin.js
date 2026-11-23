@@ -330,13 +330,16 @@
     const form = modalEl.querySelector('form');
     if (form) {
         form.addEventListener('submit', function (e) {
-            const bound = invalidBound();
-            if (bound) {
-                e.preventDefault();
-                showOverlap(bound);
-                return;
-            }
             const draft = readDraft();
+            const usesBounds = draft.op === 'band' || draft.op === 'ratio_lt' || draft.op === 'ratio_gt';
+            if (usesBounds) {
+                const bound = invalidBound();
+                if (bound) {
+                    e.preventDefault();
+                    showOverlap(bound);
+                    return;
+                }
+            }
             const ratio = draft.op === 'ratio_lt' || draft.op === 'ratio_gt';
             if (ratio && String(draft.source_field_id_2 || '').trim() === '') {
                 e.preventDefault();

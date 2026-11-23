@@ -494,6 +494,9 @@ header('Content-type: text/html; charset=utf-8');
                     $form_old_version = $cliFromVersion ?? ($_POST['form_old_version'] ?? '');
                     if (!is_string($form_old_version) || !array_key_exists($form_old_version, $versions)) {
                         echo "<br /><p class='text-danger'>" . xlt("Choose a version this upgrade offers.") . "</p>\n";
+                        if ($isCli) {
+                            exit(1);
+                        }
                     } else {
 
                     foreach ($versions as $version => $filename) {
