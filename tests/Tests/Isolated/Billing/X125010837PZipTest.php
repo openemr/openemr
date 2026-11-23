@@ -1205,6 +1205,32 @@ class X125010837PZipTest extends TestCase
         $this->assertNull(BillingUtilities::generationFenceName('10', '20', 'nope', 'clinic_a'));
     }
 
+
+    /**
+     * Claims for one partner and two billing facilities are not one transaction.
+     */
+    public function testDirectGivesEachBillingFacilityItsOwnBatch(): void
+    {
+        $probe = new DirectFacilityProbe('validate');
+        $primary = new BillingClaimBatch('.txt', [
+            'claims' => [(object) ['action' => 'validate']],
+        ]);
+        $probe->seed('3', $primary);
+        $first = $this->createMock(BillingClaim::class);
+        $first->method('getPartner')->willReturn('3');
+        $first->method('getPid')->willReturn('1');
+        $second = $this->createMock(BillingClaim::class);
+        $second->method('getPartner')->willReturn('3');
+        $second->method('getPid')->willReturn('2');
+        $probe->facilities = ['1' => 10, '2' => 20];
+
+        $this->assertSame($primary, $probe->batchFor($first));
+        $other = $probe->batchFor($second);
+        $this->assertNotSame($primary, $other);
+        $this->assertStringContainsString('-f20', $other->getBatFilename());
+        $this->assertSame($primary->getBatFiledir(), $other->getBatFiledir());
+    }
+
 }
 
 final class HoldZipFixture
@@ -1718,5 +1744,28 @@ final class DirectVersionProbe extends GeneratorX12Direct
      */
     public function appendToLog(mixed $message): void
     {
+    }
+}
+
+final class DirectFacilityProbe extends GeneratorX12Direct
+{
+    /** @var array<string, int> */
+    public array $facilities = [];
+
+    protected function billingFacilityId(BillingClaim $claim): int
+    {
+        $pid = $claim->getPid();
+
+        return $this->facilities[is_string($pid) ? $pid : ''] ?? 0;
+    }
+
+    public function seed(string $partner, BillingClaimBatch $batch): void
+    {
+        $this->x12_partner_batches[$partner] = $batch;
+    }
+
+    public function batchFor(BillingClaim $claim): BillingClaimBatch
+    {
+        return $this->batchForFacility($claim, $this->billingFacilityId($claim));
     }
 }

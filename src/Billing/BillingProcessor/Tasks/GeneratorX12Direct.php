@@ -46,6 +46,41 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     protected $x12_partner_batches = [];
 
     /**
+     * Batches for a second billing facility on a partner that already
+     * has a batch. The key is partner id, a colon, and the facility id.
+     *
+     * @var array<string, BillingClaimBatch>
+     */
+    private array $extraBatches = [];
+
+    /**
+     * Facility that opened the partner's first batch.
+     *
+     * @var array<int|string, int>
+     */
+    private array $primaryFacility = [];
+
+    /**
+     * Partner id for an extra batch key.
+     *
+     * @var array<string, int|string>
+     */
+    private array $batchPartner = [];
+
+    /** @var list<mixed> */
+    private array $runClaims = [];
+
+    /** @var array<string, mixed> */
+    private array $runContext = [];
+
+    private bool $facilityLastMarked = false;
+
+    /** @var array<string, int> */
+    private array $facilityByClaim = [];
+
+    private int|string|null $activeCountKey = null;
+
+    /**
      * An array of x-12 partners, indexed by partner id
      *
      * @var array
@@ -95,6 +130,8 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function setup(array $context)
     {
+        $this->runContext = $context;
+        $this->runClaims = is_array($context['claims'] ?? null) ? $context['claims'] : [];
         // We have to prepare our batches here
         // Get all of our x-12 partners and make sure we have
         // directories to write to for them
@@ -285,14 +322,18 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
-        // Get the correct batch file using the X-12 partner ID
-        $batch = $this->x12_partner_batches[$claim->getPartner()];
+        $this->markLastClaimPerFacility();
+        $facilityId = $this->billingFacilityId($claim);
+        $batch = $this->batchForFacility($claim, $facilityId);
+        $countKey = $this->countKey($claim->getPartner(), $facilityId);
+        $this->activeCountKey = $countKey;
 
-        // Get the correct edi count for this x-12 partner using the partner ID
-        $edicount = $this->edi_counts[$claim->getPartner()];
+        // Get the correct edi count for this batch. The first facility keeps
+        // the partner id. Another facility has its own count.
+        $edicount = $this->edi_counts[$countKey] ?? 0;
 
-        // Get the correct patient segment count for this x-12 partner using the partner ID
-        $patSegmentCount = $this->pat_segment_counts[$claim->getPartner()];
+        // Get the correct patient segment count for this batch.
+        $patSegmentCount = $this->pat_segment_counts[$countKey] ?? 0;
         $edicountBefore = $edicount;
         $patSegmentCountBefore = $patSegmentCount;
 
@@ -310,7 +351,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $HLCount++;
         }
         $partner = $claim->getPartner();
-        $partnerKey = is_int($partner) || is_string($partner) ? $partner : '';
+        $partnerKey = $countKey;
         // The preceding claim's flag was worked out while that claim was being
         // processed, so its reads were audited against its own patient.
         if ($HLCount > 1 && !($this->prior_self_of_insured[$partnerKey] ?? true)) {
@@ -418,9 +459,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
 
         // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
-        $this->edi_counts[$claim->getPartner()] = $edicount;
+        $this->edi_counts[$countKey] = $edicount;
         // also for the patient segment counts
-        $this->pat_segment_counts[$claim->getPartner()] = $patSegmentCount;
+        $this->pat_segment_counts[$countKey] = $patSegmentCount;
         $this->appendToLog($log);
         if ($omit) {
             if ($denial->willDeny()) {
@@ -445,6 +486,128 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      * A recovered last claim skips rendering, so close a transaction that
      * earlier claims in this run already opened.
      */
+
+    /**
+     * Billing facility on the claim, or 0 when it cannot be read.
+     */
+    protected function billingFacilityId(BillingClaim $claim): int
+    {
+        $cacheKey = (string) $claim->getId();
+        if (array_key_exists($cacheKey, $this->facilityByClaim)) {
+            return $this->facilityByClaim[$cacheKey];
+        }
+        $built = new Claim(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPartner(),
+            $claim->getSelectedPayerId()
+        );
+        $facility = $built->billing_facility ?? null;
+        $raw = is_array($facility) ? ($facility['id'] ?? 0) : 0;
+        $id = 0;
+        if (is_int($raw)) {
+            $id = $raw;
+        } elseif (is_string($raw) && preg_match('/^[1-9][0-9]*$/', $raw) === 1) {
+            $id = (int) $raw;
+        }
+        $this->facilityByClaim[$cacheKey] = $id;
+
+        return $id;
+    }
+
+    /**
+     * The last claim of each partner and billing facility closes that transaction.
+     */
+    private function markLastClaimPerFacility(): void
+    {
+        if ($this->facilityLastMarked || $this->runClaims === []) {
+            return;
+        }
+        $this->facilityLastMarked = true;
+        $last = [];
+        $seen = [];
+        foreach ($this->runClaims as $claim) {
+            if (!$claim instanceof BillingClaim) {
+                continue;
+            }
+            $partner = $claim->getPartner();
+            if (!is_int($partner) && !is_string($partner)) {
+                continue;
+            }
+            $key = $partner . ':' . $this->billingFacilityId($claim);
+            $last[$key] = $claim;
+            $seen[$partner][] = $claim;
+        }
+        foreach ($seen as $claims) {
+            foreach ($claims as $claim) {
+                $claim->setIsLast(false);
+            }
+        }
+        foreach ($last as $claim) {
+            $claim->setIsLast(true);
+        }
+    }
+
+    /**
+     * A partner batch stays with the first facility. Another facility gets its own file.
+     */
+    protected function batchForFacility(BillingClaim $claim, int $facilityId): BillingClaimBatch
+    {
+        $partner = $claim->getPartner();
+        $primary = $this->x12_partner_batches[$partner];
+        if (!$primary instanceof BillingClaimBatch) {
+            throw new \RuntimeException('No batch for this X12 partner.');
+        }
+        if (!isset($this->primaryFacility[$partner])) {
+            $this->primaryFacility[$partner] = $facilityId;
+
+            return $primary;
+        }
+        if ($this->primaryFacility[$partner] === $facilityId) {
+            return $primary;
+        }
+        $key = $partner . ':' . $facilityId;
+        if (isset($this->extraBatches[$key])) {
+            return $this->extraBatches[$key];
+        }
+        $context = $this->runContext;
+        if (!isset($context['claims'][0])) {
+            $context = ['claims' => [(object) ['action' => 'validate']]];
+        }
+        $extra = new BillingClaimBatch('.txt', $context);
+        $filename = str_replace(
+            'batch',
+            'batch-p' . $partner . '-f' . $facilityId,
+            $extra->getBatFilename()
+        );
+        $extra->setBatFilename($filename);
+        $directory = $primary->getBatFiledir();
+        if ($directory !== '') {
+            $extra->setBatFiledir($directory);
+        }
+        $this->extraBatches[$key] = $extra;
+        $this->batchPartner[$key] = $partner;
+        $this->edi_counts[$key] = 0;
+        $this->pat_segment_counts[$key] = 0;
+
+        return $extra;
+    }
+
+    /**
+     * Count key for the batch this facility writes.
+     */
+    private function countKey(mixed $partner, int $facilityId): int|string
+    {
+        if (!is_int($partner) && !is_string($partner)) {
+            return 0;
+        }
+        if (!isset($this->primaryFacility[$partner]) || $this->primaryFacility[$partner] === $facilityId) {
+            return $partner;
+        }
+
+        return $partner . ':' . $facilityId;
+    }
+
     protected function closeRecoveredPartner(BillingClaim $claim, BillingClaimBatch $batch): void
     {
         if ($claim->getIsLast() !== true) {
@@ -475,7 +638,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if (is_int($edicount) && $isLastClaim) {
             $edicount = $this->appendSeForHeldLastClaim($batch, $edicount);
         }
-        $partnerKey = $claim->getPartner();
+        $partnerKey = $this->activeCountKey ?? $claim->getPartner();
         if (is_int($partnerKey) || is_string($partnerKey)) {
             $this->edi_counts[$partnerKey] = $edicount;
             $this->pat_segment_counts[$partnerKey] = $patSegmentCount;
@@ -638,12 +801,13 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                         $this->printToScreen(xl('The claim file was not written.') . ' ' . $filename);
                         continue;
                     }
-                    $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
+                    $partnerLookup = $this->batchPartner[$x12_partner_id] ?? $x12_partner_id;
+                    $x12_partner_name = text($this->x12_partners[$partnerLookup]['name'] ?? '');
                     // For the modal, build a list of downloads
                     $file = $filename;
                     $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
-                    '&partner=' . urlencode($x12_partner_id) .
+                    '&partner=' . urlencode((string) ($this->batchPartner[$x12_partner_id] ?? $x12_partner_id)) .
                     '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
                     $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
@@ -702,7 +866,11 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Loop through all of the X12 batch files we've created, one per x-12 partner,
         // and depending on the action we're running, either write the final claim
         // to disk, or format the content for printing to the screen.
-        foreach ($this->x12_partner_batches as $x12_partner_id => $x12_partner_batch) {
+        $batches = $this->x12_partner_batches;
+        foreach ($this->extraBatches as $batchKey => $extraBatch) {
+            $batches[$batchKey] = $extraBatch;
+        }
+        foreach ($batches as $x12_partner_id => $x12_partner_batch) {
             // If we didn't write any claims for this X12 partner
             // don't append the closing lines or write the claim file or do anything else
             if (empty($x12_partner_batch->getBatContent())) {
