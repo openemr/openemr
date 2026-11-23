@@ -619,6 +619,7 @@ $side-calendar-date-padding: 0.3rem !default;
     &-sequence {
       background: none;
       border: 0;
+      flex-shrink: 0;
       font: inherit;
       font-weight: bold;
       min-width: 1.75rem;
@@ -626,16 +627,22 @@ $side-calendar-date-padding: 0.3rem !default;
       text-align: start;
     }
 
-    &-patient {
+    // A narrow row gives up the status first, then the category, and the name last.
+    &-patient,
+    &-category,
+    &-status {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     &-category {
+      flex-shrink: 1000;
       font-style: italic;
     }
 
     &-status {
+      flex-shrink: 1000000;
       margin-#{$left}: auto;
     }
 
