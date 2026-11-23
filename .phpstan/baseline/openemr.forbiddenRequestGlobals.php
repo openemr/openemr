@@ -3422,16 +3422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/rule_setting.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/ajax/set_pt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ajax/set_pt.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/specialty_form_ajax.php',

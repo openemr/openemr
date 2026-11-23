@@ -66,7 +66,11 @@ function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
     self.infoParts = ko.observableArray([]);
     self.loadInfo = function () {
         top.restoreSession();
-        fetch(webroot_url + '/interface/main/tabs/patient_bar_info.php?' + new URLSearchParams({pid: self.pid()}), {credentials: 'same-origin'})
+        fetch(webroot_url + '/library/ajax/set_pt.php?' + new URLSearchParams({csrf_token_form: top.csrf_token_js}), {
+            method: 'POST',
+            credentials: 'same-origin',
+            body: new URLSearchParams({mode: 'patient_bar_info', pid: self.pid()})
+        })
             .then((response) => response.ok ? response.json() : {parts: []})
             .then((body) => self.infoParts(body.parts || []))
             .catch(() => self.infoParts([]));
