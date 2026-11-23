@@ -52,7 +52,8 @@ class PatientFinderQueryBuilderTest extends TestCase
         array $columnSearches = [],
         int $start = -1,
         int $length = -1,
-        PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All
+        PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All,
+        bool $showInactive = false
     ): PatientFinderRequest {
         return new PatientFinderRequest(
             1,
@@ -64,7 +65,8 @@ class PatientFinderQueryBuilderTest extends TestCase
             $columnKeys,
             $sort,
             $columnSearches,
-            $searchMode
+            $searchMode,
+            showInactive: $showInactive
         );
     }
 
@@ -82,18 +84,18 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            'SELECT patient_data.pid, lname, fname, mname, `DOB`, `sex` FROM patient_data WHERE 1 AND '
+            'SELECT patient_data.pid, lname, fname, mname, `DOB`, `sex` FROM patient_data WHERE patient_data.active = 1 AND ( 1 ) AND '
             . '( ( ( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) ) OR `DOB` LIKE ? ESCAPE \'|\' OR `sex` LIKE ? ESCAPE \'|\' ) )'
             . ' LIMIT ? OFFSET ?',
             $plan->dataSql
         );
         $this->assertSame(['smith%', 'smith%', 'smith%', 'smith%', 'smith%', 10, 0], $plan->dataBinds);
 
-        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE 1', $plan->totalCountSql);
+        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.active = 1 AND ( 1 )', $plan->totalCountSql);
         $this->assertSame([], $plan->totalCountBinds);
 
         $this->assertSame(
-            'SELECT COUNT(id) AS count FROM patient_data WHERE 1 AND '
+            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.active = 1 AND ( 1 ) AND '
             . '( ( ( ( lname LIKE ? ESCAPE \'|\' OR fname LIKE ? ESCAPE \'|\' OR mname LIKE ? ESCAPE \'|\' ) ) OR `DOB` LIKE ? ESCAPE \'|\' OR `sex` LIKE ? ESCAPE \'|\' ) )',
             $plan->filteredCountSql
         );
@@ -130,7 +132,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            'SELECT patient_data.pid, lname, fname, mname, `DOB` FROM patient_data WHERE 1 AND ( `DOB` LIKE ? ESCAPE \'|\' )',
+            'SELECT patient_data.pid, lname, fname, mname, `DOB` FROM patient_data WHERE patient_data.active = 1 AND ( 1 ) AND ( `DOB` LIKE ? ESCAPE \'|\' )',
             $plan->dataSql
         );
         $this->assertSame(['DATE(1990)'], $plan->dataBinds);
@@ -205,7 +207,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         $this->assertStringContainsString('FROM patient_data ' . $join . ' WHERE', $plan->dataSql);
         $this->assertStringContainsString('ihi.ihi_number AS `ihi_number`', $plan->dataSql);
         $this->assertSame(
-            'SELECT COUNT(DISTINCT patient_data.pid) AS count FROM patient_data ' . $join . ' WHERE 1 AND '
+            'SELECT COUNT(DISTINCT patient_data.pid) AS count FROM patient_data ' . $join . ' WHERE patient_data.active = 1 AND ( 1 ) AND '
             . '( ( (ihi.ihi_number) LIKE ? ESCAPE \'|\' ) )',
             $plan->filteredCountSql
         );
@@ -238,13 +240,13 @@ class PatientFinderQueryBuilderTest extends TestCase
         $plan = $this->builder()->build($columns, $this->request(globalSearch: 'male', start: 0, length: 25), $filter);
 
         $this->assertStringContainsString(
-            'WHERE patient_data.pid NOT IN (?, ?) AND ( ( `sex` LIKE ? ESCAPE \'|\' ) ) LIMIT ? OFFSET ?',
+            'WHERE patient_data.active = 1 AND ( patient_data.pid NOT IN (?, ?) ) AND ( ( `sex` LIKE ? ESCAPE \'|\' ) ) LIMIT ? OFFSET ?',
             $plan->dataSql
         );
         $this->assertSame([5, 6, 'male%', 25, 0], $plan->dataBinds);
 
         $this->assertSame(
-            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.pid NOT IN (?, ?)',
+            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.active = 1 AND ( patient_data.pid NOT IN (?, ?) )',
             $plan->totalCountSql
         );
         $this->assertSame([5, 6], $plan->totalCountBinds);
@@ -637,13 +639,13 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.pid IN (?, ?, ?) AND ( 1 )'
+            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.active = 1 AND patient_data.pid IN (?, ?, ?) AND ( 1 )'
             . ' ORDER BY FIELD(patient_data.pid, ?, ?, ?) LIMIT ? OFFSET ?',
             $plan->dataSql
         );
         $this->assertSame([7, 3, 9, 7, 3, 9, 10, 0], $plan->dataBinds);
         $this->assertSame(
-            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.pid IN (?, ?, ?) AND ( 1 )',
+            'SELECT COUNT(id) AS count FROM patient_data WHERE patient_data.active = 1 AND patient_data.pid IN (?, ?, ?) AND ( 1 )',
             $plan->totalCountSql
         );
         $this->assertSame([7, 3, 9], $plan->totalCountBinds);
@@ -664,7 +666,7 @@ class PatientFinderQueryBuilderTest extends TestCase
         );
 
         $this->assertSame(
-            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.pid IN (?, ?) AND '
+            'SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.active = 1 AND patient_data.pid IN (?, ?) AND '
             . '( patient_data.pid <> ? ) AND ( ( `sex` LIKE ? ESCAPE \'|\' ) ) ORDER BY `sex` DESC',
             $plan->dataSql
         );
@@ -676,7 +678,28 @@ class PatientFinderQueryBuilderTest extends TestCase
         $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
         $plan = $this->builder()->build($columns, $this->request(), new BoundFilter(), null, []);
 
-        $this->assertSame('SELECT patient_data.pid, `sex` FROM patient_data WHERE 1 = 0 AND ( 1 )', $plan->dataSql);
+        $this->assertSame('SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.active = 1 AND 1 = 0 AND ( 1 )', $plan->dataSql);
         $this->assertSame([], $plan->dataBinds);
+    }
+
+    public function testShowInactiveDropsTheActiveLimitAndSelectsTheFlag(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build($columns, $this->request(showInactive: true), new BoundFilter());
+
+        $this->assertSame(
+            'SELECT patient_data.pid, `sex`, patient_data.active AS ' . PatientFinderQueryBuilder::ACTIVE_ALIAS
+            . ' FROM patient_data WHERE 1',
+            $plan->dataSql
+        );
+        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE 1', $plan->totalCountSql);
+    }
+
+    public function testActivePatientsOnlyByDefaultWithoutTheFlag(): void
+    {
+        $columns = [PatientFinderColumn::fromTable('sex', 'Sex')];
+        $plan = $this->builder()->build($columns, $this->request(), new BoundFilter());
+
+        $this->assertSame('SELECT patient_data.pid, `sex` FROM patient_data WHERE patient_data.active = 1 AND ( 1 )', $plan->dataSql);
     }
 }

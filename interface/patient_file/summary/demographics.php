@@ -1084,13 +1084,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <?php
         if ($thisauth) :
             OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
-            require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
         endif;
 
-        $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
-        $menuPatient = new PatientMenuRole($twig);
-        $menuPatient->displayHorizNavBarMenu();
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'dashboard', $oemr_ui->screenReaderHeading());
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
         if (OEGlobalsBag::getInstance()->getString('patient_id_category_name')) {
@@ -2107,9 +2105,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 
         var isPost = <?php echo js_escape($showEligibility ?? false); ?>;
-        var listId = '#' + <?php echo js_escape($list_id); ?>;
         $(function () {
-            $(listId).addClass("active");
             if (isPost === true) {
                 $("#eligibility").click();
                 $("#eligibility").get(0).scrollIntoView();
