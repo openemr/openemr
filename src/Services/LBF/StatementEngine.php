@@ -118,6 +118,9 @@ class StatementEngine
                     $chosen[$index] = $rule;
                 }
             }
+            if (count($chosen) > 1) {
+                $chosen = $this->lowestMinimum($chosen);
+            }
         } else {
             $contained = [];
             foreach ($group as $index => $rule) {

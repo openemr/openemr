@@ -121,14 +121,16 @@ class StatementRepository
         // The advisory lock has to come before any rule-row lock. Two saves
         // that lock different rows first, then wait on each other, fail a
         // valid save.
-        $lockName = static::bandLockName($formId, $source);
-        $lockAcquired = false;
+        $lockNames = static::bandLockNames($formId, $source, $source2);
+        $acquired = [];
         try {
-            return $this->sql->inTransaction(function () use ($data, $id, $lockName, &$lockAcquired): int {
-                if (!$this->sql->acquireLock($lockName, 10)) {
-                    throw new BandLockException('Could not lock this field to save the rule.');
+            return $this->sql->inTransaction(function () use ($data, $id, $lockNames, &$acquired): int {
+                foreach ($lockNames as $lockName) {
+                    if (!$this->sql->acquireLock($lockName, 10)) {
+                        throw new BandLockException('Could not lock this field to save the rule.');
+                    }
+                    $acquired[] = $lockName;
                 }
-                $lockAcquired = true;
                 if ($id !== null && $id > 0) {
                     $this->requireRuleRow($id);
                 }
@@ -136,7 +138,9 @@ class StatementRepository
                 return $this->writeRule($data, $id);
             });
         } finally {
-            $this->releaseBandLock($lockName, $lockAcquired);
+            foreach (array_reverse($acquired) as $lockName) {
+                $this->releaseBandLock($lockName, true);
+            }
         }
     }
 
@@ -236,23 +240,27 @@ class StatementRepository
         if ($preview === null || Values::rowInt($preview, 'id') !== $id) {
             throw new RuleNotFoundException('Rule not found.');
         }
-        $lockName = static::bandLockName(
+        $lockNames = static::bandLockNames(
             Values::asString($preview['form_id'] ?? ''),
-            Values::asString($preview['source_field_id'] ?? '')
+            Values::asString($preview['source_field_id'] ?? ''),
+            Values::asString($preview['source_field_id_2'] ?? '')
         );
-        $lockAcquired = false;
+        $acquired = [];
         try {
-            $this->sql->inTransaction(function () use ($id, $lockName, &$lockAcquired): void {
-                if (!$this->sql->acquireLock($lockName, 10)) {
-                    throw new BandLockException('Could not lock this field to save the rule.');
+            $this->sql->inTransaction(function () use ($id, $lockNames, &$acquired): void {
+                foreach ($lockNames as $lockName) {
+                    if (!$this->sql->acquireLock($lockName, 10)) {
+                        throw new BandLockException('Could not lock this field to save the rule.');
+                    }
+                    $acquired[] = $lockName;
                 }
-                $lockAcquired = true;
                 $rule = $this->requireRuleRow($id);
-                $lockedName = static::bandLockName(
+                $lockedNames = static::bandLockNames(
                     Values::asString($rule['form_id'] ?? ''),
-                    Values::asString($rule['source_field_id'] ?? '')
+                    Values::asString($rule['source_field_id'] ?? ''),
+                    Values::asString($rule['source_field_id_2'] ?? '')
                 );
-                if ($lockedName !== $lockName) {
+                if ($lockedNames !== $lockNames) {
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
                 $rule['enabled'] = 1;
@@ -260,7 +268,9 @@ class StatementRepository
                 $this->writeEnabled($id, true);
             });
         } finally {
-            $this->releaseBandLock($lockName, $lockAcquired);
+            foreach (array_reverse($acquired) as $lockName) {
+                $this->releaseBandLock($lockName, true);
+            }
         }
     }
 
@@ -340,13 +350,33 @@ class StatementRepository
     }
 
     /**
-     * Advisory lock for every band that can read this field.
-     *
-     * The second field is only a fallback, so it does not get its own lock.
+     * Advisory lock for one field a band can read.
      */
     public static function bandLockName(string $formId, string $source): string
     {
         return 'lbfstmt_' . md5($formId . "\0" . $source);
+    }
+
+    /**
+     * Locks for the primary field and, when set, the fallback field.
+     *
+     * Names are sorted by field id so two saves take them in the same order.
+     *
+     * @return list<string>
+     */
+    public static function bandLockNames(string $formId, string $source, string $source2 = ''): array
+    {
+        $fields = [$source];
+        if ($source2 !== '' && $source2 !== $source) {
+            $fields[] = $source2;
+        }
+        sort($fields, SORT_STRING);
+        $names = [];
+        foreach ($fields as $field) {
+            $names[] = self::bandLockName($formId, $field);
+        }
+
+        return $names;
     }
 
     /**
@@ -386,7 +416,8 @@ class StatementRepository
         }
         $formId = Values::asString($data['form_id'] ?? '');
         $source = Values::asString($data['source_field_id'] ?? '');
-        foreach ($this->lockedEnabledBands($formId, $source) as $other) {
+        $source2 = Values::asString($data['source_field_id_2'] ?? '');
+        foreach ($this->lockedEnabledBands($formId, $source, $source2) as $other) {
             if ($id !== null && Values::rowInt($other, 'id') === $id) {
                 continue;
             }
@@ -402,22 +433,26 @@ class StatementRepository
     }
 
     /**
-     * Enabled bands that can read this field, locked for the rest of the
-     * transaction so a concurrent insert is visible after GET_LOCK.
-     *
-     * A second field does not split the set. It is a fallback for a blank
-     * primary, and both bands can fire on the same measurement.
+     * Enabled bands that can read one of these fields, locked for the
+     * rest of the transaction.
      *
      * @return list<array<string, mixed>>
      */
-    private function lockedEnabledBands(string $formId, string $source): array
+    private function lockedEnabledBands(string $formId, string $source, string $source2 = ''): array
     {
+        $match = "source_field_id = ? OR source_field_id_2 = ?";
+        $params = [$formId, $source, $source];
+        if ($source2 !== '' && $source2 !== $source) {
+            $match .= " OR source_field_id = ? OR source_field_id_2 = ?";
+            $params[] = $source2;
+            $params[] = $source2;
+        }
         $rows = $this->sql->fetchRecords(
             "SELECT id, form_id, source_field_id, source_field_id_2, op, min_value, max_value, " .
             "min_inclusive, max_inclusive, match_token, statement_text, seq, enabled " .
-            "FROM module_lbf_statement_rules WHERE form_id = ? AND source_field_id = ? " .
-            "AND enabled = 1 AND op = 'band' FOR UPDATE",
-            [$formId, $source]
+            "FROM module_lbf_statement_rules WHERE form_id = ? AND enabled = 1 AND op = 'band' " .
+            "AND (" . $match . ") FOR UPDATE",
+            $params
         );
         $out = [];
         foreach ($rows as $raw) {

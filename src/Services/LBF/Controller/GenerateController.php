@@ -436,6 +436,10 @@ class GenerateController
             'formUrl' => $formUrl,
             'patientSetUrl' => $patientSetUrl,
             'csrfTokenValue' => $csrfTokenValue,
+            'canSave' => self::maySaveParagraph(
+                AclMain::aclCheckCore('encounters', 'notes', '', 'write'),
+                $this->layoutWriteAllowed($catalog, $formId)
+            ),
             'canAdmin' => AclMain::aclCheckCore('admin', 'super'),
             'activeTab' => 'generate',
             'postUrl' => $this->bootstrap->pageUrl('generate'),

@@ -152,6 +152,33 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A single measured value keeps one sentence when two bands read it.
+         */
+        public function testAPointOnTwoBandsKeepsOneSentence(): void
+        {
+            $wide = [
+                'form_id' => 'LBFdemo',
+                'source_field_id' => 'num',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'Wide.',
+                'enabled' => 1,
+            ];
+            $fallback = $wide;
+            $fallback['source_field_id'] = 'other';
+            $fallback['source_field_id_2'] = 'num';
+            $fallback['min_value'] = 5;
+            $fallback['statement_text'] = 'Also.';
+            $this->assertSame(
+                'Wide.',
+                $this->paragraph('LBFdemo', ['num' => '5', 'other' => ''], [$wide, $fallback])
+            );
+        }
+
+        /**
          * A band that only touches the endpoint loses to one that covers
          * the rest of the range.
          */
@@ -416,6 +443,14 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertSame('old. In range.', $app['sum']);
             $again = $this->applier->apply(['sum' => $app['sum']], $actions, 'append', 'sum');
             $this->assertSame('old. In range.', $again['sum']);
+            $units = $this->applier->apply(
+                ['sum' => 'Weight 70 kg. Height 170 cm.'],
+                [],
+                'append',
+                'sum',
+                'Height 170 cm.'
+            );
+            $this->assertSame('Weight 70 kg. Height 170 cm.', $units['sum']);
             $repeated = $this->applier->apply(['sum' => ''], [], 'append', 'sum', 'Normal. Normal.');
             $this->assertSame('Normal.', $repeated['sum']);
             $abbrev = $this->applier->apply(

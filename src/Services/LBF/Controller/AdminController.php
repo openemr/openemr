@@ -162,7 +162,7 @@ class AdminController
         // Empty or retired posted form_id is display-only. Do not pick another
         // layout until POST mutations have run, or paragraph/save writes the
         // first active LBF.
-        if ($formId === '') {
+        if ($formId === '' && $edit === null) {
             foreach ($repo->formIdsWithRules() as $withRulesId) {
                 if (in_array($withRulesId, $activeIds, true)) {
                     $formId = $withRulesId;

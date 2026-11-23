@@ -932,6 +932,39 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A band whose fallback is another band's primary still overlaps.
+         */
+        public function testAFallbackOntoAnotherPrimaryStillOverlaps(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [[
+                'id' => 1,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'num',
+                'source_field_id_2' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'match_token' => '',
+                'enabled' => 1,
+            ]];
+            $this->expectException(BandOverlapException::class);
+            $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'enabled' => 1,
+                'statement_text' => 'Same numbers.',
+            ]);
+        }
+
+        /**
          * A bound that rounds onto an existing edge is an overlap.
          */
         public function testStoredPrecisionRejectsABoundThatRoundsOntoAnEdge(): void

@@ -186,6 +186,7 @@
                 <p class="text-muted">{{ "No rules matched these measurements."|xlt }}</p>
             {% endif %}
 
+            {% if canSave %}
             <form method="post" action="{{ postUrl|attr }}" class="mb-3">
                 {{ csrfToken('default', 'csrf_token_form') }}
                 <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
@@ -203,6 +204,16 @@
                 <button type="submit" class="btn btn-outline-secondary" name="after" value="form">{{ "Open encounter"|xlt }}</button>
                 <button type="submit" class="btn btn-outline-secondary" id="lbf-stmt-print" name="after" value="print">{{ "Print"|xlt }}</button>
             </form>
+            {% else %}
+            <div class="border p-3 bg-light mb-3" id="paragraph_text">{{ paragraphEditor|text }}</div>
+            <p class="text-muted">{{ "Saving this paragraph needs permission to write encounter notes."|xlt }}</p>
+            {% if formUrl %}
+                <a class="btn btn-outline-secondary" href="{{ formUrl|attr }}">{{ "Open encounter"|xlt }}</a>
+            {% endif %}
+            {% if printUrl %}
+                <a class="btn btn-outline-secondary" href="{{ printUrl|attr }}">{{ "Print"|xlt }}</a>
+            {% endif %}
+            {% endif %}
         {% endif %}
     </div>
     <script src="{{ assetBase|attr }}generate.js?v=0.1.3"></script>

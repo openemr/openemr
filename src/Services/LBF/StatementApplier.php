@@ -121,8 +121,8 @@ class StatementApplier
     }
 
     /**
-     * A period after an abbreviation stays inside the sentence. A single
-     * letter is an initial, so "A. B." still splits.
+     * A period after an abbreviation stays inside the sentence. A unit
+     * such as kg or cm ends the sentence. A single letter is an initial.
      */
     private function periodIsAbbreviation(string $text, int $periodIndex): bool
     {
@@ -137,16 +137,10 @@ class StatementApplier
 
         return isset([
             'approx' => true,
-            'cm' => true,
             'dr' => true,
             'eq' => true,
             'etc' => true,
             'fig' => true,
-            'kg' => true,
-            'mcg' => true,
-            'mg' => true,
-            'ml' => true,
-            'mm' => true,
             'mr' => true,
             'mrs' => true,
             'ms' => true,

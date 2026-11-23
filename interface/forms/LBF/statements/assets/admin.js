@@ -343,11 +343,7 @@
                 showOverlap(overlapMsg.ratio);
                 return;
             }
-            const why = draftOverlaps();
-            if (why) {
-                e.preventDefault();
-                showOverlap(why);
-            }
+            draftOverlaps();
         });
     }
 
