@@ -861,7 +861,17 @@ class X125010837P
 
         // Segment REF*4N (Service Authorization Exception Code) omitted.
         // Segment REF*F5 (Mandatory Medicare Crossover Indicator) omitted.
-        // Segment REF*EW (Mammography Certification Number) omitted.
+
+        if ($claim->mammographyCertNumber() !== '') {
+            // The service facility's FDA certification number; Medicare requires it on a mammogram.
+            ++$edicount;
+            $out .= "REF" .     // Mammography Certification Number
+                "*" . "EW" .
+                "*" . $claim->mammographyCertNumber() .
+                "~
+";
+        }
+
         // Segment REF*9F (Referral Number) omitted.
 
         if ($claim->priorAuth()) {
