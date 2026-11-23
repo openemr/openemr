@@ -16,6 +16,8 @@ use Particle\Validator\Validator;
  */
 class FacilityValidator extends BaseValidator
 {
+    public const FORM_SAVE_CONTEXT = "form-save";
+
     /**
      * Configures validations for the Facility DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
@@ -24,6 +26,7 @@ class FacilityValidator extends BaseValidator
     protected function configureValidator(): void
     {
         parent::configureValidator();
+        array_push($this->supportedContexts, self::FORM_SAVE_CONTEXT);
 
         // insert validations
         $this->validator->context(
@@ -73,6 +76,55 @@ class FacilityValidator extends BaseValidator
                 );
                 // additional euuid validation
                 $context->required("uuid", "Facility UUID")->callback(fn($value) => $this->validateId("uuid", "facility", $value, true))->uuid();
+            }
+        );
+
+        // form-save validations (facilities.php POST save path). Built explicitly;
+        // not derived from DATABASE_INSERT_CONTEXT, which requires facility_npi,
+        // applies numeric() to domain_identifier, and enforces min lengths we
+        // do not want for the interactive form.
+        $this->validator->context(
+            self::FORM_SAVE_CONTEXT,
+            function (Validator $context): void {
+                $context->required('name')->lengthBetween(1, 255);
+                $context->optional('phone')->lengthBetween(1, 30);
+                $context->optional('fax')->lengthBetween(1, 30);
+                $context->optional('street')->lengthBetween(1, 255);
+                $context->optional('city')->lengthBetween(1, 255);
+                $context->optional('state')->lengthBetween(1, 50);
+                $context->optional('postal_code')->lengthBetween(1, 11);
+                $context->optional('country_code')->lengthBetween(1, 30);
+                $context->optional('federal_ein')->lengthBetween(1, 15);
+                $context->optional('website')->lengthBetween(1, 255);
+                $context->optional('email')->lengthBetween(1, 255);
+                $context->optional('color')->lengthBetween(1, 7);
+                $context->optional('service_location')->numeric()->between(0, 1);
+                $context->optional('billing_location')->numeric()->between(0, 1);
+                $context->optional('accepts_assignment')->numeric()->between(0, 1);
+                $context->optional('pos_code')->numeric();
+                $context->optional('domain_identifier')->regex('/^[A-Za-z0-9]{1,60}$/');
+                $context->optional('attn')->lengthBetween(1, 65);
+                $context->optional('tax_id_type')->inArray(['EI', 'SY']);
+                $context->optional('primary_business_entity')->numeric()->between(0, 1);
+                $context->optional('facility_npi')->numeric()->lengthBetween(10, 15);
+                $context->optional('facility_taxonomy')->lengthBetween(1, 15);
+                $context->optional('facility_code')->lengthBetween(1, 31);
+                $context->optional('mail_street')->lengthBetween(1, 30);
+                $context->optional('mail_street2')->lengthBetween(1, 30);
+                $context->optional('mail_city')->lengthBetween(1, 50);
+                $context->optional('mail_state')->lengthBetween(1, 3);
+                $context->optional('mail_zip')->lengthBetween(1, 10);
+                $context->optional('oid')->lengthBetween(1, 255);
+                $context->optional('iban')->lengthBetween(1, 50);
+                // info has no length constraint; kept optional with no rule.
+                $context->optional('info');
+                $context->optional('inactive')->numeric()->between(0, 1);
+                $context->optional('organization_type')->lengthBetween(1, 50);
+                // mammography_cert_number is not yet a column in facilities.php's
+                // $columns map (interface/usergroup/facilities.php L62-96) nor in
+                // sql/database.sql's CREATE TABLE facility. This rule is intentionally
+                // inert until PR #15439 adds the column; do not wire it anywhere else.
+                $context->optional('mammography_cert_number')->lengthBetween(1, 30);
             }
         );
     }

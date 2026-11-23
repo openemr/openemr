@@ -44,9 +44,9 @@ $alertmsg = '';
  * The dialog closes only when the status is saved. A postal sentence is
  * included when one applies.
  */
-$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
+$echoFacilitySaveDialogResult = function (bool $saved, string $sentence, array $errors = []): void {
     header('Content-Type: application/json; charset=utf-8');
-    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
+    echo FacilityService::facilitySaveDialogBody($saved, $sentence, $errors);
 };
 
 /**
@@ -95,6 +95,14 @@ $columns = [
     "organization_type" => true
 ];
 
+// Reverse of $columns: DB column name => form input name.
+// Non-identity mappings: facility<-name, ncolor<-color, facility_id<-facility_code;
+// all other keys map to themselves.
+$inputNameByColumn = [];
+foreach ($columns as $column => $inputName) {
+    $inputNameByColumn[$column] = ($inputName === true) ? $column : $inputName;
+}
+
 $values = [];
 // Populate the $values array with a associative array of column names => $_POST value
 foreach ($columns as $c => $v) {
@@ -105,6 +113,16 @@ foreach ($columns as $c => $v) {
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
+    $result = $facilityService->validateFormValues($values);
+    if (!$result->isValid()) {
+        $errors = [];
+        foreach ($result->getValidationMessages() as $field => $messages) {
+            $inputName = $inputNameByColumn[$field] ?? $field;
+            $errors[$inputName] = $messages;
+        }
+        $echoFacilitySaveDialogResult(false, xl('Please correct the highlighted fields.'), $errors);
+        exit();
+    }
     $facilityService->insertFacility($values);
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
@@ -122,6 +140,16 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     $values["id"] = trim($_POST['fid'] ?? '');
     // The facility row and the linked user names commit together.
     // A missing id is not saved. The postal sentence is sent only after that commit.
+    $result = $facilityService->validateFormValues($values);
+    if (!$result->isValid()) {
+        $errors = [];
+        foreach ($result->getValidationMessages() as $field => $messages) {
+            $inputName = $inputNameByColumn[$field] ?? $field;
+            $errors[$inputName] = $messages;
+        }
+        $echoFacilitySaveDialogResult(false, xl('Please correct the highlighted fields.'), $errors);
+        exit();
+    }
     $saved = $facilityService->updateFacilityAndUsers($values);
     $sentence = $saved ? $facilityPostalSentence(
         $values['postal_code'] ?? '',

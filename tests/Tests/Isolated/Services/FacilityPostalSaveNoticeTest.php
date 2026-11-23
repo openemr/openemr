@@ -19,6 +19,7 @@ if (!defined('OPENEMR_STATIC_ANALYSIS')) {
 }
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Validators\FacilityValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -111,5 +112,121 @@ class FacilityPostalSaveNoticeTest extends TestCase
 
         $this->assertSame('saved', $saved['status']);
         $this->assertSame('', $saved['message']);
+    }
+
+    /**
+     * The dialog body carries an errors object keyed by field when validation fails.
+     */
+    public function testSaveDialogBodyIncludesErrorsWhenProvided(): void
+    {
+        $body = FacilityService::facilitySaveDialogBody(
+            false,
+            'Not saved',
+            ['name' => ['name is required'], 'phone' => ['phone is too long']]
+        );
+        $this->assertIsString($body);
+        $decoded = json_decode($body, true);
+        $this->assertIsArray($decoded);
+        $this->assertSame('not_saved', $decoded['status']);
+        $this->assertSame('Not saved', $decoded['message']);
+        $this->assertSame(
+            ['name' => ['name is required'], 'phone' => ['phone is too long']],
+            $decoded['errors']
+        );
+    }
+
+    /**
+     * Without errors the dialog body stays byte-identical to {status, message}.
+     */
+    public function testSaveDialogBodyOmitsErrorsWhenEmpty(): void
+    {
+        $body = FacilityService::facilitySaveDialogBody(true, 'Notice');
+        $decoded = json_decode($body, true);
+        $this->assertIsArray($decoded);
+        $this->assertSame(['status' => 'saved', 'message' => 'Notice'], $decoded);
+        $this->assertArrayNotHasKey('errors', $decoded);
+
+        $body = FacilityService::facilitySaveDialogBody(true, 'Notice', []);
+        $decoded = json_decode($body, true);
+        $this->assertSame(['status' => 'saved', 'message' => 'Notice'], $decoded);
+        $this->assertArrayNotHasKey('errors', $decoded);
+    }
+
+    /**
+     * Build a FacilityService without its DB-dependent constructor so the
+     * isolated suite can exercise validateFormValues() with no database.
+     */
+    private function newFacilityService(): FacilityService
+    {
+        $service = (new \ReflectionClass(FacilityService::class))->newInstanceWithoutConstructor();
+        $property = new \ReflectionProperty(FacilityService::class, 'facilityValidator');
+        $property->setAccessible(true);
+        $property->setValue($service, new FacilityValidator());
+        return $service;
+    }
+
+    public function testValidateFormValuesValidSetPasses(): void
+    {
+        $values = [
+            'name' => 'General Hospital',
+            'service_location' => '',
+            'billing_location' => '',
+            'accepts_assignment' => '',
+            'primary_business_entity' => '',
+            'inactive' => '',
+            'pos_code' => '',
+            'domain_identifier' => '05D1234567',
+            'facility_npi' => '',
+        ];
+        $result = $this->newFacilityService()->validateFormValues($values);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEmpty($result->getValidationMessages());
+
+        // checkboxes normalized in place to '0'
+        $this->assertSame('0', $values['service_location']);
+        $this->assertSame('0', $values['billing_location']);
+        $this->assertSame('0', $values['accepts_assignment']);
+        $this->assertSame('0', $values['primary_business_entity']);
+        $this->assertSame('0', $values['inactive']);
+        // pos_code normalized to null
+        $this->assertNull($values['pos_code']);
+    }
+
+    public function testValidateFormValuesEmptyNameFails(): void
+    {
+        $values = ['name' => ''];
+        $result = $this->newFacilityService()->validateFormValues($values);
+
+        $this->assertFalse($result->isValid());
+        $this->assertArrayHasKey('name', $result->getValidationMessages());
+    }
+
+    public function testValidateFormValuesNameTooLongFails(): void
+    {
+        $values = ['name' => str_repeat('A', 256)];
+        $result = $this->newFacilityService()->validateFormValues($values);
+
+        $this->assertFalse($result->isValid());
+    }
+
+    public function testValidateFormValuesPosCodePassesAndNormalizes(): void
+    {
+        $values = ['name' => 'General Hospital', 'pos_code' => '11'];
+        $result = $this->newFacilityService()->validateFormValues($values);
+        $this->assertTrue($result->isValid());
+        $this->assertSame('11', $values['pos_code']);
+
+        $values2 = ['name' => 'General Hospital', 'pos_code' => ''];
+        $result2 = $this->newFacilityService()->validateFormValues($values2);
+        $this->assertTrue($result2->isValid());
+        $this->assertNull($values2['pos_code']);
+    }
+
+    public function testValidateFormValuesDomainIdentifierPasses(): void
+    {
+        $values = ['name' => 'General Hospital', 'domain_identifier' => '05D1234567'];
+        $result = $this->newFacilityService()->validateFormValues($values);
+        $this->assertTrue($result->isValid());
     }
 }
