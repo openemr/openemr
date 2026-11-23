@@ -60,5 +60,17 @@ function patient_data_view_model(pname,pid,pubpid,str_dob,hasPicture)
        // No valid encounter ID found, so clear selected encounter;
        self.selectedEncounter(null);
     });
+
+    // The parts of the line under the name (ID, sex, DOB, age), built on the server so every
+    // page that sets the patient shows the same ones. The theme draws the bullets.
+    self.infoParts = ko.observableArray([]);
+    self.loadInfo = function () {
+        top.restoreSession();
+        fetch(webroot_url + '/interface/main/tabs/patient_bar_info.php?' + new URLSearchParams({pid: self.pid()}), {credentials: 'same-origin'})
+            .then((response) => response.ok ? response.json() : {parts: []})
+            .then((body) => self.infoParts(body.parts || []))
+            .catch(() => self.infoParts([]));
+    };
+    self.loadInfo();
     return this;
 }

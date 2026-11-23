@@ -47,11 +47,14 @@ enum PatientNameDisplay: string
         };
     }
 
+    /**
+     * Classes for the name; in the text styles the theme makes it bold.
+     */
     public function nameClass(): string
     {
         return match ($this) {
             self::Button => 'btn btn-sm btn-secondary',
-            self::Text, self::LargeText => '',
+            self::Text, self::LargeText => 'patient-name-link',
         };
     }
 
@@ -74,17 +77,6 @@ enum PatientNameDisplay: string
         return match ($this) {
             self::LargeText => 'text-muted fa-xs',
             self::Button, self::Text => 'text-muted',
-        };
-    }
-
-    /**
-     * The element around the external patient ID.
-     */
-    public function pubpidElement(): string
-    {
-        return match ($this) {
-            self::LargeText => 'small',
-            self::Button, self::Text => 'span',
         };
     }
 

@@ -60,8 +60,8 @@ switch ($search_any_type) {
                 <div data-bind="with: patient" class="patientPicture">
                     <img data-bind="attr: {src: patient_picture}"
                         class="img-thumbnail"
-                        width="75"
-                        height="75"
+                        width="55"
+                        height="55"
                         onError="this.src = '<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative(); ?>/patient-picture-default.png'" />
                 </div>
                 <!-- /ko -->
@@ -72,9 +72,7 @@ switch ($search_any_type) {
                     'display' => PatientNameDisplay::fromSetting(OEGlobalsBag::getInstance()->getString('patient_name_display')),
                 ]); ?>
 
-                <div class="mt-2">
-                    <span data-bind="text:patient().str_dob()"></span>
-                </div>
+                <div class="patient-bar-info" data-bind="foreach: patient().infoParts()"><span data-bind="text: $data"></span></div>
                 <!-- /ko -->
             </div>
         </div>
