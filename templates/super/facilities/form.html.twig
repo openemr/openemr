@@ -115,6 +115,8 @@ function submitform() {
                         msg = messages[0];
                     } else if (typeof messages === 'string') {
                         msg = messages;
+                    } else if (typeof messages === 'object' && messages !== null) {
+                        msg = Object.values(messages)[0] ?? '';
                     }
                     if (msg) {
                         $(input).after($('<div class="invalid-feedback"></div>').text(msg));
@@ -124,6 +126,11 @@ function submitform() {
                     }
                 });
                 if (firstInvalid) {
+                    const $pane = $(firstInvalid).closest('.tab-pane');
+                    if ($pane.length && !$pane.hasClass('show active')) {
+                        const tabId = $pane.attr('id');
+                        $(`button.nav-link[data-toggle="tab"][data-target="#${tabId}"]`).tab('show');
+                    }
                     firstInvalid.focus();
                 }
             }

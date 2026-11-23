@@ -32,7 +32,7 @@ class FacilityValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
-                $context->required('name')->lengthBetween(2, 255);
+                $context->required('name')->callback(fn($value): bool => mb_strlen((string) $value) >= 1 && mb_strlen((string) $value) <= 255);
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
                 $context->optional('domain_identifier')->numeric();
                 $context->optional('phone')->lengthBetween(3, 30);
@@ -49,7 +49,7 @@ class FacilityValidator extends BaseValidator
                 $context->optional('service_location')->numeric();
                 $context->optional('billing_location')->numeric();
                 $context->optional('accepts_assignment')->numeric();
-                $context->optional('pos_code')->numeric();
+                $context->optional('pos_code')->integer()->between(-128, 127);
                 $context->optional('domain_identifier')->lengthBetween(2, 60);
                 $context->optional('attn')->lengthBetween(2, 65);
                 $context->optional('tax_id_type')->lengthBetween(2, 31);
@@ -86,7 +86,7 @@ class FacilityValidator extends BaseValidator
         $this->validator->context(
             self::FORM_SAVE_CONTEXT,
             function (Validator $context): void {
-                $context->required('name')->lengthBetween(1, 255);
+                $context->optional('name')->callback(fn($value): bool => mb_strlen((string) $value) >= 1 && mb_strlen((string) $value) <= 255);
                 $context->optional('phone')->lengthBetween(1, 30);
                 $context->optional('fax')->lengthBetween(1, 30);
                 $context->optional('street')->lengthBetween(1, 255);
@@ -101,7 +101,7 @@ class FacilityValidator extends BaseValidator
                 $context->optional('service_location')->numeric()->between(0, 1);
                 $context->optional('billing_location')->numeric()->between(0, 1);
                 $context->optional('accepts_assignment')->numeric()->between(0, 1);
-                $context->optional('pos_code')->numeric();
+                $context->optional('pos_code')->integer()->between(-128, 127);
                 $context->optional('domain_identifier')->regex('/^[A-Za-z0-9]{1,60}$/');
                 $context->optional('attn')->lengthBetween(1, 65);
                 $context->optional('tax_id_type')->inArray(['EI', 'SY']);
@@ -120,10 +120,10 @@ class FacilityValidator extends BaseValidator
                 $context->optional('info');
                 $context->optional('inactive')->numeric()->between(0, 1);
                 $context->optional('organization_type')->lengthBetween(1, 50);
-                // mammography_cert_number is not yet a column in facilities.php's
-                // $columns map (interface/usergroup/facilities.php L62-96) nor in
-                // sql/database.sql's CREATE TABLE facility. This rule is intentionally
-                // inert until PR #15439 adds the column; do not wire it anywhere else.
+                // DEFERRED pending PR #15439: mammography_cert_number is not yet a column in
+                // sql/database.sql's CREATE TABLE facility nor in the $columns map of
+                // interface/usergroup/facilities.php, so this rule validates nothing that is
+                // persisted. Wire it into the save path once PR #15439 adds the column.
                 $context->optional('mammography_cert_number')->lengthBetween(1, 30);
             }
         );

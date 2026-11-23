@@ -424,6 +424,37 @@ class FacilityValidatorTest extends TestCase
         $resultAbc = $this->validator->validate(array_merge($base, ['pos_code' => 'abc']), FacilityValidator::FORM_SAVE_CONTEXT);
         $this->assertFalse($resultAbc->isValid(), 'Non-numeric pos_code abc should fail');
     }
+
+    public function testFormSaveNameMultibyteBoundaries(): void
+    {
+        $base = ['name' => 'General Hospital'];
+
+        $result255 = $this->validator->validate(array_merge($base, ['name' => str_repeat('é', 255)]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertTrue($result255->isValid(), 'Name of 255 multibyte characters should pass');
+
+        $result256 = $this->validator->validate(array_merge($base, ['name' => str_repeat('é', 256)]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertFalse($result256->isValid(), 'Name of 256 multibyte characters should fail');
+    }
+
+    public function testFormSavePosCodeTinyintBoundaries(): void
+    {
+        $base = ['name' => 'General Hospital'];
+
+        $result127 = $this->validator->validate(array_merge($base, ['pos_code' => 127]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertTrue($result127->isValid(), 'pos_code 127 (max signed tinyint) should pass');
+
+        $resultNeg128 = $this->validator->validate(array_merge($base, ['pos_code' => -128]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertTrue($resultNeg128->isValid(), 'pos_code -128 (min signed tinyint) should pass');
+
+        $result128 = $this->validator->validate(array_merge($base, ['pos_code' => 128]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertFalse($result128->isValid(), 'pos_code 128 (over max signed tinyint) should fail');
+
+        $resultNeg129 = $this->validator->validate(array_merge($base, ['pos_code' => -129]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertFalse($resultNeg129->isValid(), 'pos_code -129 (under min signed tinyint) should fail');
+
+        $resultFloat = $this->validator->validate(array_merge($base, ['pos_code' => 1.5]), FacilityValidator::FORM_SAVE_CONTEXT);
+        $this->assertFalse($resultFloat->isValid(), 'pos_code 1.5 (non-integer) should fail');
+    }
     public function testFormSaveMammographyLengthBoundaries(): void
     {
         $base = ['name' => 'General Hospital'];
