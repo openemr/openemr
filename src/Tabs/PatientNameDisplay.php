@@ -89,9 +89,10 @@ enum PatientNameDisplay: string
     }
 
     /**
-     * The element around the close link; '' for none.
+     * The element around the links after the name (open elsewhere, close), which the theme
+     * raises like a superscript; '' for none, as buttons stay in their button group.
      */
-    public function closeElement(): string
+    public function actionsElement(): string
     {
         return match ($this) {
             self::Button => '',

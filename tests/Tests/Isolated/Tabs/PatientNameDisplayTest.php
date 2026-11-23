@@ -51,7 +51,7 @@ class PatientNameDisplayTest extends TestCase
         $this->assertSame('btn btn-sm btn-secondary', $display->linkClass());
         $this->assertSame('text-muted', $display->iconClass());
         $this->assertSame('span', $display->pubpidElement());
-        $this->assertSame('', $display->closeElement());
+        $this->assertSame('', $display->actionsElement());
         $this->assertTrue($display->isButton());
     }
 
@@ -64,7 +64,7 @@ class PatientNameDisplayTest extends TestCase
         $this->assertSame('text-muted', $display->linkClass());
         $this->assertSame('text-muted', $display->iconClass());
         $this->assertSame('span', $display->pubpidElement());
-        $this->assertSame('span', $display->closeElement());
+        $this->assertSame('span', $display->actionsElement());
         $this->assertFalse($display->isButton());
     }
 
@@ -77,7 +77,7 @@ class PatientNameDisplayTest extends TestCase
         $this->assertSame('text-muted', $display->linkClass());
         $this->assertSame('text-muted fa-xs', $display->iconClass());
         $this->assertSame('small', $display->pubpidElement());
-        $this->assertSame('small', $display->closeElement());
+        $this->assertSame('small', $display->actionsElement());
         $this->assertFalse($display->isButton());
     }
 }

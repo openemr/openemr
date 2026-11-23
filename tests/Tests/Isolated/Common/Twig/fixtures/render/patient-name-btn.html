@@ -3,17 +3,17 @@
         <span data-bind="text: pname()"></span>
         <span class="text-muted">(<span data-bind="text: pubpid"></span>)</span>
     </a>
-    <div class="btn-group btn-group-sm">
+        <div class="btn-group btn-group-sm">
         <a href="#" class="pt-1 btn btn-sm btn-secondary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
            title="Open Patient in a New Window or Tab" aria-label="Open Patient in a New Window or Tab">
-            <i class="fa fa-arrow-up-right-from-square text-muted" aria-hidden="true"></i>
+            <i class="fa fa-arrow-up-right-from-square patient-name-open-icon text-muted" aria-hidden="true"></i>
         </a>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-bind="click: openPatientInNewWindow">Open in New Window</a>
             <a class="dropdown-item" href="#" data-bind="click: openPatientInNewTab">Open in New Tab</a>
         </div>
     </div>
-        <a href="#" class="pt-1 btn btn-sm btn-secondary" data-bind="click:closePatientChart" title="Close Patient Chart">
+    <a href="#" class="pt-1 btn btn-sm btn-secondary" data-bind="click:closePatientChart" title="Close Patient Chart">
         <i class="fa fa-times text-muted"></i>
     </a>
     </div>

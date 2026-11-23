@@ -17,19 +17,19 @@
         <span data-bind="text: pname()"></span>
         <{{ display.pubpidElement() }} class="text-muted">(<span data-bind="text: pubpid"></span>)</{{ display.pubpidElement() }}>
     </a>
+    {% if display.actionsElement() != '' %}<{{ display.actionsElement() }} class="patient-name-actions">{% endif %}
     <div class="{{ display.isButton() ? 'btn-group btn-group-sm' : 'dropdown d-inline-block' }}">
         <a href="#" class="pt-1 {{ display.linkClass()|attr }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
            title="{{ 'Open Patient in a New Window or Tab'|xla }}" aria-label="{{ 'Open Patient in a New Window or Tab'|xla }}">
-            <i class="fa fa-arrow-up-right-from-square {{ display.iconClass()|attr }}" aria-hidden="true"></i>
+            <i class="fa fa-arrow-up-right-from-square patient-name-open-icon {{ display.iconClass()|attr }}" aria-hidden="true"></i>
         </a>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="#" data-bind="click: openPatientInNewWindow">{{ 'Open in New Window'|xlt }}</a>
             <a class="dropdown-item" href="#" data-bind="click: openPatientInNewTab">{{ 'Open in New Tab'|xlt }}</a>
         </div>
     </div>
-    {% if display.closeElement() != '' %}<{{ display.closeElement() }}>{% endif %}
     <a href="#" class="pt-1 {{ display.linkClass()|attr }}" data-bind="click:closePatientChart" title="{{ 'Close Patient Chart'|xla }}">
         <i class="fa fa-times {{ display.iconClass()|attr }}"></i>
     </a>
-    {% if display.closeElement() != '' %}</{{ display.closeElement() }}>{% endif %}
+    {% if display.actionsElement() != '' %}</{{ display.actionsElement() }}>{% endif %}
 </{{ display.wrapperElement() }}>

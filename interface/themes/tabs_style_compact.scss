@@ -166,6 +166,18 @@ body {
   display: inline;
 }
 
+// The open-elsewhere and close links after the patient's name, raised like a superscript
+// with a small gap after the external ID.
+.patient-name-actions {
+  margin-inline-start: 0.25rem;
+  vertical-align: super;
+}
+
+// Its square fills the whole icon box, so it looks bigger than the close X at the same size.
+.patient-name-open-icon {
+  transform: scale(0.85);
+}
+
 .patientDataColumn {
   display: block;
   float: $left;
