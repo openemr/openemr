@@ -266,6 +266,59 @@ $response = oeHttp::get('https://api.example.com/data', [
 $data = json_decode($response->getBody()->getContents(), true);
 ```
 
+### ForbiddenDirectOutputRule
+
+**Purpose:** Prevents PHP from writing to the output stream itself. PHP files hold classes; rendering for the browser goes through a Symfony `Response` or a Twig template.
+
+**What it catches** (everywhere except `tests/`):
+- Inline HTML outside a PHP block, one error per non-blank line
+- `echo`, including `<?= ?>`
+- `print`
+- `printf()`, `vprintf()`, `readfile()`, `fpassthru()`
+
+The rule reads the whole file, so output after an `exit` or `return`, which PHPStan otherwise skips as unreachable, still counts.
+
+**What it doesn't catch (yet):**
+- HTML built in a string and returned to a caller that already echoes it
+- Swaps within one file: removing one `echo` and adding another keeps the file's count, so the baseline still matches
+- Other ways to write output, such as `exit('message')`, `print_r()`, `var_dump()`, and writes to `php://output`
+
+**Baseline:** existing occurrences are in `.phpstan/baseline/openemr.forbiddenDirectOutput.php`, counted per file and per construct. A count can go down, never up: moving markup into Twig lowers it, and `reportUnmatchedIgnoredErrors` then requires the lower count to be committed.
+
+**Before (❌ Forbidden):**
+```php
+<?php
+$rows = $service->getRows();
+?>
+<table>
+<?php foreach ($rows as $row) { ?>
+    <tr><td><?php echo text($row['name']); ?></td></tr>
+<?php } ?>
+</table>
+```
+
+**After (✅ Recommended):**
+```php
+use OpenEMR\Common\Twig\TwigContainer;
+use Symfony\Component\HttpFoundation\Response;
+
+$twig = (new TwigContainer(null, $kernel))->getTwig();
+
+return new Response($twig->render('example/rows.html.twig', [
+    'rows' => $service->getRows(),
+]));
+```
+
+```twig
+<table>
+{% for row in rows %}
+    <tr><td>{{ row.name|text }}</td></tr>
+{% endfor %}
+</table>
+```
+
+Serve files with `BinaryFileResponse` or `StreamedResponse` instead of `readfile()` or `fpassthru()`. Console commands write to the Symfony Console `OutputInterface`.
+
 ## Baseline
 
 Existing violations are recorded in `.phpstan/baseline/` as individual PHP files, organized by error type. The `loader.php` file includes all baseline files. New code should follow the patterns documented above.
