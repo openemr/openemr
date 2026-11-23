@@ -34,7 +34,9 @@ final class ForbiddenDirectOutputRuleTest extends RuleTestCase
     private const TIP = 'Return a Symfony\Component\HttpFoundation\Response from a controller, or render markup through a Twig template (OpenEMR\Common\Twig\TwigContainer). Console commands write to the Symfony Console OutputInterface.';
 
     /** @var list<string> */
-    private array $exemptPathFragments = [];
+    private array $exemptPathPrefixes = [];
+
+    private ?string $projectRoot = null;
 
     /**
      * The fixture lives under tests/, which the shipped exemption list
@@ -42,7 +44,7 @@ final class ForbiddenDirectOutputRuleTest extends RuleTestCase
      */
     protected function getRule(): Rule
     {
-        return new ForbiddenDirectOutputRule($this->exemptPathFragments);
+        return new ForbiddenDirectOutputRule($this->exemptPathPrefixes, $this->projectRoot);
     }
 
     public function testFlagsEveryDirectOutputConstruct(): void
@@ -74,15 +76,26 @@ final class ForbiddenDirectOutputRuleTest extends RuleTestCase
 
     public function testExemptPathIsIgnored(): void
     {
-        $this->exemptPathFragments = ['/PHPStan/data/'];
+        $this->exemptPathPrefixes = ['tests/Tests/Isolated/PHPStan/data/'];
 
         $this->analyse([self::FIXTURE], []);
     }
 
     public function testShippedExemptionsCoverTests(): void
     {
-        $this->exemptPathFragments = ForbiddenDirectOutputRule::DEFAULT_EXEMPT_PATH_FRAGMENTS;
+        $this->exemptPathPrefixes = ForbiddenDirectOutputRule::DEFAULT_EXEMPT_PATH_PREFIXES;
 
         $this->analyse([self::FIXTURE], []);
+    }
+
+    public function testTestsDirectoryBelowTheRootIsNotExempt(): void
+    {
+        // Treat the checkout's parent as the root, so the fixture's tests/ is nested.
+        $this->exemptPathPrefixes = ForbiddenDirectOutputRule::DEFAULT_EXEMPT_PATH_PREFIXES;
+        $this->projectRoot = dirname(__DIR__, 5);
+
+        $this->analyse([__DIR__ . '/data/direct_output_shebang.php'], [
+            [self::HTML, 17, self::TIP],
+        ]);
     }
 }

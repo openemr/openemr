@@ -270,7 +270,7 @@ $data = json_decode($response->getBody()->getContents(), true);
 
 **Purpose:** Prevents PHP from writing to the output stream itself. PHP files hold classes; rendering for the browser goes through a Symfony `Response` or a Twig template.
 
-**What it catches** (everywhere except `tests/`):
+**What it catches** (everywhere except the top-level `tests/` directory):
 - Inline HTML outside a PHP block, one error per non-blank line
 - `echo`, including `<?= ?>`
 - `print`

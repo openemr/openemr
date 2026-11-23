@@ -40,8 +40,9 @@ use PHPStan\Rules\RuleErrorBuilder;
  */
 class ForbiddenDirectOutputRule implements Rule
 {
-    public const DEFAULT_EXEMPT_PATH_FRAGMENTS = [
-        '/tests/',
+    /** Path prefixes relative to the project root; only the top-level tests/ is exempt. */
+    public const DEFAULT_EXEMPT_PATH_PREFIXES = [
+        'tests/',
     ];
 
     private const IDENTIFIER = 'openemr.forbiddenDirectOutput';
@@ -55,12 +56,17 @@ class ForbiddenDirectOutputRule implements Rule
         'vprintf' => 'Build the string with vsprintf() and return it in a Response or pass it to a template.',
     ];
 
+    private readonly string $projectRoot;
+
     /**
-     * @param list<string> $exemptPathFragments
+     * @param list<string> $exemptPathPrefixes
+     * @param ?string $projectRoot defaults to the checkout this rule lives in
      */
     public function __construct(
-        private readonly array $exemptPathFragments = self::DEFAULT_EXEMPT_PATH_FRAGMENTS,
+        private readonly array $exemptPathPrefixes = self::DEFAULT_EXEMPT_PATH_PREFIXES,
+        ?string $projectRoot = null,
     ) {
+        $this->projectRoot = rtrim(str_replace('\\', '/', $projectRoot ?? dirname(__DIR__, 3)), '/') . '/';
     }
 
     public function getNodeType(): string
@@ -75,9 +81,12 @@ class ForbiddenDirectOutputRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $file = str_replace('\\', '/', $scope->getFile());
-        foreach ($this->exemptPathFragments as $fragment) {
-            if (str_contains($file, $fragment)) {
-                return [];
+        if (str_starts_with($file, $this->projectRoot)) {
+            $relativePath = substr($file, strlen($this->projectRoot));
+            foreach ($this->exemptPathPrefixes as $prefix) {
+                if (str_starts_with($relativePath, $prefix)) {
+                    return [];
+                }
             }
         }
 
