@@ -43,7 +43,7 @@
   ],
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "autoprefixer": "10.6.2",
+    "autoprefixer": "10.7.0",
     "css-loader": "6.11.0",
     "css-minimizer-webpack-plugin": "8.0.0",
     "eslint": "9.39.5",
