@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\ESign\SignatureWriteLock;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\LBF\Bootstrap;
@@ -303,15 +304,23 @@ class GenerateController
                                 $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
                                 $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
                             });
-                            $values = $reader->readValues($instanceId);
-                            $paragraphCurrent = $values[$paragraphField] ?? '';
-                            $instances = $this->visibleInstances(
-                                $reader->instancesForPatient($formId, $pid),
-                                $notesAny,
-                                $notesOwn,
-                                $authUser
-                            );
                             $message = xl('Saved.');
+                            try {
+                                $values = $reader->readValues($instanceId);
+                                $paragraphCurrent = $values[$paragraphField] ?? '';
+                                $instances = $this->visibleInstances(
+                                    $reader->instancesForPatient($formId, $pid),
+                                    $notesAny,
+                                    $notesOwn,
+                                    $authUser
+                                );
+                            } catch (\Throwable $refreshFailure) {
+                                (new SystemLogger())->error('Saved paragraph could not be reloaded', [
+                                    'exception' => $refreshFailure,
+                                ]);
+                                $paragraphCurrent = $newValues[$paragraphField] ?? $edited;
+                                $message = xl('Saved. Reload the page to see the form.');
+                            }
                             $after = $this->stringParam($request, 'after');
                             if ($after === 'print' || $after === 'form') {
                                 $this->redirectAfterSave($formId, $pid, $instanceId, $after);
