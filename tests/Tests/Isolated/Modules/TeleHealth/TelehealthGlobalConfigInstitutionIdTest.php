@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Modules\TeleHealth;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Composer\Autoload\ClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -24,11 +23,14 @@ use Twig\Environment;
  * The custom_modules/oe-module-comlink-telehealth module is not in the root
  * composer.json autoload map; the module manager registers its PSR-4 prefix
  * when the module is enabled in the database. The isolated suite has no
- * database, so the prefix is registered here before a module class is named.
+ * database, so the test registers its own autoloader for the module's classes
+ * before one is named.
  */
 final class TelehealthGlobalConfigInstitutionIdTest extends TestCase
 {
     private const SETTING = 'unique_installation_id';
+
+    private const MODULE_PREFIX = 'Comlink\\OpenEMR\\Modules\\TeleHealthModule\\';
 
     private string $loadedBefore = '';
 
@@ -37,15 +39,21 @@ final class TelehealthGlobalConfigInstitutionIdTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
-        $loaders = ClassLoader::getRegisteredLoaders();
-        $loader = reset($loaders);
-        if (!$loader instanceof ClassLoader) {
-            self::fail('Composer ClassLoader not available to register module autoload prefix.');
+        $moduleSrc = dirname(__DIR__, 5) . '/interface/modules/custom_modules/oe-module-comlink-telehealth/src/';
+        if (!is_dir($moduleSrc)) {
+            self::fail('Telehealth module source not found at ' . $moduleSrc);
         }
-        $loader->addPsr4(
-            'Comlink\\OpenEMR\\Modules\\TeleHealthModule\\',
-            dirname(__DIR__, 5) . '/interface/modules/custom_modules/oe-module-comlink-telehealth/src/'
-        );
+        // Its own autoloader, not a prefix added to Composer's: in a run of the
+        // whole suite a prefix added to the first registered loader is not found.
+        spl_autoload_register(static function (string $class) use ($moduleSrc): void {
+            if (!str_starts_with($class, self::MODULE_PREFIX)) {
+                return;
+            }
+            $file = $moduleSrc . str_replace('\\', '/', substr($class, strlen(self::MODULE_PREFIX))) . '.php';
+            if (is_file($file)) {
+                require_once $file;
+            }
+        });
     }
 
     protected function setUp(): void
