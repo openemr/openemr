@@ -14,7 +14,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PHPStan\data;
 
-function render(string $name, string $path): string
+/**
+ * @param resource $handle
+ */
+function render(string $name, string $path, $handle): string
 {
     echo $name;
     echo $name, $path;
@@ -23,10 +26,7 @@ function render(string $name, string $path): string
     printf('%s', $name);
     \vprintf('%s', [$name]);
     readfile($path);
-    $handle = fopen($path, 'rb');
-    if ($handle !== false) {
-        fpassthru($handle);
-    }
+    fpassthru($handle);
     $callback = static function () use ($name): void {
         echo $name;
     };
@@ -44,7 +44,7 @@ function render(string $name, string $path): string
 
 ?>
 <div>
-    <?= render('a', 'b') ?>
+    <?= render('a', 'b', STDIN) ?>
 
 </div>
 <?php

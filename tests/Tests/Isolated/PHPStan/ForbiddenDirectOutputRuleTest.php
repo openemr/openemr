@@ -50,14 +50,14 @@ final class ForbiddenDirectOutputRuleTest extends RuleTestCase
     public function testFlagsEveryDirectOutputConstruct(): void
     {
         $this->analyse([self::FIXTURE], [
-            [self::ECHO, 19, self::TIP],
-            [self::ECHO, 20, self::TIP],
-            [self::PRINT, 21, self::TIP],
-            [self::PRINT, 22, self::TIP],
-            ['printf() writes output directly and is forbidden. Build the string with sprintf() and return it in a Response or pass it to a template.', 23, self::TIP],
-            ['vprintf() writes output directly and is forbidden. Build the string with vsprintf() and return it in a Response or pass it to a template.', 24, self::TIP],
-            ['readfile() writes output directly and is forbidden. Send files with a Symfony BinaryFileResponse.', 25, self::TIP],
-            ['fpassthru() writes output directly and is forbidden. Stream file contents with a Symfony StreamedResponse or BinaryFileResponse.', 28, self::TIP],
+            [self::ECHO, 22, self::TIP],
+            [self::ECHO, 23, self::TIP],
+            [self::PRINT, 24, self::TIP],
+            [self::PRINT, 25, self::TIP],
+            ['printf() writes output directly and is forbidden. Build the string with sprintf() and return it in a Response or pass it to a template.', 26, self::TIP],
+            ['vprintf() writes output directly and is forbidden. Build the string with vsprintf() and return it in a Response or pass it to a template.', 27, self::TIP],
+            ['readfile() writes output directly and is forbidden. Send files with a Symfony BinaryFileResponse.', 28, self::TIP],
+            ['fpassthru() writes output directly and is forbidden. Stream file contents with a Symfony StreamedResponse or BinaryFileResponse.', 29, self::TIP],
             [self::ECHO, 31, self::TIP],
             [self::HTML, 46, self::TIP],
             [self::ECHO, 47, self::TIP],
