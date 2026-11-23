@@ -243,13 +243,13 @@ class PatientService extends BaseService
      * Do a database update using the pid from the input
      * array
      *
-     * Return the data that was updated into the database,
-     * or false if there was an error with the update
+     * Return the data that was updated into the database. A failed save
+     * throws instead.
      *
-     * @param array $data
-     * @return mixed
+     * @param array<mixed> $data
+     * @return array<mixed>
      */
-    public function databaseUpdate($data)
+    public function databaseUpdate(array $data): array
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
@@ -269,6 +269,9 @@ class PatientService extends BaseService
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
+        if (!is_array($data)) {
+            throw new \UnexpectedValueException('A BeforePatientUpdatedEvent listener replaced the patient data with a non-array');
+        }
 
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE $table SET ";
@@ -286,7 +289,7 @@ class PatientService extends BaseService
         QueryUtils::inTransaction(function () use ($sql, $binds, $data): void {
             QueryUtils::sqlStatementThrowException($sql, $binds);
             // If portal access is enabled, ensure the portal login username exists
-            if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
+            if (($data['allow_patient_portal'] ?? '') === 'YES') {
                 $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
                 $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
                 if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
@@ -332,10 +335,7 @@ class PatientService extends BaseService
         // Always the pid the uuid resolved to; a pid in the request body is ignored.
         $data['pid'] = $pid;
 
-        if ($this->databaseUpdate($data) === false) {
-            $processingResult->addInternalError("error processing SQL Update");
-            return $processingResult;
-        }
+        $this->databaseUpdate($data);
 
         return $this->getOne($puuidString);
     }

@@ -168,6 +168,9 @@ class PatientServiceTest extends TestCase
     {
         [, $uuid] = $this->insertFixturePatient();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        // The session is shared across tests: restore whatever was there before.
+        $hadAuthUserId = $session->has('authUserID');
+        $priorAuthUserId = $session->get('authUserID');
         $session->set('authUserID', 1);
 
         try {
@@ -175,7 +178,11 @@ class PatientServiceTest extends TestCase
             $result = $this->patientService->update($uuid, $this->patientFixture);
             $this->assertTrue($result->isValid());
         } finally {
-            $session->remove('authUserID');
+            if ($hadAuthUserId) {
+                $session->set('authUserID', $priorAuthUserId);
+            } else {
+                $session->remove('authUserID');
+            }
         }
 
         $updatedBy = QueryUtils::fetchSingleValue(
