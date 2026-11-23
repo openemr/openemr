@@ -320,4 +320,81 @@ final class VisitListDayColumnTest extends TestCase
         $this->assertIsArray($decorated[0]['visitList']);
         $this->assertSame(1, $decorated[0]['visitList']['count']);
     }
+
+    public function testOverlapOrderPutsTheBlocksThatShowAListLast(): void
+    {
+        $timed = self::patientEvent(42, 'Ruiz, Ana');
+        $column = self::column([self::blockEvent(), self::patientEvent(41, 'Hollis, Margaret'), $timed], self::schedule([[41, 1, null]]));
+
+        $this->assertSame(['40', '42'], self::eids($column->gridEvents), 'the grid keeps its order');
+        $this->assertSame(['42', '40'], self::eids($column->overlapOrder()));
+    }
+
+    public function testAppointmentsBesideABlockAreDrawnToItsLeft(): void
+    {
+        $builder = new CalendarRenderDataBuilder(new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0));
+        $timed = static fn (int $eid, string $start): array => [
+            'eid' => $eid, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0,
+            'startTime' => $start, 'duration' => 1800, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Ruiz, Ana', 'pid' => 500 + $eid,
+        ];
+        $events = [
+            // As in the day's event list: the 9:00 appointment before the block that starts with it.
+            self::DATE => [
+                $timed(42, '09:00:00'),
+                ['eid' => 40, 'aid' => self::PROVIDER, 'catid' => 16, 'catname' => 'Visit List', 'pccattype' => 1, 'startTime' => '09:00:00', 'duration' => 7200, 'hometext' => '', 'apptstatus' => '-'],
+                ['eid' => 41, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0, 'startTime' => '09:00:00', 'duration' => 0, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Hollis, Margaret', 'pid' => 541],
+                $timed(43, '09:30:00'),
+                $timed(44, '10:00:00'),
+            ],
+        ];
+
+        $slots = [];
+        for ($minutes = 8 * 60; $minutes < 12 * 60; $minutes += 30) {
+            $slots[] = ['hour' => intdiv($minutes, 60), 'minute' => $minutes % 60, 'mer' => 'am'];
+        }
+
+        $result = $builder->buildDayScreenRenderData(
+            $events,
+            [['id' => self::PROVIDER, 'fname' => 'Alex', 'lname' => 'Rivera', 'username' => 'arivera']],
+            [],
+            [['id' => 3, 'name' => 'Main']],
+            $slots,
+            30,
+            self::DATE_YMD,
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            0,
+            0,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            true,
+            '',
+            true,
+            self::schedule([[41, 1, null]]),
+            self::STATUSES
+        );
+
+        $providers = $result['providers'];
+        $this->assertIsArray($providers);
+        $this->assertIsArray($providers[0]);
+        $decorated = $providers[0]['events'];
+        $this->assertIsArray($decorated);
+        $places = [];
+        foreach ($decorated as $event) {
+            $this->assertIsArray($event);
+            $this->assertIsInt($event['eid']);
+            $places[$event['eid']] = [$event['divLeftCss'], $event['divWidthCss']];
+        }
+        ksort($places);
+        $this->assertSame([
+            40 => ['left: 50%', 'width: 50%'],
+            42 => ['left: 0%', 'width: 50%'],
+            43 => ['left: 0%', 'width: 50%'],
+            44 => ['left: 0%', 'width: 50%'],
+        ], $places);
+    }
 }

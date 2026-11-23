@@ -168,6 +168,29 @@ final readonly class VisitListDayColumn
     }
 
     /**
+     * The grid events in the order the overlap layout should see them: each block that shows a
+     * list goes last. The layout places the events of each time slot side by side in this
+     * order and keeps each event at its narrowest width and rightmost place, so a block that
+     * starts before the appointments beside it would otherwise end up in the same place as
+     * them, drawn over by them. Last, it stays on the right and the appointments on the left.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function overlapOrder(): array
+    {
+        $others = [];
+        $blocks = [];
+        foreach ($this->gridEvents as $event) {
+            if (isset($this->lists[self::eventId($event) ?? 0])) {
+                $blocks[] = $event;
+            } else {
+                $others[] = $event;
+            }
+        }
+        return [...$others, ...$blocks];
+    }
+
+    /**
      * Appointment statuses by option_id from apptstat list rows. A row's notes hold its color
      * before a "|" (for example "FEFDCF|0"); a color that is not a plain CSS color is dropped.
      *
