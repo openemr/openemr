@@ -215,13 +215,17 @@ class ImmunizationFhirApiTest extends TestCase
             ['CVX']
         );
         $this->assertIsArray($cvxType);
+        $rawCvxTypeId = $cvxType['ct_id'] ?? null;
+        $this->assertIsNumeric($rawCvxTypeId);
         $otherType = QueryUtils::querySingleRow(
             'SELECT ct_id FROM code_types WHERE ct_key = ?',
             ['CPT4']
         );
         $this->assertIsArray($otherType);
-        $cvxTypeId = (int) $cvxType['ct_id'];
-        $otherTypeId = (int) $otherType['ct_id'];
+        $rawOtherTypeId = $otherType['ct_id'] ?? null;
+        $this->assertIsNumeric($rawOtherTypeId);
+        $cvxTypeId = (int) $rawCvxTypeId;
+        $otherTypeId = (int) $rawOtherTypeId;
         $this->assertNotSame($cvxTypeId, $otherTypeId);
 
         // Give this test its own CVX code and a same-code row in another system.
