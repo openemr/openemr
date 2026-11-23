@@ -24,8 +24,10 @@ require_once('../globals.php');
 
 use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\LoginFacility;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
@@ -389,6 +391,19 @@ if (isset($_POST['new_login_session_management'])) {
     //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
     //  which polls every 60s with the token captured at render time).
     CsrfUtils::setupCsrfKey($session);
+    // Only a new login picks the facility. Other posts here (a patient opened in a new
+    // window) keep the facility the session already has.
+    if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
+        $authUserId = $session->get('authUserID');
+        $session->set('facilityId', (new LoginFacility(new FacilityService()))->chosen(
+            CurrentRequest::get()->request->getString('facility'),
+            is_numeric($authUserId) ? (int) $authUserId : 0,
+        ));
+        if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
+            // set cookie with facility for the calendar screens
+            setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
+        }
+    }
 } else {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->migrate(false);
@@ -398,21 +413,6 @@ if (isset($_POST['new_login_session_management'])) {
 SessionTracker::setupSessionDatabaseTracker();
 
 $session->set("encounter", '');
-
-if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
-    $facility_id = $_POST['facility'];
-    if ($facility_id === 'user_default') {
-        //get the default facility of login user from users table
-        $facilityService = new FacilityService();
-        $facility = $facilityService->getFacilityForUser($session->get('authUserID'));
-        $facility_id = $facility['id'];
-    }
-    $session->set('facilityId', $facility_id);
-    if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
-        // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
-    }
-}
 
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;

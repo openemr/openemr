@@ -1443,7 +1443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object instead\\.$#',
-    'count' => 22,
+    'count' => 21,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
