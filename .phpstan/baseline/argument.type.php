@@ -21842,11 +21842,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$siteDir of static method OpenEMR\\\\BC\\\\DatabaseConnectionOptions\\:\\:forSite\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function errorLogEscape expects string, int given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
