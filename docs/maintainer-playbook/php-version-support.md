@@ -23,7 +23,15 @@ Check it when deciding whether a drop is due; don't rely on memory.
 
 ## When to add a new PHP version
 
-Two touch-points per PHP release:
+The two touch-points below cover the `docker-library/php`-based sidecars used
+by the dev stack and CI matrices. A **third** path — the Alpine-packaged PHP
+used by `docker/flex` and `docker/release` — advances separately whenever a
+new Alpine version ships with that PHP minor packaged. See
+[alpine-version-support.md](alpine-version-support.md) ("Alpine ↔ PHP
+calibration" and the 3-stage adoption sequence) — that work lands alongside
+an Alpine bump, not as a standalone PHP-add.
+
+Two sidecar-track touch-points per PHP release:
 
 1. **Upstream RC images published** — the `php:X.Y-rc-fpm` tag goes live
    (sometime between upstream's RC1 and GA). Two moves happen together at
