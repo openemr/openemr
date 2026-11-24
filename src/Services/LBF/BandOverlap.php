@@ -49,6 +49,25 @@ final class BandOverlap
     /**
      * @param array<string, mixed> $rule
      */
+    /**
+     * A band or a ratio_gt whose minimum sits above its maximum.
+     * ratio_lt uses the minimum on the source values, not on the ratio.
+     *
+     * @param array<string, mixed> $rule
+     */
+    public static function intervalIsInverted(array $rule): bool
+    {
+        $op = Values::asString($rule['op'] ?? 'band');
+        if ($op !== 'band' && $op !== 'ratio_gt') {
+            return false;
+        }
+
+        return self::invertedBounds($rule);
+    }
+
+    /**
+     * @param array<string, mixed> $rule
+     */
     public static function invertedBounds(array $rule): bool
     {
         $min = Values::asFloatOrNull($rule['min_value'] ?? null);

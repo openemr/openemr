@@ -97,5 +97,23 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
                 'max_inclusive' => 1,
             ]));
         }
+
+        /**
+         * ratio_gt refuses a minimum above the maximum. ratio_lt does not
+         * compare those two inputs to each other.
+         */
+        public function testRatioGtRejectsAnInvertedInterval(): void
+        {
+            $this->assertTrue(BandOverlap::intervalIsInverted([
+                'op' => 'ratio_gt',
+                'min_value' => '2',
+                'max_value' => '1',
+            ]));
+            $this->assertFalse(BandOverlap::intervalIsInverted([
+                'op' => 'ratio_lt',
+                'min_value' => '2',
+                'max_value' => '1',
+            ]));
+        }
     }
 }

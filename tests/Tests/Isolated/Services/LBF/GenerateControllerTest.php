@@ -184,5 +184,30 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $this->assertFalse(LayoutCatalog::storesInLayout('H'));
         }
 
+
+        /**
+         * A changed measurement does not match the posted hash.
+         */
+        public function testMeasurementBaselineChangesWithTheValue(): void
+        {
+            $first = GenerateController::measurementBaseline(['ef' => '55']);
+            $this->assertTrue(GenerateController::measurementsAreCurrent($first, ['ef' => '55']));
+            $this->assertFalse(GenerateController::measurementsAreCurrent($first, ['ef' => '40']));
+        }
+
+        /**
+         * A busy lock keeps the submitted draft. A stale save shows the stored paragraph.
+         */
+        public function testTextareaKeepsARetryableDraft(): void
+        {
+            $this->assertSame(
+                'Typed.',
+                GenerateController::textareaAfterSave('Stored.', 'Proposed.', 'Typed.', false, true)
+            );
+            $this->assertSame(
+                'Stored. Proposed.',
+                GenerateController::textareaAfterSave('Stored.', 'Proposed.', 'Typed.', false, false)
+            );
+        }
     }
 }

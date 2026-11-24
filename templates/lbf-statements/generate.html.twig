@@ -186,7 +186,7 @@
                 <p class="text-muted">{{ "No rules matched these measurements."|xlt }}</p>
             {% endif %}
 
-            {% if canSave %}
+            {% if canSave and paragraphField %}
             <form method="post" action="{{ postUrl|attr }}" class="mb-3">
                 {{ csrfToken('default', 'csrf_token_form') }}
                 <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
@@ -195,6 +195,13 @@
                 <input type="hidden" name="generate" value="1" />
                 <input type="hidden" name="paragraph_field" value="{{ paragraphField|attr }}" />
                 <input type="hidden" name="paragraph_baseline" value="{{ paragraphBaseline|attr }}" />
+                <input type="hidden" name="measurement_baseline" value="{{ measurementBaseline|attr }}" />
+                {% if keptDraft %}
+                    <div class="alert alert-warning" role="status">
+                        <p class="mb-1">{{ "The text you submitted was not saved."|xlt }}</p>
+                        <pre class="mb-0">{{ keptDraft|text }}</pre>
+                    </div>
+                {% endif %}
                 <div class="form-group">
                     <label for="paragraph_text">{% if paragraphTitle %}{{ paragraphTitle|text }}{% else %}{{ "Paragraph"|xlt }}{% endif %}</label>
                     <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{{ paragraphEditor|text }}</textarea>
@@ -204,7 +211,7 @@
                 <button type="submit" class="btn btn-outline-secondary" name="after" value="form">{{ "Open encounter"|xlt }}</button>
                 <button type="submit" class="btn btn-outline-secondary" id="lbf-stmt-print" name="after" value="print">{{ "Print"|xlt }}</button>
             </form>
-            {% else %}
+            {% elseif not canSave %}
             <div class="border p-3 bg-light mb-3" id="paragraph_text">{{ paragraphEditor|text }}</div>
             <p class="text-muted">{{ "Saving this paragraph needs permission to write encounter notes."|xlt }}</p>
             {% if formUrl %}

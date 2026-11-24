@@ -95,18 +95,28 @@ class StatementApplier
             if ($ch !== '.' && $ch !== '!' && $ch !== '?') {
                 continue;
             }
-            $next = $i + 1 < $length ? mb_substr($text, $i + 1, 1, 'UTF-8') : '';
-            if ($next !== '' && preg_match('/\s/u', $next) !== 1) {
-                continue;
-            }
             if ($ch === '.' && $this->periodIsAbbreviation($text, $i)) {
                 continue;
             }
-            $part = trim(mb_substr($text, $start, $i - $start + 1, 'UTF-8'));
+            $end = $i;
+            $cursor = $i + 1;
+            while ($cursor < $length) {
+                $look = mb_substr($text, $cursor, 1, 'UTF-8');
+                if (!in_array($look, ['"', "'", "\u{201C}", "\u{201D}", "\u{2018}", "\u{2019}"], true)) {
+                    break;
+                }
+                $end = $cursor;
+                $cursor++;
+            }
+            $next = $cursor < $length ? mb_substr($text, $cursor, 1, 'UTF-8') : '';
+            if ($next !== '' && preg_match('/\s/u', $next) !== 1) {
+                continue;
+            }
+            $part = trim(mb_substr($text, $start, $end - $start + 1, 'UTF-8'));
             if ($part !== '') {
                 $out[] = $part;
             }
-            $start = $i + 1;
+            $start = $cursor;
             while ($start < $length && preg_match('/\s/u', mb_substr($text, $start, 1, 'UTF-8')) === 1) {
                 $start++;
             }

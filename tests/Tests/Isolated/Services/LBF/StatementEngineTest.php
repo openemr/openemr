@@ -472,6 +472,82 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A closing quote still ends the sentence, and the quote stays in the text.
+         */
+        public function testQuotedSentenceIsNotAppendedTwice(): void
+        {
+            $once = $this->applier->apply(
+                ['sum' => '"Stable."'],
+                [],
+                'append',
+                'sum',
+                'New finding.'
+            );
+            $this->assertSame('"Stable." New finding.', $once['sum']);
+            $twice = $this->applier->apply(['sum' => $once['sum']], [], 'append', 'sum', 'New finding.');
+            $this->assertSame('"Stable." New finding.', $twice['sum']);
+        }
+
+        /**
+         * An infinite ratio does not match an open ratio_gt.
+         */
+        public function testInfiniteRatioDoesNotMatch(): void
+        {
+            $rules = [[
+                'form_id' => 'LBFstmt_demo',
+                'source_field_id' => 'a',
+                'source_field_id_2' => 'b',
+                'op' => 'ratio_gt',
+                'statement_text' => 'High.',
+                'enabled' => 1,
+            ]];
+            $this->assertSame('', $this->paragraph('LBFstmt_demo', ['a' => '1e309', 'b' => '1e309'], $rules));
+        }
+
+        /**
+         * A list id that only contains the token does not fire. Narrative text still does.
+         */
+        public function testListIdDoesNotMatchAContainedWord(): void
+        {
+            $rules = [[
+                'form_id' => 'LBFstmt_demo',
+                'source_field_id' => 'sev',
+                'source_list_id' => 'severity',
+                'op' => 'parse_severity',
+                'match_token' => 'mild',
+                'statement_text' => 'Mild.',
+                'enabled' => 1,
+            ]];
+            $this->assertSame('', $this->paragraph('LBFstmt_demo', ['sev' => 'not-mild'], $rules));
+            $this->assertSame('Mild.', $this->paragraph('LBFstmt_demo', ['sev' => 'mild'], $rules));
+            unset($rules[0]['source_list_id']);
+            $this->assertSame('Mild.', $this->paragraph('LBFstmt_demo', ['sev' => 'mild chest pain'], $rules));
+        }
+
+        /**
+         * An explicit field placeholder stays on that field when a fallback supplies the measurement.
+         */
+        public function testExplicitPlaceholderIgnoresTheFallback(): void
+        {
+            $rules = [[
+                'form_id' => 'LBFstmt_demo',
+                'source_field_id' => 'x',
+                'source_field_id_2' => 'y',
+                'op' => 'band',
+                'min_value' => 0,
+                'max_value' => 10,
+                'min_inclusive' => 1,
+                'max_inclusive' => 1,
+                'statement_text' => 'Primary [{x}] measurement {source}.',
+                'enabled' => 1,
+            ]];
+            $this->assertSame(
+                'Primary [] measurement 5.',
+                $this->paragraph('LBFstmt_demo', ['x' => '', 'y' => '5'], $rules)
+            );
+        }
+
+        /**
          * @param array<string, string> $values
          * @param list<array<string, mixed>> $rules
          */

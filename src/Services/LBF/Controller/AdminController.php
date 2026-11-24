@@ -21,11 +21,13 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\LBF\BandLockException;
 use OpenEMR\Services\LBF\BandOverlapException;
 use OpenEMR\Services\LBF\Bootstrap;
+use OpenEMR\Services\LBF\RequestFields;
 use OpenEMR\Services\LBF\InvertedBoundsException;
 use OpenEMR\Services\LBF\LayoutCatalog;
 use OpenEMR\Services\LBF\RuleNotFoundException;
 use OpenEMR\Services\LBF\StatementRepository;
 use OpenEMR\Services\LBF\Values;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
 class AdminController
@@ -39,9 +41,25 @@ class AdminController
     }
 
     /**
-     * Render the rules editor and handle save, enable, and paragraph-field posts.
+     * Render the rules editor. A field that is not text is a 400.
      */
     public function run(Request $request): void
+    {
+        try {
+            $this->handle($request);
+        } catch (BadRequestException) {
+            http_response_code(400);
+            echo $this->bootstrap->getTwig()->render('error/400.html.twig', [
+                'statusCode' => 400,
+                'errorMessage' => xl('The form was not submitted as text.'),
+            ]);
+        }
+    }
+
+    /**
+     * Render the rules editor and handle save, enable, and paragraph-field posts.
+     */
+    public function handle(Request $request): void
     {
         $twig = $this->bootstrap->getTwig();
         if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -108,8 +126,15 @@ class AdminController
                         $error = xl('Could not save the rule. Another save is in progress.');
                     } catch (RuleNotFoundException) {
                         $error = xl('That rule was deleted.');
-                    } catch (\InvalidArgumentException) {
-                        $error = xl('Could not save the rule.');
+                    } catch (\InvalidArgumentException $exception) {
+                        $error = match ($exception->getMessage()) {
+                            'Source field is not stored on this layout.',
+                            'Second source field is not stored on this layout.' => xl('Choose a field that is stored on this layout.'),
+                            'Source field is not on this layout.',
+                            'Second source field is not on this layout.',
+                            'Form is not an active LBF layout.' => xl('That field is no longer on this layout.'),
+                            default => xl('Could not save the rule.'),
+                        };
                     }
                 } elseif ($action === 'save') {
                     $data = [
@@ -150,6 +175,8 @@ class AdminController
                         $error = match ($exception->getMessage()) {
                             'A ratio rule needs a second field.' => xl('A ratio rule needs a second field.'),
                             'A bound must be a number.' => xl('Enter a number, or leave the bound empty.'),
+                            'Source field is not stored on this layout.',
+                            'Second source field is not stored on this layout.' => xl('Choose a field that is stored on this layout.'),
                             default => xl('Could not save the rule.'),
                         };
                         $edit = $data;
@@ -174,6 +201,10 @@ class AdminController
             }
         }
         $fields = $formId !== '' ? $catalog->fieldMeta($formId) : [];
+        $fields = array_filter(
+            $fields,
+            static fn (array $field): bool => LayoutCatalog::storesInLayout($field['source'])
+        );
 
         if ($request->query->has('edit')) {
             $edit = $repo->getRule(Values::asInt($this->stringParam($request, 'edit')));
@@ -243,14 +274,6 @@ class AdminController
      */
     private function stringParam(Request $request, string $key): string
     {
-        $posted = $request->request->get($key);
-        if (is_string($posted)) {
-            return $posted;
-        }
-        $query = $request->query->get($key);
-        if (is_string($query)) {
-            return $query;
-        }
-        return '';
+        return RequestFields::string($request, $key);
     }
 }

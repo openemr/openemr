@@ -17,6 +17,12 @@ namespace OpenEMR\Services\LBF;
 class StatementEngine
 {
     /**
+     * Lengths closer than this are the same overlap. It sits above
+     * double-precision noise and below a measurement anyone would type.
+     */
+    private const OVERLAP_TOLERANCE = 1e-12;
+
+    /**
      * @param array<string, string> $values field_id → stored string
      * @param list<array<string, mixed>> $rules
      * @return list<array{
@@ -183,10 +189,10 @@ class StatementEngine
             }
             $stretchBeatsPoint = $length > 0 && $best <= 0;
             $pointLoses = $length <= 0 && $best > 0;
-            if ($best < 0 || $stretchBeatsPoint || $length > $best + 0.0000001) {
+            if ($best < 0 || $stretchBeatsPoint || $length > $best + self::OVERLAP_TOLERANCE) {
                 $best = $length;
                 $winners = [$index => $rule];
-            } elseif (!$pointLoses && abs($length - $best) <= 0.0000001) {
+            } elseif (!$pointLoses && abs($length - $best) <= self::OVERLAP_TOLERANCE) {
                 $winners[$index] = $rule;
             }
         }
@@ -275,12 +281,7 @@ class StatementEngine
      */
     private function actionFromMeasured(array $rule, array $values, string $measuredField, string $raw): ?array
     {
-        $source = Values::asString($rule['source_field_id'] ?? '');
-        $overlay = $values;
-        if ($source !== '') {
-            $overlay[$source] = $raw;
-        }
-        $sentence = trim($this->interpolate(Values::asString($rule['statement_text'] ?? ''), $rule, $overlay));
+        $sentence = trim($this->interpolate(Values::asString($rule['statement_text'] ?? ''), $rule, $values, $raw));
         if ($sentence === '') {
             return null;
         }
@@ -326,10 +327,13 @@ class StatementEngine
     {
         $v1 = Values::asFloatOrNull($raw);
         $v2 = Values::asFloatOrNull($raw2);
-        if ($v1 === null || $v2 === null || $v2 === 0.0) {
+        if ($v1 === null || $v2 === null || !is_finite($v1) || !is_finite($v2) || $v2 === 0.0) {
             return false;
         }
         $ratio = $v1 / $v2;
+        if (!is_finite($ratio)) {
+            return false;
+        }
         if ($lessThan) {
             $floor = Values::asFloatOrNull($rule['min_value'] ?? null);
             if ($floor !== null && ($v1 <= $floor || $v2 <= $floor)) {
@@ -362,7 +366,8 @@ class StatementEngine
             if ($token === '') {
                 continue;
             }
-            if ($this->sourceMatchesToken($raw, $token)) {
+            $wholeWord = Values::asString($rule['source_list_id'] ?? '') === '';
+            if ($this->sourceMatchesToken($raw, $token, $wholeWord)) {
                 return true;
             }
         }
@@ -374,7 +379,7 @@ class StatementEngine
      * for checkbox fields, then a word-boundary match. Option ids are
      * text, so "01" does not match "1".
      */
-    private function sourceMatchesToken(string $raw, string $token): bool
+    private function sourceMatchesToken(string $raw, string $token, bool $wholeWord): bool
     {
         $raw = trim($raw);
         if ($raw === '' || $token === '') {
@@ -388,6 +393,9 @@ class StatementEngine
             if ($part !== '' && strcasecmp($part, $token) === 0) {
                 return true;
             }
+        }
+        if (!$wholeWord) {
+            return false;
         }
         $quoted = preg_quote($token, '/');
         // Letters, marks, and numbers stay inside a word. An accented
@@ -444,20 +452,21 @@ class StatementEngine
      * @param array<string, mixed> $rule
      * @param array<string, string> $values
      */
-    private function interpolate(string $template, array $rule, array $values): string
+    private function interpolate(string $template, array $rule, array $values, ?string $measured = null): string
     {
         if ($template === '') {
             return '';
         }
         $source = Values::asString($rule['source_field_id'] ?? '');
         $source2 = Values::asString($rule['source_field_id_2'] ?? '');
+        $shown = $measured ?? ($values[$source] ?? '');
         $map = [
-            '{source}' => $values[$source] ?? '',
+            '{source}' => $shown,
             '{source_2}' => $values[$source2] ?? '',
-            '{value}' => $values[$source] ?? '',
+            '{value}' => $shown,
         ];
         foreach ($values as $fieldId => $fieldValue) {
-            if (!is_string($fieldId) || $fieldId === '' || $fieldId === 'value' || $fieldId === 'source' || $fieldId === 'source_2') {
+            if ($fieldId === '' || $fieldId === 'value' || $fieldId === 'source' || $fieldId === 'source_2') {
                 continue;
             }
             $map['{' . $fieldId . '}'] = $fieldValue;

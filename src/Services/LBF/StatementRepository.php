@@ -255,14 +255,16 @@ class StatementRepository
                     $acquired[] = $lockName;
                 }
                 $rule = $this->requireRuleRow($id);
-                $lockedNames = static::bandLockNames(
-                    Values::asString($rule['form_id'] ?? ''),
-                    Values::asString($rule['source_field_id'] ?? ''),
-                    Values::asString($rule['source_field_id_2'] ?? '')
-                );
+                $formId = Values::asString($rule['form_id'] ?? '');
+                $source = Values::asString($rule['source_field_id'] ?? '');
+                $source2 = Values::asString($rule['source_field_id_2'] ?? '');
+                $lockedNames = static::bandLockNames($formId, $source, $source2);
                 if ($lockedNames !== $lockNames) {
                     throw new BandLockException('Could not lock this field to save the rule.');
                 }
+                $catalog = new LayoutCatalog($this->sql);
+                $catalog->assertActiveLbfForm($formId);
+                $this->assertSourcesOnLayout($catalog, $formId, $source, $source2);
                 $rule['enabled'] = 1;
                 $this->assertBandDoesNotOverlap($rule, $id);
                 $this->writeEnabled($id, true);
@@ -299,8 +301,14 @@ class StatementRepository
         if (!isset($fields[$source])) {
             throw new \InvalidArgumentException('Source field is not on this layout.');
         }
+        if (!LayoutCatalog::storesInLayout($fields[$source]['source'])) {
+            throw new \InvalidArgumentException('Source field is not stored on this layout.');
+        }
         if ($source2 !== '' && !isset($fields[$source2])) {
             throw new \InvalidArgumentException('Second source field is not on this layout.');
+        }
+        if ($source2 !== '' && !LayoutCatalog::storesInLayout($fields[$source2]['source'])) {
+            throw new \InvalidArgumentException('Second source field is not stored on this layout.');
         }
     }
 
@@ -405,11 +413,11 @@ class StatementRepository
      */
     public function assertBandDoesNotOverlap(array $data, ?int $id = null): void
     {
+        if (BandOverlap::intervalIsInverted($data)) {
+            throw new InvertedBoundsException('Minimum must be less than or equal to maximum.');
+        }
         if (Values::asString($data['op'] ?? '') !== 'band') {
             return;
-        }
-        if (BandOverlap::invertedBounds($data)) {
-            throw new InvertedBoundsException('Minimum must be less than or equal to maximum.');
         }
         if (!Values::asBool($data['enabled'] ?? 0)) {
             return;
