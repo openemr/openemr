@@ -74,12 +74,6 @@ Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoid
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestParsedRoute.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:
-Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationController\\:
 Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
     'count' => 1,
@@ -156,12 +150,6 @@ $ignoreErrors[] = [
 Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
-Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\:

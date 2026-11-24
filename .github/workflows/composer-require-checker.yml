@@ -44,4 +44,16 @@ jobs:
         extensions: bcmath, calendar, ctype, curl, dom, fileinfo, filter, gd, iconv, imagick, intl, json, ldap, libxml, mbstring, mysqli, openssl, pdo, pdo_mysql, phar, redis, session, simplexml, soap, sockets, sodium, tokenizer, xml, xmlreader, xmlwriter, xsl, zip, zlib
 
     - name: Run Composer Require Checker
-      run: composer require-checker
+      shell: bash
+      run: |
+        set -o pipefail
+        require_checker() {
+          local out="${RUNNER_TEMP}/composer-require-checker.json"
+          if composer require-checker -- --output=json | tee "${out}"; then
+            echo 'Composer Require Checker found no unknown symbols.'
+            return 0
+          fi
+          php bin/console --skip-globals openemr:composer-annotations require-checker "${out}" --annotate --summary="${GITHUB_STEP_SUMMARY}"
+          return 1
+        }
+        require_checker

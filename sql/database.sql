@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 580
+-- v_database: 584
 --
 
 --
@@ -1894,6 +1894,7 @@ CREATE TABLE `facility` (
   `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType',
+  `mammography_cert_number` varchar(30) default NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -1902,7 +1903,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW(), 'prov');
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0, NOW(), NOW(), 'prov', NULL);
 
 -- --------------------------------------------------------
 
@@ -3701,6 +3702,9 @@ CREATE TABLE `layout_options` (
 -- Inserting data for table `layout_options`
 --
 
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','active','1','Active',2,21,1,0,0,'',1,1,'1','','Uncheck when the patient is no longer seen here (FHIR Patient.active)',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_reason','1','Inactive Reason',4,1,1,0,0,'patient_inactive_reason',1,1,'','[\"J\"]','Why the patient is no longer active',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_date','1','Inactive Date',6,4,1,0,10,'',1,1,'','','Date the patient became inactive',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','title','1','Title',10,1,1,0,0,'titles',1,3,'','[\"N\"]','Title',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','fname','1','Name',20,2,2,15,63,'',1,3,'','[\"C\",\"DAP\"]','First Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','mname','1','',30,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
@@ -7444,6 +7448,13 @@ VALUES ('administrative_sex', 'Male', 'Male', 10, 'SNOMED-CT:248153007', ''),
        ('administrative_sex', 'UNK', 'unknown', 40, 'DataAbsentReason:unknown', '');
 
 -- Insert pronoun list
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'patient_inactive_reason', 'Patient Inactive Reason', 0, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'moved', 'Moved away', 10, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'transferred', 'Transferred care', 20, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'discharged', 'Discharged from practice', 30, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'deceased', 'Deceased', 40, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'duplicate', 'Duplicate record', 50, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'other', 'Other', 60, 0, 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`, `activity`) VALUES ('lists', 'pronoun', 'Pronouns', 0, 0, 0, '90778-2 (Personal pronouns - Reported): https://loinc.org/90778-2/', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'he_him', 'he/him/his/his/himself', 10, 0, 'LOINC:LA29518-0', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `codes`, `activity`) VALUES ('pronoun', 'she_her', 'she/her/her/hers/herself', 20, 0, 'LOINC:LA29519-8', 1);
@@ -8473,6 +8484,9 @@ CREATE TABLE `patient_data` (
   `allow_patient_portal` varchar(31) NOT NULL DEFAULT '',
   `deceased_date` datetime default NULL,
   `deceased_reason` varchar(255) NOT NULL default '',
+  `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = active patient record (FHIR Patient.active)',
+  `inactive_reason` varchar(63) NOT NULL DEFAULT '' COMMENT 'list_options patient_inactive_reason',
+  `inactive_date` date DEFAULT NULL COMMENT 'Date the patient became inactive',
   `soap_import_status` TINYINT(4) DEFAULT NULL COMMENT '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',
   `cmsportal_login` varchar(60) NOT NULL default '',
   `care_team_provider` TEXT,
@@ -8520,6 +8534,7 @@ CREATE TABLE `patient_data` (
   UNIQUE KEY `uuid` (`uuid`),
   KEY `idx_patient_name` (`lname`, `fname`),
   KEY `idx_patient_dob` (`DOB`),
+  KEY `idx_patient_active` (`active`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
@@ -10211,6 +10226,7 @@ CREATE TABLE `x12_partners` (
   `x12_sftp_receive_dir_277` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 277 claim status files from',
   `x12_sftp_receive_dir_999` varchar(255) DEFAULT NULL COMMENT 'remote folder to fetch 999 acknowledgments from',
   `x12_sftp_receive_worked_dir` varchar(255) DEFAULT NULL COMMENT 'remote folder a fetched file is moved to; empty leaves it in place',
+  `x12_era_auto_post_user` bigint(20) DEFAULT NULL COMMENT 'users.id that received 835s are posted as, unattended; empty leaves them for a person to post',
   `x12_token_endpoint` tinytext,
   `x12_eligibility_endpoint` tinytext,
   `x12_claim_status_endpoint` tinytext,
@@ -14363,9 +14379,58 @@ CREATE TABLE `x12_remote_received` (
   `stored_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'file name it was stored under on the site',
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
   `received_at` datetime NOT NULL,
+  `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted',
   PRIMARY KEY (`id`),
   UNIQUE KEY `remote_key` (`remote_key`),
   KEY `partner_status` (`x12_partner_id`, `status`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `era_auto_post_check`;
+CREATE TABLE `era_auto_post_check` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `received_id` bigint(20) NOT NULL COMMENT 'x12_remote_received.id of the 835',
+  `sequence` int(11) NOT NULL COMMENT 'position of the check in the file, from 1',
+  `check_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'TRN02',
+  `check_date` varchar(8) NOT NULL DEFAULT '' COMMENT 'BPR16, yyyymmdd',
+  `payer_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'N1*PR',
+  `payer_id` int(11) NOT NULL DEFAULT 0 COMMENT 'insurance_companies.id the check was posted for; 0 when none was found',
+  `check_amount` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'BPR02',
+  `claim_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the claim payments (CLP04)',
+  `plb_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the provider-level adjustments (PLB), which the payer takes off the claim payments',
+  `plb_reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'PLB adjustment reason codes, comma separated',
+  `status` varchar(31) NOT NULL COMMENT 'CheckStatus: posted or held',
+  `hold_reason` varchar(31) NOT NULL DEFAULT '' COMMENT 'HoldReason; empty when the check was posted',
+  `session_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'ar_session.session_id posted to; 0 when held',
+  `processed_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `received_sequence` (`received_id`, `sequence`),
+  KEY `check_number` (`check_number`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `era_auto_post_claim`;
+CREATE TABLE `era_auto_post_claim` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `check_id` bigint(20) NOT NULL COMMENT 'era_auto_post_check.id',
+  `sequence` int(11) NOT NULL COMMENT 'position of the claim payment in the check, from 1',
+  `our_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP01',
+  `payer_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP07',
+  `patient_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'NM1*QC, as the payer sent it',
+  `pid` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `encounter` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `payer_level` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'insurance level the payer processed the claim at, 1 to 3',
+  `claim_status_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'CLP02',
+  `outcome` varchar(31) NOT NULL COMMENT 'ClaimOutcome: posted, review or skipped',
+  `reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it needs review or was skipped, comma separated; empty when posted',
+  `claim_payment` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'CLP04',
+  `payments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `adjustments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `charges_added` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `level_closed` tinyint(1) NOT NULL DEFAULT 0,
+  `secondary_queued` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `check_sequence` (`check_id`, `sequence`),
+  KEY `outcome` (`outcome`),
+  KEY `patient_encounter` (`pid`, `encounter`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `export_job`;

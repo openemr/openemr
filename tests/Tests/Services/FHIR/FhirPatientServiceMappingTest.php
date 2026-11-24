@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
@@ -64,7 +65,7 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertEquals('generated', $fhirPatientResource->getText()['status']);
         $this->assertNotEmpty($fhirPatientResource->getText()['div']);
 
-        $this->assertTrue($fhirPatientResource->getActive());
+        $this->assertEquals(new FHIRBoolean(true), $fhirPatientResource->getActive());
 
         $this->assertNotEmpty($fhirPatientResource->getId());
 

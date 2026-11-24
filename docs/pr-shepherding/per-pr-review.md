@@ -344,7 +344,7 @@ Not every green rollup is cleanly green. Call out explicitly:
     The aggregator is still a required merge check, so merge itself needs it to clear.
     Three resolution paths, in preferred order: the healer workflow
     (`.github/workflows/rerun-stale-all-checks.yml`) reruns the aggregator
-    automatically after a heavy-workflow rerun, and may leave it red for any
+    automatically after a rerun of a workflow it watches, and may leave it red for any
     mechanical reason (cap reached, out-of-scope trigger, in-progress sibling,
     etc. — specifics live in the workflow file); a **maintainer manually reruns**
     the aggregator job via the GitHub UI's "Re-run jobs" button when the healer

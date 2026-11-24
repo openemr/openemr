@@ -18,6 +18,7 @@ use GuzzleHttp\{
     RequestOptions,
 };
 use InvalidArgumentException;
+use LogicException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Http\Client\ClientInterface;
@@ -213,6 +214,28 @@ class ServiceContainer
         return self::resolveOrCreate(
             ServerRequestFactoryInterface::class,
             static fn(): Psr17Factory => new Psr17Factory(),
+        );
+    }
+
+    public static function getSiteInstallState(): SiteInstallState
+    {
+        return self::resolveOrCreate(
+            SiteInstallState::class,
+            static function (): SiteInstallState {
+                $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+                if ($siteDir === '') {
+                    throw new LogicException('OE_SITE_DIR not set');
+                }
+                $sqlconfPath = $siteDir . '/sqlconf.php';
+                if (!file_exists($sqlconfPath)) {
+                    return new SiteInstallState(false);
+                }
+                $config = (static function (string $path): mixed {
+                    require $path;
+                    return $config ?? null;
+                })($sqlconfPath);
+                return new SiteInstallState($config === 1);
+            },
         );
     }
 

@@ -1,7 +1,16 @@
+{#
+ # The XSD and Schematron findings for one validated CDA document.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
 {# Note we use the cda-validate-results and data-error-count as a means for html consumers to grab information from the html #}
 <div class='control-group cda-validate-results' data-error-count="{{ validation.xsd|length + validation.errorCount|attr }}">
     <h5 class='text-info' style='padding: 0 0;'>{{ 'Schema Definition Errors'|xlt}} - ({{ validation.xsd|length }})</h5><hr style='margin: 0 0 10px;' />
-    {% if validation.xsd|length <= 1 %}
+    {% if validation.xsd|length == 0 %}
         <p class='text-success'>{{"Passed XSD testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
     {% else %}
         {% for error in validation.xsd %}

@@ -14,10 +14,17 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Rx\Ensora\ErxIssueStore;
 use OpenEMR\Rx\Ensora\ErxStoreInterface;
+use OpenEMR\Rx\Ensora\SentAllergy;
+use OpenEMR\Rx\Ensora\SentMedication;
 
 class eRxStore implements ErxStoreInterface
 {
+    public function __construct(private readonly ErxIssueStore $issues = new ErxIssueStore())
+    {
+    }
+
     /**
      * Strip away any non numerical characters
      * @param  string $value Value to sanitize
@@ -171,21 +178,7 @@ class eRxStore implements ErxStoreInterface
      */
     public function getPatientAllergiesByPatientId(int $patientId): array
     {
-        return QueryUtils::fetchRecords(
-            'SELECT id, lists.title as title1, list_options.title as title2, comments
-			FROM lists
-				LEFT JOIN list_options ON lists.outcome = list_options.option_id
-					AND list_options.list_id = \'outcome\'
-			WHERE `type` = \'allergy\'
-				AND pid = ?
-				AND erx_source = \'0\'
-				AND erx_uploaded = \'0\'
-				AND (
-					enddate is NULL
-					OR enddate = \'0000-00-00\'
-				);',
-            [$patientId]
-        );
+        return $this->issues->getPatientAllergiesByPatientId($patientId);
     }
 
     /**
@@ -716,20 +709,9 @@ class eRxStore implements ErxStoreInterface
         );
     }
 
-    public function updateAllergyUploadedByPatientIdAllergyId($uploaded, $patientId, $allergyId): void
+    public function markAllergyUploaded(int $patientId, SentAllergy $allergy): void
     {
-        sqlQuery(
-            'UPDATE lists
-			SET erx_uploaded = ?
-			WHERE type = \'allergy\'
-				AND pid = ?
-				AND id = ?;',
-            [
-                $uploaded,
-                $patientId,
-                $allergyId
-            ]
-        );
+        $this->issues->markAllergyUploaded($patientId, $allergy);
     }
 
     /**
@@ -771,6 +753,11 @@ class eRxStore implements ErxStoreInterface
                 $listId
             ]
         );
+    }
+
+    public function markMedicationUploaded(SentMedication $medication): void
+    {
+        $this->issues->markMedicationUploaded($medication);
     }
 
     /**

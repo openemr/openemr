@@ -81,7 +81,7 @@ class AssessmentDashboardControllerTest extends TestCase
                 ],
                 webRoot: '',
             ),
-            new AssessmentPageChrome('container-fluid', '<h2>Questionnaire Assessments</h2>', '<!-- expand -->', '<nav>menu</nav>'),
+            new AssessmentPageChrome('container-fluid', '<!-- expand -->', '<nav>menu</nav>'),
             static fn(array $sections): CollapsedSections => new CollapsedSections(array_values(array_intersect($collapsed, $sections))),
         );
     }
@@ -194,7 +194,7 @@ class AssessmentDashboardControllerTest extends TestCase
                 'canUseTemplates' => false, 'canManageAvailability' => false, 'canImport' => false,
                 'templatesUrl' => '', 'availabilityUrl' => '', 'importUrl' => '',
             ], ''),
-            new AssessmentPageChrome('', '', '', ''),
+            new AssessmentPageChrome('', '', ''),
             static fn(array $sections): CollapsedSections => new CollapsedSections(),
         );
 

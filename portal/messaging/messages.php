@@ -143,6 +143,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 confirmOne: <?php echo xlj('Confirm to Archive Current Thread?'); ?>,
                 confirmAll: <?php echo xlj('Confirm to Archive Selected Messages?'); ?>,
                 sendingToSelf: <?php echo xlj('You are sending to yourself!'); ?>,
+                replyNoRecipient: <?php echo xlj('This message has no sender to reply to.'); ?>,
                 conversationFrom: <?php echo xlj('Conversation from'); ?>,
                 regarding: <?php echo xlj('regarding'); ?>,
                 onPrep: <?php echo xlj('on'); ?>,

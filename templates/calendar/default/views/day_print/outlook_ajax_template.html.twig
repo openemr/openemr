@@ -12,16 +12,25 @@
    - timeRows : list of {hour, minute, isOnTheHour, displayLabel}
        displayLabel is the consumer's already-formatted "h:mm" string
    - timeslotCss : e.g. "20px" — height of one timeslot row
+   - hasVisitList : true when a provider's day has a Visit List; only then are the
+       full lists below the grid and their script printed
    - decorated event fields:
        eid, catid (the only catid value the template inspects — for the
        IN-event two-DIV pattern), evtClass, catcolor, eventdate,
        evtTop / evtHeight (CSS strings with unit baked in),
        divWidth / divLeft (CSS fragments like "width: 50%" / "left: 50%"
        or empty strings), bodyContent (HTML).
+       A Visit List block additionally carries visitList (see
+       _visit_list_print.html.twig); its patients are not among the
+       provider's other events.
        IN events (catid == 2) additionally carry:
          inLabelTop, inLabelHeight (CSS strings with unit),
          inLabelContent (HTML string — the legacy's "dispstarth:startm
          content_body" pre-built form).
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 <!DOCTYPE html>
 <html>
@@ -90,6 +99,15 @@
         .event_out      { position: absolute; background-color: lightgray; width: 100%; font-size: 0.8em; color: #ddd; border-top: 1px dashed #ddd; }
         .event_appointment { position: absolute; background-color: white; overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
         .event_noshow      { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
+        {% include 'calendar/default/views/_visit_list_print_styles.html.twig' %}
+        #bigCal .event_visit_list:not(.visit-list-full) { position: absolute; width: 100%; overflow: hidden; z-index: 1; }
+        .visit-list-overflow { display: none; }
+        .visit-list-more { font-style: italic; }
+        #bigCal .visit-list-fitted .visit-list-more { position: absolute; bottom: 0; left: 0; right: 0; }
+        #bigCal .visit-list-header, #bigCal .visit-list-entry { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .visit-list-continued { font-family: Arial, Helvetica, sans-serif; }
+        .visit-list-full { break-inside: avoid; margin-top: 0.5em; }
+        .visit-list-provider { font-weight: bold; padding: 0 2px; }
         .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
     </style>
     {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
@@ -158,6 +176,16 @@
                                 {{ event.inLabelContent|raw }}
                             </div>
                         {% endif %}
+                        {% if event.visitList is defined %}
+                            {# Visit List block: its time span tall, so it never covers what comes
+                               after it. The script below shows the rows that fit and notes that the
+                               list continues below the schedule, where it is printed in full. #}
+                            <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                 style="top:{{ event.evtTop }}; height:{{ event.evtHeight }}; {{ event.divWidth }}; {{ event.divLeft }}"
+                                 id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                                {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                            </div>
+                        {% else %}
                         <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                              style="top:{{ event.evtTop }}; height:{{ event.evtHeight }}; background-color:{{ event.catcolor|attr }}; {{ event.divWidth }}; {{ event.divLeft }}"
                              id="{{ event.eventdate|attr }}-{{ event.eid|attr }}">
@@ -165,6 +193,7 @@
                                 {{ event.bodyContent|raw }}
                             {% endif %}
                         </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </td>
@@ -173,7 +202,34 @@
 </table>
 <p>
 
+{% if hasVisitList|default(false) %}
+{# Each Visit List in full. A block on the grid shows only the patients that fit its time
+   span, cut to its column's width, and the printed page can lay them out differently from
+   the screen they were measured on, so every list is printed whole here: no patient is
+   ever left off the page. It sits inside #bigCal, whose fixed height the grid overflows,
+   so it follows the grid instead of lying under it. #}
+<div class="visit-list-continued">
+    {% for provider in providers %}
+        {% for event in provider.events %}
+            {% if event.visitList is defined %}
+                <div class="visit-list-full event_visit_list" data-eid="{{ event.eid|attr }}">
+                    <div class="visit-list-provider">{{ provider.fname|text }} {{ provider.lname|text }}</div>
+                    {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
 </div>
+{% endif %}
+
+</div>
+
+{% if hasVisitList|default(false) %}
+<script src="{{ webroot }}/library/js/calendarVisitList.js?v={{ assetVersion|attr_url }}"></script>
+<script>
+    pcSetUpVisitListsForPrint(document, {{ '+%s · Continued below the schedule'|xlj }});
+</script>
+{% endif %}
 
 {# Trigger the browser print dialog on page load via the framework's
    printLogPrint helper (defined in library/restoreSession.php). The
