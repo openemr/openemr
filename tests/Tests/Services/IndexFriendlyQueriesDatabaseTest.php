@@ -1,13 +1,15 @@
 <?php
 
 /**
- * Appointments found by patient, and the daily summary report's dates, read through indexes: the same
- * rows as before, without reading the whole table.
+ * Appointments found by patient, the daily summary report's dates, and drug sales by patient and
+ * encounter, read through indexes: the same rows as before, without reading the whole table.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    anun333 <anun333@posteo.net>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 anun333 <anun333@posteo.net>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -204,6 +206,33 @@ class IndexFriendlyQueriesDatabaseTest extends TestCase
         $index = QueryUtils::fetchRecords("SHOW INDEX FROM billing WHERE Key_name = 'date'");
         $this->assertCount(1, $index);
         $this->assertSame('date', $index[0]['Column_name'] ?? null);
+    }
+
+    /**
+     * Drug sales are read by patient and encounter, often once per encounter row. The upgrade adds the
+     * index to a database that lacks it, and leaves one that has it alone.
+     */
+    public function testDrugSalesAreIndexedByPatientAndEncounter(): void
+    {
+        $columns = fn(): array => array_map(
+            static fn(array $row): mixed => $row['Column_name'] ?? null,
+            QueryUtils::fetchRecords("SHOW INDEX FROM drug_sales WHERE Key_name = 'pid_encounter'")
+        );
+        $this->assertSame(['pid', 'encounter'], $columns(), 'a new install has it');
+
+        QueryUtils::sqlStatementThrowException('DROP INDEX `pid_encounter` ON `drug_sales`');
+        try {
+            $this->assertSame([], $columns(), 'the control');
+            $this->runUpgradeBlock('#IfNotIndex drug_sales pid_encounter');
+            $this->assertSame(['pid', 'encounter'], $columns(), 'the upgrade adds it');
+            $this->runUpgradeBlock('#IfNotIndex drug_sales pid_encounter');
+            $this->assertSame(['pid', 'encounter'], $columns(), 'and skips it once it is there');
+        } finally {
+            // Puts the index back if the upgrade failed to.
+            if (QueryUtils::fetchRecords("SHOW INDEX FROM drug_sales WHERE Key_name = 'pid_encounter'") === []) {
+                QueryUtils::sqlStatementThrowException('CREATE INDEX `pid_encounter` ON `drug_sales` (`pid`, `encounter`)');
+            }
+        }
     }
 
     /**

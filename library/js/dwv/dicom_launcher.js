@@ -251,12 +251,74 @@ function startApp() {
         oemrApp.defaultOnKeydown(event);
     });
 
-    // handle window resize
-    // WARNING: will fail if the resize happens and the image is not shown
-    // (for example resizing while viewing the meta data table)
-
-    // @todo resize not work correctly. really should be able to resize canvas from UI.
-    //window.addEventListener('resize', oemrApp.onResize);
+    // Size the image layer container to the free space of the page and let dwv fit the image to it.
+    // The container was fixed at 512px (CSS), so the image stayed small however large the pane was.
+    // dwv's own window resize handler (oemrApp.onResize) fails when the image is not shown
+    // (for example while viewing the meta data table), so only refit when an image is loaded and shown.
+    let imageLoaded = false;
+    let fitTimer = null;
+    const fitLayerContainer = function () {
+        const container = document.querySelector('#dwv .layerContainer');
+        const main = document.getElementById('pageMain');
+        const header = document.getElementById('pageHeader');
+        if (!container || !main || !header) {
+            return;
+        }
+        const dialog = container.closest('.layerDialog') || container.parentElement;
+        const style = window.getComputedStyle(container);
+        const marginX = parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+        const marginY = parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+        // width left over by the other visible blocks of the page row (toolbox, draw list, history)
+        let usedWidth = 0;
+        Array.from(main.children).forEach(function (el) {
+            // the popups (tags, help) are positioned absolutely and only hidden by visibility, so they must not count
+            if (el !== dialog && !el.classList.contains('popup') && el.offsetParent !== null) {
+                usedWidth += el.offsetWidth;
+            }
+        });
+        let width = Math.floor(Math.max(128, window.innerWidth - usedWidth - marginX));
+        let height = Math.floor(Math.max(128, window.innerHeight - header.offsetHeight - marginY));
+        container.style.width = width + "px";
+        container.style.height = height + "px";
+        // The page must not scroll inside its frame: take back whatever still overflows
+        // (padding or borders of the surrounding page that are not known here).
+        const overflowX = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+        const overflowY = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        if (overflowX > 0 || overflowY > 0) {
+            width = Math.max(128, width - Math.max(0, overflowX));
+            height = Math.max(128, height - Math.max(0, overflowY));
+            container.style.width = width + "px";
+            container.style.height = height + "px";
+        }
+        if (imageLoaded && container.offsetParent !== null) {
+            try {
+                oemrApp.fitToSize({width: width, height: height});
+            } catch (e) {
+                console.log("DICOM viewer fit failed: " + e);
+            }
+        }
+    };
+    // the Image button shows the dialog again: refit then, a resize while it was hidden was skipped
+    dwvOemr.fitLayerContainer = fitLayerContainer;
+    // The 'load' event is not fired when one item of a multi file load (for example a zip with a file
+    // that cannot be read) failed, so the first image that was loaded counts as well.
+    oemrApp.addEventListener('load-item', function (event) {
+        if (event.loadtype === "image") {
+            imageLoaded = true;
+        }
+    });
+    oemrApp.addEventListener('load', function (event) {
+        if (event.loadtype === "image") {
+            imageLoaded = true;
+        }
+    });
+    oemrApp.addEventListener('load-end', function () {
+        fitLayerContainer();
+    });
+    window.addEventListener('resize', function () {
+        clearTimeout(fitTimer);
+        fitTimer = setTimeout(fitLayerContainer, 150);
+    });
 
     if (miniColourMap) {
         oemrApp.addEventListener('wl-width-change', miniColourMap.update);

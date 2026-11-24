@@ -9,15 +9,18 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -46,6 +49,159 @@ class FacilityService extends BaseService
         $this->facilityValidator = new FacilityValidator();
     }
 
+
+    /**
+     * The facility columns the facility form saves, each with the name of its form field.
+     * Three fields are named differently from their column.
+     */
+    public const FACILITY_FORM_FIELDS = [
+        'name' => 'facility',
+        'phone' => 'phone',
+        'fax' => 'fax',
+        'street' => 'street',
+        'city' => 'city',
+        'state' => 'state',
+        'postal_code' => 'postal_code',
+        'country_code' => 'country_code',
+        'federal_ein' => 'federal_ein',
+        'website' => 'website',
+        'email' => 'email',
+        'color' => 'ncolor',
+        'service_location' => 'service_location',
+        'billing_location' => 'billing_location',
+        'accepts_assignment' => 'accepts_assignment',
+        'pos_code' => 'pos_code',
+        'domain_identifier' => 'domain_identifier',
+        'mammography_cert_number' => 'mammography_cert_number',
+        'attn' => 'attn',
+        'tax_id_type' => 'tax_id_type',
+        'primary_business_entity' => 'primary_business_entity',
+        'facility_npi' => 'facility_npi',
+        'facility_taxonomy' => 'facility_taxonomy',
+        'facility_code' => 'facility_id',
+        'mail_street' => 'mail_street',
+        'mail_street2' => 'mail_street2',
+        'mail_city' => 'mail_city',
+        'mail_state' => 'mail_state',
+        'mail_zip' => 'mail_zip',
+        'oid' => 'oid',
+        'iban' => 'iban',
+        'info' => 'info',
+        'inactive' => 'inactive',
+        'organization_type' => 'organization_type',
+    ];
+
+    /**
+     * The facility's column values from the facility form's posted fields, trimmed. A field
+     * the form did not send, or one that is not text, is saved as empty.
+     *
+     * @param array<array-key, mixed> $fields the posted form
+     * @return array<string, string> column => value, for insertFacility() or updateFacility()
+     */
+    public static function facilityFormValues(array $fields): array
+    {
+        $values = [];
+        foreach (self::FACILITY_FORM_FIELDS as $column => $field) {
+            $value = $fields[$field] ?? '';
+            $values[$column] = is_string($value) ? trim($value) : '';
+        }
+
+        return $values;
+    }
+
+    /**
+     * Save-dialog text for a billing facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_BILLING_POSTAL = 'This billing facility was saved. The postal code is not 9 digits, '
+        . 'so a claim billed from this facility can be rejected.';
+
+    /**
+     * Save-dialog text for a service facility. The row is already stored.
+     */
+    public const FACILITY_SAVED_SERVICE_POSTAL = 'This service facility was saved. The postal code is not 9 digits, '
+        . 'so a claim that uses this service location can be rejected.';
+
+    /**
+     * Save-dialog text when the facility is both a billing and a service location.
+     */
+    public const FACILITY_SAVED_BOTH_POSTAL = 'This facility was saved as a billing and service location. '
+        . 'The postal code is not 9 digits, so a claim that uses it can be rejected.';
+
+    /**
+     * Postal notice for the facility screen. Empty when the dialog should stay quiet.
+     *
+     * Digits are kept by Claim::x12Zip(). Nine digits stay quiet.
+     * The check is the US claim rule. It runs only when the country is the
+     * United States. A blank country stays quiet, because telephone code 1
+     * is shared with Canada and the rest of that numbering plan.
+     */
+    public static function facilityPostalSaveNotice(
+        string $postal,
+        bool $billingLocation,
+        bool $serviceLocation,
+        string $country = '',
+    ): string {
+        if (!$billingLocation && !$serviceLocation) {
+            return '';
+        }
+        if (!self::unitedStatesClaimPostal($country)) {
+            return '';
+        }
+        $digits = preg_replace('/[^0-9]/', '', $postal) ?? '';
+        if (strlen($digits) === 9) {
+            return '';
+        }
+        if ($billingLocation && $serviceLocation) {
+            return self::FACILITY_SAVED_BOTH_POSTAL;
+        }
+        if ($billingLocation) {
+            return self::FACILITY_SAVED_BILLING_POSTAL;
+        }
+
+        return self::FACILITY_SAVED_SERVICE_POSTAL;
+    }
+
+    /**
+     * Whether the nine-digit claim notice applies to this facility.
+     *
+     * A named country applies only for the United States. A blank country
+     * does not, even when the telephone country code is 1.
+     */
+    private static function unitedStatesClaimPostal(string $country): bool
+    {
+        $country = trim($country);
+        if ($country === '') {
+            return false;
+        }
+        $letters = strtoupper(preg_replace('/[^A-Za-z]/', '', $country) ?? '');
+
+        return in_array($letters, ['US', 'USA', 'UNITEDSTATES', 'UNITEDSTATESOFAMERICA'], true);
+    }
+
+    /**
+     * JSON body for the facility save dialog.
+     *
+     * Status is saved or not saved. A sentence that cannot be encoded is
+     * dropped, and the status stays.
+     */
+    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    {
+        $encoded = json_encode(
+            [
+                'status' => $saved ? 'saved' : 'not_saved',
+                'message' => $sentence,
+            ],
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
+        );
+        if (!is_string($encoded)) {
+            return $saved
+                ? '{"status":"saved","message":""}'
+                : '{"status":"not_saved","message":""}';
+        }
+
+        return $encoded;
+    }
+
     public function getUuidFields(): array
     {
         return ['uuid'];
@@ -72,6 +228,7 @@ class FacilityService extends BaseService
         $validator->optional('accepts_assignment')->numeric();
         $validator->optional('pos_code')->numeric();
         $validator->optional('domain_identifier')->lengthBetween(2, 60);
+        $validator->optional('mammography_cert_number')->lengthBetween(2, 30);
         $validator->optional('attn')->lengthBetween(2, 65);
         $validator->optional('tax_id_type')->lengthBetween(2, 31);
         $validator->optional('primary_business_entity')->numeric();
@@ -202,48 +359,153 @@ class FacilityService extends BaseService
         return $record;
     }
 
-    public function updateFacility($data)
+    /**
+     * Whether this facility id is stored.
+     *
+     * The row stays locked until the surrounding transaction ends.
+     */
+    public function facilityIdStored(string $id): bool
     {
-        $dataBeforeUpdate = $this->getById($data['id']);
-        $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE facility SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE id = ?";
-        array_push($query['bind'], $data['id']);
-        $result = sqlStatement(
-            $sql,
-            $query['bind']
+        if ($id === '' || !ctype_digit($id) || $id === '0') {
+            return false;
+        }
+
+        $row = QueryUtils::querySingleRow(
+            "SELECT id FROM facility WHERE id = ? FOR UPDATE",
+            [$id]
         );
 
-        $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
-
-        return $result;
+        return is_array($row);
     }
 
-    public function insertFacility($data)
+    /**
+     * Save an existing facility and the name stored on its users.
+     *
+     * Both writes commit together. A missing id saves nothing. A failure
+     * rolls the attempt back. Listeners hear about the change only after
+     * that commit.
+     *
+     * @param array<string, mixed> $values
+     */
+    public function updateFacilityAndUsers(array $values): bool
     {
-        $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility SET ";
-        $sql .= $query['set'];
-        $facilityId = sqlInsert(
-            $sql,
-            $query['bind']
+        $id = $values['id'] ?? null;
+        if (!is_int($id) && !is_string($id)) {
+            return false;
+        }
+
+        try {
+            $outcome = QueryUtils::inTransaction(function () use ($values, $id): array {
+                if (!$this->facilityIdStored((string) $id)) {
+                    return ['saved' => false, 'before' => []];
+                }
+
+                $loaded = $this->getById($id);
+                $this->updateFacility($values);
+                $name = $values['name'] ?? '';
+                if (!is_string($name)) {
+                    $name = '';
+                }
+                $this->updateUsersFacility($name, $id);
+
+                return [
+                    'saved' => true,
+                    'before' => is_array($loaded) ? $loaded : [],
+                ];
+            });
+        } catch (\RuntimeException $exception) {
+            ServiceContainer::getLogger()->error('Facility save did not finish', [
+                'exception' => $exception,
+            ]);
+
+            return false;
+        }
+
+        if ($outcome['saved'] !== true) {
+            return false;
+        }
+
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+            new FacilityUpdatedEvent($outcome['before'], $values),
+            FacilityUpdatedEvent::EVENT_HANDLE
         );
 
-        $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
+        return true;
+    }
+
+    /**
+     * Replace the stored facility columns.
+     *
+     * The column list has to be an array before the update is sent.
+     * updateFacilityAndUsers() tells listeners, and only after the commit.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function updateFacility(array $data)
+    {
+        $query = $this->buildUpdateColumns($data);
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
+        $binds[] = $data['id'];
+
+        return QueryUtils::sqlStatementThrowException(
+            " UPDATE facility SET " . $set . " WHERE id = ?",
+            $binds
+        );
+    }
+
+    /**
+     * Store a new facility.
+     *
+     * The column list has to be an array before the insert is sent.
+     * Listeners hear about the facility after the commit.
+     *
+     * @param array<string, mixed> $data
+     * @return int
+     */
+    public function insertFacility(array $data): int
+    {
+        $facilityId = QueryUtils::inTransaction(fn(): int => $this->writeInsertedFacility($data));
+
+        $created = $data;
+        $created['id'] = $facilityId;
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+            new FacilityCreatedEvent($created),
+            FacilityCreatedEvent::EVENT_HANDLE
+        );
 
         return $facilityId;
     }
 
-    public function updateUsersFacility($facility_name, $facility_id)
+    /**
+     * Insert the facility row. The caller commits, then tells listeners.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function writeInsertedFacility(array $data): int
     {
-        $sql = " UPDATE users SET";
-        $sql .= " facility=?";
-        $sql .= " WHERE facility_id=?";
+        $query = $this->buildInsertColumns($data);
+        $set = $query['set'] ?? null;
+        $binds = $query['bind'] ?? null;
+        if (!is_string($set) || !is_array($binds)) {
+            throw new \LogicException('The facility columns could not be saved');
+        }
 
-        return sqlStatement($sql, [$facility_name, $facility_id]);
+        return QueryUtils::sqlInsert(" INSERT INTO facility SET " . $set, $binds);
+    }
+
+    /**
+     * Rename the facility stored on users who belong to this facility.
+     */
+    public function updateUsersFacility(string $facility_name, int|string $facility_id)
+    {
+        return QueryUtils::sqlStatementThrowException(
+            " UPDATE users SET facility=? WHERE facility_id=?",
+            [$facility_name, $facility_id]
+        );
     }
 
     /**
@@ -276,6 +538,7 @@ class FacilityService extends BaseService
             $sql .= "        FAC.x12_sender_id,";
             $sql .= "        FAC.attn,";
             $sql .= "        FAC.domain_identifier,";
+            $sql .= "        FAC.mammography_cert_number,";
             $sql .= "        FAC.facility_npi,";
             $sql .= "        FAC.facility_taxonomy,";
             $sql .= "        FAC.tax_id_type,";

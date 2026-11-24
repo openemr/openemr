@@ -83,20 +83,20 @@ class NativeQuestionnaireResponseProcessor
     public function decodeAndValidateResponse(string $rawJson): array
     {
         if (trim($rawJson) === '') {
-            throw new InvalidQuestionnaireResponseException(xlt('QuestionnaireResponse data is missing.'));
+            throw new InvalidQuestionnaireResponseException(xl('QuestionnaireResponse data is missing.'));
         }
         if (strlen($rawJson) > self::MAX_PAYLOAD_BYTES) {
-            throw new InvalidQuestionnaireResponseException(xlt('QuestionnaireResponse data exceeds the maximum allowed size.'));
+            throw new InvalidQuestionnaireResponseException(xl('QuestionnaireResponse data exceeds the maximum allowed size.'));
         }
 
         $decoded = json_decode($rawJson, true);
         if (!is_array($decoded) || ($decoded['resourceType'] ?? null) !== 'QuestionnaireResponse') {
-            throw new InvalidQuestionnaireResponseException(xlt('FHIR QuestionnaireResponse data is invalid.'));
+            throw new InvalidQuestionnaireResponseException(xl('FHIR QuestionnaireResponse data is invalid.'));
         }
 
         $status = $decoded['status'] ?? null;
         if (!is_string($status) || !in_array($status, self::ALLOWED_STATUSES, true)) {
-            throw new InvalidQuestionnaireResponseException(xlt('FHIR QuestionnaireResponse status is invalid.'));
+            throw new InvalidQuestionnaireResponseException(xl('FHIR QuestionnaireResponse status is invalid.'));
         }
 
         /** @var array<string, mixed> $decoded */
@@ -114,7 +114,7 @@ class NativeQuestionnaireResponseProcessor
     {
         $decoded = json_decode($questionnaireJson, true);
         if (!is_array($decoded) || ($decoded['resourceType'] ?? null) !== 'Questionnaire') {
-            throw new InvalidQuestionnaireResponseException(xlt('FHIR Questionnaire data is invalid.'));
+            throw new InvalidQuestionnaireResponseException(xl('FHIR Questionnaire data is invalid.'));
         }
 
         /** @var array<string, mixed> $decoded */
@@ -165,7 +165,7 @@ class NativeQuestionnaireResponseProcessor
     public function stampResponse(array $response, string $patientUuid, ?string $authored = null): array
     {
         if ($patientUuid === '') {
-            throw new InvalidQuestionnaireResponseException(xlt('Unable to resolve the patient identity for this QuestionnaireResponse.'));
+            throw new InvalidQuestionnaireResponseException(xl('Unable to resolve the patient identity for this QuestionnaireResponse.'));
         }
 
         // Remove every client-supplied server-owned field, then re-apply the ones the server sets.

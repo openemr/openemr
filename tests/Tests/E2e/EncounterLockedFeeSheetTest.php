@@ -52,6 +52,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
     private int $pid = 0;
     private int $lockedEncounter = 0;
     private int $unlockedEncounter = 0;
+    private string $csrfToken = '';
 
     #[Test]
     #[Depends('testLoginAuthorized')]
@@ -61,6 +62,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
             $this->insertFixtureData();
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
+            $this->csrfToken = $this->shellCsrfToken();
             $this->client->request('GET', $this->dashboardUrl($this->pid));
 
             $this->assertEqualsCanonicalizing(
@@ -149,6 +151,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
 
             $this->base();
             $this->login(LoginTestData::username, LoginTestData::password);
+            $this->csrfToken = $this->shellCsrfToken();
             $this->client->request('GET', $this->dashboardUrl($this->pid));
 
             $this->openFormsList($this->lockedEncounter);
@@ -164,7 +167,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
 
             // Reviewing another encounter keeps the session encounter, whose
             // Misc Billing Options form the menu would open, so it's left out.
-            $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $this->lockedEncounter);
+            $this->client->request('GET', $this->encounterTopUrl($this->lockedEncounter));
             $this->client->request('GET', '/interface/patient_file/encounter/forms.php?review_id=' . $this->unlockedEncounter);
             $this->client->waitFor('#navbarEncounterTitle');
             $reviewed = $this->menuForms();
@@ -181,9 +184,21 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
         }
     }
 
+    /**
+     * URL that opens $encounter. Switching encounters needs the CSRF token
+     * read from the app shell after login.
+     */
+    private function encounterTopUrl(int $encounter): string
+    {
+        return '/interface/patient_file/encounter/encounter_top.php?' . http_build_query([
+            'set_encounter' => $encounter,
+            'csrf_token_form' => $this->csrfToken,
+        ]);
+    }
+
     private function openFormsList(int $encounter): void
     {
-        $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $encounter);
+        $this->client->request('GET', $this->encounterTopUrl($encounter));
         $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
         $this->client->waitFor('#partable');
     }
@@ -227,7 +242,7 @@ class EncounterLockedFeeSheetTest extends PantherTestCase
      */
     private function encounterMenuForms(int $encounter): array
     {
-        $this->client->request('GET', '/interface/patient_file/encounter/encounter_top.php?set_encounter=' . $encounter);
+        $this->client->request('GET', $this->encounterTopUrl($encounter));
         $this->client->request('GET', '/interface/patient_file/encounter/forms.php');
         $this->client->waitFor('#navbarEncounterTitle');
         return $this->menuForms();

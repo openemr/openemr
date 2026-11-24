@@ -1,0 +1,86 @@
+<html>
+
+<head>
+    <!-- setupHeader stub -->
+
+    <title>Direct Message Log</title>
+
+    <style>
+        /* specifically include & exclude from printing */
+        @media print {
+            #report_parameters {
+                visibility: hidden;
+                display: none;
+            }
+            #report_parameters_daterange {
+                visibility: visible;
+                display: inline;
+            }
+            #report_results table {
+                margin-top: 0;
+            }
+        }
+
+        /* specifically exclude some from the screen */
+        @media screen {
+            #report_parameters_daterange {
+                visibility: hidden;
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="body_top">
+
+<span class='title'>Direct Message Log</span>
+
+<form method='post' name='theform' id='theform' action='direct_message_log.php' onsubmit='return top.restoreSession()'>
+    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+    <input type='hidden' name='lognext' id='lognext' value=''>
+
+    <div id="report_parameters">
+        <table>
+            <tr>
+                <td width='470px'>
+                    <div class="btn-group float-left" role="group">
+                        <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                            Refresh
+                        </a>
+                        <a id='prev_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+                            Older
+                        </a>
+                        <a id='next_button' href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+                            Newer
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- end of search parameters -->
+
+    <br />
+
+    <div id="report_results">
+        <table class='table'>
+            <thead class='thead-light'>
+                <th align='center'>ID</th>
+                <th align='center'>Type</th>
+                <th align='center'>Date Created</th>
+                <th align='center'>Sender</th>
+                <th align='center'>Recipient</th>
+                <th align='center'>Status</th>
+                <th align='center'>Date of Status Change</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <!-- end of search results -->
+
+    <input type='hidden' name='logstart' id='logstart' value='0'>
+</form>
+
+</body>
+</html>

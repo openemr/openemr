@@ -1,0 +1,62 @@
+{#
+  The Assessment History tab: this patient's patient-level responses, newest first. Takes
+  history (AssessmentHistoryRow).
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="tab-pane fade" id="assessment-history" role="tabpanel" aria-labelledby="assessment-history-tab">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-1">{{ 'Assessment History'|xlt }}</h5>
+            <div class="small text-muted">
+                {{ 'Prior patient-level QuestionnaireResponses saved outside an encounter.'|xlt }}
+            </div>
+        </div>
+    </div>
+
+    {% if history is empty %}
+        <div class="text-muted">{{ 'No questionnaire assessment history found.'|xlt }}</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>{{ 'Assessment'|xlt }}</th>
+                    <th>{{ 'Status'|xlt }}</th>
+                    <th>{{ 'Last Updated'|xlt }}</th>
+                    <th>{{ 'Context'|xlt }}</th>
+                    <th>{{ 'Version'|xlt }}</th>
+                    <th class="text-right">{{ 'Action'|xlt }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in history %}
+                    <tr>
+                        <td>{{ row.name|text }}</td>
+                        <td>
+                            <span class="badge {{ row.statusClass|attr }}">{{ row.status != '' ? row.status|text : 'Unknown'|xlt }}</span>
+                        </td>
+                        <td>{{ row.lastUpdated|text }}</td>
+                        <td>{{ 'Patient'|xlt }}</td>
+                        <td>{{ row.version|text }}</td>
+                        <td class="text-right">
+                            {% if row.editUrl != '' %}
+                                <button type="button" class="btn btn-outline-primary btn-sm assessment-launch" data-assessment-url="{{ row.editUrl|attr }}" data-assessment-title="{{ row.name|attr }}">
+                                    {{ 'View / Edit'|xlt }}
+                                </button>
+                            {% endif %}
+                            {% if row.canLaunchSmart %}
+                                {% include 'patient/assessment/_launch_app_menu.html.twig' with {apps: row.smartApps, questionnaireId: row.questionnaireId, responseRecordId: row.responseRecordId, alignRight: true} only %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>

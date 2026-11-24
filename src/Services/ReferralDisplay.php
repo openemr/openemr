@@ -36,6 +36,7 @@ final class ReferralDisplay
      * @param ?\Closure(list<int>): array<int, ?string> $findTaskStatuses referrals' Task statuses by transaction id; ReferralService::getTaskStatuses() when null
      * @param ?int $overdueDays the referral_overdue_days global when null
      * @param ?\Closure(int): ?string $findResendableTask the Task a re-send would follow on from, by transaction id; ReferralTaskService::resendableTask() when null
+     * @param ?ReferralNoticeRepository $notices what passed between the practice and recipients (#15137)
      */
     public function __construct(
         private ?Environment $twig = null,
@@ -44,6 +45,7 @@ final class ReferralDisplay
         ?ClockInterface $clock = null,
         private ?int $overdueDays = null,
         private ?\Closure $findResendableTask = null,
+        private ?ReferralNoticeRepository $notices = null,
     ) {
         $this->now = ($clock ?? ServiceContainer::getClock())->now();
     }
@@ -86,6 +88,57 @@ final class ReferralDisplay
     public function resendForm(int $transactionId, string $taskUuid, string $csrfToken): string
     {
         return $this->twig()->render('referrals/resend_form.html.twig', [
+            'transaction_id' => $transactionId,
+            'task_uuid' => $taskUuid,
+            'csrf_token' => $csrfToken,
+        ]);
+    }
+
+    /**
+     * What passed between the practice and a saved referral's recipient, for its page (#15137): how
+     * they were told about their Task, Direct sends with it whose delivery failed, and Direct replies
+     * filed with it. Empty unless it is a saved referral with any of those.
+     *
+     * @param bool $confirmable whether to show each reply's Confirm button, which submits replyConfirmForm()
+     */
+    public function communicationForTransactionPage(mixed $formId, mixed $transactionId, bool $confirmable = false): string
+    {
+        if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId) || !($transactionId > 0)) {
+            return '';
+        }
+        $notices = $this->notices ??= new ReferralNoticeRepository();
+        $notice = $notices->latest((int)$transactionId);
+        $failedSends = $notices->failedDirectSends((int)$transactionId);
+        $replies = $notices->directReplies((int)$transactionId);
+        if ($notice === null && $failedSends === [] && $replies === []) {
+            return '';
+        }
+        return $this->twig()->render('referrals/communication.html.twig', [
+            'notice' => $notice,
+            'failed_sends' => $failedSends,
+            'replies' => $replies,
+            'confirmable' => $confirmable,
+        ]);
+    }
+
+    /**
+     * The Task a Direct reply's Confirm button completes (ReferralTaskService::confirmableTask()), or
+     * null when it isn't a saved referral with a Task a reply can complete.
+     */
+    public function confirmableTask(mixed $formId, mixed $transactionId): ?string
+    {
+        if ($formId !== ReferralStatus::FORM_ID || !is_numeric($transactionId) || !($transactionId > 0)) {
+            return null;
+        }
+        return (new ReferralTaskService(new UserService()))->confirmableTask((int)$transactionId);
+    }
+
+    /**
+     * The form a Direct reply's Confirm button submits, outside the page's own form, as resendForm() is.
+     */
+    public function replyConfirmForm(int $transactionId, string $taskUuid, string $csrfToken): string
+    {
+        return $this->twig()->render('referrals/reply_confirm_form.html.twig', [
             'transaction_id' => $transactionId,
             'task_uuid' => $taskUuid,
             'csrf_token' => $csrfToken,

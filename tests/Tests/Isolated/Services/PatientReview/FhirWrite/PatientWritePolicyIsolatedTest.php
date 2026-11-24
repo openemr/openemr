@@ -104,10 +104,51 @@ class PatientWritePolicyIsolatedTest extends TestCase
 
         $this->assertTrue($policy->allowsWrite(PatientWriteClientType::Public, PatientWritableType::VitalSignObservation));
         $this->assertFalse($policy->allowsWrite(PatientWriteClientType::Public, PatientWritableType::AllergyIntolerance));
-        $this->assertSame(
-            [PatientWritableType::QuestionnaireResponse, PatientWritableType::VitalSignObservation],
-            $policy->advertisedTypes(),
-        );
+        // Vital signs is switched on but the API doesn't serve it yet, so it is not advertised.
+        $this->assertSame([PatientWritableType::QuestionnaireResponse], $policy->advertisedTypes());
+    }
+
+    /**
+     * Only a served, enabled type opens the permission gates, and only while the mode is on.
+     */
+    public function testOnlyAnAdvertisedTypeOpensTheGates(): void
+    {
+        $on = new PatientWritePolicy(PatientWriteMode::Confidential, PatientWritableType::cases());
+        $off = new PatientWritePolicy(PatientWriteMode::Off, PatientWritableType::cases());
+
+        $this->assertTrue($on->opensResource('QuestionnaireResponse'));
+        $this->assertFalse($on->opensResource('Observation'), 'not served yet');
+        $this->assertFalse($on->opensResource('MedicationRequest'), 'never writable');
+        $this->assertFalse($on->opensResource('Patient'), 'never writable');
+        $this->assertFalse($off->opensResource('QuestionnaireResponse'));
+    }
+
+    /**
+     * A write scope is issued only to a client the mode allows.
+     */
+    public function testAWriteScopeIsGrantedOnlyToAClientTheModeAllows(): void
+    {
+        $confidentialOnly = new PatientWritePolicy(PatientWriteMode::Confidential, [PatientWritableType::QuestionnaireResponse]);
+        $both = new PatientWritePolicy(PatientWriteMode::ConfidentialAndPublic, [PatientWritableType::QuestionnaireResponse]);
+
+        $this->assertTrue($confidentialOnly->grantsWriteScope(PatientWriteClientType::Confidential, 'QuestionnaireResponse'));
+        $this->assertFalse($confidentialOnly->grantsWriteScope(PatientWriteClientType::Public, 'QuestionnaireResponse'));
+        $this->assertTrue($both->grantsWriteScope(PatientWriteClientType::Public, 'QuestionnaireResponse'));
+        $this->assertFalse($both->grantsWriteScope(PatientWriteClientType::Public, 'Condition'));
+    }
+
+    /**
+     * Each type the API serves needs its approval and read-back in place; this list changes
+     * only on purpose.
+     */
+    public function testOnlyQuestionnaireResponseIsServedByTheApi(): void
+    {
+        $served = array_values(array_filter(
+            PatientWritableType::cases(),
+            static fn (PatientWritableType $type): bool => $type->servedByApi(),
+        ));
+
+        $this->assertSame([PatientWritableType::QuestionnaireResponse], $served);
     }
 
     public function testEnabledTypesAreNotAdvertisedWhileTheModeIsOff(): void

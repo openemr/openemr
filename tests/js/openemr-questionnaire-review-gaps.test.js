@@ -20,7 +20,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RUNTIME = path.resolve(__dirname, '../../interface/forms/questionnaire_assessments/native/openemr_questionnaire.js');
-const COMPONENTS = path.resolve(__dirname, '../../interface/forms/questionnaire_assessments/openemr_questionnaire_components.php');
+const COMPONENTS = path.resolve(__dirname, '../../src/Services/Questionnaire/QuestionnaireRuntimeAssets.php');
 
 new Function('window', 'document', 'HTMLElement', 'HTMLInputElement', 'CustomEvent', fs.readFileSync(RUNTIME, 'utf8'))(
     global.window, global.document, global.window.HTMLElement, global.window.HTMLInputElement, global.window.CustomEvent
@@ -221,7 +221,7 @@ describe('calculated choice answers keep their value type', () => {
 });
 
 describe('translation table parity', () => {
-    // The host passes translated strings through openemr_questionnaire_components.php;
+    // The host passes translated strings through QuestionnaireRuntimeAssets;
     // a key or English text that drifts from DEFAULT_STRINGS silently falls back to
     // English, or leaves a string untranslatable.
     const php = fs.readFileSync(COMPONENTS, 'utf8');

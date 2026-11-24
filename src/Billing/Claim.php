@@ -6,8 +6,10 @@
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -29,6 +31,8 @@ class Claim
 {
     public const X12_VERSION = '005010X222A1';
     public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
+    /** Mammography and breast tomosynthesis: the exams done under an FDA (MQSA) certificate. */
+    public const MAMMOGRAPHY_CODES = ['77061', '77062', '77063', '77065', '77066', '77067', 'G0279'];
 
     public $procs;             // array of procedure rows from billing table
     public $diags;             // array of icd codes from billing table
@@ -244,6 +248,29 @@ class Claim
     {
         // this will take out anything non-numeric
         return preg_replace('/[^0-9]/', '', (string) $zip);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public function x12NpiDigits(string $npi): string
+    {
+        return self::npiDigits($npi);
+    }
+
+    /**
+     * Digits for NM109. Edge whitespace is trimmed, then hyphens and spaces
+     * are removed. Any other character blanks the value.
+     */
+    public static function npiDigits(string $npi): string
+    {
+        $npi = trim($npi);
+        if (preg_match('/[^0-9 -]/', $npi) === 1) {
+            return '';
+        }
+
+        return str_replace(['-', ' '], '', $npi);
     }
 
     /**
@@ -753,6 +780,40 @@ class Claim
     }
 
     /**
+     * The service facility's FDA (MQSA) mammography certification number, for 837P loop 2300
+     * REF*EW. Empty unless the facility has one and the claim bills a mammogram.
+     */
+    public function mammographyCertNumber(): string
+    {
+        $facility = $this->facility;
+        $number = is_array($facility) ? ($facility['mammography_cert_number'] ?? '') : '';
+        if (!is_string($number) || !$this->hasMammography()) {
+            return '';
+        }
+        // Trimmed after cleaning: a value of only characters X12 does not allow leaves nothing to send.
+        return trim((string) $this->x12Clean($number));
+    }
+
+    /**
+     * Whether a service line is a screening or diagnostic mammogram or breast tomosynthesis,
+     * the exams a facility needs an FDA certificate to do.
+     */
+    public function hasMammography(): bool
+    {
+        $procs = $this->procs;
+        if (!is_array($procs)) {
+            return false;
+        }
+        foreach ($procs as $proc) {
+            $code = is_array($proc) ? ($proc['code'] ?? '') : '';
+            if (is_string($code) && in_array(strtoupper(trim($code)), self::MAMMOGRAPHY_CODES, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return string
      */
     public function billingFacilityName()
@@ -831,10 +892,25 @@ class Claim
         return (string) $this->x12Zip($this->billingFacilityMailField('mail_zip'));
     }
 
+    /**
+     * One text column from a facility row. Empty when the row or the column is missing.
+     */
+    private function facilityText(mixed $facility, string $column): string
+    {
+        if (!is_array($facility)) {
+            return '';
+        }
+        $value = $facility[$column] ?? null;
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return trim($value);
+    }
+
     private function billingFacilityMailField(string $field): string
     {
-        $value = is_array($this->billing_facility) ? ($this->billing_facility[$field] ?? null) : null;
-        return is_string($value) ? trim($value) : '';
+        return $this->facilityText($this->billing_facility, $field);
     }
 
     /**
@@ -874,6 +950,22 @@ class Claim
     }
 
     /**
+     * Postal code stored for the billing facility, before digit reduction.
+     */
+    public function billingFacilityPostalCode(): string
+    {
+        return $this->facilityText($this->billing_facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the billing facility. Empty when the row has none.
+     */
+    public function billingFacilityCountry(): string
+    {
+        return $this->facilityText($this->billing_facility, 'country_code');
+    }
+
+    /**
      * @return string
      */
     public function billingFacilityETIN()
@@ -886,7 +978,7 @@ class Claim
      */
     public function billingFacilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_facility['facility_npi']));
     }
 
     /**
@@ -1018,6 +1110,22 @@ class Claim
     }
 
     /**
+     * Postal code stored for the service facility, before digit reduction.
+     */
+    public function facilityPostalCode(): string
+    {
+        return $this->facilityText($this->facility, 'postal_code');
+    }
+
+    /**
+     * Country stored for the service facility. Empty when the row has none.
+     */
+    public function facilityCountry(): string
+    {
+        return $this->facilityText($this->facility, 'country_code');
+    }
+
+    /**
      * @return string
      */
     public function facilityETIN()
@@ -1030,7 +1138,7 @@ class Claim
      */
     public function facilityNPI()
     {
-        return $this->x12Clean(trim((string) $this->facility['facility_npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->facility['facility_npi']));
     }
 
     /**
@@ -1137,6 +1245,17 @@ class Claim
         } else {
             return '';
         }
+    }
+
+    /**
+     * Whether SBR05 will go out empty where the 837 requires it: Medicare Part B as a payer
+     * other than primary, with no Secondary Medicare Type on the policy.
+     */
+    public function secondaryMedicareTypeMissing(int $ins = 0): bool
+    {
+        return $this->claimType($ins) === 'MB'
+            && $this->payerSequence($ins) !== 'P'
+            && in_array($this->insuredTypeCode($ins), ['', null], true);
     }
 
   // Is the patient also the subscriber?
@@ -1529,6 +1648,24 @@ class Claim
      *
      * @return string
      */
+    /**
+     * The service line's billing.id, sent as the line item control number (REF*6R, loop 2400)
+     * so that an 835 can name the line it pays.
+     *
+     * @return string empty when the line has no usable id
+     */
+    public function lineItemControlNumber(int $prockey): string
+    {
+        $procs = $this->procs;
+        $row = is_array($procs) ? ($procs[$prockey] ?? null) : null;
+        $id = is_array($row) ? ($row['id'] ?? null) : null;
+        if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+            return (string) $id;
+        }
+
+        return '';
+    }
+
     public function cptKey($prockey): string
     {
         $tmp = $this->cptModifier($prockey);
@@ -2164,7 +2301,7 @@ class Claim
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
-        return $this->x12Clean(trim($tmp['npi'] ?? ''));
+        return $this->x12Clean($this->x12NpiDigits(trim($tmp['npi'] ?? '')));
     }
 
     public function NPIValid($npi)
@@ -2239,7 +2376,7 @@ class Claim
      */
     public function referrerNPI()
     {
-        return $this->x12Clean(trim((string) $this->referrer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->referrer['npi']));
     }
 
     /**
@@ -2299,7 +2436,7 @@ class Claim
      */
     public function supervisorNPI()
     {
-        return $this->x12Clean(trim((string) $this->supervisor['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->supervisor['npi']));
     }
 
     /**
@@ -2372,7 +2509,7 @@ class Claim
      */
     public function billingProviderNPI()
     {
-        return $this->x12Clean(trim((string) $this->billing_prov_id['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->billing_prov_id['npi']));
     }
 
     /**
@@ -2500,7 +2637,7 @@ class Claim
      */
     public function ordererNPI()
     {
-        return $this->x12Clean(trim((string) $this->orderer['npi']));
+        return $this->x12Clean($this->x12NpiDigits((string) $this->orderer['npi']));
     }
 
     /**

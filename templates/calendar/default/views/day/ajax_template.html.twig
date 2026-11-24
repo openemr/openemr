@@ -26,6 +26,16 @@
            the geometry for the time-label DIV above the actual event
          - inLabelContent : only for catid 2; the pre-built
            "dispstarth:startm content" HTML for the label DIV
+         - visitList : only for a Visit List block; {title, timeLabel,
+           providerId, eventDate, startHour, startMinute, count, rows},
+           each row {eid, pid, eventDate, pccattype,
+           sequenceLabel, patientName, categoryName, statusTitle,
+           bgColor, tooltip, patientTooltip}. The block's patients are not among the
+           column's other events.
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 
 {# Include the calendar header — emits <html><head>setupHeader()</head><body>
@@ -195,7 +205,16 @@
                                     </div>
                                 {% endif %}
 
-                                {% if event.catid != 6 %}
+                                {% if event.visitList is defined %}
+                                    {# Visit List block: its patients as a numbered list, in list order,
+                                       without times. Keeps its time span; a long list scrolls inside it. #}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                         style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        {% include 'calendar/default/views/_visit_list.html.twig' with {visitList: event.visitList, compact: false, addDisabled: isHolidayDay} only %}
+                                    </div>
+                                {% elseif event.catid != 6 %}
                                     <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                                          style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; background-color: {{ event.displayBgColor }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
                                          title="{{ event.tooltip|attr }}"

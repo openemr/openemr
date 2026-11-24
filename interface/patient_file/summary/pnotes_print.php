@@ -20,16 +20,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
-$prow = getPatientData($pid, "squad, title, fname, mname, lname");
+$prow = getPatientData($pid, "title, fname, mname, lname");
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'notes');
 if (!$thisauth) {
     AccessDeniedHelper::deny('Unauthorized access to patient notes print');
-}
-
-if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-    AccessDeniedHelper::deny('Not authorized for squad: ' . $prow['squad']);
 }
 
 $noteid = $_REQUEST['noteid'];

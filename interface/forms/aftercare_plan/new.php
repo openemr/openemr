@@ -72,7 +72,7 @@ echo "<form method='post' name='my_form' " .
             <label class="forms-data"> <?php
             $patient_name = '';
             if ($pid > 0) {
-                $result = getPatientData($pid, "fname,lname,squad");
+                $result = getPatientData($pid, "fname,lname");
                 echo text($result['fname']) . " " . text($result['lname']);
                 $patient_name = $result['fname'] . " " . $result['lname'];
             }

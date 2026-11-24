@@ -46,6 +46,11 @@ class X12Partner extends ORDataObject
     public $x12_sftp_port;
     public $x12_sftp_local_dir;
     public $x12_sftp_remote_dir;
+    public ?string $x12_sftp_receive_dir_835 = null;
+    public ?string $x12_sftp_receive_dir_277 = null;
+    public ?string $x12_sftp_receive_dir_999 = null;
+    public ?string $x12_sftp_receive_worked_dir = null;
+    public ?string $x12_era_auto_post_user = null; // users.id received 835s are posted as, unattended
     public $x12_client_id;
     public $x12_client_secret;
     public $x12_token_endpoint;
@@ -200,6 +205,56 @@ class X12Partner extends ORDataObject
     public function get_x12_sftp_remote_dir()
     {
         return $this->x12_sftp_remote_dir;
+    }
+
+    public function set_x12_sftp_receive_dir_835(?string $string): void
+    {
+        $this->x12_sftp_receive_dir_835 = $string;
+    }
+
+    public function get_x12_sftp_receive_dir_835(): ?string
+    {
+        return $this->x12_sftp_receive_dir_835;
+    }
+
+    public function set_x12_sftp_receive_dir_277(?string $string): void
+    {
+        $this->x12_sftp_receive_dir_277 = $string;
+    }
+
+    public function get_x12_sftp_receive_dir_277(): ?string
+    {
+        return $this->x12_sftp_receive_dir_277;
+    }
+
+    public function set_x12_sftp_receive_dir_999(?string $string): void
+    {
+        $this->x12_sftp_receive_dir_999 = $string;
+    }
+
+    public function get_x12_sftp_receive_dir_999(): ?string
+    {
+        return $this->x12_sftp_receive_dir_999;
+    }
+
+    public function set_x12_sftp_receive_worked_dir(?string $string): void
+    {
+        $this->x12_sftp_receive_worked_dir = $string;
+    }
+
+    public function get_x12_sftp_receive_worked_dir(): ?string
+    {
+        return $this->x12_sftp_receive_worked_dir;
+    }
+
+    public function set_x12_era_auto_post_user(?string $string): void
+    {
+        $this->x12_era_auto_post_user = $string;
+    }
+
+    public function get_x12_era_auto_post_user(): ?string
+    {
+        return $this->x12_era_auto_post_user;
     }
 
     public function set_name($string)

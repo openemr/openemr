@@ -93,7 +93,8 @@ RUN set -eux; \
 # PHP 8.7 only exists on master today (no 8.7 tag or PHP-8.7 branch yet), so we clone master.
 # The point of this nightly image is to catch breakage against in-development PHP 8.7 early.
 # (When 8.6 was in this slot the same rationale applied; it graduated to
-# php:8.6-rc-fpm once upstream cut a PHP-8.6 branch + published RC images.)
+# php:8.6-rc-fpm once upstream cut a PHP-8.6 branch + published RC images, then
+# to php:8.6-fpm at 8.6 GA.)
 #	git checkout "$( \
 #		git for-each-ref --format='%(refname)' refs/tags \
 #		| grep -E 'refs/tags/php-8\.2[.0-9]+$' \
@@ -162,7 +163,7 @@ RUN set -eux; \
 		--enable-ftp \
 # mbstring intentionally NOT bundled here, matching docker-library/php's 8.6+
 # policy (see docker-library/php#1654). Upstream dropped `--enable-mbstring`
-# and `libonig-dev` from the 8.6-rc image alongside `--with-pear`, since
+# and `libonig-dev` from the 8.6 image alongside `--with-pear`, since
 # mbstring was only bundled to support the removed PECL binary. Mirroring
 # that policy here keeps the 8.7 dev-track sidecar shape aligned with what
 # the eventual official php:8.7-fpm image will ship, so the sidecar catches

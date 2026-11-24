@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- setupHeader stub -->
+    <title>Calendar</title>
+    <!--[if IE]>
+        <link rel="stylesheet" href="/interface/themes/ajax_calendar_ie.css">
+    <![endif]-->
+                <!-- the javascript used for the ajax_* style calendars -->
+    <script src="/library/js/calendarDirectSelect.js?v=82"></script>
+</head>
+<body class=" calsearch_body w-100">
+
+<div id="wrapper">
+
+<form name="theform" id="theform" action="index.php?module=PostCalendar&amp;func=view&amp;pc_category=&amp;pc_topic=" method="post" onsubmit="return top.restoreSession()">
+<div class="container-fluid sticky-top">
+<div id="topToolbarRight" class="bgcolor2">
+    <div id="functions">
+        <a id="menu-toggle" href="#" class="btn btn-outline-dark"><i class="fas fa-bars"></i></a>
+        <input type="hidden" name="jumpdate" id="jumpdate" value="" />
+        <input type="hidden" name="viewtype" id="viewtype" value="week" />
+        <a href="#" title="New Appointment" onclick="newEvt(1, 9, 00, &quot;20260309&quot;, 0, 0)" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+        <a href="#" title="Search Appointment" onclick='top.restoreSession();location="index.php?module=PostCalendar&amp;func=search"' class="btn btn-primary"><i class="fa fa-search"></i></a>
+                    <a href="#" name="bnsubmit" value="Today" onclick="GoToToday(theform);" class="btn btn-primary">Today</a>
+            </div>
+
+    <div id="dateNAV">
+        <a id="prevweek" href="?prev" onclick="top.restoreSession()" title="Previous Week"><i class="fa fa-chevron-left chevron_color"></i></a>
+        Mar 08 - Mar 14
+        <a id="nextweek" href="?next" onclick="top.restoreSession()" title="Next Week"><i class="fa fa-chevron-right chevron_color"></i></a>
+    </div>
+
+    <div id="viewPicker">
+        <a href="#" id="printview" title="View Printable Version" class="btn btn-primary"><i class="fa fa-print"></i></a>
+        <a href="#" title="Refresh" onclick="javascript:refreshme()" class="btn btn-primary"><i class="fa fa-sync"></i></a>
+        <a href="#" type="button" id="dayview" title="Day View" class="btn btn-primary">Day</a>
+        <a href="#" type="button" id="weekview" title="Week View" class="btn btn-primary">Week</a>
+        <a href="#" type="button" id="monthview" title="Month View" class="btn btn-primary">Month</a>
+    </div>
+</div>
+</div>
+
+<div class="sticky-top">
+<div id="bottomLeft" class="sidebar-wrapper">
+<div id="datePicker">
+    <select id="monthPicker"></select>
+    <div class="table-responsive">
+        <table class="table table-sm table-borderless">
+            <tbody>
+                <tr>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="20260201" title="February">&lt;</td>
+                    <td colspan="5" class="tdMonthName-small">March 2026 </td>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="20260401" title="April">&gt;</td>
+                </tr>
+                <tr>
+                                            <td class="tdDOW-small">Sun</td>
+                                            <td class="tdDOW-small">Mon</td>
+                                            <td class="tdDOW-small">Tue</td>
+                                            <td class="tdDOW-small">Wed</td>
+                                            <td class="tdDOW-small">Thu</td>
+                                            <td class="tdDOW-small">Fri</td>
+                                            <td class="tdDOW-small">Sat</td>
+                                    </tr>
+                            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="providerPicker">
+    Providers
+    <div>
+            </div>
+    <select multiple size="5" name="pc_username[]" id="pc_username" class="view2 form-control">
+        <option value="__PC_ALL__">All Users</option>
+            </select>
+</div>
+
+    <ul class="list-group list-group-flush" id="facilityColor">
+            </ul>
+
+<div id="popup" class="pop-up">
+    <img id="popupImage" alt="" />
+</div>
+</div><!-- end bottomLeft -->
+</div>
+
+<div class="page-content-wrapper">
+<div class="container-fluid calsearch_body">
+<div id="bigCal">
+    <div class="table-responsive">
+        <table class="table border-0">
+            <tr>
+                <td colspan="8" class="providerheader">
+                    Alex Rivera
+                </td>
+            </tr>
+                        <tr>
+                                <td class="providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td>
+                                                                            <td class="text-center week_dateheader week_currday">
+                        <a href="?day=20260309" title="09 Mar 2026">Mon 03/09</a>
+                    </td>
+                            </tr>
+            <tr>
+                <td id="times" class="calendar-times-col">
+                    <div class="calendar-times-inner">
+                        <table class="table calendar-times-table">
+                                                    </table>
+                    </div>
+                </td>
+
+                                                                            <td class="schedule work-day" date="20260309" provider="7">
+                        <div class="calendar_day">
+
+                                                                                                        <div data-eid="40" class="event_visit_list event visit-list-compact"
+                                         style="top:40px; height:320px; ; "
+                                         title="Monday March 9 2026"
+                                         id="20260309-40-1">
+                                        <div class="visit-list-header">
+    <button type="button" class="visit-list-title" title="Click to edit">Visit List</button>
+    <span class="visit-list-summary">9:00am–5:00pm · 2 patients</span>
+    <button type="button" class="visit-list-add btn btn-sm btn-primary"            data-date="20260309" data-provider="7"
+            data-hour="9" data-minute="00"
+            title="Add a patient to this Visit List" aria-label="Add a patient to this Visit List">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+</div>
+<ol class="visit-list-entries">
+                    <li class="visit-list-entry" style="background-color: #FF2414"
+            data-eid="41" data-date="20260309" data-cattype="0"
+            title="Hollis, Margaret
+Established Patient">
+            <button type="button" class="visit-list-sequence" title="Click to edit">#1</button>
+            <a class="visit-list-patient" href="#" data-pid="541" title="Hollis, Margaret
+(Click to view)">Hollis, Margaret</a>
+                    </li>
+                    <li class="visit-list-entry" style="background-color: #a2d9e2"
+            data-eid="42" data-date="20260309" data-cattype="0"
+            title="O&#039;Brien, Pat &lt;Jr&gt;
+New Patient">
+            <button type="button" class="visit-list-sequence" title="Click to edit">#2</button>
+            <a class="visit-list-patient" href="#" data-pid="542" title="O&#039;Brien, Pat &lt;Jr&gt;
+(Click to view)">O'Brien, Pat &lt;Jr&gt;</a>
+                    </li>
+    </ol>
+                                    </div>
+                                                                                    </div>
+                    </td>
+                            </tr>
+        </table>
+    </div>
+</div>
+</div>
+</form>
+</div>
+</div><!-- end #wrapper -->
+
+<script>
+    function event_time_click(elem) {
+        EditEvent($(elem).parents("div.event_appointment").get(0));
+    }
+</script>
+<script>
+
+ // This is called from the event editor popup.
+ function refreshme() {
+  top.restoreSession();
+  document.forms[0].submit();
+ }
+
+ // Holiday / clinic-closed days must not open the create dialog.
+ function isClosedDay(eventdate) {
+  var holidayDate = String(eventdate || '');
+  var $holidayCell = $('#bigCal td.schedule[data-holiday="1"][date="' + holidayDate + '"]');
+  if (!$holidayCell.length && typeof pcIsHolidayDay !== 'undefined' && pcIsHolidayDay) {
+    // Day view: single Date applies to the whole grid.
+    $holidayCell = $('#bigCal td.schedule.schedule-holiday');
+  }
+  return $holidayCell.length > 0;
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  if (isClosedDay(eventdate)) {
+    return false;
+  }
+  dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
+   '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
+   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+ }
+
+ // Add a patient to a Visit List: a new appointment with no time of its own, at the block's
+ // start (hour in 24-hour form), for the block's provider and date.
+ function newVisitListEvt(eventdate, providerid, starttimeh, starttimem) {
+  if (isClosedDay(eventdate)) {
+    return false;
+  }
+  dlgopen('add_edit_event.php?visitlist=1&starttimeh=' + encodeURIComponent(starttimeh) +
+   '&starttimem=' + encodeURIComponent(starttimem) + '&userid=' + encodeURIComponent(providerid) +
+   '&date=' + encodeURIComponent(eventdate)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+ }
+
+ function oldEvt(eventdate, eventid, pccattype) {
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 650);
+ }
+
+ function oldGroupEvt(eventdate, eventid, pccattype){
+  top.restoreSession();
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
+ }
+
+ function goPid(pid) {
+  top.restoreSession();
+  const params = new URLSearchParams({set_pid: pid, csrf_token_form: top.csrf_token_js});
+  top.RTop.location = '../../patient_file/summary/demographics.php?' + params;
+ }
+
+ function goGid(gid) {
+  top.restoreSession();
+  const params = new URLSearchParams({method: 'groupDetails', group_id: gid, csrf_token_form: top.csrf_token_js});
+  top.RTop.location = '/therapy_groups/index.php?' + params;
+ }
+
+ function GoToToday(theForm){
+  var todays_date = new Date();
+  var theMonth = todays_date.getMonth() + 1;
+  theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
+  theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+  top.restoreSession();
+  theForm.submit();
+ }
+
+ function ShowImage(src) {
+     var img = document.getElementById('popupImage');
+     var div = document.getElementById('popup');
+     img.src = src;
+     div.style.display = "block";
+ }
+
+ function HideImage() {
+     document.getElementById('popup').style.display = "none";
+ }
+</script>
+<script src="/library/js/calendarVisitList.js?v=82"></script>
+<script>
+        var tsHeight="20px";
+    var tsHeightNum=20;
+    var pcIsHolidayDay = false;
+    var pcWebroot="";
+    var pcViewtype="week";
+    var pcDate="20260309";
+
+    function providerXclick(e) {
+        var username=$(this).data('username');
+        if (username=='__PC_ALL__') {
+            $("#pc_username option:gt(0)").prop("selected", true);
+        } else {
+            $("#pc_username option[value="+username+"]").prop("selected", false);
+        }
+        ChangeProviders($("#pc_username"));
+    }
+
+    $(function () {
+        $("#pc_username").change(function() { ChangeProviders(this); });
+        $("#pc_facility").change(function() { ChangeProviders(this); });
+        $("#dayview").click(function() { ChangeView(this); });
+        $("#weekview").click(function() { ChangeView(this); });
+        $("#monthview").click(function() { ChangeView(this); });
+        $(".tdDatePicker").click(function() { ChangeDate(this); });
+        $("#datePicker .tdDatePicker").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#datePicker .tdDatePicker").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#printview").click(function() { PrintView(this); });
+        $(".event").dblclick(function() { EditEvent(this); });
+        // A Visit List's + adds a patient to it and a click on its header edits the
+        // block itself. A patient row works like a timed appointment: its number
+        // (in place of a time) and a double click edit the appointment, and the
+        // name opens the chart. All are kept from reaching the block, whose double
+        // click edits the block, and the number and name from the row's double
+        // click, so one double click cannot open two windows.
+        $(".visit-list-add").on("click", function(e) {
+            e.stopPropagation();
+            newVisitListEvt($(this).data("date"), $(this).data("provider"), $(this).data("hour"), $(this).data("minute"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-header").on("click", function(e) {
+            e.stopPropagation();
+            EditEvent($(this).closest(".event_visit_list").get(0));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        var editVisitListPatient = function(row) {
+            oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
+        };
+        $(".visit-list-entry").on("dblclick", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this));
+        });
+        $(".visit-list-sequence").on("click", function(e) {
+            e.stopPropagation();
+            editVisitListPatient($(this).closest(".visit-list-entry"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        $(".visit-list-patient").on("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            goPid($(this).data("pid"));
+        }).on("dblclick", function(e) { e.stopPropagation(); });
+        // A Visit List block keeps the height of its time range. When its patients don't
+        // fit, it shows the rows that do and "+N more", which opens the whole list.
+        pcSetUpVisitLists(document, {
+            more: "+%s more",
+            fewer: "Show fewer"
+        });
+        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".tdMonthName-small").click(function() {
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
+
+        $('.providerXbtn').on('click', providerXclick);
+    });
+
+    /* edit an existing event */
+    var EditEvent = function(eObj) {
+        objID = eObj.id;
+        var parts = new Array();
+        parts = objID.split("-");
+        editing_group = $(eObj).hasClass("groups");
+        if(editing_group){
+            oldGroupEvt(parts[0], parts[1], parts[2]);
+            return true;
+        }
+        oldEvt(parts[0], parts[1], parts[2]);
+        return true;
+    }
+
+    var ChangeDate = function(eObj) {
+        baseURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
+        newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
+        document.location.href=newURL;
+    }
+
+    var PrintView = function (eventObject) {
+        printURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=" + encodeURIComponent(pcDate) + "&print=1&pc_username=&pc_category=&pc_topic=";
+        window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
+        return false;
+    }
+
+    var ChangeProviders = function (eventObject) {
+        $('#theform').submit();
+    };
+
+    var ChangeView = function (eventObject) {
+        if (eventObject.id == "dayview") { $("#viewtype").val('day'); }
+        else if (eventObject.id == "weekview") { $("#viewtype").val('week'); }
+        else if (eventObject.id == "monthview") { $("#viewtype").val('month'); }
+        else if (eventObject.id == "yearview") { $("#viewtype").val('year'); }
+        $('#theform').submit();
+    };
+
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+</script>
+
+<style>
+    #bigCal td#times,
+    #bigCal td.calendar-times-col {
+        box-sizing: border-box;
+        max-width: 3.25rem !important;
+        min-width: 3.25rem !important;
+        overflow: hidden;
+        padding: 0.3125rem !important;
+        vertical-align: top;
+        width: 3.25rem !important;
+    }
+    #bigCal .calendar-times-inner {
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow: hidden;
+        width: 100%;
+    }
+    #bigCal td#times table,
+    #bigCal table.calendar-times-table {
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        table-layout: fixed;
+        width: 100%;
+    }
+    #bigCal td#times table td,
+    #bigCal table.calendar-times-table td {
+        overflow: hidden;
+        text-overflow: clip;
+        white-space: nowrap;
+    }
+    #bigCal td.timeslot {
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+    /* Appointments are placed one slot height per slot, so each time row must be
+       exactly that tall for a time to line up with what starts then. A cell border
+       would add to the row (the table rounds 20px + 1px border to 20.2px, and the
+       times drift lower down the day), so the line between rows is drawn inside
+       the cell instead. */
+    #bigCal table.calendar-times-table td.timeslot {
+        border: 0;
+        box-shadow: inset 0 1px 0 var(--gray300, #dee2e6);
+        height: 20px;
+        line-height: 20px;
+    }
+    /* One text size for the times, the appointments and Visit Lists. A line of an
+       appointment is one slot less its 1px borders, so a one-slot appointment's text
+       sits centered in its box, level with its time, instead of overflowing it. */
+    #bigCal table.calendar-times-table td.timeslot,
+    #bigCal .calendar_day .event {
+        font-size: 0.875rem;
+    }
+    #bigCal .calendar_day .event:not(.event_visit_list) {
+        line-height: 18px;
+        padding-inline-start: 0.25rem;
+    }
+    /* Hovering an appointment makes its text bold and its border darker, but leaves
+       the box where it is: the theme's hover style pulls it up and left (a negative
+       margin) and thickens two borders, which moved it off its time. */
+    #bigCal .calendar_day .event.event_highlight {
+        border-width: 1px;
+        margin: 0;
+    }
+    /* The patient icon a little smaller than the name beside it, with a space's room
+       on each side, as the dash before it has. */
+    #bigCal .calendar_day .event .link_title > i {
+        font-size: 0.8em;
+        margin-inline: 0.25rem;
+    }
+    /* Day view: the times' top row (the provider icon) and each provider's name bar
+       above its appointments are the same height, so the first time and the top of
+       the appointments start level. */
+    #bigCal table.calendar-times-table td.timeslot.providerXbtn,
+    #bigCal .providerheader.providerday {
+        box-sizing: border-box;
+        height: 1.75rem;
+        line-height: calc(1.75rem - 2px);
+    }
+    /* Time gutter on holidays: show labels but do not offer new-appointment links. */
+    #bigCal td.timeslot.timeslot-holiday .timeslot-holiday-label {
+        color: var(--gray600, #6c757d);
+        cursor: not-allowed;
+        display: block;
+        opacity: 0.75;
+        text-decoration: none;
+        user-select: none;
+    }
+</style>
+
+<script>
+    $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });
+</script>

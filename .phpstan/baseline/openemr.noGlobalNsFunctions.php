@@ -462,16 +462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getOldDetail may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function parseDate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function is_clinic may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
@@ -600,11 +590,6 @@ $ignoreErrors[] = [
     'message' => '#^Function send_drug_email may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function array_key_exists_default may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function LicensedPrescriber may not be defined in the global namespace\\.$#',
@@ -3920,11 +3905,6 @@ $ignoreErrors[] = [
     'message' => '#^Function Insert_Rows may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function phimail_check may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function addNewDocument may not be defined in the global namespace\\.$#',

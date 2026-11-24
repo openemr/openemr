@@ -5,8 +5,9 @@
  *
  * This is the engine behind the Merge Patients page. It exists to correct the error of creating a
  * duplicate patient: everything on the source chart that is not identity data (demographics,
- * history, insurance) is repointed at the target chart, the source's documents are moved, and the
- * source's identity rows are deleted.
+ * history) is repointed at the target chart, the source's documents are moved, and the source's
+ * identity rows are deleted. The source's insurance policies move too, except one whose level and
+ * start date the target already has; see {@see self::moveInsurance()}.
  *
  * Two behaviors are worth knowing before changing anything here:
  *
@@ -53,7 +54,7 @@ class PatientMergeService
      * Tables that describe who the patient is. The target chart's copies are authoritative, so
      * the source's rows are deleted rather than repointed.
      */
-    private const IDENTITY_TABLES = ['patient_data', 'history_data', 'insurance_data'];
+    private const IDENTITY_TABLES = ['patient_data', 'history_data'];
 
     /**
      * @param string $documentsDirectory Absolute path of the site's documents directory; each
@@ -311,6 +312,8 @@ class PatientMergeService
 
             if (in_array($tableName, self::IDENTITY_TABLES, true)) {
                 $this->deleteRows($tableName, 'pid', $sourcePid, $targetPid, $log);
+            } elseif ($tableName === 'insurance_data') {
+                $this->moveInsurance($sourcePid, $targetPid, $log);
             } elseif ($tableName === 'chart_tracker') {
                 $this->updateRows($tableName, 'ct_pid', $sourcePid, $targetPid, $log);
             } elseif ($tableName === 'documents') {
@@ -413,6 +416,49 @@ class PatientMergeService
             'delete',
             "Deleted rows with $columnName = $sourcePid in table $tableName"
         );
+    }
+
+    /**
+     * Move the source patient's policies to the target, except one whose level and start date the
+     * target already has.
+     *
+     * The source's visits, claims and payments move to the target, and a secondary claim or a
+     * rebill for one of them looks up the policy in force on the visit's date, so the policies move
+     * with them. insurance_data is unique on (pid, type, date): where the target already holds a
+     * policy at that level and start date, the target's is kept and the source's is deleted. An
+     * undated policy counts as starting on the same day as another undated one at its level, so a
+     * merge doesn't give the target a second undated policy at a level for a reader to choose
+     * between.
+     */
+    private function moveInsurance(int $sourcePid, int $targetPid, PatientMergeLog $log): void
+    {
+        $collisions = [];
+        $rows = QueryUtils::fetchRecords(
+            "SELECT DISTINCT `s`.`id` FROM `insurance_data` AS `s` JOIN `insurance_data` AS `t`"
+            . " ON `t`.`pid` = ? AND `t`.`type` <=> `s`.`type` AND `t`.`date` <=> `s`.`date`"
+            . " WHERE `s`.`pid` = ? ORDER BY `s`.`id`",
+            [$targetPid, $sourcePid]
+        );
+        foreach ($rows as $row) {
+            $collisions[] = self::asInt($row['id'] ?? 0);
+        }
+
+        if ($collisions !== []) {
+            $sql = "DELETE FROM `insurance_data` WHERE `pid` = ? AND `id` IN ("
+                . implode(', ', array_fill(0, count($collisions), '?')) . ")";
+            $log->add("$sql (" . count($collisions) . ")");
+            if ($this->production) {
+                QueryUtils::sqlStatementThrowException($sql, [$sourcePid, ...$collisions]);
+                $this->logMergeEvent(
+                    $targetPid,
+                    'delete',
+                    "Deleted rows with pid = $sourcePid in table insurance_data whose type and date the target"
+                    . " already has (id " . implode(', ', $collisions) . ")"
+                );
+            }
+        }
+
+        $this->updateRows('insurance_data', 'pid', $sourcePid, $targetPid, $log);
     }
 
     /**

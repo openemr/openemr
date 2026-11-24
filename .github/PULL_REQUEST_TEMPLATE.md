@@ -20,12 +20,11 @@ If this resolves an existing issue, link to one or more issues in the short desc
 #### Was an AI assistant used? Yes / No
 
 <!--
-If yes, add an `Assisted-by` trailer to each commit that used AI assistance:
+If yes, add a trailer naming the tool to each commit the AI helped make
+(reviewing alone needs none): `Generated-By` only if the AI made every change
+in the commit, `Assisted-By` if a person made any.
 
 ```
-git commit --trailer "Assisted-by: Claude Code" -m "fix(calendar): correct date parsing"
+git commit --trailer "Generated-By: Claude Code" -m "fix(calendar): correct date parsing"
 ```
-
-Use the name of the specific tool (e.g. `GitHub Copilot`, `Claude Code`, `ChatGPT`).
-If the AI made the commit(s), this trailer was probably added automatically.
 -->

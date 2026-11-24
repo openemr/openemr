@@ -30,7 +30,7 @@ subsection updated per shepherd pass.
 **Shipped since <reference-date> (<count> <subject> PRs merged):**
 
 - #NNNN — <commit-type>(<scope>): <title> — <author> (<merge-date> at `<merge-sha-short>`).
-  <One-sentence summary>. Brief: `/path/to/pr-NNNN-review-brief.md`. **🚢 SHIPPED.**
+  <One-sentence summary>. Brief: `pr-NNNN-review-brief.md`. **🚢 SHIPPED.**
 - ...
 
 **Open as of <YYYY-MM-DD> (<count> PRs):**
@@ -39,7 +39,7 @@ Changes since the <prior-date> snapshot:
 - <delta bullets — see stocktake.md §4>
 
 ✅ Shepherd-reviewed, merge-ready:
-- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `/path/...`.
+- #NNNN — <title> — <author>. <one-sentence verdict>. Brief: `pr-NNNN-review-brief.md`.
 
 🔶 Shepherd-reviewed, merge-ready with known residual:
 - #NNNN — ... <reason for residual>. Brief: ...
@@ -56,6 +56,11 @@ Changes since the <prior-date> snapshot:
 Outside primary scope (visibility only):
 - #NNNN — ... <why out of scope>.
 ```
+
+**Point at a brief by file name only** (`pr-NNNN-review-brief.md`), never by absolute
+path. The workstream doc is committed and public; the brief is private and its directory
+differs per machine ([§5](#5-filesystem-locations)), so a full path helps no other reader
+and publishes a local layout. The shepherd log is not committed and can carry the full path.
 
 ### 1.3 Updating the doc as PRs land
 
@@ -122,10 +127,17 @@ Standing rules:
 
 ## Legend
 
-- ✅ **Merge-ready** — verified locally + no rabbit concerns + aligns with register
-- 🔶 **Minor concern** — merge-ready-with-note; brief captures the concern
-- 🔴 **Substantive concern** — hold or request change; private brief
-- ⏸️ **Deferred** — not reviewed this pass (feature chains / out of scope / needs maintainer judgment)
+Same emojis and meanings as standing-rules §9 (`docs/pr-shepherding/standing-rules.md` in the repo):
+
+- ⏳ **Awaiting shepherd review** — metadata passes; no brief yet, or the brief's reviewed head or base tip no longer matches
+- ✅ **Merge-ready** — brief with approve verdict; decision gate passes
+- 🔶 **Merge-ready with known residual** — as ✅; the brief captures one non-blocking concern
+- 🔴 **Held** — a decision-gate row fails; the entry names the blocker and its owner
+- ⏸️ **Author-declared draft** — scan only; no deep review
+- 🚢 **Shipped** — appended once the maintainer confirms the merge
+
+A PR that is outside primary scope, or that the maintainer deferred, gets no emoji: say
+so in its verdict line.
 
 ## Review outcomes
 
@@ -305,6 +317,53 @@ indicating source-level fixes.
 decision at a glance>.
 ```
 
+### 3.12 STATE DELTA header (brief maintenance across post-verdict shifts)
+
+When post-verdict state shifts — whether the verdict survives (maintainer inline
+comment resolved by re-read, base advance that re-clears the merge-compatibility
+([per-pr-review §6.6](per-pr-review.md#66-probe-an-unknown-mergeable-state)) and
+baseline-integrity ([per-pr-review §7](per-pr-review.md#7-check-baseline-integrity))
+checks, post-resume rabbit finding scoped out) or the verdict changes (✅→🔴 from a
+maintainer-spotted gap, 🔴→✅ after a block is cleared) — prepend a dated delta
+header to the brief rather than rewriting the body. Preserves the
+verified-at-head-X evidence trail while making the current state scannable.
+
+```markdown
+## STATE DELTA — <YYYY-MM-DD>
+
+**Current verdict:** <bucket emoji + new verdict if changed, or "unchanged ✅/🔶/🔴" if preserved>.
+**Observed head:** `<new-head-sha>` (set when head moved; mark "re-verified" once
+checks run against it).
+**Observed base-tip:** `<new-base-tip-sha>` (same convention).
+
+<One-paragraph note: what changed, what the brief body no longer reflects, which
+sections need re-verification before the verdict applies again. End with the
+re-verification criteria for the delta.>
+
+---
+
+<original brief body below, unchanged>
+```
+
+Record the observed head + base-tip SHAs whenever either moved, even on an
+"unchanged verdict" delta — without them, a reader can't tell which revisions
+are under re-verification. Promote to "re-verified" once the checks finish
+against the observed SHAs; those SHAs then supersede the §3.2 header.
+
+**Delta authority.** The delta is authoritative for any fact it records as changed —
+re-verifying one finding doesn't make an unrelated stale statement in the brief body
+accurate again. When successive deltas accumulate (verdict changes twice), the newest
+delta supersedes earlier deltas for the specific facts it updates; earlier deltas
+remain authoritative for unrelated facts they recorded. The brief body returns to
+fully authoritative only when it's updated to reflect the changed facts while
+preserving the original evidence (e.g. "Updated 2026-11-09: X finding now addressed,
+see commit Y; original pre-fix evidence in the delta above").
+
+Pattern observed across multiple shepherd passes (4+ uses in one pass alone): used when
+a maintainer inline comment flips ✅→🔴, when a base advance introduces a baseline
+violation the brief predates, when a post-unpause rabbit review adds a Minor, or when
+re-reading under a mid-pass standing-rule change surfaces a reclassification.
+
 ---
 
 ## 4. Follow-up register entry (format)
@@ -349,6 +408,11 @@ whatever persistent-memory mechanism that agent provides.
 - After each merge-ready verdict (so the maintainer can read the doc + brief together).
 - After each `landed <N>` from the maintainer (move entry to shipped).
 - After adding a follow-up register entry.
+
+These commits go on a branch and reach `master` through a PR like any other change;
+never commit the workstream doc on `master` directly
+([standing-rules §1.5](standing-rules.md#15-no-destructive-git-actions-on-mastermain)).
+Several of them can ride in one PR.
 
 Each commit should be one of these three kinds of change, not a mix. One-sentence commit
 message in the `docs(<area>): <action>` shape:
