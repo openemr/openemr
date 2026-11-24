@@ -18,9 +18,9 @@ use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Billing\FacilityZipDenial;
 use OpenEMR\Billing\UnbilledFileDecision;
+use OpenEMR\Common\Database\SqlQueryException;
 
 abstract class AbstractProcessingTask
 {
