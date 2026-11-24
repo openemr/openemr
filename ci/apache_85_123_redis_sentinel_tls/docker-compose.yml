@@ -29,7 +29,9 @@ services:
       # Idempotent: skip if certs already exist.  docker compose up may
       # restart this container on subsequent calls; regenerating would
       # invalidate certs the running Redis/Sentinel containers already loaded.
-      if [ -f /certs/ca.crt ]; then
+      # The marker is written only by the current cert layout (with
+      # IP:127.0.0.1), so a volume left by an older run is regenerated.
+      if [ -f /certs/ca.crt ] && [ -f /certs/.san-loopback ]; then
           echo "Certs already present — skipping generation."
           exit 0
       fi
@@ -66,6 +68,7 @@ services:
       ln -sf client.key redis-master-key
 
       chmod 644 *.crt *.key ca.key
+      touch .san-loopback
       ls -la /certs/
     volumes:
     - redis-certs:/certs
