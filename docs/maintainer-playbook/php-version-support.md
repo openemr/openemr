@@ -65,9 +65,21 @@ Two sidecar-track touch-points per PHP release:
    "supported" bucket in `.github/workflows/isolated-tests.yml`, and add it
    to any matrix workflows that iterate PHP versions.
 
-Both touch-points happen on the same calendar beat as the oldest-version drop,
-but they're independent commits/PRs. Keep them separate — bundling adds review
-noise.
+RC and GA do **not** share a calendar beat. The RC image typically ships in
+September (upstream cuts RC1 ~2 months before November GA — e.g. PHP 8.5 RC1
+landed September 2025), so start the RC stage as soon as `php:X.Y-rc-fpm`
+appears on Docker Hub; waiting until November loses weeks of pre-GA CI
+testing. The GA stage then shares the November beat with the oldest-version
+drop review (see "When to drop" above). Both touch-points are independent
+commits/PRs either way — keep them separate.
+
+After the sidecar FROM flip in either stage, the next weekly rebuild of
+`openemr/dev-php-fpm:X.Y` publishes the refreshed image to Docker Hub.
+Dependabot's `docker-compose` jobs (`.github/dependabot.yml`) then bump the
+`openemr/dev-php-fpm:X.Y@sha256:*` digest pins across `ci/nginx_8<Y>/` and
+`docker/development-insane/` on the next scheduled scan — the project's own
+images are excluded from the 3-day cooldown so CI picks up each rebuild
+promptly. No manual digest updates needed.
 
 ---
 
