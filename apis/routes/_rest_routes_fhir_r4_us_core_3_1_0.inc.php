@@ -47,6 +47,7 @@ use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
+use OpenEMR\RestControllers\FHIR\FhirPatientAppWriteController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
@@ -86,6 +87,7 @@ use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -118,7 +120,7 @@ return [
     },
 
     "POST /fhir/AllergyIntolerance" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -130,7 +132,7 @@ return [
     },
 
     "PUT /fhir/AllergyIntolerance/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -142,7 +144,7 @@ return [
     },
 
     "POST /fhir/Appointment" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "appt");
+        RestConfig::request_authorization_check($request, "patients", "appt", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -201,7 +203,7 @@ return [
     },
 
     "POST /fhir/CarePlan" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -213,7 +215,7 @@ return [
     },
 
     "PUT /fhir/CarePlan/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -251,7 +253,7 @@ return [
     },
 
     "POST /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -263,7 +265,7 @@ return [
     },
 
     "PUT /fhir/CareTeam/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -286,7 +288,7 @@ return [
     },
 
     "POST /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -298,7 +300,7 @@ return [
     },
 
     "PUT /fhir/Condition/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -508,7 +510,7 @@ return [
     },
 
     "POST /fhir/Encounter" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        RestConfig::request_authorization_check($request, "encounters", "auth_a", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -520,7 +522,7 @@ return [
     },
 
     "PUT /fhir/Encounter/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "encounters", "auth_a");
+        RestConfig::request_authorization_check($request, "encounters", "auth_a", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -656,7 +658,7 @@ return [
     },
 
     "POST /fhir/Immunization" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -668,7 +670,7 @@ return [
     },
 
     "PUT /fhir/Immunization/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -761,7 +763,7 @@ return [
         // Medication writes touch the global `drugs` master table — the UI gates
         // add/edit on `admin/drugs`, so the FHIR write surface must require the
         // same privilege, not the broader `patients/med` clinical-staff ACL.
-        RestConfig::request_authorization_check($request, "admin", "drugs");
+        RestConfig::request_authorization_check($request, "admin", "drugs", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -774,7 +776,7 @@ return [
 
     "PUT /fhir/Medication/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // See POST /fhir/Medication — master drug edits require admin/drugs.
-        RestConfig::request_authorization_check($request, "admin", "drugs");
+        RestConfig::request_authorization_check($request, "admin", "drugs", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -833,7 +835,7 @@ return [
     },
 
     "POST /fhir/MedicationRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "rx");
+        RestConfig::request_authorization_check($request, "patients", "rx", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -845,7 +847,7 @@ return [
     },
 
     "PUT /fhir/MedicationRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "rx");
+        RestConfig::request_authorization_check($request, "patients", "rx", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -868,7 +870,7 @@ return [
     },
 
     "POST /fhir/Observation" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -880,7 +882,7 @@ return [
     },
 
     "PUT /fhir/Observation/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "encounters", "notes");
+        RestConfig::request_authorization_check($request, "encounters", "notes", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -954,7 +956,7 @@ return [
         return $return;
     },
     "POST /fhir/Patient" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -966,7 +968,7 @@ return [
         return $return;
     },
     "PUT /fhir/Patient/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1054,7 +1056,7 @@ return [
     },
 
     "POST /fhir/Person" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1066,7 +1068,7 @@ return [
     },
 
     "PUT /fhir/Person/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1101,7 +1103,7 @@ return [
         return (new FhirPractitionerRestController($service))->getOne($uuid);
     },
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1111,7 +1113,7 @@ return [
         return $return;
     },
     "PUT /fhir/Practitioner/:uuid" => function (string $uuid, HttpRestRequest $request) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1139,7 +1141,7 @@ return [
     },
 
     "POST /fhir/PractitionerRole" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1151,7 +1153,7 @@ return [
     },
 
     "PUT /fhir/PractitionerRole/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1185,7 +1187,7 @@ return [
     },
 
     "POST /fhir/RelatedPerson" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1197,7 +1199,7 @@ return [
     },
 
     "PUT /fhir/RelatedPerson/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1232,7 +1234,7 @@ return [
     },
 
     "POST /fhir/ServiceRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1244,7 +1246,7 @@ return [
     },
 
     "PUT /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        RestConfig::request_authorization_check($request, "patients", "med", 'write');
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1411,7 +1413,7 @@ return [
         return $controller->put($uuid, $data);
     },
 
-    "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request) {
+    "GET /fhir/QuestionnaireResponse" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // Non-patient callers (user-scope OAuth tokens or APICSRFTOKEN
         // core-session paths) previously reached the controller with no
         // route-level ACL gate. Apply the same `patients/med` gate the
@@ -1421,15 +1423,27 @@ return [
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
         }
+        // A patient app also sees what it wrote that is still held for staff review.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)
+                ->searchHeld($request, $request->getQueryParams())
+            : [];
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
-        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request);
+        $return = (new FhirQuestionnaireResponseRestController($fhirQuestionnaireService))->list($request, $held);
         return $return;
     },
-    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request) {
+    "GET /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         // See sibling list route above — same ACL rationale.
         if (!$request->isPatientRequest()) {
             RestConfig::request_authorization_check($request, "patients", "med");
+        }
+        // A patient app's own write held for review, or 410 once it was denied or withdrawn.
+        $held = $request->isPatientRequest()
+            ? FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag)->read($request, $uuid)
+            : null;
+        if ($held !== null) {
+            return $held;
         }
         $fhirQuestionnaireService = new FhirQuestionnaireResponseService();
         $fhirQuestionnaireService->addMappedService(new FhirQuestionnaireResponseFormService());
@@ -1437,9 +1451,12 @@ return [
         return $return;
     },
     "POST /fhir/QuestionnaireResponse" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        // Same gate the sibling read routes use; the generic controller rejects patient-scope
-        // tokens for writes outright.
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // Same gate the sibling read routes use. A patient app's write is held for staff review
+        // instead; the permission gates have already checked its scope, and the hold checks the
+        // practice's settings.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med", ['write', 'addonly']);
+        }
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1447,11 +1464,15 @@ return [
         $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->setExpectedResourceType("QuestionnaireResponse");
         $controller->addAclRestrictions("patients", "med");
+        $controller->setPatientAppWrites(FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag));
         return $controller->post($data);
     },
 
     "PUT /fhir/QuestionnaireResponse/:uuid" => function (string $uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // A patient app may update only its own write still held for review; see the POST route.
+        if (!$request->isPatientRequest()) {
+            RestConfig::request_authorization_check($request, "patients", "med", 'write');
+        }
         $data = RestControllerHelper::parseJsonRequestBody($request, true);
         if ($data instanceof Response) {
             return $data;
@@ -1459,6 +1480,7 @@ return [
         $controller = new FhirGenericRestController($request, new FhirQuestionnaireResponseService($request->getApiBaseFullUrl()), $globalsBag);
         $controller->setExpectedResourceType("QuestionnaireResponse");
         $controller->addAclRestrictions("patients", "med");
+        $controller->setPatientAppWrites(FhirPatientAppWriteController::forType(PatientWritableType::QuestionnaireResponse, $globalsBag));
         return $controller->put($uuid, $data);
     },
 
@@ -1528,7 +1550,7 @@ return [
         return $return;
     },
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "admin", "users");
+        RestConfig::request_authorization_check($request, "admin", "users", 'write');
         $job = $request->getQueryParam('job');
         $fhirExportService = new FhirOperationExportRestController($request, $globalsBag);
         $return = $fhirExportService->processDeleteExportForJob($job);

@@ -42,6 +42,19 @@ abstract class AbstractQdmService
         $this->codeTypesService = $codeTypesService;
     }
 
+    /**
+     * Which lists rows (problems, concerns, allergies) the measures count, as SQL: not marked
+     * Entered in Error or Refuted in the issue's Verification Status (lists.verification, from
+     * the condition-verification and allergyintolerance-verification lists), which the issue
+     * screen offers for both. Any other status is kept, including the column's default, empty.
+     *
+     * @param string $table lists or its alias, as the service's own SQL writes it (never a value)
+     */
+    protected static function countedListEntry(string $table): string
+    {
+        return "$table.`verification` NOT IN ('entered-in-error', 'refuted')";
+    }
+
     public static function convertToObjectIdBSONFormat($id)
     {
         // max bigint size will fit in 16 characters so we will always have enough space for this.
@@ -68,31 +81,21 @@ abstract class AbstractQdmService
         ]);
     }
 
-    public function getPatientIdColumn()
-    {
-        return 'pid';
-    }
-
     abstract public function getSqlStatement();
 
     abstract public function makeQdmModel(QdmRecord $recordObj);
 
     public function executeQuery()
     {
-        $sql = $this->getSqlStatement();
-
+        // The request's patient filter applies to the service's rows, by the pid column each row
+        // carries (QdmBuilder requires it). It is never spliced into the service's own SQL, so a
+        // WHERE, OR or GROUP BY anywhere in that SQL can't change which rows it filters.
+        $serviceSql = $this->getSqlStatement();
         $filterClause = $this->request->getFilter()->getFilterClause();
-        if ($this->getPatientIdColumn() !== 'pid') {
-            $filterClause = str_replace('pid', $this->getPatientIdColumn(), $filterClause);
+        if (!is_string($serviceSql) || !is_string($filterClause)) {
+            throw new \LogicException('A QDM service gives its SQL, and its request its filter, as strings.');
         }
-
-        // Apply the filter based on request type
-        // If there's already a "WHERE" clause, then add an "AND" otherwise add our WHERE clause.
-        if (strpos(strtolower((string) $sql), 'where')) {
-            $sql .= " AND ( " . $filterClause . " )";
-        } else {
-            $sql .= " WHERE ( " . $filterClause . " )";
-        }
+        $sql = "SELECT * FROM ( $serviceSql ) AS `qdm_rows` WHERE ( $filterClause )";
 
         // By default, we have no bound values
         $binds = false;
@@ -103,12 +106,31 @@ abstract class AbstractQdmService
         try {
             $result = sqlStatementThrowException($sql, $binds);
         } catch (SqlQueryException $exception) {
-            error_log($exception->getMessage());
-            throw new \Exception("There is likely an error in Service query, must contain a patient ID. " .
-                " 'pid' not found and getPatientIdColumn() not implemented.");
+            throw new \Exception('A QDM service query failed.', 0, $exception);
         }
 
         return $result;
+    }
+
+    /**
+     * Which rows of an encounter form the measures count, as SQL: the one rule for a counted form row,
+     * which observations, vitals, orders and care plan items all use. A row is left out when every
+     * forms row filing it is deleted: delete_form.php sets forms.deleted = 1, and for most forms
+     * leaves the form's own rows in place. One kept forms row is enough, as when a C-CDA import has
+     * filed the same vitals twice and one copy was deleted from the visit. A row no forms row files is
+     * kept, unless its form is always filed (QdmForm::alwaysFiled()). The forms row has to be the
+     * row's patient's, since form ids can repeat across patients: the Observation form and the C-CDA
+     * import pick theirs with an unlocked MAX() + 1.
+     *
+     * @param string $formId the column holding the row's form id, as the service's own SQL writes it (never a value)
+     * @param string $pid    the column holding the row's patient, as the service's own SQL writes it (never a value)
+     */
+    protected static function countedFormRow(string $formId, string $pid, QdmForm $form): string
+    {
+        $filings = "SELECT 1 FROM `forms`
+                    WHERE `forms`.`form_id` = $formId AND `forms`.`pid` = $pid AND `forms`.`formdir` = '{$form->value}'";
+        $kept = "EXISTS ($filings AND `forms`.`deleted` = 0)";
+        return $form->alwaysFiled() ? $kept : "(NOT EXISTS ($filings AND `forms`.`deleted` = 1) OR $kept)";
     }
 
     /**

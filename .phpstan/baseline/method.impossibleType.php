@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRBoolean will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) with OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode and \'Sex extension…\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceUSCore8Test.php',

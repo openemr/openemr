@@ -67,6 +67,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot assign offset \'name\' to array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot assign new offset to list\\<string\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',

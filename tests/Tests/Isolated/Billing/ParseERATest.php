@@ -28,6 +28,9 @@ class ParseERATest extends TestCase
     // Fixtures
     // -------------------------------------------------------------------------
 
+    /** What the last parseFixture() call's parseERA() returned: empty unless it rejected the file. */
+    private string $parseError = '';
+
     /**
      * Minimal 835 with zero paid and a non-contractual adjustment (OA*96).
      */
@@ -160,7 +163,7 @@ class ParseERATest extends TestCase
             $out = $o;
         };
 
-        ParseERA::parseERA($tmp, $cb);
+        $this->parseError = ParseERA::parseERA($tmp, $cb);
         unlink($tmp);
 
         return $out;
@@ -340,5 +343,139 @@ class ParseERATest extends TestCase
             $this->getPayerLoopFixture('N1*PR*TEST PAYER*XV*N104ID~', 'REF*TJ*SOMEOTHERID~')
         );
         $this->assertSame('N104ID', $out['payer_id']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Line item control number — REF*6R in loop 2110
+
+    /**
+     * Minimal 835 with two service lines for the same code; each line ends with the given
+     * segments (after its DTM).
+     *
+     * @param list<string> $first
+     * @param list<string> $second
+     */
+    private function getTwoServiceLineFixture(array $first, array $second): string
+    {
+        return implode("\n", [
+            'ISA*00*          *00*          *ZZ*PAYER          *ZZ*RECEIVER       *260101*1200*^*00501*000000001*0*P*:~',
+            'GS*HP*PAYER*RECEIVER*20260101*1200*1*X*005010X221A1~',
+            'ST*835*0001~',
+            'BPR*I*60.00*C*NON************20260101~',
+            'TRN*1*12345*1234567890~',
+            'DTM*405*20260101~',
+            'N1*PR*TEST PAYER~',
+            'N1*PE*TEST PROVIDER*XX*1234567890~',
+            'LX*1~',
+            'CLP*CLAIM001*1*200.00*60.00*0*MC*12345~',
+            'NM1*QC*1*DOE*JOHN****MI*123456789~',
+            'SVC*HC:70471:26*100.00*40.00~',
+            'DTM*472*20260101~',
+            ...$first,
+            'SVC*HC:70471:26*100.00*20.00~',
+            'DTM*472*20260101~',
+            ...$second,
+            'SE*' . (14 + count($first) + count($second)) . '*0001~',
+            'GE*1*1~',
+            'IEA*1*000000001~',
+        ]);
+    }
+
+    /**
+     * @param array<int|string, mixed> $out
+     * @return list<?string> line_ctrl of each service line, null where the remit gave none
+     */
+    private function lineControlNumbers(array $out): array
+    {
+        $this->assertSame('', $this->parseError, 'the parser accepts the fixture');
+        $this->assertIsArray($out['svc']);
+        $found = [];
+        foreach ($out['svc'] as $svc) {
+            $this->assertIsArray($svc);
+            $lineCtrl = $svc['line_ctrl'] ?? null;
+            $this->assertTrue($lineCtrl === null || is_string($lineCtrl));
+            $found[] = $lineCtrl;
+        }
+        return $found;
+    }
+
+    /**
+     * Each service line keeps the control number that follows it.
+     */
+    public function testRef6rIsKeptOnItsServiceLine(): void
+    {
+        $out = $this->parseFixture($this->getTwoServiceLineFixture(['REF*6R*501~'], ['REF*6R*502~']));
+        $this->assertSame(['501', '502'], $this->lineControlNumbers($out));
+    }
+
+    /**
+     * A line without REF*6R has no line_ctrl, and a later line's number does not move up to it.
+     */
+    public function testServiceLineWithoutRef6rHasNoControlNumber(): void
+    {
+        $out = $this->parseFixture($this->getTwoServiceLineFixture([], ['REF* 6R * 502 ~']));
+        $this->assertSame([null, '502'], $this->lineControlNumbers($out));
+    }
+
+    /**
+     * Other service-level REFs (here REF*LU, a location number) are
+     * still ignored and do not stand in for REF*6R.
+     */
+    public function testOtherServiceLevelRefIsNotAControlNumber(): void
+    {
+        $out = $this->parseFixture($this->getTwoServiceLineFixture(['REF*LU*11~'], ['REF*LU*11~', 'REF*6R*502~']));
+        $this->assertSame([null, '502'], $this->lineControlNumbers($out));
+    }
+
+    /**
+     * @return list<array<mixed>> the provider-level adjustments seen by the last claim of each check
+     */
+    private function plbByCheck(string $content): array
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'era_plb_');
+        $this->assertNotFalse($tmp);
+        file_put_contents($tmp, $content);
+        $byCheck = [];
+        try {
+            $error = ParseERA::parseERA($tmp, static function (array $out) use (&$byCheck): void {
+                $check = is_string($out['check_number'] ?? null) ? $out['check_number'] : '';
+                $byCheck[$check] = is_array($out['plb'] ?? null) ? $out['plb'] : [];
+            });
+        } finally {
+            unlink($tmp);
+        }
+        $this->assertSame('', $error);
+        return array_values($byCheck);
+    }
+
+    private function getTwoCheckFixture(string $firstPlb): string
+    {
+        return "ISA*00*          *00*          *ZZ*PAYER          *ZZ*RECEIVER       *261020*1200*^*00501*000000042*0*P*:~"
+            . "GS*HP*PAYER*RECEIVER*20261020*1200*1*X*005010X221A1~"
+            . "ST*835*0001~BPR*I*60.00*C*ACH************20261020~TRN*1*CHK1*1234567890~N1*PR*TEST PAYER~"
+            . "N1*PE*TEST PROVIDER*XX*1234567890~LX*1~CLP*10-20*1*100.00*70.00*0*MC*ICN1~NM1*QC*1*DOE*JOHN~"
+            . "SVC*HC:99213*100.00*70.00~" . $firstPlb . "SE*" . ($firstPlb === '' ? 10 : 11) . "*0001~"
+            . "ST*835*0002~BPR*I*25.00*C*ACH************20261020~TRN*1*CHK2*1234567890~N1*PR*TEST PAYER~"
+            . "N1*PE*TEST PROVIDER*XX*1234567890~LX*1~CLP*11-21*1*100.00*25.00*0*MC*ICN2~NM1*QC*1*DOE*JANE~"
+            . "SVC*HC:99213*100.00*25.00~SE*10*0002~"
+            . "GE*2*1~IEA*1*000000042~";
+    }
+
+    /**
+     * Each PLB adjustment is kept with its reason code (without the reference
+     * that follows it in the composite) and amount, for the check it is in only.
+     */
+    public function testProviderLevelAdjustmentsAreKeptForTheirCheck(): void
+    {
+        $plb = $this->plbByCheck($this->getTwoCheckFixture('PLB*1234567890*20261231*WO:ICN9*12.50*L6*-2.50~'));
+        $this->assertSame(
+            [[['reason' => 'WO', 'amount' => 12.5], ['reason' => 'L6', 'amount' => -2.5]], []],
+            $plb
+        );
+    }
+
+    public function testACheckWithoutProviderLevelAdjustmentsHasNone(): void
+    {
+        $this->assertSame([[], []], $this->plbByCheck($this->getTwoCheckFixture('')));
     }
 }

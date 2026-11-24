@@ -285,9 +285,13 @@ class SLEOB
         return $openLevels > 0 ? -$openLevels : $statementCount;
     }
 
-    // Make this invoice re-billable, new style.
-    //
-    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0): void
+    /**
+     * Make this invoice re-billable, new style: queue the claim for the next
+     * insurance level's payer, or just reopen it when there is none.
+     *
+     * @return bool whether a payer was found to queue the claim for
+     */
+    public static function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0): bool
     {
         if ($crossover == 1) {
             //if claim forwarded setting a new status
@@ -319,5 +323,7 @@ class SLEOB
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
             }
         }
+
+        return (bool) $new_payer_id;
     }
 }

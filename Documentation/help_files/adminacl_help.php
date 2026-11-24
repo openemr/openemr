@@ -43,7 +43,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("The parts of the program to which access can be controlled are called Access Control Objects (ACOs). ");?></p>
 
-                <p><?php echo xlt("These ACOs are grouped into ten broad categories that are part of the default installation. They are - Administration, Accounting, Patient Information, Encounter Information, Squads, Sensitivities, Lists, Placeholder, Nation Notes and Patient Portal. Each of these categories has one or several sub-categories that provide access to specific parts of the program."); ?></p>
+                <p><?php echo xlt("These ACOs are grouped into nine broad categories that are part of the default installation. They are - Administration, Accounting, Patient Information, Encounter Information, Sensitivities, Lists, Placeholder, Nation Notes and Patient Portal. Each of these categories has one or several sub-categories that provide access to specific parts of the program."); ?></p>
 
                 <p><?php echo xlt("These sub-categories represent the actual Access Control Objects (ACOs)."); ?></p>
 
@@ -157,7 +157,6 @@ use OpenEMR\Core\Header;
                                 <li><?php echo xlt('Normal (normal)');?></li>
                                 <li><?php echo xlt('High (high)');?></li>
                             </ul>
-                        <li><strong><?php echo xlt('Squads (squads)');?></strong></li>
                     </ul>
                 </div>
 

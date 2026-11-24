@@ -5,8 +5,10 @@
  * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -116,8 +118,41 @@ function tabRefreshByName(name) {
     }
 }
 
+/**
+ * Whether the page in a tab, or any frame inside it, has edits that are not saved.
+ *
+ * Pages opt in with a global `somethingChanged` flag, the same one their
+ * beforeunload prompts read. Removing a tab's iframe fires no beforeunload
+ * prompt, so closing a tab has to check the flag itself.
+ */
+function tabHasUnsavedChanges(win)
+{
+    if (!win) {
+        return false;
+    }
+    try {
+        if (win.somethingChanged === true) {
+            return true;
+        }
+        for (let i = 0; i < win.frames.length; i++) {
+            if (tabHasUnsavedChanges(win.frames[i])) {
+                return true;
+            }
+        }
+    } catch {
+        // A cross-origin frame can't be read, so there is nothing to check.
+    }
+    return false;
+}
+
 function tabClose(data,evt)
 {
+    // Ask only when the user closes the tab (evt is set). Pages close their own
+    // tab through tabCloseByName after saving, which must not prompt.
+    if (evt && !top.timed_out && tabHasUnsavedChanges(data.window)
+        && !confirm(xl('You have unsaved changes. Do you want to proceed without saving?'))) {
+        return;
+    }
     //remove the tab
     app_view_model.application_data.tabs.tabsList.remove(data);
     //activate the next tab
@@ -205,7 +240,8 @@ function chooseEncounterEvent(data,evt)
 
 function goToEncounter(encId)
 {
-    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php?set_encounter=' + encId;
+    const params = new URLSearchParams({set_encounter: encId, csrf_token_form: csrf_token_js});
+    var url=webroot_url+'/interface/patient_file/encounter/encounter_top.php?' + params;
 
     navigateTab(url,"enc", function () {
         activateTabByName("enc",true);
@@ -288,9 +324,14 @@ function loadCurrentPatient()
     });
 }
 
+/**
+ * Open the active therapy group's details in the group tab. The link sends
+ * the CSRF token because opening the group closes any open patient.
+ */
 function loadCurrentTherapyGroup() {
 
-    var url=webroot_url+'/interface/therapy_groups/index.php?method=groupDetails&group_id=from_session';
+    var params = new URLSearchParams({method: 'groupDetails', group_id: 'from_session', csrf_token_form: csrf_token_js});
+    var url=webroot_url+'/interface/therapy_groups/index.php?' + params;
     navigateTab(url,"gdg", function () {
         activateTabByName("gdg",true);
     });
@@ -311,6 +352,24 @@ function popMenuDialog(url, title) {
     });
 }
 
+/**
+ * Whether a menu URL, relative to the web root, opens a therapy group's
+ * details page. Matches the route and method in any query order.
+ *
+ * @param {string} menuUrl
+ * @returns {boolean}
+ */
+function isGroupDetailsUrl(menuUrl) {
+    var parsed = new URL(menuUrl, window.location.origin);
+    return parsed.origin === window.location.origin
+        && parsed.pathname === '/interface/therapy_groups/index.php'
+        && parsed.searchParams.get('method') === 'groupDetails';
+}
+
+/**
+ * Handle a click on a main menu item: open it in a popup or in its target
+ * tab, or alert when the item needs a patient, group, or encounter first.
+ */
 function menuActionClick(data,evt)
 {
     // Yet another menu fixup for legacy 'popup'.
@@ -354,6 +413,12 @@ function menuActionClick(data,evt)
           // Otherwise continue by creating the encounter frameset including this form.
           dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
+        }
+
+        // Opening the group closes a patient opened in another browser tab,
+        // which the server allows only with the CSRF token.
+        if (isGroupDetailsUrl(dataurl)) {
+            dataurl += '&csrf_token_form=' + encodeURIComponent(csrf_token_js);
         }
 
         navigateTab(webroot_url + dataurl, data.target, function () {
@@ -407,6 +472,33 @@ function reportMenuClickData(data, evt = 'menuClick') {
     }).catch(error => {
         console.error('reportMenu POST error:', error);
     });
+}
+
+/**
+ * Whether the user may close the patient chart: true unless one of its tabs has
+ * unsaved changes and the user declines to discard them.
+ */
+function patientChartCanClose()
+{
+    if (top.timed_out) {
+        return true;
+    }
+    // The tabs clearPatient() closes along with the patient.
+    const chartTabs = ['enc', 'rev', 'pop', 'pat'];
+    const dirty = app_view_model.application_data.tabs.tabsList().some(
+        (tab) => chartTabs.includes(tab.name()) && tabHasUnsavedChanges(tab.window)
+    );
+    return !dirty || confirm(xl('You have unsaved changes. Do you want to proceed without saving?'));
+}
+
+// The user closes the patient chart (its close button or shortcut). Code that
+// clears the patient itself, after a delete or to switch patients, calls
+// clearPatient() directly and is not asked.
+function closePatientChart()
+{
+    if (patientChartCanClose()) {
+        clearPatient();
+    }
 }
 
 function clearPatient(openFinder = true)

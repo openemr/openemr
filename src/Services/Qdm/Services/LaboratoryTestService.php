@@ -23,6 +23,10 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
 {
     public function getSqlStatement(): string
     {
+        // Each result with the code of its own line of the order (procedure_report.procedure_order_seq),
+        // as the procedure API's OpenEMR\Services\ProcedureService pairs them. A result, or its report,
+        // marked Error is left out: the results screen's statuses (proc_res_status, proc_rep_status), and
+        // an HL7 result received with status X.
         $sql = "SELECT
                     O.patient_id AS pid,
                     O.encounter_id AS encounter,
@@ -38,15 +42,13 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                     JOIN procedure_report REP ON RES.procedure_report_id = REP.procedure_report_id
                     JOIN procedure_order O ON REP.procedure_order_id = O.procedure_order_id
                     JOIN procedure_order_code OC ON O.procedure_order_id = OC.procedure_order_id
+                        AND OC.procedure_order_seq = REP.procedure_order_seq
                 WHERE O.procedure_order_type = 'laboratory_test' AND O.activity != 0
+                AND RES.result_status <> 'error' AND REP.report_status <> 'error'
+                AND " . self::countedFormRow('O.procedure_order_id', 'O.patient_id', QdmForm::ProcedureOrder) . "
                 ";
 
         return $sql;
-    }
-
-    public function getPatientIdColumn(): string
-    {
-        return 'O.patient_id';
     }
 
     public function makeQdmModel(QdmRecord $recordObj): LaboratoryTestPerformed

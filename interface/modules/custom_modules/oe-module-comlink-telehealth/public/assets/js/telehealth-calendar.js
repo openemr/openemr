@@ -4,7 +4,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 (function(window, comlink) {
@@ -166,7 +168,8 @@
         const params = new URLSearchParams({
             launch_telehealth: 1,
             set_encounter: encounterData.selectedEncounter.id,
-            set_pid: pid
+            set_pid: pid,
+            csrf_token_form: window.top.csrf_token_js
         });
         window.top.RTop.location = '../../patient_file/encounter/encounter_top.php?' + params;
         if (window.top.comlink && window.top.comlink.telehealth && window.top.comlink.telehealth.launchProviderVideoMessage) {

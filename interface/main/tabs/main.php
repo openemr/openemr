@@ -680,6 +680,19 @@ $twig = ServiceContainer::getTwig();
         if ($valid_tabs !== $default_open_tabs) {
             $session->set('default_open_tabs', $valid_tabs);
         }
+        // A patient opened in a new window (main_screen.php) shows first, on this load only:
+        // its set_pid would switch the window back to that patient on a later reload.
+        $open_patient_tab = $session->get('open_patient_tab');
+        if (is_array($open_patient_tab)) {
+            $session->remove('open_patient_tab');
+            $valid_tabs = array_merge(
+                (new DefaultTabsFilter())->filter(
+                    [$open_patient_tab],
+                    OEGlobalsBag::getInstance()->getKernel()->getProjectDir(),
+                ),
+                $valid_tabs
+            );
+        }
         // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
         $visible = "true";
         foreach ($valid_tabs as $tab) {

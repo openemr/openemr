@@ -143,7 +143,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^exit/die inside a catch block swallows the caught exception and aborts the process\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [

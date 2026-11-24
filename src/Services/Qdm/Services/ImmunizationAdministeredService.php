@@ -19,15 +19,13 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class ImmunizationAdministeredService extends AbstractQdmService implements QdmServiceInterface
 {
-    public function getPatientIdColumn(): string
-    {
-        return 'patient_id';
-    }
-
     public function getSqlStatement(): string
     {
+        // Leave out a dose marked Entered in Error on the immunization screen, as the patient
+        // summary (stats.php), the clinical rules and the C-CDA export do.
         $sql = "SELECT patient_id, patient_id AS pid, administered_date, cvx_code, refusal_reason, reason_code
-                FROM immunizations";
+                FROM immunizations
+                WHERE added_erroneously = 0";
         return $sql;
     }
 

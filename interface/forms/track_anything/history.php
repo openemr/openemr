@@ -7,10 +7,14 @@
  * @link      https://www.open-emr.org
  * @author    Joe Slam <trackanything@produnis.de>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -243,7 +247,8 @@ while ($myrow = sqlFetchArray($query)) {
     // get every single tracks
     echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br />"; // here goes the graph
     echo "<small>[" . xlt('Data from') . " ";
-    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
+    $encounterQuery = http_build_query(['set_encounter' => $the_encounter, 'csrf_token_form' => CsrfUtils::collectCsrfToken(session: $session)]);
+    echo "<a href='../../patient_file/encounter/encounter_top.php?" . attr($encounterQuery) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
     echo "</small>";
     echo "<table border='1'>";
     $spell2  = "SELECT DISTINCT track_timestamp ";

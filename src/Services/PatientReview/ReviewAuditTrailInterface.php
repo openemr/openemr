@@ -20,4 +20,12 @@ interface ReviewAuditTrailInterface
      * @param ?ReviewStatus $from null when the request was just created
      */
     public function record(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void;
+
+    /**
+     * Records that open requests were shown outside staff review, such as a patient app reading
+     * back what it submitted.
+     *
+     * @param non-empty-list<ReviewRequest> $requests all for one patient
+     */
+    public function recordAccess(array $requests, ReviewActor $actor): void;
 }

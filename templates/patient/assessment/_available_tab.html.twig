@@ -1,0 +1,69 @@
+{#
+  The Available Assessments tab: the questionnaires offered on this patient's dashboard,
+  grouped by category, each group folding away and staying that way for the user. Takes
+  categories, each with section, title, collapsed and cards (AssessmentCard).
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% import 'super/_collapse_persist.html.twig' as collapse %}
+<div class="tab-pane fade show active" id="available-assessments" role="tabpanel" aria-labelledby="available-assessments-tab">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-1">{{ 'Available Assessments'|xlt }}</h5>
+            <div class="small text-muted">
+                {{ 'Active FHIR Questionnaires available from the repository. Dashboard launches are saved as patient assessments.'|xlt }}
+            </div>
+        </div>
+    </div>
+
+    {% for category in categories %}
+        <h5 class="mt-2 mb-3">
+            {{ collapse.toggle(category.section, category.title, category.collapsed) }}
+            <span class="badge badge-light ml-1">{{ category.cards|length|text }}</span>
+        </h5>
+        <div id="{{ category.section|attr }}" class="row collapse{{ category.collapsed ? '' : ' show' }}" data-persist-collapse>
+            {% for card in category.cards %}
+                <div class="col-12 col-lg-6 col-xl-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title font-weight-bold mb-0">{{ card.name|text }}</h6>
+                                {% if card.latestStatus != '' %}
+                                    <span class="badge {{ card.statusClass|attr }} ml-2">{{ card.latestStatus|text }}</span>
+                                {% endif %}
+                            </div>
+                            {% if card.summary != '' %}
+                                <p class="card-text mb-2">{{ card.summary|text }}</p>
+                            {% endif %}
+                            <div class="small text-muted mb-3">
+                                {% if card.version != '' %}
+                                    {{ 'Version'|xlt }}: {{ card.version|text }}
+                                {% endif %}
+                                <span class="badge badge-info ml-1">{{ card.sdc ? 'FHIR SDC'|xlt : 'FHIR R4'|xlt }}</span>
+                            </div>
+                            {% if card.lastAssessed != '' %}
+                                <div class="small text-muted mb-2">
+                                    {{ 'Last assessed'|xlt }}: {{ card.lastAssessed|text }}
+                                </div>
+                            {% endif %}
+                            <div class="mt-auto">
+                                <button type="button" class="btn {{ card.continuable ? 'btn-warning' : 'btn-primary' }} btn-sm assessment-launch" data-assessment-url="{{ card.launchUrl|attr }}" data-assessment-title="{{ card.name|attr }}">
+                                    {{ card.continuable ? 'Continue'|xlt : 'Start Assessment'|xlt }}
+                                </button>
+                                {% if card.smartApps is not empty %}
+                                    {% include 'patient/assessment/_launch_app_menu.html.twig' with {apps: card.smartApps, questionnaireId: card.questionnaireId, responseRecordId: card.smartResponseId, alignRight: false} only %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-muted">{{ 'No active FHIR Questionnaires are available.'|xlt }}</div>
+    {% endfor %}
+</div>

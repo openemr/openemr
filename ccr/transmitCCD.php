@@ -78,9 +78,10 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false): st
  * @param string $message The message body the clinician wants to send
  * @param string $filename The filename to use as the name of the attachment (must included file extension as part of filename)
  * @param bool $verifyFinalDelivery Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
+ * @param ?int $referralId the referral (transactions.id) the document goes with, logged with the message so a reply can be filed with it
  * @return string result of operation
  */
-function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false): string
+function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false, ?int $referralId = null): string
 {
     //get patient name in Last_First format (used for CCDA filename) and
     //First Last for the message text.
@@ -151,6 +152,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
             attachment: new PhiMailOutgoingAttachment($add_type, $att_filename . $extension, $ccd_out),
             verifyFinalDelivery: $verifyFinalDelivery,
             patientId: $pid,
+            referralId: $referralId,
         ),
         $requester,
         failureEvent: 'transmit-ccd',

@@ -45,12 +45,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
     }
 }
 
-if ($auth) {
-    $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
-    }
-} else {
+if (!$auth) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for issue types: Patient Issues", xl("Patient Issues"));
 }
 
@@ -203,16 +198,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <body class="patient-medical-issues">
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
-        <div class="row">
-            <div class="col-sm-12">
-                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php") ?>
-            </div>
-        </div>
         <?php
-        $list_id = "issues"; // to indicate nav item is active, count and give correct id
         // Collect the patient menu then build it
         $menuPatient = new PatientMenuRole();
-        $menuPatient->displayHorizNavBarMenu();
+        $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'issues', $oemr_ui->screenReaderHeading());
         ?>
 
         <div id='patient_stats'>

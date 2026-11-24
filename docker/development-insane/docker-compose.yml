@@ -99,7 +99,7 @@ services:
       timeout: 5s
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.3@sha256:6d2e4cc8c075b310263d32caace1bdd0a430223107681661ca5b3cd73f8aef6f
+    image: openemr/openemr:flex-3.24-php-8.3@sha256:c44e9a4426cfab63d07b35177e35445d1e2862f453b3077d502b6d858a2d54d4
     ports:
     - 8085:80
     - 9085:443
@@ -132,7 +132,7 @@ services:
       timeout: 5s
   openemr-8-4:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.4@sha256:508a7a16495ce9751b1282596f308476c4020f02febad6b5a75da66f9f40c013
+    image: openemr/openemr:flex-3.24-php-8.4@sha256:081ffd50ec5c5125e73ec029a45b49e577845a2811e080da168c4e6b2aa55562
     ports:
     - 8086:80
     - 9086:443
@@ -165,7 +165,7 @@ services:
       timeout: 5s
   openemr-8-5:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.5@sha256:aff39c1f1fe5aaf3719eb20859f44e226d53104f92e3bea9641abcecce77c5e6
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:58b15b52520c4d0a0194cee6a113bd63588d54c122f004c48d1355f91e728bec
     ports:
     - 8087:80
     - 9087:443
@@ -238,7 +238,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b088b4c623c6a47320d6b7b6b38b20547448d4e414bcf6d7c53f1b191bbfdb5e
+    image: openemr/openemr:flex-edge@sha256:2fb0719ed76ba6b5a0d32edc13bbcedd447ae13899b0500ceb57802f505bdb92
     ports:
     - 8088:80
     - 9088:443
@@ -305,7 +305,7 @@ services:
       timeout: 5s
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.3@sha256:6d2e4cc8c075b310263d32caace1bdd0a430223107681661ca5b3cd73f8aef6f
+    image: openemr/openemr:flex-3.24-php-8.3@sha256:c44e9a4426cfab63d07b35177e35445d1e2862f453b3077d502b6d858a2d54d4
     ports:
     - 8095:80
     - 9095:443
@@ -339,7 +339,7 @@ services:
       timeout: 5s
   openemr-8-4-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.4@sha256:508a7a16495ce9751b1282596f308476c4020f02febad6b5a75da66f9f40c013
+    image: openemr/openemr:flex-3.24-php-8.4@sha256:081ffd50ec5c5125e73ec029a45b49e577845a2811e080da168c4e6b2aa55562
     ports:
     - 8096:80
     - 9096:443
@@ -373,7 +373,7 @@ services:
       timeout: 5s
   openemr-8-5-redis:
     restart: always
-    image: openemr/openemr:flex-3.24-php-8.5@sha256:aff39c1f1fe5aaf3719eb20859f44e226d53104f92e3bea9641abcecce77c5e6
+    image: openemr/openemr:flex-3.24-php-8.5@sha256:58b15b52520c4d0a0194cee6a113bd63588d54c122f004c48d1355f91e728bec
     ports:
     - 8097:80
     - 9097:443
@@ -407,7 +407,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b088b4c623c6a47320d6b7b6b38b20547448d4e414bcf6d7c53f1b191bbfdb5e
+    image: openemr/openemr:flex-edge@sha256:2fb0719ed76ba6b5a0d32edc13bbcedd447ae13899b0500ceb57802f505bdb92
     ports:
     - 8098:80
     - 9098:443
@@ -441,7 +441,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:12.3.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
+    image: mariadb:12.3.3@sha256:4aaf88b3106382c8c18e49f0cec60267be618fc22f858c4503afb2a2555afed3
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -461,7 +461,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:12.3.3@sha256:d46e102fa8b9b72bfcdeb56f9dd538742092119dc8b11f31fe662605cd234cd9
+    image: mariadb:12.3.3@sha256:4aaf88b3106382c8c18e49f0cec60267be618fc22f858c4503afb2a2555afed3
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -519,7 +519,7 @@ services:
       retries: 3
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.11.19@sha256:d769e37960821dfdcf096954f6e7ac89f747e116c1bba98e48edd265dfc7deae
+    image: mariadb:10.11.19@sha256:e5fe75b2b9de0eb9f6f9a4d9c97272fb3a7480e389ccd487a786bab2a12cc0d7
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -569,7 +569,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:f54a37b908b26caa7032c4eb0c7f3495fdd90208a06eed9c4b2c8e691dd1662c
+    image: phpmyadmin:5.2.3@sha256:7d0b1d9826aa1345a4cab1feded7b19b5f8b1d90579b3180fbc1353157e35c7b
     ports:
     - 8200:80
     environment:
@@ -591,7 +591,7 @@ services:
       COUCHDB_PASSWORD: password
   orthanc:
     restart: always
-    image: jodogne/orthanc-plugins:1.13.0@sha256:f02a20b72ab45311c5177e4647af0cfa2d0745b9c608694461756bf71a6e3ea9
+    image: jodogne/orthanc-plugins:1.13.1@sha256:fcce4cfa93f6e98da82457a43c70b580b3ae6d07e9bbbcb837aee656309e03fa
     ports:
     - 4242:4242
     - 8042:8042
@@ -643,7 +643,7 @@ services:
     - dev-php-fpm-8-7-redis
   dev-php-fpm-8-2:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:b7fa5080827c92140ba23a45a73119332253c6284c63874909159d169351e9df
+    image: openemr/dev-php-fpm:8.2@sha256:0b518a2f424ab1779f3bce88289af9abde370f8b12215d155c713c714b3c00cb
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -652,7 +652,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-3:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:88b108600e00abc195d2238a7bec584b8d421b1cc04ac27136d96f7085d732d4
+    image: openemr/dev-php-fpm:8.3@sha256:18288f1686a5efe3493391636e6c06fff8a957fe2b57c760f8633ed2e72af2ba
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -661,7 +661,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-4:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:e04a484f125863737025d15ab827fd24bece130780854f80ed758e7bcdf3a306
+    image: openemr/dev-php-fpm:8.4@sha256:f5b9b98cbfce97aa69cdd05e4b4ee48c55c11d94985003e88680df47b21863cb
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -670,7 +670,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-5:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:ae98090e9124debbfd0860fdd408ce1cc6ce17eebc7eb83c1f958fe98f3b63a9
+    image: openemr/dev-php-fpm:8.5@sha256:17d3b18ba395742f923cbca257e6291156f82737b04af7ba3c5aa38991125e9f
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -679,7 +679,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-6:
     restart: always
-    image: openemr/dev-php-fpm:8.6@sha256:bd61776e973546703518e2d7fa9fc8fd37db2ddf463631cd10550585dba36d29
+    image: openemr/dev-php-fpm:8.6@sha256:68b74dc38599de55f96fe15496940ca74d9931524e6f011e46d758f981ed17e5
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-6/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -688,7 +688,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-7:
     restart: always
-    image: openemr/dev-php-fpm:8.7@sha256:1090cbc3e29cfc6f795afacdcf82bcab3734aa145a91635490f754aae215e989
+    image: openemr/dev-php-fpm:8.7@sha256:a1456c033910ad1e4c4fb115ce835100dca57ad7fcfcfcb5339a2d29db94106d
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-7/php-ini/php.ini:/usr/local/etc/php/php.ini:ro
@@ -697,7 +697,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-2-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:b7fa5080827c92140ba23a45a73119332253c6284c63874909159d169351e9df
+    image: openemr/dev-php-fpm:8.2@sha256:0b518a2f424ab1779f3bce88289af9abde370f8b12215d155c713c714b3c00cb
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -706,7 +706,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-3-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:88b108600e00abc195d2238a7bec584b8d421b1cc04ac27136d96f7085d732d4
+    image: openemr/dev-php-fpm:8.3@sha256:18288f1686a5efe3493391636e6c06fff8a957fe2b57c760f8633ed2e72af2ba
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -715,7 +715,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-4-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:e04a484f125863737025d15ab827fd24bece130780854f80ed758e7bcdf3a306
+    image: openemr/dev-php-fpm:8.4@sha256:f5b9b98cbfce97aa69cdd05e4b4ee48c55c11d94985003e88680df47b21863cb
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -724,7 +724,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-5-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:ae98090e9124debbfd0860fdd408ce1cc6ce17eebc7eb83c1f958fe98f3b63a9
+    image: openemr/dev-php-fpm:8.5@sha256:17d3b18ba395742f923cbca257e6291156f82737b04af7ba3c5aa38991125e9f
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -733,7 +733,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-6-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.6@sha256:bd61776e973546703518e2d7fa9fc8fd37db2ddf463631cd10550585dba36d29
+    image: openemr/dev-php-fpm:8.6@sha256:68b74dc38599de55f96fe15496940ca74d9931524e6f011e46d758f981ed17e5
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-6/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -742,7 +742,7 @@ services:
       OPENEMR__ENVIRONMENT: "dev"
   dev-php-fpm-8-7-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.7@sha256:1090cbc3e29cfc6f795afacdcf82bcab3734aa145a91635490f754aae215e989
+    image: openemr/dev-php-fpm:8.7@sha256:a1456c033910ad1e4c4fb115ce835100dca57ad7fcfcfcb5339a2d29db94106d
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-7/php-ini/redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -767,7 +767,7 @@ services:
     - 9443:9443
   selenium:
     restart: always
-    image: selenium/standalone-chromium:156.0.8078.79@sha256:b211549a4c35f11826bc1a7559b9f23ff055198517f8cb7d49ef74df01c5e38d
+    image: selenium/standalone-chromium:156.0.8078.79@sha256:15e4837078779917bc81dc3815019e0f955e31ac09bd43b07a523d78e7808b46
     ports:
     - 4444:4444    # Selenium WebDriver interface
     - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
@@ -787,7 +787,7 @@ services:
       retries: 3
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.33.0@sha256:9b3a463be15354c0f0eba91697d80e3e0d8a5623ef0e627cacc836bc17fd5231
+    image: axllent/mailpit:v1.34.0@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
     ports:
     - 8025:8025    # Web UI and API
     - 1025:1025    # SMTP server

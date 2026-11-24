@@ -34,6 +34,9 @@ use OpenEMR\Common\Session\Predis\LockingRedisSessionHandler;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 
@@ -134,6 +137,68 @@ class LockingRedisSessionHandlerIntegrationTest extends TestCase
             maxLockWaitSeconds: 10,
             logger: new NullLogger(),
         );
+    }
+
+    /**
+     * Build a handler backed by a real RedisSessionHandler with WAIT replication
+     * tuning. The real inner is required because Redis WAIT tracks writes
+     * issued on the \Redis connection — a mocked inner issues no \Redis writes,
+     * so wait() would observe only pre-existing cluster state.
+     */
+    private function makeRealWaitHandler(
+        int $waitReplicas,
+        int $waitTimeoutMs,
+        LoggerInterface $logger,
+    ): LockingRedisSessionHandler {
+        $inner = new RedisSessionHandler($this->redis, ['ttl' => 300]);
+        return new LockingRedisSessionHandler(
+            $this->redis,
+            $inner,
+            lockTtlSeconds: 30,
+            maxLockWaitSeconds: 10,
+            waitReplicas: $waitReplicas,
+            waitTimeoutMs: $waitTimeoutMs,
+            logger: $logger,
+        );
+    }
+
+    /**
+     * Logger that captures every record for post-hoc assertions.
+     *
+     * PSR-3 LoggerInterface::log() takes a `mixed` $level by spec, so the
+     * captured shape keeps $level untyped — assertions compare against
+     * `LogLevel::*` constants directly.
+     *
+     * @return AbstractLogger&object{records: list<array{mixed, string, array<mixed>}>}
+     */
+    private function capturingLogger(): AbstractLogger
+    {
+        return new class extends AbstractLogger {
+            /** @var list<array{mixed, string, array<mixed>}> level, message, context */
+            public array $records = [];
+
+            /** @param array<mixed> $context */
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [$level, (string) $message, $context];
+            }
+        };
+    }
+
+    /**
+     * Filter captured log records to those emitted by waitForReplication().
+     * waitForReplication() is the ONLY site in LockingRedisSessionHandler that
+     * logs a message beginning with "Redis session WAIT".
+     *
+     * @param list<array{mixed, string, array<mixed>}> $records
+     * @return list<array{mixed, string, array<mixed>}>
+     */
+    private function filterWaitWarnings(array $records): array
+    {
+        return array_values(array_filter(
+            $records,
+            static fn (array $r): bool => str_starts_with($r[1], 'Redis session WAIT'),
+        ));
     }
 
     private function sessionDataKey(): string
@@ -334,5 +399,183 @@ class LockingRedisSessionHandlerIntegrationTest extends TestCase
         $this->assertSame(1, $this->redis->exists($this->lockKey()), 'second handler must hold the lock after TTL expiry');
 
         $waiter->write(self::SESSION_ID, '');  // clean up
+    }
+
+    // =========================================================================
+    // WAIT replication — synchronous replica ACK on session writes
+    //
+    // Cluster topology: 1 master + 2 replicas (see
+    // ci/compose-shared-redis-sentinel/docker-compose.yml). Tests cover:
+    //   - waitReplicas=0: opt-out short-circuit — no \Redis::wait() issued
+    //   - waitReplicas=1: minimum durability — 1 of 2 replicas must ACK
+    //   - waitReplicas=2: full durability — both replicas must ACK
+    //   - waitReplicas > cluster: shortfall — warning logged, write still OK
+    //   - updateTimestamp + destroy paths also exercise the WAIT call site
+    // =========================================================================
+
+    public function testWriteWithWaitDisabledIssuesNoWaitLogEntries(): void
+    {
+        $logger = $this->capturingLogger();
+        $handler = $this->makeRealWaitHandler(waitReplicas: 0, waitTimeoutMs: 1000, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->write(self::SESSION_ID, 'wait0|s:7:"disabled";'),
+            'write() must return true with WAIT disabled',
+        );
+
+        $this->assertSame(
+            [],
+            $this->filterWaitWarnings($logger->records),
+            'waitReplicas=0 must short-circuit before \Redis::wait() can log anything',
+        );
+    }
+
+    public function testWriteWithWaitReplicasOneAgainstHealthyCluster(): void
+    {
+        $logger = $this->capturingLogger();
+        // 2000 ms timeout is well under SentinelUtil's 2500 ms ceiling (which
+        // doesn't apply here — we construct the handler directly — but matches
+        // the clamp invariant so the integration test stays representative of
+        // a production-configured handler).
+        $handler = $this->makeRealWaitHandler(waitReplicas: 1, waitTimeoutMs: 2000, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->write(self::SESSION_ID, 'wait1|s:6:"minone";'),
+            'write() must return true when 1 replica ACK is achievable on a 2-replica cluster',
+        );
+
+        $this->assertSame(
+            [],
+            $this->filterWaitWarnings($logger->records),
+            'no shortfall warning should fire when the cluster can satisfy the requested replica count',
+        );
+    }
+
+    public function testWriteWithWaitReplicasTwoAgainstHealthyCluster(): void
+    {
+        $logger = $this->capturingLogger();
+        $handler = $this->makeRealWaitHandler(waitReplicas: 2, waitTimeoutMs: 2000, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->write(self::SESSION_ID, 'wait2|s:4:"both";'),
+            'write() must return true when both replicas ACK (full durability on this cluster)',
+        );
+
+        $this->assertSame(
+            [],
+            $this->filterWaitWarnings($logger->records),
+            'no shortfall warning should fire when both replicas ACK within the timeout',
+        );
+    }
+
+    public function testShortfallWhenWaitReplicasExceedsClusterCapacity(): void
+    {
+        $logger = $this->capturingLogger();
+        // 5 replicas requested against a 2-replica cluster — wait() blocks up
+        // to the timeout and returns the count that actually ACKed (expected 2).
+        // 500 ms is long enough for both existing replicas to ACK but short
+        // enough that the test doesn't sit idle waiting for the impossible
+        // extra three to appear.
+        $handler = $this->makeRealWaitHandler(waitReplicas: 5, waitTimeoutMs: 500, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->write(self::SESSION_ID, 'wait5|s:9:"shortfall";'),
+            'write() must still return true on shortfall — durability is best-effort, not a correctness gate',
+        );
+
+        $waitWarnings = $this->filterWaitWarnings($logger->records);
+        $this->assertCount(
+            1,
+            $waitWarnings,
+            'shortfall must emit exactly one WAIT warning log entry',
+        );
+
+        [$level, $message, $context] = $waitWarnings[0];
+        $this->assertSame(LogLevel::WARNING, $level, 'shortfall must log at WARNING level for operator alerting');
+        $this->assertSame(
+            'Redis session WAIT did not reach the configured replica count',
+            $message,
+            'shortfall log message must match the operator-alertable form',
+        );
+        $this->assertSame(5, $context['requested_replicas'] ?? null, 'context must include requested_replicas');
+        $this->assertSame(500, $context['timeout_ms'] ?? null, 'context must include timeout_ms');
+        $this->assertLessThan(
+            5,
+            $context['acked_replicas'] ?? PHP_INT_MAX,
+            'acked_replicas must reflect actual cluster capacity (<5 against a 2-replica cluster)',
+        );
+        $this->assertGreaterThanOrEqual(
+            0,
+            $context['acked_replicas'] ?? -1,
+            'acked_replicas must be a non-negative integer',
+        );
+    }
+
+    public function testUpdateTimestampCallsWaitWithConfiguredReplicas(): void
+    {
+        // Seed data so updateTimestamp has something to refresh.
+        $seed = $this->makeRealWaitHandler(waitReplicas: 0, waitTimeoutMs: 1000, logger: $this->capturingLogger());
+        $seed->open('', 'test');
+        $seed->read(self::SESSION_ID);
+        $seed->write(self::SESSION_ID, 'seed|s:4:"data";');
+
+        $logger = $this->capturingLogger();
+        // Matches the production value set by openemr-devops#931:
+        // REDIS_SESSION_WAIT_REPLICAS=2 on the k8s stack's
+        // 1-primary+2-replica Sentinel cluster. The dedicated
+        // replica-count tests above (testWriteWithWaitReplicasOne*
+        // and testWriteWithWaitReplicasTwo*) establish that =1
+        // and =2 both work end-to-end against the real cluster;
+        // using =2 here aligns the lazy_write path's coverage
+        // with what actually runs in production.
+        $handler = $this->makeRealWaitHandler(waitReplicas: 2, waitTimeoutMs: 2000, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->updateTimestamp(self::SESSION_ID, 'seed|s:4:"data";'),
+            'updateTimestamp() must return true when the lazy_write path is WAIT-wrapped and the cluster can ACK',
+        );
+
+        $this->assertSame(
+            [],
+            $this->filterWaitWarnings($logger->records),
+            'updateTimestamp happy path must not emit a shortfall warning',
+        );
+    }
+
+    public function testDestroyCallsWaitWithConfiguredReplicas(): void
+    {
+        // Seed so destroy has something to tombstone.
+        $seed = $this->makeRealWaitHandler(waitReplicas: 0, waitTimeoutMs: 1000, logger: $this->capturingLogger());
+        $seed->open('', 'test');
+        $seed->read(self::SESSION_ID);
+        $seed->write(self::SESSION_ID, 'seed|s:4:"data";');
+
+        $logger = $this->capturingLogger();
+        // Same production-alignment rationale as
+        // testUpdateTimestampCallsWaitWithConfiguredReplicas above.
+        $handler = $this->makeRealWaitHandler(waitReplicas: 2, waitTimeoutMs: 2000, logger: $logger);
+        $handler->open('', 'test');
+        $handler->read(self::SESSION_ID);
+
+        $this->assertTrue(
+            $handler->destroy(self::SESSION_ID),
+            'destroy() must return true when the session-deletion path is WAIT-wrapped and the cluster can ACK',
+        );
+
+        $this->assertSame(
+            [],
+            $this->filterWaitWarnings($logger->records),
+            'destroy happy path must not emit a shortfall warning',
+        );
     }
 }

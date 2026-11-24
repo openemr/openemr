@@ -1,0 +1,81 @@
+{#
+  The patient dashboard's Questionnaire Assessments page. Rendered by
+  OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardController.
+
+  The workspace card holds an open assessment and replaces the tabs while it is open. The
+  SMART test launches card shows only with smart_context_test_launches on and a SMART app
+  registered. Autoescape is off in OpenEMR, so every value goes through |text, |attr or a
+  translation filter; chrome holds HTML the legacy page helpers already rendered.
+
+  @package   OpenEMR
+  @link      https://www.open-emr.org
+  @author    Jerry Padgett <sjpadgett@gmail.com>
+  @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
+  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<!doctype html>
+<html>
+<head>
+    {{ setupHeader() }}
+    <title>{{ 'Questionnaire Assessments'|xlt }}</title>
+    <style>
+        #assessment-frame {
+            border: 0;
+            display: block;
+            height: 72vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="body_top">
+    <div id="container_div" class="{{ chrome.containerClass|attr }} mt-2">
+        <div class="row">
+            <div class="col-sm-12">
+                {{ chrome.patientMenu }}
+            </div>
+        </div>
+
+        {% if not authorized %}
+            <div class="alert alert-warning mt-3">{{ 'Not authorized'|xlt }}</div>
+        {% elseif not hasPatient %}
+            <div class="alert alert-info mt-3">{{ 'No patient selected.'|xlt }}</div>
+        {% else %}
+            {% include 'patient/assessment/_workspace_card.html.twig' %}
+            {% if smartTestApps is not empty %}
+                {% include 'patient/assessment/_smart_launches_card.html.twig' %}
+            {% endif %}
+
+            <div id="assessment-catalog" class="my-2">
+                <ul class="nav nav-tabs" id="assessment-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="available-assessments-tab" data-toggle="tab" href="#available-assessments" role="tab" aria-controls="available-assessments" aria-selected="true">
+                            {{ 'Available Assessments'|xlt }}
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="assessment-history-tab" data-toggle="tab" href="#assessment-history" role="tab" aria-controls="assessment-history" aria-selected="false">
+                            {{ 'Assessment History'|xlt }}
+                            {% if history is not empty %}
+                                <span class="badge badge-info ml-1">{{ history|length|text }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% include 'patient/assessment/admin_tab_nav.html.twig' with adminTabs %}
+                </ul>
+                <div class="tab-content border-left border-right border-bottom p-2 bg-light" id="assessment-tabs-content">
+                    {% include 'patient/assessment/_available_tab.html.twig' %}
+                    {% include 'patient/assessment/_history_tab.html.twig' %}
+                    {% include 'patient/assessment/admin_tab_panes.html.twig' with adminTabs %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {{ chrome.belowContainer }}
+    {% if authorized and hasPatient %}
+        {% include 'super/_collapse_persist.html.twig' with {csrfToken: csrfToken} %}
+        {% include 'patient/assessment/assessment_feedback.html.twig' with {launcherUrl: launcherUrl} only %}
+        {% include 'patient/assessment/frame_fit.html.twig' only %}
+        {% include 'patient/assessment/_dashboard_script.html.twig' %}
+    {% endif %}
+</body>
+</html>

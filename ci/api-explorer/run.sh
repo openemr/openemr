@@ -118,3 +118,30 @@ echo "==> Running driver-portal (portal patient password grant + /portal/patient
 # PortalPatientFixtureManager; globals.php's RootCliGuard refuses to run
 # under uid=0. Drop to apache (same uid phpunit tests run under).
 openemr-cmd e 'su -s /bin/sh apache -c "php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-portal.php"'
+
+echo "==> Running driver-refresh (refresh-token rotation + single-use + wrong-client negatives)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-refresh.php'
+
+echo "==> Running driver-introspection (RFC 7662 /introspect + bogus-token + unauth negatives)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-introspection.php'
+
+echo "==> Running driver-pkce-negative (public-client authorize + consent + /token wrong-verifier reject)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-pkce-negative.php'
+
+echo "==> Running driver-invalid-secret (wrong + empty client_secret reject at /token)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-invalid-secret.php'
+
+echo "==> Running driver-code-reuse (authorization code single-use enforcement)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-code-reuse.php'
+
+echo "==> Running driver-scope-insufficient (.r-only bearer POST QuestionnaireResponse → refused)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-scope-insufficient.php'
+
+echo "==> Running driver-wrong-role (admin creds + user_role=patient → rejected)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-wrong-role.php'
+
+echo "==> Running driver-public-pkce-required (public client /authorize without code_challenge → refused)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-public-pkce-required.php'
+
+echo "==> Running driver-scope-upgrade (refresh with broader scope → refused or narrowed)"
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/ci/api-explorer/driver-scope-upgrade.php'

@@ -7,181 +7,192 @@
 </head>
 <body class="body_top">
 <div class="container-fluid">
-    <h2 class="mt-3">Questionnaire Availability</h2>
+    <h2 class="h5 mt-3">Questionnaire Availability</h2>
     <p class="text-muted mb-3">
-        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, or to change who may see it.
+        Tick where each questionnaire is offered. Open Limits to offer one only at a facility, for a provider, for a kind of visit or for one SMART app, to change who may see it, or to change its category.
     </p>
 
 
-            <form method="post" action="manage_questionnaire_availability.php?q=50" onsubmit="return top.restoreSession()">
-            <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
-            <input type="hidden" name="action" value="save_grid" />
-            <div class="d-flex flex-wrap align-items-center mb-2">
-                <label class="sr-only" for="grid-filter">Filter questionnaires</label>
-                <input type="search" class="form-control form-control-sm mr-3 mb-1" id="grid-filter" style="max-width: 18rem;"
-                       placeholder="Filter by name or category" />
-                <span class="small text-muted mb-1">
-                    <span class="badge badge-info">limited</span>
-                    also offered where a limit applies
-                    &nbsp;
-                    <span class="badge badge-info">category</span>
-                    also offered by a category rule
-                </span>
+            <div class="card" id="grid">
+            <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_availability_grid_expand" role="button" data-toggle="collapse" data-target="#questionnaire_availability_grid_expand" aria-expanded="true" aria-controls="questionnaire_availability_grid_expand">Questionnaires<i class="ml-1 fa fa-fw fa-compress" aria-hidden="true"></i></a>
+</div>
+            <div id="questionnaire_availability_grid_expand" class="collapse show" data-persist-collapse>
+                <div class="card-body">
+                    <form method="post" action="manage_questionnaire_availability.php?q=50" onsubmit="return top.restoreSession()">
+                        <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                        <input type="hidden" name="action" value="save_grid" />
+                        <div class="d-flex flex-wrap align-items-center mb-2">
+                            <label class="sr-only" for="grid-filter">Filter questionnaires</label>
+                            <input type="search" class="form-control form-control-sm mr-3 mb-1" id="grid-filter" style="max-width: 18rem;"
+                                   placeholder="Filter by name or category" />
+                            <span class="small text-muted mb-1">
+                                <span class="badge badge-info">limited</span>
+                                also offered where a limit applies
+                                &nbsp;
+                                <span class="badge badge-info">category</span>
+                                also offered by a category rule
+                            </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped" id="availability-grid">
+                                <thead>
+                                <tr>
+                                    <th>Questionnaire</th>
+                                                                            <th class="text-center">
+                                            Patient dashboard
+                                                                                    </th>
+                                                                            <th class="text-center">
+                                            Encounter forms
+                                                                                    </th>
+                                                                            <th class="text-center">
+                                            Patient portal
+                                                                                    </th>
+                                                                            <th class="text-center">
+                                            SMART launch
+                                                                                            <i class="fa fa-info-circle text-muted" title="Only questionnaires offered here can be launched into a SMART app from Available Assessments."></i>
+                                                                                    </th>
+                                                                        <th class="text-right">Limits</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                                                    <tr class="table-active" data-filter="phq-9 assessment">
+                                        <td>
+                                            PHQ-9
+                                                                                            <div class="small text-muted">Assessment</div>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="50|dashboard" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[50][dashboard]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="PHQ-9: Patient dashboard"
+                                                       checked />
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="50|encounter" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[50][encounter]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="PHQ-9: Encounter forms"
+                                                        />
+                                                                                                    <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="50|portal" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[50][portal]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="PHQ-9: Patient portal"
+                                                        />
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="50|smart" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[50][smart]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="PHQ-9: SMART launch"
+                                                        />
+                                                                                                    <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                                                                            </td>
+                                                                                <td class="text-right text-nowrap">
+                                            <a class="btn btn-sm btn-outline-secondary" href="manage_questionnaire_availability.php?view=preview&amp;id=50" onclick="top.restoreSession()">Preview</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50#limits" onclick="top.restoreSession()">
+                                                Limits
+                                                                                                    <span class="badge badge-info ml-1">3</span>
+                                                                                            </a>
+                                        </td>
+                                    </tr>
+                                                                    <tr class="" data-filter="audit-c sdoh">
+                                        <td>
+                                            AUDIT-C
+                                                                                            <div class="small text-muted">SDOH</div>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="56|dashboard" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[56][dashboard]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="AUDIT-C: Patient dashboard"
+                                                        />
+                                                                                                                                                    <div><span class="badge badge-info" title="A category rule also offers it here, even with this box unticked.">category</span></div>
+                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="56|encounter" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[56][encounter]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="AUDIT-C: Encounter forms"
+                                                        />
+                                                                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
+                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="56|portal" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[56][portal]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="AUDIT-C: Patient portal"
+                                                       checked />
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="56|smart" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[56][smart]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="AUDIT-C: SMART launch"
+                                                        />
+                                                                                                    <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
+                                                                                                                                                                                            </td>
+                                                                                <td class="text-right text-nowrap">
+                                            <a class="btn btn-sm btn-outline-secondary" href="manage_questionnaire_availability.php?view=preview&amp;id=56" onclick="top.restoreSession()">Preview</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=56#limits" onclick="top.restoreSession()">
+                                                Limits
+                                                                                                    <span class="badge badge-info ml-1">2</span>
+                                                                                            </a>
+                                        </td>
+                                    </tr>
+                                                                    <tr class="" data-filter="back pain legacy_cat">
+                                        <td>
+                                            Back Pain
+                                                                                            <div class="small text-muted">legacy_cat</div>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="57|dashboard" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[57][dashboard]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="Back Pain: Patient dashboard"
+                                                        />
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="57|encounter" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[57][encounter]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="Back Pain: Encounter forms"
+                                                        />
+                                                                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
+                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="57|portal" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[57][portal]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="Back Pain: Patient portal"
+                                                        />
+                                                                                                                                                                                            </td>
+                                                                                    <td class="text-center">
+                                                <input type="hidden" name="rendered[]" value="57|smart" />
+                                                <input type="checkbox" class="js-grid-box" name="offer[57][smart]" value="1"
+                                                       title="Offered everywhere on this surface"
+                                                       aria-label="Back Pain: SMART launch"
+                                                        />
+                                                                                                                                                                                            </td>
+                                                                                <td class="text-right text-nowrap">
+                                            <a class="btn btn-sm btn-outline-secondary" href="manage_questionnaire_availability.php?view=preview&amp;id=57" onclick="top.restoreSession()">Preview</a>
+                                            <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=57#limits" onclick="top.restoreSession()">
+                                                Limits
+                                                                                            </a>
+                                        </td>
+                                    </tr>
+                                                                </tbody>
+                            </table>
+                        </div>
+                                                <input type="hidden" name="grid_complete" value="1" />
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <span class="badge badge-warning ml-2" id="grid-dirty" hidden>Unsaved changes</span>
+                    </form>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-sm table-striped" id="availability-grid">
-                    <thead>
-                    <tr>
-                        <th>Questionnaire</th>
-                                                    <th class="text-center">
-                                Patient dashboard
-                                                            </th>
-                                                    <th class="text-center">
-                                Encounter forms
-                                                            </th>
-                                                    <th class="text-center">
-                                Patient portal
-                                                            </th>
-                                                    <th class="text-center">
-                                SMART launch
-                                                                    <i class="fa fa-info-circle text-muted" title="Only questionnaires offered here can be launched into a SMART app from Available Assessments."></i>
-                                                            </th>
-                                                <th class="text-right">Limits</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                                            <tr class="table-active" data-filter="phq-9 assessment">
-                            <td>
-                                PHQ-9
-                                                                    <div class="small text-muted">Assessment</div>
-                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="50|dashboard" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[50][dashboard]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="PHQ-9: Patient dashboard"
-                                           checked />
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="50|encounter" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[50][encounter]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="PHQ-9: Encounter forms"
-                                            />
-                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="50|portal" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[50][portal]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="PHQ-9: Patient portal"
-                                            />
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="50|smart" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[50][smart]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="PHQ-9: SMART launch"
-                                            />
-                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
-                                                                                                                                            </td>
-                                                        <td class="text-right text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=50#limits" onclick="top.restoreSession()">
-                                    Limits
-                                                                            <span class="badge badge-info ml-1">3</span>
-                                                                    </a>
-                            </td>
-                        </tr>
-                                            <tr class="" data-filter="audit-c sdoh">
-                            <td>
-                                AUDIT-C
-                                                                    <div class="small text-muted">SDOH</div>
-                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="56|dashboard" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[56][dashboard]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="AUDIT-C: Patient dashboard"
-                                            />
-                                                                                                                <div><span class="badge badge-info" title="A category rule also offers it here, even with this box unticked.">category</span></div>
-                                                                                                        </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="56|encounter" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[56][encounter]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="AUDIT-C: Encounter forms"
-                                            />
-                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
-                                                                    </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="56|portal" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[56][portal]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="AUDIT-C: Patient portal"
-                                           checked />
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="56|smart" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[56][smart]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="AUDIT-C: SMART launch"
-                                            />
-                                                                            <div><span class="badge badge-info" title="Also offered where its limits apply, even with this box unticked. Open Limits to see them.">limited</span></div>
-                                                                                                                                            </td>
-                                                        <td class="text-right text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=56#limits" onclick="top.restoreSession()">
-                                    Limits
-                                                                            <span class="badge badge-info ml-1">2</span>
-                                                                    </a>
-                            </td>
-                        </tr>
-                                            <tr class="" data-filter="back pain legacy_cat">
-                            <td>
-                                Back Pain
-                                                                    <div class="small text-muted">legacy_cat</div>
-                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="57|dashboard" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[57][dashboard]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="Back Pain: Patient dashboard"
-                                            />
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="57|encounter" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[57][encounter]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="Back Pain: Encounter forms"
-                                            />
-                                                                                                                                                    <div><span class="badge badge-warning" title="Not registered as an encounter form, so it cannot appear in encounters yet. Register it from the Questionnaire form in an encounter; this setting then applies.">not registered</span></div>
-                                                                    </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="57|portal" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[57][portal]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="Back Pain: Patient portal"
-                                            />
-                                                                                                                                            </td>
-                                                            <td class="text-center">
-                                    <input type="hidden" name="rendered[]" value="57|smart" />
-                                    <input type="checkbox" class="js-grid-box" name="offer[57][smart]" value="1"
-                                           title="Offered everywhere on this surface"
-                                           aria-label="Back Pain: SMART launch"
-                                            />
-                                                                                                                                            </td>
-                                                        <td class="text-right text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="manage_questionnaire_availability.php?q=57#limits" onclick="top.restoreSession()">
-                                    Limits
-                                                                    </a>
-                            </td>
-                        </tr>
-                                        </tbody>
-                </table>
-            </div>
-                        <input type="hidden" name="grid_complete" value="1" />
-            <button type="submit" class="btn btn-primary">Save</button>
-            <span class="badge badge-warning ml-2" id="grid-dirty" hidden>Unsaved changes</span>
-        </form>
+        </div>
 
             <div class="card mt-4" id="limits">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -189,6 +200,18 @@
                 <a class="btn btn-sm btn-link" href="manage_questionnaire_availability.php" onclick="top.restoreSession()">Close</a>
             </div>
             <div class="card-body">
+                <form method="post" action="manage_questionnaire_availability.php?q=50#limits" class="form-inline mb-3" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                    <input type="hidden" name="action" value="save_category" />
+                    <input type="hidden" name="questionnaire_id" value="50" />
+                    <label class="mr-2" for="questionnaire-category">Category</label>
+                    <select class="form-control form-control-sm mr-2" id="questionnaire-category" name="category" required>
+                                                                            <option value="assessment" selected>Assessment</option>
+                                                    <option value="sdoh" >SDOH</option>
+                                            </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Save category</button>
+                    <small class="form-text text-muted ml-2">Category rules offer it by this category.</small>
+                </form>
                 <p class="text-muted">
                     Each line is one rule. A rule offered Everywhere is the tick in the grid; a limited rule offers the questionnaire only where its limits match. Rules add up: it is offered if any rule that is on matches.
                 </p>
@@ -404,6 +427,7 @@
                                     <option value="3" >Main Clinic</option>
                                     <option value="4" >North Office</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-provider">Only for provider</label>
@@ -412,6 +436,7 @@
                                     <option value="1" >Admin, Super</option>
                                     <option value="8" >Smith, Jane</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-visit">Only for visit category</label>
@@ -421,6 +446,7 @@
                                     <option value="9" >Well Child</option>
                                     <option value="7" >New Patient</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="limit-app">Only for SMART app</label>
@@ -429,6 +455,7 @@
                                                     <option value="app-a" >Growth Chart</option>
                                     <option value="app-b" >PRO Collector</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
     </div>
 
@@ -444,25 +471,27 @@
         </div>
 
     <div class="card mt-4 mb-5" id="category-rules">
-        <div class="card-header"><strong>Category rules</strong></div>
-        <div class="card-body">
-            <p class="text-muted">
-                Offer every questionnaire in a category, including ones imported later, without ticking each one.
-            </p>
-            <div class="table-responsive">
-                <table class="table table-sm">
-                    <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Offered on</th>
-                        <th>Where</th>
-                        <th>Who may see it</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                                                <tr class="">
+        <div class="card-header">    <a class="text-reset font-weight-bold" href="#questionnaire_availability_category_rules_expand" role="button" data-toggle="collapse" data-target="#questionnaire_availability_category_rules_expand" aria-expanded="false" aria-controls="questionnaire_availability_category_rules_expand">Category rules<i class="ml-1 fa fa-fw fa-expand" aria-hidden="true"></i></a>
+</div>
+        <div id="questionnaire_availability_category_rules_expand" class="collapse" data-persist-collapse>
+            <div class="card-body">
+                <p class="text-muted">
+                    Offer every questionnaire in a category, including ones imported later, without ticking each one.
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Offered on</th>
+                            <th>Where</th>
+                            <th>Who may see it</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                                                        <tr class="">
                     <td>SDOH</td>
                 <td>Patient dashboard</td>
         <td>Everywhere</td>
@@ -492,27 +521,27 @@
         </td>
     </tr>
 
-                                        </tbody>
-                </table>
-            </div>
-
-            <h5 class="mt-3">Add a category rule</h5>
-            <form method="post" action="manage_questionnaire_availability.php?q=50#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
-                <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
-                <input type="hidden" name="action" value="save_rule" />
-                <input type="hidden" name="target" value="category" />
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="category-category">Category</label>
-                        <select class="form-control" id="category-category" name="category" required>
-                            <option value="">Choose a category</option>
-                                                            <option value="assessment" >Assessment</option>
-                                                            <option value="sdoh" >SDOH</option>
-                                                            <option value="legacy_cat" >legacy_cat</option>
-                                                    </select>
-                    </div>
+                                                </tbody>
+                    </table>
                 </div>
+
+                <h5 class="mt-3">Add a category rule</h5>
+                <form method="post" action="manage_questionnaire_availability.php?q=50#category-rules" onsubmit="return top.restoreSession()" data-rule-form>
+                    <input type="hidden" name="csrf_token_form" value="5325b047540feea93a709f97faccdf346f8547ef" />
+                    <input type="hidden" name="action" value="save_rule" />
+                    <input type="hidden" name="target" value="category" />
                     <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="category-category">Category</label>
+                            <select class="form-control" id="category-category" name="category" required>
+                                <option value="">Choose a category</option>
+                                                                    <option value="assessment" >Assessment</option>
+                                                                    <option value="sdoh" >SDOH</option>
+                                                                    <option value="legacy_cat" >legacy_cat</option>
+                                                            </select>
+                        </div>
+                    </div>
+                        <div class="form-row">
         <div class="form-group col-md-4">
             <label for="category-surface">Offered on</label>
             <select class="form-control" id="category-surface" name="surface" data-surface-select>
@@ -557,6 +586,7 @@
                                     <option value="3" >Main Clinic</option>
                                     <option value="4" >North Office</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-provider">Only for provider</label>
@@ -565,6 +595,7 @@
                                     <option value="1" >Admin, Super</option>
                                     <option value="8" >Smith, Jane</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-visit">Only for visit category</label>
@@ -574,6 +605,7 @@
                                     <option value="9" >Well Child</option>
                                     <option value="7" >New Patient</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
         <div class="form-group col-md-3">
             <label for="category-app">Only for SMART app</label>
@@ -582,42 +614,142 @@
                                                     <option value="app-a" >Growth Chart</option>
                                     <option value="app-b" >PRO Collector</option>
                             </select>
+            <small class="form-text text-muted" data-scope-note></small>
         </div>
     </div>
 
-                                    <button type="submit" class="btn btn-primary">Add category rule</button>
-                            </form>
+                                            <button type="submit" class="btn btn-primary">Add category rule</button>
+                                    </form>
+            </div>
         </div>
     </div>
 </div>
 <script>
+    (function () {
+        const settingsUrl = "\/library\/ajax\/user_settings.php"
+        const csrfToken = "5325b047540feea93a709f97faccdf346f8547ef"
+
+        function save (section, open) {
+            const body = new FormData()
+            body.append('csrf_token_form', csrfToken)
+            body.append('target', section)
+            body.append('mode', open ? '1' : '0')
+            top.restoreSession()
+            fetch(settingsUrl, { method: 'POST', credentials: 'same-origin', body })
+                .catch((error) => console.error('Section state not saved', error))
+        }
+
+        function showIcon (panel, open) {
+            document.querySelectorAll('[data-target="#' + panel.id + '"]').forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+                const icon = toggle.querySelector('.fa')
+                icon?.classList.toggle('fa-compress', open)
+                icon?.classList.toggle('fa-expand', !open)
+            })
+        }
+
+        $(document).on('shown.bs.collapse hidden.bs.collapse', '[data-persist-collapse]', function (event) {
+            if (event.target !== this) {
+                return
+            }
+            const open = event.type === 'shown'
+            showIcon(this, open)
+            if (this.dataset.keepSaved === '1') {
+                delete this.dataset.keepSaved
+                return
+            }
+            save(this.id, open)
+        })
+
+        // Open a section for the moment, as when a page needs to show it, without saving.
+        window.openSectionForNow = function (panel) {
+            if (panel && !panel.classList.contains('show')) {
+                panel.dataset.keepSaved = '1'
+                $(panel).collapse('show')
+            }
+        }
+
+        if (location.hash.length > 1) {
+            const anchor = document.getElementById(location.hash.slice(1))
+            window.openSectionForNow(anchor?.querySelector('[data-persist-collapse]'))
+        }
+    })()
+</script>
+<script>
 (function () {
     'use strict';
 
-    // In each rule form, limit fields the chosen surface never fills in are disabled, so they
-    // are not posted. The service refuses such a rule too; this keeps the form from offering it.
+    // Each surface fills in only some limits (QuestionnaireSurface::supportedScopes()). A limit
+    // field the chosen surface cannot apply stays usable: picking a value in it switches the
+    // surface to one that can, and switching the surface clears the fields it cannot apply,
+    // so they post as Any. The service refuses an unsupported limit as well.
+    const switchesTo = "Picking one switches to %s";
+    const scopesOf = function (option) {
+        try {
+            const scopes = JSON.parse(option?.dataset.scopes || '[]');
+            return Array.isArray(scopes) ? scopes : [];
+        } catch (e) {
+            return [];
+        }
+    };
     document.querySelectorAll('form[data-rule-form]').forEach(function (form) {
         const surface = form.querySelector('[data-surface-select]');
         const hint = form.querySelector('[data-scope-hint]');
-        const scopedFields = form.querySelectorAll('[data-scope]');
+        const scopedFields = Array.from(form.querySelectorAll('[data-scope]'));
         if (!surface) {
             return;
         }
+        const options = Array.from(surface.options);
+        // The first surface that can apply every limit named, or failing that this one alone.
+        const surfaceFor = function (scope, alsoWanted) {
+            return options.find(function (option) {
+                const scopes = scopesOf(option);
+                return scopes.includes(scope) && alsoWanted.every(function (other) {
+                    return scopes.includes(other);
+                });
+            }) || options.find(function (option) {
+                return scopesOf(option).includes(scope);
+            });
+        };
         const applySurface = function () {
-            const option = surface.options[surface.selectedIndex];
-            let allowed = [];
-            try {
-                allowed = JSON.parse(option?.dataset.scopes || '[]');
-            } catch (e) {
-                allowed = [];
-            }
+            const chosen = surface.options[surface.selectedIndex];
+            const allowed = scopesOf(chosen);
             scopedFields.forEach(function (field) {
-                field.disabled = !allowed.includes(field.dataset.scope);
+                const note = field.parentElement.querySelector('[data-scope-note]');
+                if (allowed.includes(field.dataset.scope)) {
+                    if (note) {
+                        note.textContent = '';
+                    }
+                    return;
+                }
+                field.value = '';
+                const target = surfaceFor(field.dataset.scope, []);
+                if (note) {
+                    note.textContent = target ? switchesTo.replace('%s', target.text) : '';
+                }
             });
             if (hint) {
-                hint.textContent = option?.dataset.hint || '';
+                hint.textContent = chosen?.dataset.hint || '';
             }
         };
+        scopedFields.forEach(function (field) {
+            field.addEventListener('change', function () {
+                const allowed = scopesOf(surface.options[surface.selectedIndex]);
+                if (field.value === '' || allowed.includes(field.dataset.scope)) {
+                    return;
+                }
+                const alsoWanted = scopedFields.filter(function (other) {
+                    return other !== field && other.value !== '';
+                }).map(function (other) {
+                    return other.dataset.scope;
+                });
+                const target = surfaceFor(field.dataset.scope, alsoWanted);
+                if (target) {
+                    surface.value = target.value;
+                    applySurface();
+                }
+            });
+        });
         surface.addEventListener('change', applySurface);
         applySurface();
     });
@@ -627,6 +759,31 @@
             if (!window.confirm(form.dataset.confirm)) {
                 event.preventDefault();
             }
+        });
+    });
+
+    // While a save is on its way, show it on the button that sent it and stop a second click
+    // posting it again. A submit the confirm above cancelled is left alone.
+    const savingText = "Saving...";
+    document.querySelectorAll('form[method="post"]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) {
+                return;
+            }
+            const button = event.submitter || form.querySelector('[type="submit"]');
+            if (!button) {
+                return;
+            }
+            const spin = document.createElement('span');
+            spin.className = 'spinner-border spinner-border-sm mr-1';
+            spin.setAttribute('role', 'status');
+            spin.setAttribute('aria-hidden', 'true');
+            button.replaceChildren(spin, document.createTextNode(savingText));
+            // Disabled after the submit is under way, so the button's own name and value
+            // still reach the server.
+            setTimeout(function () {
+                button.disabled = true;
+            }, 0);
         });
     });
 

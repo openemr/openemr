@@ -73,9 +73,6 @@ if ($patientid) {
     if (!$thisauth) {
         AccessDeniedHelper::deny('Demographics access not authorized');
     }
-    if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
-        AccessDeniedHelper::deny('Unauthorized access to patient squad');
-    }
   // $irow = getInsuranceProviders(); // needed?
 }
 

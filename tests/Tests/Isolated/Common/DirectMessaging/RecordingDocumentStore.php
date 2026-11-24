@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class RecordingDocumentStore implements PhiMailDocumentStore
 {
-    /** @var list<array{name: string, mimeType: string, contents: string, ownerId: int}> */
+    /** @var list<array{name: string, mimeType: string, contents: string, ownerId: int, patientId: ?int}> */
     public array $stored = [];
 
     /** Thrown in place of storing, when set */
@@ -35,7 +35,10 @@ final class RecordingDocumentStore implements PhiMailDocumentStore
 
     private int $nextId = 101;
 
-    public function store(string $name, string $mimeType, string $path, int $ownerId): ?PhiMailStoredDocument
+    /**
+     * Stores a received document, in the patient's chart when one is given.
+     */
+    public function store(string $name, string $mimeType, string $path, int $ownerId, ?int $patientId = null): ?PhiMailStoredDocument
     {
         if ($this->failure instanceof PhiMailDocumentException) {
             throw $this->failure;
@@ -44,7 +47,7 @@ final class RecordingDocumentStore implements PhiMailDocumentStore
             return null;
         }
         $contents = (new Filesystem())->readFile($path);
-        $this->stored[] = ['name' => $name, 'mimeType' => $mimeType, 'contents' => $contents, 'ownerId' => $ownerId];
+        $this->stored[] = ['name' => $name, 'mimeType' => $mimeType, 'contents' => $contents, 'ownerId' => $ownerId, 'patientId' => $patientId];
         $id = $this->nextId++;
         return new PhiMailStoredDocument($id, $this->withoutUrl ? null : 'file:///documents/direct/file-' . $id, strlen($contents));
     }

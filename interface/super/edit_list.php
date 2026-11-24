@@ -25,11 +25,13 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_choice = $session->get('language_choice');
@@ -386,8 +388,9 @@ function getCodeDescriptions($codes): string
     return $s;
 }
 
-// Write one option line to the form.
-//
+/**
+ * Write one option line to the form.
+ */
 function writeOptionLine($option_id, string $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '1', $subtype = ''): void
 {
     global $opt_line_no, $list_id;
@@ -404,8 +407,43 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
         attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
-    echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
-        attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
+    $id_name = "opt[" . attr($opt_line_no) . "][id]";
+    if (PatientFinderColumnList::isColumnList($list_id)) {
+        // A Patient Finder column (Patient List or Recent Patients): pick one of the finder's
+        // own columns, a module's or a patient_data field; any other id is kept.
+        $current_id = is_string($option_id) ? $option_id : '';
+        // Read once per page, not once per row.
+        static $patient_data_fields = null;
+        if (!is_array($patient_data_fields)) {
+            $patient_data_fields = QueryUtils::listTableFields('patient_data');
+        }
+        static $module_column_keys = null;
+        if (!is_array($module_column_keys)) {
+            $module_column_keys = PatientFinderColumnList::tryFrom(is_string($list_id) ? $list_id : '')
+                ?->moduleColumnKeys(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()) ?? [];
+        }
+        $choices = PatientFinderColumnList::columnChoices($current_id, $patient_data_fields, $module_column_keys);
+        $id_groups = array_filter([
+            xl('Combined columns') => $choices['combined'],
+            xl('Module columns') => $choices['module'],
+            xl('Patient data fields') => $choices['fields'],
+            xl('Other') => $choices['other'],
+        ]);
+        echo "<select name='" . $id_name . "' class='optin form-control form-control-sm select-dropdown' data-width='100%'>";
+        echo "<option value=''></option>";
+        foreach ($id_groups as $group_label => $group_ids) {
+            echo "<optgroup label='" . attr($group_label) . "'>";
+            foreach ($group_ids as $choice_id) {
+                $selected = $choice_id === $current_id ? " selected" : "";
+                echo "<option value='" . attr($choice_id) . "'$selected>" . text($choice_id) . "</option>";
+            }
+            echo "</optgroup>";
+        }
+        echo "</select>";
+    } else {
+        echo "<input type='text' name='" . $id_name . "' value='" .
+            attr($option_id) . "' size='12' maxlength='127' class='optin form-control form-control-sm' />";
+    }
     echo "</td>\n";
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][title]' value='" .
@@ -522,7 +560,7 @@ function writeOptionLine($option_id, string $title, $seq, $default, $value, $map
             "value='" . attr($value) . "' onclick='sel_cvxcode(this)' " .
             "title='" . xla('Click to select or change CVX code') . "'/>";
         echo "</td>\n";
-    } elseif ($list_id == 'ptlistcols') {
+    } elseif (PatientFinderColumnList::isColumnList($list_id)) {
         echo "  <td>";
         echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', '', 'option');
         echo "</td>\n";
@@ -1377,7 +1415,7 @@ function writeITLine($it_array): void
                         <th><?php echo xlt('Facility'); ?></th>
                     <?php } elseif ($list_id == 'immunizations') { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
-                    <?php } elseif ($list_id == 'ptlistcols') { ?>
+                    <?php } elseif (PatientFinderColumnList::isColumnList($list_id)) { ?>
                         <th>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
                     <?php }
                     if (OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
@@ -1416,6 +1454,9 @@ function writeITLine($it_array): void
                         echo xlt('External URL');
                     } elseif ($list_id == "default_open_tabs") {
                         echo xlt("URL");
+                    } elseif (PatientFinderColumnList::isColumnList($list_id)) {
+                        // PatientFinderColumnRegistryFactory reads the column width from notes.
+                        echo xlt('Width (px, rem, em or %)');
                     } else {
                         echo xlt('Notes');
                     } ?></th>

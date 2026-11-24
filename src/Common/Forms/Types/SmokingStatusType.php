@@ -29,7 +29,7 @@ class SmokingStatusType implements IOptionFormType {
     public const COLUMN_TOBACCO_INDEX_SMOKING_STATUS = 3;
     public const COLUMN_TOBACCO_INDEX_SMOKING_PACK_COUNT = 4;
 
-    public function buildPrintView($frow, $currvalue, $value_allowed = true): string
+    public function buildPrintView($frow, ?string $currvalue, $value_allowed = true): string
     {
         $printView = '';
         $field_id    = $frow['field_id'];
@@ -96,7 +96,7 @@ class SmokingStatusType implements IOptionFormType {
         return $printView;
     }
 
-    public function buildPlaintextView($frow, $currvalue): string
+    public function buildPlaintextView($frow, ?string $currvalue): string
     {
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;
@@ -150,7 +150,7 @@ class SmokingStatusType implements IOptionFormType {
         return $s;
     }
 
-    public function buildDisplayView($frow, $currvalue): string
+    public function buildDisplayView($frow, ?string $currvalue): string
     {
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;
@@ -211,10 +211,11 @@ class SmokingStatusType implements IOptionFormType {
         return $s;
     }
 
-    public function buildFormView($frow, $currvalue): string
+    public function buildFormView($frow, ?string $currvalue): string
     {
         $formView = '';
         $edit_options = $frow['edit_options'] ?? null;
+        $edit_options = is_string($edit_options) ? $edit_options : null;
         $field_id    = $frow['field_id'];
         $list_id     = $frow['list_id'] ?? null;
         $form_id = $frow['form_id'] ?? null;
@@ -430,12 +431,13 @@ class SmokingStatusType implements IOptionFormType {
     }
 
     /**
-     * @param string $currvalue
+     * @param ?string $currvalue
      * @return array
      */
-    private function getSmokingData(string $currvalue): array
+    private function getSmokingData(?string $currvalue): array
     {
-        $tmp = explode('|', $currvalue);
+        // An unset field takes the same defaults as an empty one.
+        $tmp = explode('|', $currvalue ?? '');
         $resnote = $tmp[0] ?? '';
         $restype = $tmp[1] ?? '';
         $resdate = !empty($tmp[2]) ? oeFormatShortDate($tmp[2]) : '';

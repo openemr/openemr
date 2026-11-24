@@ -1,5 +1,18 @@
 <?php
 
+/**
+ * FHIR Bulk Data IG operation controller — handles `$export` kick-off and
+ * `$bulkdata-status` poll/cancel routes.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022-2024 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
 use OpenApi\Attributes as OA;
@@ -272,6 +285,13 @@ class FhirOperationExportRestController
             return (new Psr17Factory())->createResponse(StatusCode::NOT_IMPLEMENTED);
         }
 
+        if (!is_string($jobUuidString) || $jobUuidString === '') {
+            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The 'job' query parameter is required"));
+            $response->getBody()->write(json_encode($operationOutcome, JSON_THROW_ON_ERROR));
+            return $response;
+        }
+
         // simulate async process
         // if job is still going we would return a 202
         // return's 202 that we are starting the process
@@ -344,6 +364,13 @@ class FhirOperationExportRestController
     {
         if ($this->isExportDisabled) {
             return (new Psr17Factory())->createResponse(StatusCode::NOT_IMPLEMENTED);
+        }
+
+        if (!is_string($jobUuidString) || $jobUuidString === '') {
+            $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
+            $operationOutcome = $this->createOperationOutcomeError(xlt("The 'job' query parameter is required"));
+            $response->getBody()->write(json_encode($operationOutcome, JSON_THROW_ON_ERROR));
+            return $response;
         }
         // if a request is completed do we want to allow the operation to be deleted ie remove the trace of the export?
 
