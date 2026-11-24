@@ -119,7 +119,8 @@ final class PatientFinderPrimaryInsuranceTest extends TestCase
     /**
      * Each case: primary policies as (company, start, end) in insertion order (a later row has a higher id),
      * with dates as offsets in days from today (null = blank, 'zero' = 0000-00-00), and whether the patient
-     * is covered.
+     * is covered. Two primary policies of one patient cannot start on the same day (unique key on pid, type and
+     * date), so no case ties on the start.
      *
      * @return array<string, array{list<array{?string, int|string|null, int|string|null}>, bool}>
      *
@@ -144,7 +145,6 @@ final class PatientFinderPrimaryInsuranceTest extends TestCase
             'later policy not started yet does not replace' => [[['101', -400, null], ['', 30, null]], true],
             'later policy already ended does not replace' => [[['101', -400, null], ['', -60, -30]], true],
             'newest start wins over a higher id' => [[['', -30, null], ['101', -400, null]], false],
-            'same start: the higher id wins' => [[['101', -30, null], ['', -30, null]], false],
             'a blank start ranks below a zero start' => [[['101', 'zero', null], ['', null, null]], true],
             'a zero start ranks above a blank start' => [[['', null, null], ['101', 'zero', null]], true],
         ];

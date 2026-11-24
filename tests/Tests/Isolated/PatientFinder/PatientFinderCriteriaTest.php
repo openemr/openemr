@@ -17,12 +17,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PatientFinder;
 
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Services\PatientFinder\Criteria\PatientFinderCriteriaRegistry;
 use OpenEMR\Services\PatientFinder\Criteria\SexCriterion;
 use OpenEMR\Services\PatientFinder\PatientFinderCriteria;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
-use OpenEMR\Common\Utils\Json;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
