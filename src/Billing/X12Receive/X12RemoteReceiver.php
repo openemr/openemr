@@ -132,7 +132,12 @@ final readonly class X12RemoteReceiver
                 ]);
                 $outcome = new StoreOutcome(ReceivedStatus::Failed, message: 'An error interrupted this file');
             }
-            $this->log->record($partner->id, $folder, $file, $type, $outcome, $this->clock->now());
+            // Whether the file is posted unattended is settled here, by the partner's setting
+            // as the run read it: a later change to the setting does not reach this file.
+            $postUnattended = $partner->autoPostUser > 0
+                && $type === X12FileType::Remittance835
+                && $outcome->status === ReceivedStatus::Stored;
+            $this->log->record($partner->id, $folder, $file, $type, $outcome, $this->clock->now(), $postUnattended);
             $summary->count($outcome->status);
             if ($outcome->status !== ReceivedStatus::Stored || $partner->workedFolder === '') {
                 continue;

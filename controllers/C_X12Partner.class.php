@@ -55,6 +55,9 @@ class C_X12Partner extends Controller
         }
 
         $this->assign("partner", $this->x12_partners[0]);
+        $this->assign("auto_post_users", (new ReceivePartnerRepository())->autoPostUserChoices(
+            $this->x12_partners[0]->get_x12_era_auto_post_user()
+        ));
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_edit.html");
     }
 

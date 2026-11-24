@@ -24,6 +24,8 @@ interface ReceivedFileLog
 
     /**
      * @param ?X12FileType $type the kind of file it turned out to be; null when that was not established
+     * @param bool $postUnattended the file is an 835 stored while its partner had a user to post as,
+     *                             so it waits for unattended posting
      */
     public function record(
         int $partnerId,
@@ -32,5 +34,6 @@ interface ReceivedFileLog
         ?X12FileType $type,
         StoreOutcome $outcome,
         \DateTimeImmutable $at,
+        bool $postUnattended = false,
     ): void;
 }

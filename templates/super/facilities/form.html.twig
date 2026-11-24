@@ -396,6 +396,11 @@ function displayAlert() {
                             <input type="text" class="form-control form-control-sm" name="domain_identifier" size="45" value="{{ facility.domain_identifier|attr }}">
                         </div>
                         <div class="form-group">
+                            <label for="mammography_cert_number">{{ 'Mammography Certification Number'|xlt }}</label>
+                            <input type="text" class="form-control form-control-sm" id="mammography_cert_number" name="mammography_cert_number" maxlength="30" value="{{ facility.mammography_cert_number|default('')|attr }}">
+                            <small class="form-text text-muted">{{ 'FDA (MQSA) certification number of this facility. Sent on professional claims for mammograms done here.'|xlt }}</small>
+                        </div>
+                        <div class="form-group">
                             <label for='federal_ein'>{{ 'Tax ID'|xlt }}</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
