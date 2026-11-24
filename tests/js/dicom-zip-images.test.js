@@ -51,6 +51,19 @@ describe('selectImageEntries', () => {
         expect(names(zipImages.selectImageEntries(files))).toEqual(['1.dcm', '2.dcm', '10.dcm']);
     });
 
+    test('skips the non-image files of an imaging-CD export but keeps pictures and extensionless images', () => {
+        const files = filesOf(
+            entry('README.TXT'),
+            entry('AUTORUN.INF'),
+            entry('viewer/VIEWER.EXE'),
+            entry('index.html'),
+            entry('IM0001'),
+            entry('preview.JPG'),
+            entry('IM0002.dcm')
+        );
+        expect(names(zipImages.selectImageEntries(files))).toEqual(['IM0001', 'IM0002.dcm', 'preview.JPG']);
+    });
+
     test('a zip with only skipped entries has no images', () => {
         const files = filesOf(entry('DICOMDIR'), entry('__MACOSX/', true));
         expect(zipImages.selectImageEntries(files)).toEqual([]);
@@ -62,6 +75,11 @@ describe('dicomFileName', () => {
         expect(zipImages.dicomFileName('a/b/IM0001')).toBe('IM0001.dcm');
         expect(zipImages.dicomFileName('a/b/IM0001.DCM')).toBe('IM0001.DCM');
     });
+
+    test('a picture keeps its own extension', () => {
+        expect(zipImages.dicomFileName('a/preview.jpg')).toBe('preview.jpg');
+        expect(zipImages.dicomFileName('a/preview.PNG')).toBe('preview.PNG');
+    });
 });
 
 describe('createNavigator', () => {
@@ -69,8 +87,14 @@ describe('createNavigator', () => {
         const entries = Array.from({length: count}, (_, i) => entry(`${i + 1}.dcm`));
         const ui = {prev: {disabled: true}, next: {disabled: true}, count: {textContent: ''}};
         const loaded = [];
-        const nav = zipImages.createNavigator(entries, ui, (buffer, name, isFirst) => loaded.push([name, isFirst]));
-        return {entries, ui, loaded, nav};
+        const errors = [];
+        const nav = zipImages.createNavigator(
+            entries,
+            ui,
+            (buffer, name, isFirst) => loaded.push([name, isFirst]),
+            (error) => errors.push(String(error))
+        );
+        return {entries, ui, loaded, errors, nav};
     };
 
     test('shows the first image, counts it and keeps the buttons off until the load ended', async () => {
@@ -131,15 +155,59 @@ describe('createNavigator', () => {
         expect(ui.count.textContent).toBe('2 / 3');
     });
 
-    test('a failed read re-enables the buttons and loads nothing', async () => {
+    test('the counter starts at the first image', () => {
+        const {ui} = setup();
+        expect(ui.count.textContent).toBe('1 / 3');
+    });
+
+    test('a first image that cannot be read rejects, so the caller can fall back', async () => {
         const {entries, ui, loaded, nav} = setup();
-        const log = jest.spyOn(console, 'log').mockImplementation(() => {});
-        entries[1].async.mockImplementationOnce(() => Promise.reject(new Error('corrupt')));
-        nav.show(1);
-        await flush();
+        entries[0].async.mockImplementationOnce(() => Promise.reject(new Error('corrupt')));
+        await expect(nav.show(0)).rejects.toThrow('corrupt');
         expect(loaded).toEqual([]);
-        expect(ui.prev.disabled).toBe(false);
         expect(ui.next.disabled).toBe(false);
+    });
+
+    test('a later image that cannot be read leaves the counter and the image as they were', async () => {
+        const {entries, ui, loaded, errors, nav} = setup();
+        const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+        await nav.show(0);
+        nav.loadEnded();
+        entries[1].async.mockImplementationOnce(() => Promise.reject(new Error('corrupt')));
+        ui.next.onclick();
+        await flush();
+        expect(loaded).toEqual([['1.dcm', true]]);
+        expect(ui.count.textContent).toBe('1 / 3');
+        expect(nav.current()).toBe(0);
+        expect(ui.next.disabled).toBe(false);
+        expect(errors).toHaveLength(1);
         log.mockRestore();
+    });
+
+    test('the last two images read are not inflated again', async () => {
+        const {entries, ui, nav} = setup();
+        await nav.show(0);
+        nav.loadEnded();
+        ui.next.onclick();
+        await flush();
+        nav.loadEnded();
+        ui.prev.onclick();
+        await flush();
+        nav.loadEnded();
+        expect(entries[0].async).toHaveBeenCalledTimes(1);
+        expect(entries[1].async).toHaveBeenCalledTimes(1);
+    });
+
+    test('a load end the navigator did not start does not re-enable the buttons', async () => {
+        const {ui, nav} = setup();
+        await nav.show(0);
+        nav.loadEnded();
+        ui.next.onclick(); // read in flight, buttons off
+        expect(ui.next.disabled).toBe(true);
+        nav.loadEnded(); // for some other load (for example a restored state)
+        expect(ui.next.disabled).toBe(true);
+        await flush();
+        nav.loadEnded();
+        expect(ui.next.disabled).toBe(false);
     });
 });

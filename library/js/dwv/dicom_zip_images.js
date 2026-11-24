@@ -20,9 +20,14 @@ dwvOemr.zipImages = (function () {
         return /[?&]type=\.zip(&|$)/.test(url);
     };
 
+    // Files an imaging-CD export carries next to the images (readme, autorun, viewers, links); they are not images.
+    const NON_IMAGE_NAME = /\.(txt|inf|exe|dll|html?|ini|xml|pdf|bat|cmd|js|css|json|md|csv|log|bin|zip|url|lnk)$/i;
+    // Pictures the browser side of dwv reads itself; they keep their own extension.
+    const PICTURE_NAME = /\.(jpe?g|png|gif|bmp)$/i;
+
     /**
-     * Only the images of a zip: skip folders, the __MACOSX/ resource forks, dot files and the DICOMDIR index of
-     * an imaging-CD export, and return them in name order (zips are not always written sorted).
+     * Only the images of a zip: skip folders, the __MACOSX/ resource forks, dot files, the DICOMDIR index and the
+     * non-image files of an imaging-CD export, and return them in name order (zips are not always written sorted).
      */
     const selectImageEntries = function (files) {
         return Object.values(files).filter(function (file) {
@@ -30,55 +35,87 @@ dwvOemr.zipImages = (function () {
             return !file.dir
                 && !/(^|\/)__MACOSX\//.test(file.name)
                 && base.charAt(0) !== '.'
-                && base.toUpperCase() !== 'DICOMDIR';
+                && base.toUpperCase() !== 'DICOMDIR'
+                && !NON_IMAGE_NAME.test(base);
         }).sort(function (a, b) {
             return a.name.localeCompare(b.name, undefined, {numeric: true});
         });
     };
 
     /**
-     * The file name dwv gets for a zip entry: dwv decides by the extension, so one is added when missing.
+     * The file name dwv gets for a zip entry: dwv decides by the extension, so .dcm is added unless the name already
+     * has it or is a picture (JPEG, PNG, ...) that dwv reads by its own extension.
      */
     const dicomFileName = function (entryName) {
         const name = entryName.split('/').pop();
-        return /\.dcm$/i.test(name) ? name : name + '.dcm';
+        return /\.dcm$/i.test(name) || PICTURE_NAME.test(name) ? name : name + '.dcm';
     };
 
     /**
      * Previous/next navigation. One image is read and loaded at a time: the buttons stay disabled until the
-     * load ended, and a read that a newer click has replaced is dropped, so the counter always matches the
-     * image shown.
+     * load ended, and a read that a newer click has replaced is dropped. The counter and the current index
+     * change only once an image was read and handed to the viewer, so they always match the image shown.
+     * The last two entries read are kept, so flipping between two images does not inflate them again.
+     *
+     * show() rejects when the very first image cannot be read (nothing is shown yet, so the caller can fall back
+     * to another loader); a later failure leaves the image on screen as it was and is reported to onError.
      *
      * @param entries  the zip entries (objects with name and async('arraybuffer'))
      * @param ui       {prev, next, count} elements
      * @param loadFile function (buffer, name, isFirst) that hands the image to the viewer
+     * @param onError  function (error) called when a later image cannot be read
      */
-    const createNavigator = function (entries, ui, loadFile) {
+    const createNavigator = function (entries, ui, loadFile, onError) {
         let current = 0;
         let started = false;
         let busy = false;
+        let loading = false;
         let request = 0;
+        const recent = [];
+        ui.count.textContent = "1 / " + entries.length;
         const updateNav = function () {
             ui.prev.disabled = busy || current === 0;
             ui.next.disabled = busy || current === entries.length - 1;
         };
+        const read = function (index) {
+            const hit = recent.find(function (item) {
+                return item.index === index;
+            });
+            if (hit) {
+                return Promise.resolve(hit.buffer);
+            }
+            return entries[index].async('arraybuffer').then(function (buffer) {
+                recent.unshift({index: index, buffer: buffer});
+                recent.length = Math.min(recent.length, 2);
+                return buffer;
+            });
+        };
         const show = function (index) {
             const mine = ++request;
             busy = true;
-            current = index;
-            ui.count.textContent = (index + 1) + " / " + entries.length;
             updateNav();
-            return entries[index].async('arraybuffer').then(function (buffer) {
+            return read(index).then(function (buffer) {
                 if (mine !== request) {
                     return;
                 }
+                current = index;
+                ui.count.textContent = (index + 1) + " / " + entries.length;
+                loading = true;
                 loadFile(buffer, dicomFileName(entries[index].name), !started);
                 started = true;
-            }).catch(function (error) {
+            }, function (error) {
+                if (mine !== request) {
+                    return;
+                }
+                busy = false;
+                loading = false;
+                updateNav();
+                if (!started) {
+                    throw error;
+                }
                 console.log("DICOM zip entry could not be read: " + error);
-                if (mine === request) {
-                    busy = false;
-                    updateNav();
+                if (onError) {
+                    onError(error);
                 }
             });
         };
@@ -94,8 +131,12 @@ dwvOemr.zipImages = (function () {
         };
         return {
             show: show,
-            // call when the viewer finished loading the image
+            // call when the viewer finished loading the image; a load end that this navigator did not start is ignored
             loadEnded: function () {
+                if (!loading) {
+                    return;
+                }
+                loading = false;
                 busy = false;
                 updateNav();
             },
@@ -104,7 +145,6 @@ dwvOemr.zipImages = (function () {
             }
         };
     };
-
     return {
         isZipDocumentUrl: isZipDocumentUrl,
         selectImageEntries: selectImageEntries,

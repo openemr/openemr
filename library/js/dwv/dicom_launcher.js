@@ -334,18 +334,30 @@ function startApp() {
     // dicom_zip_images.js for why and for the helpers (tested in tests/js/dicom-zip-images.test.js).
     const loadZipImages = function (url) {
         const nav = document.getElementById('zipImageNav');
-        let navigator = null;
+        let zipNavigator = null;
+        let zipBuffer = null;
         oemrApp.addEventListener('load-end', function () {
-            if (navigator) {
-                navigator.loadEnded();
+            if (zipNavigator) {
+                zipNavigator.loadEnded();
             }
         });
+        // The default loader of the zip. The bytes are already here once the download worked, so they are used
+        // again instead of downloading the document a second time; only a failed download goes back to the url.
+        const useDefaultLoader = function (error) {
+            console.log("DICOM zip could not be shown image by image, using the default loader: " + error);
+            if (zipBuffer) {
+                oemrApp.loadFiles([new File([zipBuffer], 'document.zip', {type: 'application/zip'})]);
+            } else {
+                oemrApp.loadURLs([url]);
+            }
+        };
         window.fetch(url, {credentials: 'same-origin'}).then(function (response) {
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);
             }
             return response.arrayBuffer();
         }).then(function (buffer) {
+            zipBuffer = buffer;
             return JSZip.loadAsync(buffer);
         }).then(function (zip) {
             const entries = dwvOemr.zipImages.selectImageEntries(zip.files);
@@ -354,8 +366,12 @@ function startApp() {
             }
             if (entries.length > 1) {
                 nav.classList.remove('d-none');
+                // The saved image edits are kept once per document, not per image of the zip.
+                document.querySelectorAll('.btn-save, .btn-add').forEach(function (button) {
+                    button.disabled = true;
+                });
             }
-            navigator = dwvOemr.zipImages.createNavigator(entries, {
+            zipNavigator = dwvOemr.zipImages.createNavigator(entries, {
                 prev: document.getElementById('zipImagePrev'),
                 next: document.getElementById('zipImageNext'),
                 count: document.getElementById('zipImageCount')
@@ -364,14 +380,14 @@ function startApp() {
                     oemrApp.reset();
                     toggle('loaderlist'); // the load end handler closes it again.
                 }
-                oemrApp.loadFiles([new File([buffer], name, {type: 'application/dicom'})]);
+                const isDicom = /\.dcm$/i.test(name);
+                oemrApp.loadFiles([new File([buffer], name, isDicom ? {type: 'application/dicom'} : {})]);
+            }, function () {
+                alert("The image could not be read. See log for details.");
             });
-            navigator.show(0);
-        }).catch(function (error) {
-            // fall back to the default loader of the zip
-            console.log("DICOM zip could not be read, using the default loader: " + error);
-            oemrApp.loadURLs([url]);
-        });
+            // Rejects when the first image cannot be read: nothing is shown yet, so the default loader takes over.
+            return zipNavigator.show(0);
+        }).catch(useDefaultLoader);
     };
 
     if (dwvOemr.oemrDocumentUrl) {
