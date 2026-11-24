@@ -20,6 +20,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\FacilityZipDenial;
 use OpenEMR\Billing\UnbilledFileDecision;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 
 abstract class AbstractProcessingTask
@@ -245,13 +246,17 @@ abstract class AbstractProcessingTask
     /**
      * Claim this run's file name. False means another run already named the row.
      */
+    /** @var list<int>|null */
+    protected ?array $renderedBillingIds = null;
+
     protected function stampClaimFile(BillingClaim $claim, int $version, string $filename): bool
     {
         return BillingUtilities::assignUnbilledClaimFile(
             $claim->getPid(),
             $claim->getEncounter(),
             $version,
-            $filename
+            $filename,
+            $this->renderedBillingIds
         );
     }
 
@@ -472,7 +477,7 @@ abstract class AbstractProcessingTask
      * True means the file was billed. False means it is on disk and the
      * billed update missed. Null means this run should write the claim.
      */
-    protected function recoverPublishedFile(BillingClaim $claim, BillingClaimBatch $batch): ?bool
+    protected function recoverPublishedFile(BillingClaim $claim, BillingClaimBatch $batch, bool $releaseMissing = true): ?bool
     {
         $assignment = $this->openUnbilledAssignment($claim);
         if ($assignment === null) {
@@ -484,7 +489,18 @@ abstract class AbstractProcessingTask
         if ($version <= 0 || $filename === '') {
             return null;
         }
+        $storedPartner = $assignment['x12_partner_id'];
+        $queuePartner = BillingUtilities::partnerForRecoveredFile(
+            $storedPartner,
+            $claim->getPartner()
+        );
+        if ($storedPartner > 0 && $queuePartner === null) {
+            return false;
+        }
         if (!$this->claimFileLanded($batch, $filename)) {
+            if (!$releaseMissing) {
+                return null;
+            }
             // The name is stored and the file is not ready. Another run may
             // still be writing it unless this run holds the fence.
             if (!$this->generationFenceHeld($claim)) {
@@ -504,17 +520,8 @@ abstract class AbstractProcessingTask
             return null;
         }
 
-        $queuePartner = BillingUtilities::partnerForRecoveredFile(
-            $assignment['x12_partner_id'],
-            $claim->getPartner()
-        );
-        if ($queuePartner === null) {
-            return false;
-        }
-
         $this->settledVersion = $version;
         $this->settledFileName = $filename;
-        BillingClaimBatch::queuePartnerFile($queuePartner, $filename, '[]');
 
         return $this->markStoredFileBilled($claim);
     }
@@ -583,6 +590,9 @@ abstract class AbstractProcessingTask
             return false;
         }
 
+        if (!$this->foreignAssignmentIsClear($claim, $batch)) {
+            return false;
+        }
         if (!$this->stampClaimFile($claim, $version, $filename)) {
             return false;
         }
@@ -641,5 +651,71 @@ abstract class AbstractProcessingTask
         }
 
         $this->awaitingFile = $stillWaiting;
+    }
+
+    protected function otherPayerFileIsOpen(BillingClaim $claim): bool
+    {
+        return BillingUtilities::encounterHasOtherUnbilledFile(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId()
+        );
+    }
+
+    protected function rememberRenderedCharges(BillingClaim $claim): void
+    {
+        $this->renderedBillingIds = BillingUtilities::activeBillingIds($claim->getPid(), $claim->getEncounter());
+    }
+
+    protected function retargetReusedVersion(BillingClaim $claim, int $version): void
+    {
+        $assignment = $this->openUnbilledAssignment($claim);
+        if ($assignment === null || $assignment['process_file'] !== '' || $assignment['version'] !== $version) {
+            return;
+        }
+        BillingUtilities::retargetUnbilledClaim(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $version,
+            $claim->getPayorId(),
+            $claim->getPartner(),
+            $claim->getTarget()
+        );
+    }
+
+    /**
+     * Drop another payer's unpublished file name so this run can assign one.
+     *
+     * A file that is already published stays with that payer.
+     */
+    protected function foreignAssignmentIsClear(BillingClaim $claim, BillingClaimBatch $batch): bool
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT version, process_file FROM claims WHERE patient_id = ? AND encounter_id = ? AND payer_id <> ? "
+            . "AND status = ? AND process_file IS NOT NULL AND process_file <> '' ORDER BY version DESC LIMIT 1",
+            [
+                $claim->getPid(),
+                $claim->getEncounter(),
+                $claim->getPayorId(),
+                BillingClaim::STATUS_LEAVE_UNBILLED,
+            ]
+        );
+        if (!is_array($row)) {
+            return true;
+        }
+        $filename = $row['process_file'] ?? null;
+        $version = $row['version'] ?? null;
+        if (!is_string($filename) || $filename === '' || (!is_int($version) && !is_string($version))) {
+            return true;
+        }
+        if ($this->claimFileLanded($batch, $filename)) {
+            return false;
+        }
+        if (!$this->generationFenceHeld($claim)) {
+            return false;
+        }
+        $this->clearClaimFile($claim, (int) $version, $filename);
+
+        return true;
     }
 }

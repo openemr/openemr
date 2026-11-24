@@ -14,6 +14,30 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Billing;
 
+trait SkipsClaimDatabase
+{
+    protected function otherPayerFileIsOpen(\OpenEMR\Billing\BillingProcessor\BillingClaim $claim): bool
+    {
+        return false;
+    }
+
+    protected function foreignAssignmentIsClear(
+        \OpenEMR\Billing\BillingProcessor\BillingClaim $claim,
+        \OpenEMR\Billing\BillingProcessor\BillingClaimBatch $batch
+    ): bool {
+        return true;
+    }
+
+    protected function rememberRenderedCharges(\OpenEMR\Billing\BillingProcessor\BillingClaim $claim): void
+    {
+    }
+
+    protected function retargetReusedVersion(\OpenEMR\Billing\BillingProcessor\BillingClaim $claim, int $version): void
+    {
+    }
+}
+
+
 use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
@@ -1268,6 +1292,8 @@ final class HoldZipFixture
 
 final class DirectEmptyScreenProbe extends GeneratorX12Direct
 {
+    use SkipsClaimDatabase;
+
     /** @var list<string> */
     public array $screen = [];
 
@@ -1280,6 +1306,8 @@ final class DirectEmptyScreenProbe extends GeneratorX12Direct
 
 final class HoldZipGenerator extends GeneratorX12
 {
+    use SkipsClaimDatabase;
+
     /** @var list<string> */
     public array $screen = [];
 
@@ -1407,6 +1435,8 @@ final class HoldZipGenerator extends GeneratorX12
 
 final class DirectSeProbe extends GeneratorX12Direct
 {
+    use SkipsClaimDatabase;
+
     /**
      * Call the SE trailer helper with the segment count from the held claim.
      */
@@ -1418,6 +1448,8 @@ final class DirectSeProbe extends GeneratorX12Direct
 
 final class VersionHoldProbe extends GeneratorX12
 {
+    use SkipsClaimDatabase;
+
     /** @var list<array{0: bool, 1: ?int}> */
     public array $writes = [];
 
@@ -1653,6 +1685,8 @@ final class VersionHoldProbe extends GeneratorX12
 
 final class InclusionProbe extends GeneratorX12
 {
+    use SkipsClaimDatabase;
+
     /**
      * Expose the batch inclusion rule for one set of flags.
      */
@@ -1668,6 +1702,8 @@ final class InclusionProbe extends GeneratorX12
 
 final class DirectVersionProbe extends GeneratorX12Direct
 {
+    use SkipsClaimDatabase;
+
     /** @var list<array{0: bool, 1: ?int}> */
     public array $writes = [];
 
@@ -1768,6 +1804,8 @@ final class DirectVersionProbe extends GeneratorX12Direct
 
 final class DirectFacilityProbe extends GeneratorX12Direct
 {
+    use SkipsClaimDatabase;
+
     /** @var array<string, int> */
     public array $facilities = [];
 

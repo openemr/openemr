@@ -22,6 +22,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BatchFilePublisher;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -55,6 +56,11 @@ class BillingClaimBatch
      * True while the claims in this batch still name its file.
      */
     private ?\Closure $generationOwner = null;
+
+    /**
+     * The file was published and the waiting-tracker insert did not land.
+     */
+    public bool $queueFailed = false;
 
     /**
      * Opens a batch for one billing run.
@@ -223,12 +229,16 @@ class BillingClaimBatch
             $success = BatchFilePublisher::publish(
                 $this->bat_filedir,
                 $this->bat_filename,
-                (string) $this->bat_content
+                (string) $this->bat_content,
+                true
             );
             if ($success && !$this->generationStillOwnsBatch('after-publish')) {
                 BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
 
                 return false;
+            }
+            if ($success) {
+                BatchFilePublisher::allowDownload($this->bat_filedir, $this->bat_filename);
             }
         } elseif ($this->bat_filedir !== false) {
             $success = false;
@@ -249,8 +259,11 @@ class BillingClaimBatch
             }
             try {
                 $this->queueMissingPartners();
-            } catch (SqlQueryException) {
-                return false;
+            } catch (SqlQueryException $exception) {
+                $this->queueFailed = true;
+                ServiceContainer::getLogger()->error('Published claim file was not queued', [
+                    'exception' => $exception,
+                ]);
             }
         }
 
@@ -295,12 +308,31 @@ class BillingClaimBatch
         if (is_array($existing)) {
             return;
         }
-        X12RemoteTracker::create([
-            'x12_partner_id' => $partnerId,
-            'x12_filename' => $filename,
-            'status' => X12RemoteTracker::STATUS_WAITING,
-            'claims' => $claimsJson,
-        ]);
+        try {
+            X12RemoteTracker::create([
+                'x12_partner_id' => $partnerId,
+                'x12_filename' => $filename,
+                'status' => X12RemoteTracker::STATUS_WAITING,
+                'claims' => $claimsJson,
+            ]);
+        } catch (SqlQueryException $exception) {
+            if (!self::trackerRowAlreadyExists($exception)) {
+                throw $exception;
+            }
+        }
+    }
+
+    /**
+     * A second insert for the same partner and filename is the row we wanted.
+     */
+    private static function trackerRowAlreadyExists(SqlQueryException $exception): bool
+    {
+        $detail = $exception->sqlError;
+        if (!is_string($detail)) {
+            $detail = $exception->getMessage();
+        }
+
+        return str_contains(strtolower($detail), 'duplicate');
     }
 
     protected function extractUniqueX12PartnersFromClaims($claims): array

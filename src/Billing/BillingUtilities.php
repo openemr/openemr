@@ -1910,6 +1910,52 @@ class BillingUtilities
      * The claims row stores the partner the file was built for. A later
      * run that posts a different partner must not upload that file.
      */
+    /**
+     * Another payer already named an unbilled file for this encounter.
+     */
+    public static function encounterHasOtherUnbilledFile(mixed $patientId, mixed $encounterId, mixed $payerId): bool
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT version FROM claims WHERE patient_id = ? AND encounter_id = ? AND payer_id <> ? "
+            . "AND status = ? AND process_file IS NOT NULL AND process_file <> '' LIMIT 1",
+            [$patientId, $encounterId, $payerId, BillingClaim::STATUS_LEAVE_UNBILLED]
+        );
+
+        return is_array($row);
+    }
+
+    /**
+     * Point an unassigned unbilled version at the payer selected for this run.
+     *
+     * A version that already names a file keeps its partner.
+     */
+    public static function retargetUnbilledClaim(
+        mixed $patientId,
+        mixed $encounterId,
+        int $version,
+        mixed $payerId,
+        mixed $partnerId,
+        mixed $target
+    ): void {
+        if ($version <= 0) {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE claims SET payer_id = ?, x12_partner_id = ?, target = ? "
+            . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
+            . "AND (process_file = '' OR process_file IS NULL)",
+            [
+                $payerId,
+                $partnerId,
+                $target,
+                $patientId,
+                $encounterId,
+                $version,
+                BillingClaim::STATUS_LEAVE_UNBILLED,
+            ]
+        );
+    }
+
     public static function partnerForRecoveredFile(int $storedPartner, mixed $postedPartner): ?int
     {
         if ($storedPartner <= 0) {
@@ -1989,11 +2035,32 @@ class BillingUtilities
      * cannot, so two payers cannot publish one file and leave the other
      * unbilled.
      */
+    public static function activeBillingIds(mixed $patientId, mixed $encounterId): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT id FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",
+            [$patientId, $encounterId]
+        );
+        $ids = [];
+        foreach ($rows as $row) {
+            if (!is_array($row) || !array_key_exists('id', $row)) {
+                continue;
+            }
+            $id = $row['id'];
+            if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+                $ids[] = (int) $id;
+            }
+        }
+
+        return $ids;
+    }
+
     public static function assignUnbilledClaimFile(
         mixed $patientId,
         mixed $encounterId,
         int $version,
-        string $filename
+        string $filename,
+        ?array $billingIds = null
     ): bool {
         $patientPart = self::claimFileId($patientId);
         $encounterPart = self::claimFileId($encounterId);
@@ -2022,7 +2089,7 @@ class BillingUtilities
 
         try {
             try {
-                $assigned = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename): bool {
+                $assigned = QueryUtils::inTransaction(function () use ($patientId, $encounterId, $version, $filename, $billingIds): bool {
                     QueryUtils::sqlStatementThrowException(
                         "UPDATE claims SET process_file = ?, process_time = NOW() "
                         . "WHERE patient_id = ? AND encounter_id = ? AND version = ? AND status = ? "
@@ -2071,10 +2138,26 @@ class BillingUtilities
                         }
                     }
 
+                    $idSql = '';
+                    $idBind = [];
+                    if ($billingIds !== null) {
+                        $ids = [];
+                        foreach ($billingIds as $billingId) {
+                            if (is_int($billingId) || (is_string($billingId) && ctype_digit($billingId))) {
+                                $ids[] = (int) $billingId;
+                            }
+                        }
+                        if ($ids === []) {
+                            $idSql = ' AND 1 = 0';
+                        } else {
+                            $idSql = ' AND id IN (' . implode(',', array_fill(0, count($ids), '?')) . ')';
+                            $idBind = $ids;
+                        }
+                    }
                     QueryUtils::sqlStatementThrowException(
                         "UPDATE billing SET process_file = ?, process_date = NOW()"
-                        . " WHERE encounter = ? AND pid = ? AND activity = 1",
-                        [$filename, $encounterId, $patientId]
+                        . " WHERE encounter = ? AND pid = ? AND activity = 1" . $idSql,
+                        array_merge([$filename, $encounterId, $patientId], $idBind)
                     );
                     $billingRows = QueryUtils::fetchRecords(
                         "SELECT process_file FROM billing WHERE pid = ? AND encounter = ? AND activity = 1",

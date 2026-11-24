@@ -27,7 +27,7 @@ final class BatchFilePublisher
      * A batch that is already complete is left alone. A failure after this
      * run renames its own file removes that file and its completion note.
      */
-    public static function publish(string $directory, string $filename, string $content): bool
+    public static function publish(string $directory, string $filename, string $content, bool $deferDownload = false): bool
     {
         if ($content === '' || !self::nameIsSafe($filename) || $directory === '') {
             return false;
@@ -101,12 +101,29 @@ final class BatchFilePublisher
             return false;
         }
 
-        // The note already matches. A download can start, so this sync
-        // must not delete the batch when it fails.
+        // The note already matches. A download can start once the marker
+        // is gone, so this sync must not delete the batch when it fails.
         self::syncDirectory($directory, $filename . '.complete');
-        self::remove($marker);
+        if (!$deferDownload) {
+            self::remove($marker);
+        }
 
         return true;
+    }
+
+    /**
+     * Let a finished batch be downloaded.
+     *
+     * Publication can leave the marker in place until the caller has
+     * checked that the claims still name the file.
+     */
+    public static function allowDownload(string $directory, string $filename): void
+    {
+        if (!self::nameIsSafe($filename) || $directory === '' || !self::isPublished($directory, $filename)) {
+            return;
+        }
+
+        self::remove($directory . DIRECTORY_SEPARATOR . $filename . '.publishing');
     }
 
     /**

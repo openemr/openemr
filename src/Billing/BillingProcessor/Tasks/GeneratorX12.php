@@ -160,6 +160,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $hlCount = 1;
         $edicount = 0;
         $patSegmentCount = 0;
+        $this->rememberRenderedCharges($claim);
         $denial = new FacilityZipDenial();
         $text = (string) X125010837P::genX12837P(
             $claim->getPid(),
@@ -216,6 +217,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         $existing = $this->openUnbilledVersion($claim);
         if ($existing !== null) {
             $this->insertedClaimVersion = $existing;
+            $this->retargetReusedVersion($claim, $existing);
 
             return true;
         }
@@ -315,6 +317,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         $this->billWhenTheFileLands = false;
         $this->insertedClaimVersion = null;
+        if ($this->manualClearIsBlocked($claim)) {
+            return;
+        }
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $billIfAccepted = true;
@@ -343,6 +348,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         $this->insertedClaimVersion = null;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
+        if ($this->billWhenTheFileLands && $this->recoverHeldFile($claim, $this->batch)) {
+            return;
+        }
         if (!$this->billWhenTheFileLands) {
             if (!$this->claimGenerationIsFree($claim)) {
                 $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
@@ -465,6 +473,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         }
         if ($success) {
             $this->printToScreen(xl('X-12 Generated Successfully'));
+            if ($this->batch->queueFailed) {
+                $this->printToScreen(xl('The claim file was written and was not queued.'));
+            }
         } else {
             $this->printToScreen(xl('Error Generating Batch File'));
             return;
@@ -488,4 +499,50 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         return (bool) $batch->write_batch_file();
     }
+
+    /**
+     * Settle a file that is already on disk before the current ZIP rules run.
+     *
+     * True means this claim should not be rendered again.
+     */
+    private function recoverHeldFile(BillingClaim $claim, BillingClaimBatch $batch): bool
+    {
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        $settled = $this->recoverPublishedFile($claim, $batch, false);
+        if ($settled === null) {
+            return false;
+        }
+        $this->printToScreen(xl($settled
+            ? UnbilledFileDecision::ALREADY_WRITTEN
+            : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+
+        return true;
+    }
+
+    /**
+     * Stop a manual clear that would rewrite a payer while another file is open.
+     */
+    private function manualClearIsBlocked(BillingClaim $claim): bool
+    {
+        if (!$this->holdClaimsThatWillDeny()) {
+            return false;
+        }
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        if ($this->otherPayerFileIsOpen($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

@@ -235,6 +235,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $this->billWhenTheFileLands = false;
         }
         $this->insertedClaimVersion = null;
+        if (!$this->insideGenerate && $this->manualClearIsBlocked($claim)) {
+            return null;
+        }
         $billIfAccepted = false;
         if ($this->holdClaimsThatWillDeny()) {
             $billIfAccepted = true;
@@ -270,6 +273,19 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // and return the batch we updated
         $this->insideGenerate = true;
         $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
+        if ($this->billWhenTheFileLands) {
+            $partnerId = $claim->getPartner();
+            $partnerBatch = null;
+            if (is_int($partnerId) || is_string($partnerId)) {
+                $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
+            }
+            if ($partnerBatch instanceof BillingClaimBatch && $this->recoverHeldFile($claim, $partnerBatch)) {
+                $this->closeRecoveredPartner($claim);
+                $this->insideGenerate = false;
+
+                return;
+            }
+        }
         if (!$this->billWhenTheFileLands) {
             if (!$this->claimGenerationIsFree($claim)) {
                 $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
@@ -379,6 +395,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         ))->isSelfOfInsured(0);
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
+        $this->rememberRenderedCharges($claim);
         $denial = new FacilityZipDenial();
         $segs = explode("~\n", (string) X125010837P::genX12837P(
             $claim->getPid(),
@@ -948,4 +965,50 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
     {
         return (bool) $batch->write_batch_file();
     }
+
+    /**
+     * Settle a file that is already on disk before the current ZIP rules run.
+     *
+     * True means this claim should not be rendered again.
+     */
+    private function recoverHeldFile(BillingClaim $claim, BillingClaimBatch $batch): bool
+    {
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        $settled = $this->recoverPublishedFile($claim, $batch, false);
+        if ($settled === null) {
+            return false;
+        }
+        $this->printToScreen(xl($settled
+            ? UnbilledFileDecision::ALREADY_WRITTEN
+            : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+
+        return true;
+    }
+
+    /**
+     * Stop a manual clear that would rewrite a payer while another file is open.
+     */
+    private function manualClearIsBlocked(BillingClaim $claim): bool
+    {
+        if (!$this->holdClaimsThatWillDeny()) {
+            return false;
+        }
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        if ($this->otherPayerFileIsOpen($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+
+        return false;
+    }
+
 }
