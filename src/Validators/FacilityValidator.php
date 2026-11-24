@@ -120,10 +120,6 @@ class FacilityValidator extends BaseValidator
                 $context->optional('info');
                 $context->optional('inactive')->numeric()->between(0, 1);
                 $context->optional('organization_type')->lengthBetween(1, 50);
-                // DEFERRED pending PR #15439: mammography_cert_number is not yet a column in
-                // sql/database.sql's CREATE TABLE facility nor in the $columns map of
-                // interface/usergroup/facilities.php, so this rule validates nothing that is
-                // persisted. Wire it into the save path once PR #15439 adds the column.
                 $context->optional('mammography_cert_number')->lengthBetween(1, 30);
             }
         );
