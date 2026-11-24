@@ -9,14 +9,27 @@ as upstream cuts RCs and ships GA.
 
 ## When to drop the oldest-supported PHP version
 
-**Target:** Approximately 1 year before upstream PHP's end-of-security-support
-("EOL") date for that minor.
+**Target:** The November beat that falls slightly more than one year before
+upstream PHP's end-of-security-support ("EOL") date for that minor — i.e. the
+November roughly 3 years after that version's GA.
 
 Upstream PHP's release cycle is ~2 years active support + ~2 years security-only
-support, for ~4 years total per minor. Dropping ~1 year before EOL means we
-drop about midway through the security-only phase — the version still gets
-critical patches from upstream but has been out of active development for
-~1 year, giving the project a runway on modern syntax.
+support, for ~4 years total per minor. PHP minors GA in November; PHP EOLs
+land in December four years later. Dropping on the November beat ~3 years
+after a minor's GA lands the drop:
+- ~13 months before upstream EOL on that minor — still within upstream's
+  security-support window, with a runway for modern syntax adoption
+- ~1 year after upstream's active-support phase ended for that minor
+- **Same calendar beat as two companion items** — the fresh November PHP
+  GA (handled by [this doc's "When to add a new PHP version"](#when-to-add-a-new-php-version))
+  and any new November Alpine release (handled by
+  [alpine-version-support.md](alpine-version-support.md))
+
+Aligning on November means the drop, the new-PHP adoption, and the
+Alpine adoption share a review window and a mental-model reset per year,
+instead of trickling across the calendar as independent surprises. Keep the
+PRs separate (see the reference PRs section for the surfaces), but kick off
+the pass as one calendar event.
 
 The upstream schedule is published at <https://www.php.net/supported-versions.php>.
 Check it when deciding whether a drop is due; don't rely on memory.
