@@ -313,6 +313,55 @@ class X125010837PTest extends TestCase
         $this->assertSame([], array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'REF*EW')));
     }
 
+    public function testAClaimSendsTheBillingFacilitysCliaNumberToAMedicarePayer(): void
+    {
+        $this->setTheFacilitysCliaNumber(' 05D0123456 ');
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([['REF', 'X4', '05D0123456']], $this->elements($segments, 'REF*X4'));
+        // Loop 2300: after the claim (CLM), before its diagnoses (HI).
+        $this->assertGreaterThan($this->position($segments, 'CLM*'), $this->position($segments, 'REF*X4*'));
+        $this->assertLessThan($this->position($segments, 'HI*'), $this->position($segments, 'REF*X4*'));
+    }
+
+    public function testAClaimSendsTheBillingFacilitysCliaNumberToAPayerThatIsNotMedicare(): void
+    {
+        // Insurance type 6 (Blue Cross Blue Shield) is not Medicare Part B (type 2).
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE insurance_companies SET ins_type_code = 6 WHERE id IN (?, ?)',
+            [self::PRIMARY, self::SECONDARY]
+        );
+        $this->setTheFacilitysCliaNumber('05D0123456');
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([['REF', 'X4', '05D0123456']], $this->elements($segments, 'REF*X4'));
+    }
+
+    public function testAClaimFromAFacilityWithNoCliaNumberSendsNone(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE insurance_companies SET ins_type_code = 6 WHERE id IN (?, ?)',
+            [self::PRIMARY, self::SECONDARY]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([], array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'REF*X4')));
+    }
+
+    private function setTheFacilitysCliaNumber(string $number): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE facility SET domain_identifier = ? WHERE id = ?',
+            [$number, self::FACILITY]
+        );
+    }
+
     private function setTheFacilitysMammographyNumber(string $number): void
     {
         QueryUtils::sqlStatementThrowException(
