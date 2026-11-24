@@ -78,11 +78,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\Services\\\\Search\\\\ISearchField and OpenEMR\\\\Services\\\\Search\\\\ISearchField will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instanceof between OpenEMR\\\\Services\\\\Search\\\\ISearchField and OpenEMR\\\\Services\\\\Search\\\\ISearchField will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];

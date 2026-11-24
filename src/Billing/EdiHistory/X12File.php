@@ -1199,6 +1199,11 @@ class X12File
         } // end foreach($srch_ar as $srch)
         if (count($slice)) {
             foreach ($slice as $sl) {
+                // no closing segment was found for this transaction (truncated file)
+                if (!isset($sl['count'])) {
+                    continue;
+                }
+
                 $ret_ar[] = array_slice($seg_ar, $this->toInt($sl['start']), $this->toInt($sl['count']), true);
             }
         }
