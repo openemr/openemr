@@ -75,6 +75,45 @@ class DatabaseConnectionOptionsDefinitionTest extends TestCase
         self::assertNull($options->sslClientCert, 'no client cert was configured');
     }
 
+    public function testFallsBackToSiteSqlconfWithoutEnv(): void
+    {
+        // The fallback reads sites/<site>/sqlconf.php relative to the working
+        // directory. A unique site name avoids fromSiteSqlconf()'s cache.
+        $root = sys_get_temp_dir() . '/db-options-def-' . uniqid();
+        $site = 'site' . uniqid();
+        $siteDir = "$root/sites/$site";
+        mkdir($siteDir, recursive: true);
+        file_put_contents("$siteDir/sqlconf.php", <<<'PHP'
+<?php
+$sqlconf = [
+    'dbase' => 'filedb',
+    'login' => 'fileuser',
+    'pass' => 'filepass',
+    'host' => '127.0.0.1',
+    'port' => '3306',
+];
+PHP
+        );
+        $cwd = getcwd();
+        self::assertIsString($cwd, 'working directory should be readable');
+        chdir($root);
+        try {
+            $options = $this->resolve([], $site);
+        } finally {
+            chdir($cwd);
+            unlink("$siteDir/sqlconf.php");
+            rmdir($siteDir);
+            rmdir("$root/sites");
+            rmdir($root);
+        }
+
+        self::assertSame('filedb', $options->dbname, 'settings come from sqlconf.php');
+        self::assertSame('fileuser', $options->user);
+        self::assertSame('filepass', $options->password);
+        self::assertSame('127.0.0.1', $options->host);
+        self::assertSame(3306, $options->port);
+    }
+
     #[DataProvider('unpairedClientCertProvider')]
     public function testEnvRejectsUnpairedClientCert(string $key): void
     {
@@ -98,7 +137,7 @@ class DatabaseConnectionOptionsDefinitionTest extends TestCase
     /**
      * @param array<string, string> $env Nullable container entries that are set
      */
-    private function resolve(array $env): DatabaseConnectionOptions
+    private function resolve(array $env, string $site = 'default'): DatabaseConnectionOptions
     {
         $container = self::createStub(TypedContainerInterface::class);
         $container->method('get')->willReturnCallback(
@@ -107,6 +146,7 @@ class DatabaseConnectionOptionsDefinitionTest extends TestCase
         $container->method('getString')->willReturnMap([
             ['OPENEMR_DB_USER', 'envuser'],
             ['OPENEMR_DB_PASSWORD', 'envpass'],
+            ['OPENEMR_SITE', $site],
         ]);
 
         $options = self::definition('database.php', DatabaseConnectionOptions::class)($container);
