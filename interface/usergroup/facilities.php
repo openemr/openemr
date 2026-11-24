@@ -59,49 +59,8 @@ $facilityPostalSentence = fn (string $postal, bool $billing, bool $service, stri
     default => '',
 };
 
-$columns = [
-    "name" => "facility",
-    "phone" => true,
-    "fax" => true,
-    "street" => true,
-    "city" => true,
-    "state" => true,
-    "postal_code" => true,
-    "country_code" => true,
-    "federal_ein" => true,
-    "website" => true,
-    "email" => true,
-    "color" => "ncolor",
-    "service_location" => true,
-    "billing_location" => true,
-    "accepts_assignment" => true,
-    "pos_code" => true,
-    "domain_identifier" => true,
-    "attn" => true,
-    "tax_id_type" => true,
-    "primary_business_entity" => true,
-    "facility_npi" => true,
-    "facility_taxonomy" => true,
-    "facility_code" => "facility_id",
-    "mail_street" => true,
-    "mail_street2" => true,
-    "mail_city" => true,
-    "mail_state" => true,
-    "mail_zip" => true,
-    "oid" => true,
-    "iban" => true,
-    "info" => true,
-    "inactive" => true,
-    "organization_type" => true
-];
-
-$values = [];
-// Populate the $values array with a associative array of column names => $_POST value
-foreach ($columns as $c => $v) {
-    // Ensure form fields that have a different name from the column gets corrected
-    $k = ($columns[$c] !== true) ? $v : $c;
-    $values[$c] = trim($_POST[$k] ?? '');
-}
+// The facility's columns, read from the form's fields.
+$values = FacilityService::facilityFormValues($_POST);
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {

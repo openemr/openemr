@@ -7547,11 +7547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Util/CalendarUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$instituationId of method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\UserVideoRegistrationRequest\\:\\:setInstituationId\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/tests/Tests/Unit/TeleHealthVideoRegistrationControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$institutionName of method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\UserVideoRegistrationRequest\\:\\:setInstitutionName\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/tests/Tests/Unit/TeleHealthVideoRegistrationControllerTest.php',
@@ -17233,7 +17228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function trim expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/facilities.php',
 ];
 $ignoreErrors[] = [
@@ -21840,11 +21835,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$siteDir of static method OpenEMR\\\\BC\\\\DatabaseConnectionOptions\\:\\:forSite\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function errorLogEscape expects string, int given\\.$#',

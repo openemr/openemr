@@ -117,11 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Tables_in_\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'select count\\(\\*\\) as…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -9945,11 +9940,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/secure_sqlconf\\.php\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/sqlconf\\.php\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sqlconf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
