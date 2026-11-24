@@ -76,6 +76,43 @@ final readonly class PatientWriteHold
      */
     public function hold(PatientWriteContext $context, PatientWritableType $type, array $resource): ReviewRequest
     {
+        try {
+            return $this->holdOrRefuse($context, $type, $resource);
+        } catch (PatientWriteRefusal $refusal) {
+            $this->recordRefusal($context, $type, $refusal, null);
+            throw $refusal;
+        }
+    }
+
+    /**
+     * A FHIR update of the app's own write that is still waiting for review: replaces what is
+     * held, or withdraws it (cancels the request) when the update marks it entered-in-error.
+     *
+     * Anything else the id could name gets the same 403, so an app learns nothing about chart
+     * records or other apps' writes: a chart record (an approved write included), another app's
+     * or patient's write, or nothing at all. The app's own denied or withdrawn write is 410.
+     *
+     * @param string $id the id the update was sent to
+     * @param array<array-key, mixed> $resource decoded FHIR JSON, already validated
+     * @return ReviewRequest the request as replaced, or as cancelled
+     * @throws PatientWriteRefusal when nothing is changed, 429 once the write has been replaced MAX_REVISIONS times
+     */
+    public function replace(PatientWriteContext $context, PatientWritableType $type, string $id, array $resource): ReviewRequest
+    {
+        try {
+            return $this->replaceOrRefuse($context, $type, $id, $resource);
+        } catch (PatientWriteRefusal $refusal) {
+            $this->recordRefusal($context, $type, $refusal, $id);
+            throw $refusal;
+        }
+    }
+
+    /**
+     * @param array<array-key, mixed> $resource
+     * @throws PatientWriteRefusal
+     */
+    private function holdOrRefuse(PatientWriteContext $context, PatientWritableType $type, array $resource): ReviewRequest
+    {
         $this->refuseUnlessAllowed($context, $type);
         $held = $this->prepare($context, $type, $resource);
 
@@ -96,19 +133,10 @@ final readonly class PatientWriteHold
     }
 
     /**
-     * A FHIR update of the app's own write that is still waiting for review: replaces what is
-     * held, or withdraws it (cancels the request) when the update marks it entered-in-error.
-     *
-     * Anything else the id could name gets the same 403, so an app learns nothing about chart
-     * records or other apps' writes: a chart record (an approved write included), another app's
-     * or patient's write, or nothing at all. The app's own denied or withdrawn write is 410.
-     *
-     * @param string $id the id the update was sent to
-     * @param array<array-key, mixed> $resource decoded FHIR JSON, already validated
-     * @return ReviewRequest the request as replaced, or as cancelled
-     * @throws PatientWriteRefusal when nothing is changed, 429 once the write has been replaced MAX_REVISIONS times
+     * @param array<array-key, mixed> $resource
+     * @throws PatientWriteRefusal
      */
-    public function replace(PatientWriteContext $context, PatientWritableType $type, string $id, array $resource): ReviewRequest
+    private function replaceOrRefuse(PatientWriteContext $context, PatientWritableType $type, string $id, array $resource): ReviewRequest
     {
         $this->refuseUnlessAllowed($context, $type);
         if (($resource['id'] ?? null) !== $id) {
@@ -134,6 +162,24 @@ final readonly class PatientWriteHold
             self::refuseUnlessPending($this->queue->find($request->id) ?? $request, $e);
             throw $e;
         }
+    }
+
+    /**
+     * Records the refusal in the audit log, against the token's patient, app and type of app.
+     *
+     * @param ?string $id the id an update was sent to; null for a create
+     */
+    private function recordRefusal(PatientWriteContext $context, PatientWritableType $type, PatientWriteRefusal $refusal, ?string $id): void
+    {
+        $this->queue->recordRefusal(
+            $context->pid(),
+            $context->actor,
+            ReviewType::FhirWrite,
+            $type->fhirResourceType(),
+            $context->clientId,
+            $refusal->reason->name . ' (' . $refusal->reason->httpStatus() . ')',
+            $id,
+        );
     }
 
     /**

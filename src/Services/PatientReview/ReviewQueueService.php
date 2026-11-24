@@ -219,8 +219,8 @@ final class ReviewQueueService
     }
 
     /**
-     * Records in the audit log that open requests were shown outside staff review: a patient app
-     * reading back what it submitted. Nothing is recorded for an empty list.
+     * Records in the audit log that open requests were shown: to a patient app reading back what
+     * it submitted, or to staff on a review screen. Nothing is recorded for an empty list.
      *
      * As with the audit of a change, a failure to write the entry is logged for the operator
      * rather than failing the read.
@@ -237,6 +237,34 @@ final class ReviewQueueService
         } catch (\RuntimeException | \LogicException | DbalException $e) {
             $this->logger->error('Review requests were read but the audit log entry could not be written', [
                 'request_ids' => array_map(static fn(ReviewRequest $request): int => $request->id, $requests),
+                'exception' => $e,
+            ]);
+        }
+    }
+
+    /**
+     * Records in the audit log that a submission, or a change to one, was refused. As with
+     * recordAccess(), a failure to write the entry is logged for the operator; the refusal
+     * still stands.
+     *
+     * @param string $reason why, as the caller names it
+     * @param ?string $targetUuid the request uuid a change was sent to; null for a new submission
+     */
+    public function recordRefusal(
+        int $pid,
+        ReviewActor $actor,
+        ReviewType $type,
+        FhirResourceType $resourceType,
+        string $clientId,
+        string $reason,
+        ?string $targetUuid = null,
+    ): void {
+        try {
+            $this->auditTrail->recordRefusal($pid, $actor, $type, $resourceType, $clientId, $reason, $targetUuid);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('A review request was refused but the audit log entry could not be written', [
+                'pid' => $pid,
+                'reason' => $reason,
                 'exception' => $e,
             ]);
         }

@@ -14,10 +14,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\PatientReview;
 
+use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewAuditTrailInterface;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewStatus;
+use OpenEMR\Services\PatientReview\ReviewType;
 
 final class RecordingReviewAuditTrail implements ReviewAuditTrailInterface
 {
@@ -47,5 +49,34 @@ final class RecordingReviewAuditTrail implements ReviewAuditTrailInterface
             throw $this->failure;
         }
         $this->reads[] = ['ids' => array_map(static fn(ReviewRequest $request): int => $request->id, $requests), 'actor' => $actor->name];
+    }
+
+    /** @var list<array{pid: int, actor: string, type: ReviewType, resourceType: string, clientId: string, reason: string, target: ?string}> */
+    public array $refusals = [];
+
+    /**
+     * Records the refusal, or throws the failure a test set.
+     */
+    public function recordRefusal(
+        int $pid,
+        ReviewActor $actor,
+        ReviewType $type,
+        FhirResourceType $resourceType,
+        string $clientId,
+        string $reason,
+        ?string $targetUuid,
+    ): void {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+        $this->refusals[] = [
+            'pid' => $pid,
+            'actor' => $actor->name,
+            'type' => $type,
+            'resourceType' => $resourceType->value,
+            'clientId' => $clientId,
+            'reason' => $reason,
+            'target' => $targetUuid,
+        ];
     }
 }

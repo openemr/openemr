@@ -19,12 +19,14 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseWriteApplier;
 use OpenEMR\Services\PatientReview\Migration\LegacyActivityMapping;
 use OpenEMR\Services\PatientReview\Migration\PortalActivityMigrator;
@@ -41,13 +43,34 @@ final class ReviewQueueFactory
 
         return new ReviewQueueService(
             new ReviewRequestRepository(new ReviewRequestMapper()),
-            new EventAuditReviewTrail(EventAuditLogger::getInstance(), $group !== '' ? $group : 'none'),
+            new EventAuditReviewTrail(EventAuditLogger::getInstance(), $group !== '' ? $group : 'none', self::clientType()),
             ServiceContainer::getClock(),
             UuidRegistry::timestampFirstCombFactory(),
             ServiceContainer::getCrypto(),
             ServiceContainer::getLogger(),
             $handlers,
         );
+    }
+
+    /**
+     * Looks up whether a registered API client is confidential or public; null for a client
+     * that isn't registered.
+     *
+     * @return \Closure(string): ?PatientWriteClientType
+     */
+    public static function clientType(): \Closure
+    {
+        $clients = new ClientRepository();
+
+        return static function (string $clientId) use ($clients): ?PatientWriteClientType {
+            $client = $clients->getClientEntity($clientId);
+            if ($client === false) {
+                return null;
+            }
+            return in_array($client->isConfidential(), [true, 1, '1'], true)
+                ? PatientWriteClientType::Confidential
+                : PatientWriteClientType::Public;
+        };
     }
 
     /**

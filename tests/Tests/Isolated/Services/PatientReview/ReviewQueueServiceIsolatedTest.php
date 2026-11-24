@@ -589,6 +589,26 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(1, $this->service()->countPending());
     }
 
+    public function testARefusalIsRecordedEvenThoughNothingChanged(): void
+    {
+        $this->service()->recordRefusal(7, $this->patient(), ReviewType::FhirWrite, new FhirResourceType('QuestionnaireResponse'), 'client-abc', 'TooLarge (413)');
+
+        $this->assertCount(1, $this->trail->refusals);
+        $this->assertSame('TooLarge (413)', $this->trail->refusals[0]['reason']);
+        $this->assertNull($this->trail->refusals[0]['target']);
+    }
+
+    public function testARefusalAuditFailureIsLoggedAndNotThrown(): void
+    {
+        $this->trail->failure = new \RuntimeException('audit database unavailable');
+        $this->logger->expects($this->once())->method('error')->with(
+            $this->stringContains('refused but the audit log entry could not be written'),
+            $this->callback(static fn(array $context): bool => ($context['reason'] ?? null) === 'TooLarge (413)')
+        );
+
+        $this->service()->recordRefusal(7, $this->patient(), ReviewType::FhirWrite, new FhirResourceType('QuestionnaireResponse'), 'client-abc', 'TooLarge (413)');
+    }
+
     /**
      * A revision keeps the request's id and uuid, and its history keeps what it replaced.
      */

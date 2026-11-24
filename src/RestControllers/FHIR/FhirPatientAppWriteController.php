@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -74,20 +73,11 @@ final readonly class FhirPatientAppWriteController
     public static function forType(PatientWritableType $type, ParameterBag $globals): self
     {
         $queue = ReviewQueueFactory::create();
-        $clients = new ClientRepository();
         return new self(
             $type,
             new PatientWriteHold($queue, PatientWritePolicy::fromGlobals($globals), ReviewQueueFactory::fhirWriteHandler()),
             new PatientWriteReadBack($queue),
-            static function (string $clientId) use ($clients): ?PatientWriteClientType {
-                $client = $clients->getClientEntity($clientId);
-                if ($client === false) {
-                    return null;
-                }
-                return in_array($client->isConfidential(), [true, 1, '1'], true)
-                    ? PatientWriteClientType::Confidential
-                    : PatientWriteClientType::Public;
-            },
+            ReviewQueueFactory::clientType(),
             (new ServerConfig())->getFhirUrl(),
             static function (int $pid): ?string {
                 $username = QueryUtils::fetchSingleValue(

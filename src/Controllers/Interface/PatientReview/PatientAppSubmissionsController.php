@@ -34,6 +34,7 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -94,6 +95,7 @@ final readonly class PatientAppSubmissionsController
         [$notice, $error] = $this->takeOutcome();
 
         $pending = $this->query->pending();
+        $this->recordShown($pending['items']);
 
         return new Response(
             $this->twig->render(self::TEMPLATE, [
@@ -182,6 +184,29 @@ final readonly class PatientAppSubmissionsController
                 'exception' => $e,
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Records in the audit log that the signed-in user was shown these submissions: one entry for
+     * each patient, app and resource type, naming the requests shown.
+     *
+     * @param list<PatientWriteReviewItem> $items
+     */
+    private function recordShown(array $items): void
+    {
+        $viewer = $this->reviewer();
+        if ($viewer === null) {
+            return;
+        }
+        /** @var array<string, non-empty-list<ReviewRequest>> $groups */
+        $groups = [];
+        foreach ($items as $item) {
+            $request = $item->request;
+            $groups[$request->pid . '|' . ($request->clientId ?? '') . '|' . ($request->resourceType->value ?? '')][] = $request;
+        }
+        foreach ($groups as $requests) {
+            $this->queue->recordAccess($requests, $viewer);
         }
     }
 
