@@ -650,7 +650,7 @@
             const recipId = $(relatedTarget).attr('data-whoto');
             const title = $(relatedTarget).attr('data-mtitle');
             const uname = $(relatedTarget).attr('data-username');
-            $('#selSendto').val(recipId);
+            lockReplyRecipient(document.getElementById('selSendto'), recipId, uname);
             $('#title').val(title);
             state.compose.title = title;
             state.compose.selrecip = recipId;
@@ -669,6 +669,44 @@
             $('#title').prop('disabled', false);
             updateComposeForm();
         }
+    }
+
+    /**
+     * A reply goes to the sender of the message being replied to. Select
+     * that sender in the "To" dropdown and disable it, so a different
+     * recipient (for staff the list holds every portal patient) can't be
+     * picked by mistake. A sender missing from the list is added so the
+     * dropdown still shows who the reply goes to. submitForm() re-enables
+     * the dropdown before the form posts.
+     *
+     * A message with no sender id has nobody to reply to: the dropdown is
+     * cleared and disabled rather than left on its first entry, and
+     * submitForm() refuses to send.
+     *
+     * @param {HTMLSelectElement|null} select
+     * @param {string} recipId
+     * @param {string} recipName
+     * @returns {boolean} true when the reply has a recipient
+     */
+    function lockReplyRecipient(select, recipId, recipName) {
+        if (!select) {
+            return false;
+        }
+        if (!recipId) {
+            select.selectedIndex = -1;
+            select.disabled = true;
+            return false;
+        }
+        const listed = Array.from(select.options).some(opt => opt.value === recipId);
+        if (!listed) {
+            const opt = document.createElement('option');
+            opt.value = recipId;
+            opt.textContent = recipName || recipId;
+            select.appendChild(opt);
+        }
+        select.value = recipId;
+        select.disabled = true;
+        return true;
     }
 
     function updateComposeForm() {
@@ -691,6 +729,14 @@
 
         const task = state.compose.task || 'add';
         const selrecip = $('#selSendto').val() || state.compose.selrecip;
+
+        // A reply to a message with no sender has no recipient: don't send.
+        if (task === 'reply' && !selrecip) {
+            $('#selSendto').prop('disabled', true);
+            alert(config.strings.replyNoRecipient);
+            e.preventDefault();
+            return false;
+        }
 
         // Confirm when sending to yourself
         if (selrecip === state.cUserId) {
@@ -816,7 +862,8 @@
             secureMessageEditorOptions,
             renderMessageBody,
             paginate,
-            groupChain
+            groupChain,
+            lockReplyRecipient
         };
     }
 })();

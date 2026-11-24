@@ -1,10 +1,10 @@
 <?php
 
 /**
- * VisitListDayLoader
+ * VisitListLoader
  *
- * Reads what the calendar day view needs to show Visit Lists: the day's Visit Lists for the
- * providers shown, and the appointment statuses their rows are colored and labeled by.
+ * Reads what the calendar views need to show Visit Lists: the Visit Lists of the providers
+ * shown on the dates shown, and the appointment statuses their rows are colored and labeled by.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -26,7 +26,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 /**
  * @phpstan-import-type AppointmentStatus from VisitListDayColumn
  */
-final class VisitListDayLoader
+final class VisitListLoader
 {
     /** @var callable(string): list<array<mixed>> */
     private $fetchRecords;
@@ -48,15 +48,29 @@ final class VisitListDayLoader
     }
 
     /**
-     * The Visit Lists on one day (Ymd) of the providers shown, as the day view's provider
-     * rows list them; null when the date cannot be read.
+     * The Visit Lists of the providers shown, from the first to the last of the dates shown
+     * (Y-m-d, as the keys of the calendar's events by date); null when no date can be read.
      *
+     * @param array<mixed> $dates     the dates the view shows, in any order
      * @param array<mixed> $providers rows with each provider's id
      */
-    public function schedule(string $dateYmd, array $providers): ?VisitListSchedule
+    public function schedule(array $dates, array $providers): ?VisitListSchedule
     {
-        $date = DateTimeImmutable::createFromFormat('!Ymd', $dateYmd);
-        if ($date === false) {
+        $from = null;
+        $to = null;
+        foreach ($dates as $dateYmd) {
+            $date = is_string($dateYmd) ? DateTimeImmutable::createFromFormat('!Y-m-d', $dateYmd) : false;
+            if ($date === false || $date->format('Y-m-d') !== $dateYmd) {
+                continue;
+            }
+            if ($from === null || $date < $from) {
+                $from = $date;
+            }
+            if ($to === null || $date > $to) {
+                $to = $date;
+            }
+        }
+        if ($from === null || $to === null) {
             return null;
         }
 
@@ -67,7 +81,7 @@ final class VisitListDayLoader
                 $providerIds[] = $providerId;
             }
         }
-        return $this->service->forDates($date, $date, $providerIds);
+        return $this->service->forDates($from, $to, $providerIds);
     }
 
     /**

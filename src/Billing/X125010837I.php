@@ -1121,6 +1121,14 @@ class X125010837I
             $out .= "DTP" . // Date of Service. Needs to be when service performed.
                 "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
+            // The REF segments of loop 2400 come before its NTE.
+            $lineItemControlNumber = $claim->lineItemControlNumber($prockey);
+            if ($lineItemControlNumber !== '') {
+                ++$edicount;
+                $out .= "REF" . // Line Item Control Number.
+                    "*" . "6R" . "*" . $lineItemControlNumber . "~\n";
+            }
+
             $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
@@ -1144,8 +1152,6 @@ class X125010837I
             // Segment REF*9B (Repriced Line Item Reference Number) omitted.
             // Segment REF*9D (Adjusted Repriced Line Item Reference Number) omitted.
             // Segment REF*G1 (Prior Authorization) omitted.
-            // Segment REF*6R (Line Item Control Number) omitted.
-            // (Really oughta have this for robust 835 posting!)
             // Segment REF*EW (Mammography Certification Number) omitted.
             // Segment REF*X4 (CLIA Number) omitted.
             // Segment REF*F4 (Referring CLIA Facility Identification) omitted.

@@ -14,6 +14,36 @@
 /modules/          - Custom and third-party modules
 ```
 
+## Architecture & target patterns
+
+The target architecture — the layered design we are migrating toward, the strangler-fig
+approach for legacy code, and the per-subsystem conventions — is documented in
+[`docs/architecture/`](docs/architecture/README.md). **Consult it before making
+architecture-affecting changes or opening a PR.** Start at the hub
+([`docs/architecture/README.md`](docs/architecture/README.md)); it carries the decision
+gate and a routing table to the detailed sub-documents — open only the one your change
+touches.
+
+Read the relevant `docs/architecture/` document first when your change touches any of:
+
+- a **form** or encounter form, LBF/LBT, or the tabbed UI / menus / tabs
+- the **database schema** (DDL), a migration, or `sql/database.sql`
+- a **database query** or data access
+- **file I/O**, document storage, or uploads
+- a **permission / ACL** check, or authentication
+- **encryption** or key management
+- **internationalization** (user-facing strings)
+- a **REST/FHIR endpoint** (building one, or reusing one instead of reimplementing)
+- **deprecating** a function, or choosing/retiring a **library or runtime**
+  (e.g. jQuery, Knockout, Angular, Node.js, Smarty)
+- the **patient portal** (see [`docs/architecture/portal.md`](docs/architecture/portal.md))
+- **compliance-governed output** — C-CDA, FHIR/US Core/SMART, QRDA/CQM, Direct secure
+  messaging, standard code systems/OIDs, or API app registration/approval (see
+  [`docs/architecture/compliance.md`](docs/architecture/compliance.md)); a change that passes
+  CI can still break ONC certification
+
+These documents own the structural "why"; this file owns the line-level mechanics below.
+
 ## Technology Stack
 
 - **PHP:** 8.3+ required
@@ -660,16 +690,13 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### AI Assistance Trailer
 
-If an AI assistant helped write a commit, add an `Assisted-by` trailer to that
-commit:
+Add a trailer naming the tool to every commit AI helped make, including docs
+and deletions: `Generated-By` only if the AI made every change in the commit,
+`Assisted-By` if a person made any.
 
 ```bash
-git commit --trailer "Assisted-by: Claude Code" -m "fix(calendar): correct date parsing"
+git commit --trailer "Generated-By: Claude Code" -m "fix(calendar): correct date parsing"
 ```
-
-Use the name of the tool as the trailer value (e.g. `Claude Code`,
-`GitHub Copilot`, `ChatGPT`). When the AI agent creates commits automatically,
-this trailer is typically added for you.
 
 ## Service Layer Pattern
 

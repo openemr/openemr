@@ -161,4 +161,132 @@ class PharmacyPersistTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $pharmacy->set_number('5550001111', PhoneType::CELL);
     }
+
+    #[Test]
+    public function testLegacyPersistCollapsesDuplicateRowsOfReloadedPharmacy(): void
+    {
+        // Same contract as the matching InsuranceCompany test: saving the
+        // reloaded pharmacy keeps one row per type, holding the newest number.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistReloadDuplicates');
+        $pharmacy->set_phone('5551234567');
+        $pharmacy->set_fax('5559876543');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        $service = new PhoneNumberService();
+        $service->type = PhoneType::WORK->value;
+        $service->insert(['phone' => '5552223333'], $pharmacyId);
+        $service->type = PhoneType::FAX->value;
+        $service->insert(['phone' => '5554445555'], $pharmacyId);
+
+        (new \Pharmacy($pharmacyId))->persist();
+
+        $this->assertSame(
+            [
+                ['type' => PhoneType::WORK->value, 'area_code' => '555', 'prefix' => '222', 'number' => '3333'],
+                ['type' => PhoneType::FAX->value, 'area_code' => '555', 'prefix' => '444', 'number' => '5555'],
+            ],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT type, area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? ORDER BY type',
+                [$pharmacyId]
+            )
+        );
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsSavedPhoneWhenReplacementCannotBeStored(): void
+    {
+        // Same contract as the matching InsuranceCompany test: a number
+        // persist() cannot store leaves the saved one in place.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistUnstorableReplacement');
+        $pharmacy->set_phone('5551234567');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        $reloaded = new \Pharmacy($pharmacyId);
+        $reloaded->set_phone('555-1234');
+        $reloaded->persist();
+
+        $this->assertSame(
+            [['area_code' => '555', 'prefix' => '123', 'number' => '4567']],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? AND type = ?',
+                [$pharmacyId, PhoneType::WORK->value]
+            )
+        );
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsSavedPhoneItCannotLoad(): void
+    {
+        // Same contract as the matching InsuranceCompany test: a saved row
+        // the loader cannot read survives the save.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistUnloadableRow');
+        $pharmacy->set_fax('5559876543');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        QueryUtils::sqlInsert(
+            'INSERT INTO phone_numbers (id, country_code, area_code, prefix, number, type, foreign_id)'
+            . ' SELECT COALESCE(MAX(id), 0) + 1, ?, ?, ?, ?, ?, ? FROM phone_numbers',
+            [PhoneNumberService::COUNTRY_CODE, '', '555', '1234', PhoneType::WORK->value, $pharmacyId]
+        );
+
+        (new \Pharmacy($pharmacyId))->persist();
+
+        $this->assertSame(
+            [
+                ['type' => PhoneType::WORK->value, 'area_code' => '', 'prefix' => '555', 'number' => '1234'],
+                ['type' => PhoneType::FAX->value, 'area_code' => '555', 'prefix' => '987', 'number' => '6543'],
+            ],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT type, area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? ORDER BY type',
+                [$pharmacyId]
+            )
+        );
+    }
+
+    #[Test]
+    public function testLegacyPersistKeepsNewestPhoneItCannotLoadOverOlderOne(): void
+    {
+        // Same contract as the matching InsuranceCompany test: an unloadable
+        // newest row is not overwritten by an older loadable one.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistUnloadableNewestRow');
+        $pharmacy->set_phone('5551234567');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        QueryUtils::sqlInsert(
+            'INSERT INTO phone_numbers (id, country_code, area_code, prefix, number, type, foreign_id)'
+            . ' SELECT COALESCE(MAX(id), 0) + 1, ?, ?, ?, ?, ?, ? FROM phone_numbers',
+            [PhoneNumberService::COUNTRY_CODE, '', '555', '1234', PhoneType::WORK->value, $pharmacyId]
+        );
+
+        $reloaded = new \Pharmacy($pharmacyId);
+        $this->assertSame('', $reloaded->get_phone());
+        $reloaded->persist();
+
+        $this->assertSame(
+            [
+                ['area_code' => '555', 'prefix' => '123', 'number' => '4567'],
+                ['area_code' => '', 'prefix' => '555', 'number' => '1234'],
+            ],
+            QueryUtils::fetchRecordsNoLog(
+                'SELECT area_code, prefix, number FROM phone_numbers WHERE foreign_id = ? AND type = ? ORDER BY id',
+                [$pharmacyId, PhoneType::WORK->value]
+            )
+        );
+    }
 }

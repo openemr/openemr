@@ -30,6 +30,8 @@ use OpenEMR\Rx\Ensora\ErxLaunchBlock;
 use OpenEMR\Rx\Ensora\ErxLaunchBlockedException;
 use OpenEMR\Rx\Ensora\ErxStoreInterface;
 use OpenEMR\Rx\Ensora\ErxXmlBuilder;
+use OpenEMR\Rx\Ensora\SentAllergy;
+use OpenEMR\Rx\Ensora\SentMedication;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -264,6 +266,16 @@ class ErxXmlBuilderTest extends TestCase
 
         $this->assertSame('manager', $builder->getDestination(7)->textContent);
         $this->assertSame('medentry', $builder->getDestination(7, 'medentry')->textContent);
+        $this->assertSame('manager', $builder->resolveDestination(7, ''));
+        $this->assertSame('medentry', $builder->resolveDestination(7, 'medentry'));
+    }
+
+    public function testADoctorWithNoRequestedPageGoesToCompose(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getUserById')->willReturn(['newcrop_user_role' => 'erxdoctor']);
+
+        $this->assertSame('compose', $this->builder($store)->resolveDestination(7, ''));
     }
 
     public function testAUserWithoutARoleBlocksTheLaunch(): void
@@ -331,20 +343,47 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame('frontdesk', $elements[0]->getAttribute('ID'));
     }
 
-    public function testAllergiesRecordTheIdsTheySend(): void
+    public function testAllergiesRecordTheValuesTheySend(): void
     {
         $store = $this->createMock(ErxStoreInterface::class);
         $store->method('getPatientAllergiesByPatientId')->with(42)->willReturn([
-            ['id' => '5', 'title1' => 'Penicillin', 'title2' => 'Severe', 'comments' => ''],
-            ['id' => 9, 'title1' => 'Latex', 'title2' => 'Unassigned', 'comments' => null],
+            ['id' => '5', 'title1' => 'Penicillin', 'title2' => 'Severe', 'comments' => '', 'outcome' => '3'],
+            ['id' => 9, 'title1' => 'Latex', 'title2' => 'Unassigned', 'comments' => null, 'outcome' => 0],
         ]);
         $builder = $this->builder($store);
 
         $elements = $builder->getPatientFreeformAllergy(42);
 
-        $this->assertSame([5, 9], $builder->getSentAllergyIds());
+        $this->assertEquals(
+            [new SentAllergy(5, 'Penicillin', 3, ''), new SentAllergy(9, 'Latex', 0, null)],
+            $builder->getSentAllergies(),
+        );
         $this->assertSame(['allergyName' => 'Penicillin', 'allergySeverityTypeID' => 'Severe'], $this->children($elements[0]));
         $this->assertSame(['allergyName' => 'Latex'], $this->children($elements[1]));
+    }
+
+    public function testAnAllergyOutcomeCanBeNegative(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getPatientAllergiesByPatientId')->willReturn([
+            ['id' => 5, 'title1' => 'Penicillin', 'title2' => null, 'comments' => null, 'outcome' => '-1'],
+        ]);
+        $builder = $this->builder($store);
+
+        $builder->getPatientFreeformAllergy(42);
+
+        $this->assertEquals([new SentAllergy(5, 'Penicillin', -1, null)], $builder->getSentAllergies());
+    }
+
+    public function testAnAllergyWithoutANumericOutcomeIsRejected(): void
+    {
+        $store = $this->createMock(ErxStoreInterface::class);
+        $store->method('getPatientAllergiesByPatientId')->willReturn([
+            ['id' => 5, 'title1' => 'Penicillin', 'title2' => null, 'comments' => null, 'outcome' => 'severe'],
+        ]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->builder($store)->getPatientFreeformAllergy(42);
     }
 
     /**
@@ -405,17 +444,21 @@ class ErxXmlBuilderTest extends TestCase
         $this->assertSame([], $builder->getSentPrescriptionIds());
     }
 
-    public function testMedicationsRecordTheIdsTheySend(): void
+    public function testMedicationsRecordTheValuesTheySend(): void
     {
         $store = $this->createMock(ErxStoreInterface::class);
         $store->method('selectMedicationsNotUploadedByPatientId')->with(42, 1, 60)->willReturn([
-            ['id' => '3', 'begdate' => '2026-01-02', 'title' => 'Metformin'],
+            ['id' => '3', 'begdate' => '2026-01-02 00:00:00', 'title' => 'Metformin'],
+            ['id' => 4, 'begdate' => null, 'title' => 'Lisinopril'],
         ]);
         $builder = $this->builder($store);
 
         $elements = $builder->getPatientMedication(42, 1, 60);
 
-        $this->assertSame([3], $builder->getSentMedicationIds());
+        $this->assertEquals(
+            [new SentMedication(3, 'Metformin', '2026-01-02 00:00:00'), new SentMedication(4, 'Lisinopril', null)],
+            $builder->getSentMedications(),
+        );
         $this->assertSame('Metformin', $this->children($elements[0])['drug'] ?? null);
     }
 

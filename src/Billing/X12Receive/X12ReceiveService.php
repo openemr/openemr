@@ -15,6 +15,10 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\X12Receive;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\EraAutoPost\AutoPostRepository;
+use OpenEMR\Billing\EraAutoPost\EngineCheckPoster;
+use OpenEMR\Billing\EraAutoPost\EraAutoPoster;
+use OpenEMR\Billing\EraAutoPost\RemittanceReader;
 use OpenEMR\Core\OEGlobalsBag;
 
 final class X12ReceiveService
@@ -22,7 +26,8 @@ final class X12ReceiveService
     /**
      * The X12_SFTP_Receive background_services row names this method. The
      * runner calls it with no arguments. It does nothing, and connects to
-     * nothing, unless a partner has a receive folder set.
+     * nothing, unless a partner has a receive folder set. The 835s stored
+     * for a partner that had a user to post as are then posted.
      */
     public static function runBackgroundService(): void
     {
@@ -32,14 +37,26 @@ final class X12ReceiveService
         }
         $globals = OEGlobalsBag::getInstance();
         $logger = ServiceContainer::getLogger();
+        $clock = ServiceContainer::getClock();
         $summary = (new X12RemoteReceiver(
             opener: new SftpRemoteDirectoryOpener(ServiceContainer::getCrypto(), $logger),
             log: new ReceivedFileRepository(),
             store: new SiteReceivedFileStore($globals->getString('OE_SITE_DIR')),
-            clock: ServiceContainer::getClock(),
+            clock: $clock,
             logger: $logger,
             tempDirectory: $globals->getString('temporary_files_dir'),
         ))->receive($partners);
         $logger->info('X12 receive: run finished', $summary->toArray());
+
+        // Files this run, or one that was cut short, marked for unattended posting as it stored them.
+        $posted = (new EraAutoPoster(
+            log: new AutoPostRepository(),
+            reader: new RemittanceReader(),
+            poster: new EngineCheckPoster($globals->getBoolean('add_unmatched_code_from_ins_co_era_to_billing')),
+            clock: $clock,
+            logger: $logger,
+            eraDirectory: $globals->getString('OE_SITE_DIR') . '/documents/era',
+        ))->run();
+        $logger->info('ERA auto-post: run finished', $posted->toArray());
     }
 }

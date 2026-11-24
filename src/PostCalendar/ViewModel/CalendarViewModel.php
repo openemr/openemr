@@ -1157,7 +1157,7 @@ final readonly class CalendarViewModel
         // Patient appt / group / fallback branch.
         $patientId = $event['pid'] ?? null;
         $gidRaw = $event['gid'] ?? null;
-        $hasGroup = $gidRaw !== null && $gidRaw !== '' && $gidRaw !== 0;
+        $hasGroup = is_numeric($gidRaw) && (int) $gidRaw > 0;
         // Legacy: `if($groupid) $patientid = '';` — group events suppress
         // the patient-link branch.
         if ($hasGroup) {
@@ -1385,7 +1385,7 @@ final readonly class CalendarViewModel
         // Patient / group / fallback branch — wrapped in <span class='appointment'>.
         $patientId = $event['pid'] ?? null;
         $gidRaw = $event['gid'] ?? null;
-        $hasGroup = $gidRaw !== null && $gidRaw !== '' && $gidRaw !== 0;
+        $hasGroup = is_numeric($gidRaw) && (int) $gidRaw > 0;
         // Legacy: $patientid suppression when group is present happens at the
         // assignment site; mirroring here.
         if ($hasGroup) {
@@ -1616,7 +1616,7 @@ final readonly class CalendarViewModel
         // Patient / group / fallback branch with `<span class='appointment{apptToggle}'>`.
         $patientId = $event['pid'] ?? null;
         $gidRaw = $event['gid'] ?? null;
-        $hasGroup = $gidRaw !== null && $gidRaw !== '' && $gidRaw !== 0;
+        $hasGroup = is_numeric($gidRaw) && (int) $gidRaw > 0;
         if ($hasGroup) {
             $patientId = '';
         }
