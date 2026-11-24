@@ -37,17 +37,45 @@ final readonly class EventAuditReviewTrail implements ReviewAuditTrailInterface
 
     /**
      * One entry for the read, naming every request shown, filed under the patient of the first
-     * (they are all one patient's).
+     * (they are all one patient's). Requests of more than one type, resource type or app are
+     * named in groups, each with its own.
      */
     public function recordAccess(array $requests, ReviewActor $actor): void
     {
         $first = $requests[0];
-        $ids = implode(', ', array_map(static fn(ReviewRequest $request): string => (string) $request->id, $requests));
-        $comment = (count($requests) === 1 ? 'Review request ' : 'Review requests ') . $ids
-            . ' (' . $first->type->value . ') read'
-            . $this->where($first->resourceType, $first->clientId);
+        /** @var array<string, non-empty-list<ReviewRequest>> $groups */
+        $groups = [];
+        foreach ($requests as $request) {
+            $key = $request->type->value . '|' . ($request->resourceType->value ?? '') . '|' . ($request->clientId ?? '');
+            $groups[$key][] = $request;
+        }
+        $label = count($requests) === 1 ? 'Review request ' : 'Review requests ';
+        $comment = count($groups) === 1
+            ? $label . self::ids($requests) . ' (' . $first->type->value . ') read' . $this->where($first->resourceType, $first->clientId)
+            : $label . self::ids($requests) . ' read: ' . implode('; ', array_map($this->describe(...), array_values($groups)));
 
         $this->log($actor, $comment, $first->pid, $first->source, '');
+    }
+
+    /**
+     * "<ids> (<type>) for <resource type> via API client <id> (<kind>)" for requests that share
+     * their type, resource type and app.
+     *
+     * @param non-empty-list<ReviewRequest> $requests
+     */
+    private function describe(array $requests): string
+    {
+        $first = $requests[0];
+
+        return self::ids($requests) . ' (' . $first->type->value . ')' . $this->where($first->resourceType, $first->clientId);
+    }
+
+    /**
+     * @param non-empty-list<ReviewRequest> $requests
+     */
+    private static function ids(array $requests): string
+    {
+        return implode(', ', array_map(static fn(ReviewRequest $request): string => (string) $request->id, $requests));
     }
 
     public function record(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void

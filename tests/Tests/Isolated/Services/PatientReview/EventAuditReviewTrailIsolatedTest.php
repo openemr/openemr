@@ -30,7 +30,12 @@ use PHPUnit\Framework\TestCase;
 
 class EventAuditReviewTrailIsolatedTest extends TestCase
 {
-    private static function appWrite(int $id, ReviewStatus $status = ReviewStatus::Pending, string $resourceType = 'Observation'): ReviewRequest
+    private static function appWrite(
+        int $id,
+        ReviewStatus $status = ReviewStatus::Pending,
+        string $resourceType = 'Observation',
+        string $clientId = 'client-abc',
+    ): ReviewRequest
     {
         $at = new DateTimeImmutable('2026-11-07 09:30:00');
 
@@ -41,7 +46,7 @@ class EventAuditReviewTrailIsolatedTest extends TestCase
             type: ReviewType::FhirWrite,
             resourceType: new FhirResourceType($resourceType),
             source: ReviewSource::Api,
-            clientId: 'client-abc',
+            clientId: $clientId,
             status: $status,
             summary: 'Patient app vital sign',
             payload: [],
@@ -141,6 +146,33 @@ class EventAuditReviewTrailIsolatedTest extends TestCase
         $this->assertSame('nurse', $arguments[2]);
         $this->assertSame('Review request 31 (fhir-write) read for Observation via API client client-abc', $arguments[4], 'an unregistered client has no type');
         $this->assertSame(7, $arguments[5], 'logged against the patient');
+    }
+
+    /**
+     * Staff shown one patient's writes from two apps and of two types get one entry naming each
+     * request with its own resource type, app and kind of app.
+     */
+    public function testAReadOfMixedRequestsIsOneEntryNamingEachWithItsOwnAppAndType(): void
+    {
+        $arguments = [];
+        $types = static fn(string $clientId): PatientWriteClientType => $clientId === 'client-abc'
+            ? PatientWriteClientType::Confidential
+            : PatientWriteClientType::Public;
+        (new EventAuditReviewTrail($this->capturingLogger($arguments), 'Default', $types))->recordAccess([
+            self::appWrite(31, resourceType: 'QuestionnaireResponse'),
+            self::appWrite(32, resourceType: 'QuestionnaireResponse', clientId: 'client-xyz'),
+            self::appWrite(33, resourceType: 'QuestionnaireResponse'),
+            self::appWrite(34),
+        ], ReviewActor::user(3, 'nurse'));
+
+        $this->assertSame(
+            'Review requests 31, 32, 33, 34 read:'
+            . ' 31, 33 (fhir-write) for QuestionnaireResponse via API client client-abc (confidential);'
+            . ' 32 (fhir-write) for QuestionnaireResponse via API client client-xyz (public);'
+            . ' 34 (fhir-write) for Observation via API client client-abc (confidential)',
+            $arguments[4]
+        );
+        $this->assertSame(7, $arguments[5], 'one entry, logged against the patient');
     }
 
     public function testCompletingAnApprovedAppWriteNamesTheChartRecordWritten(): void

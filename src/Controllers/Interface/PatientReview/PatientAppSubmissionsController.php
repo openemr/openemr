@@ -189,7 +189,7 @@ final readonly class PatientAppSubmissionsController
 
     /**
      * Records in the audit log that the signed-in user was shown these submissions: one entry for
-     * each patient, app and resource type, naming the requests shown.
+     * each patient, naming every request shown with its resource type and app.
      *
      * @param list<PatientWriteReviewItem> $items
      */
@@ -199,11 +199,10 @@ final readonly class PatientAppSubmissionsController
         if ($viewer === null) {
             return;
         }
-        /** @var array<string, non-empty-list<ReviewRequest>> $groups */
+        /** @var array<int, non-empty-list<ReviewRequest>> $groups keyed by pid */
         $groups = [];
         foreach ($items as $item) {
-            $request = $item->request;
-            $groups[$request->pid . '|' . ($request->clientId ?? '') . '|' . ($request->resourceType->value ?? '')][] = $request;
+            $groups[$item->request->pid][] = $item->request;
         }
         foreach ($groups as $requests) {
             $this->queue->recordAccess($requests, $viewer);
