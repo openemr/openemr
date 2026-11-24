@@ -112,7 +112,7 @@ final class PatientFinderQueryBuilder
             static fn(string $clause): bool => $clause !== ''
         ));
         $customWhere = $limits === []
-            ? $filter->getFilterClause()
+            ? '( ' . $filter->getFilterClause() . ' )'
             : implode(' AND ', $limits) . ' AND ( ' . $filter->getFilterClause() . ' )';
         $filterBinds = array_merge($pidBinds, $filter->getBoundValues());
 

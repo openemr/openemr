@@ -22,6 +22,7 @@ use OpenEMR\Services\PatientFinder\Criteria\PatientFinderCriteriaRegistry;
 use OpenEMR\Services\PatientFinder\Criteria\SexCriterion;
 use OpenEMR\Services\PatientFinder\PatientFinderCriteria;
 use OpenEMR\Services\PatientFinder\PatientFinderQueryBuilder;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,7 @@ class PatientFinderCriteriaTest extends TestCase
      */
     private static function request(array $filters): array
     {
-        return ['criteria' => json_encode($filters, JSON_THROW_ON_ERROR)];
+        return ['criteria' => Json::encode($filters)];
     }
 
     /**
@@ -67,6 +68,7 @@ class PatientFinderCriteriaTest extends TestCase
     }
 
     /**
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      * @return array<string, array{0: string}>
      */
     public static function unusableRequests(): array
@@ -169,7 +171,7 @@ class PatientFinderCriteriaTest extends TestCase
         // Started on or before today, not ended, and naming a company (not blank or 0).
         $this->assertStringContainsString('ins.date <= CURDATE()', $has);
         $this->assertStringContainsString('ins.date_end >= CURDATE()', $has);
-        $this->assertStringContainsString("ins.provider REGEXP '^0*[1-9][0-9]*$'", $has);
+        $this->assertStringContainsString("ins.provider REGEXP '^[[:space:]]*0*[1-9][0-9]*[[:space:]]*$'", $has);
         // A later policy in force outranks it, as EffectiveInsuranceRule picks the winner.
         $this->assertStringContainsString('AND NOT EXISTS (SELECT 1 FROM insurance_data later', $has);
         $this->assertStringStartsWith('(NOT EXISTS (SELECT 1 FROM insurance_data ins', $none);
@@ -239,11 +241,46 @@ class PatientFinderCriteriaTest extends TestCase
 
         $plan = $builder->build([], $request, new BoundFilter());
 
-        $this->assertStringContainsString('WHERE 1 AND ( (patient_data.sex = ?) ) LIMIT ? OFFSET ?', $plan->dataSql);
+        $this->assertStringContainsString('WHERE ( 1 ) AND ( (patient_data.sex = ?) ) LIMIT ? OFFSET ?', $plan->dataSql);
         $this->assertSame(['Female', 10, 0], $plan->dataBinds);
-        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE 1 AND ( (patient_data.sex = ?) )', $plan->filteredCountSql);
+        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE ( 1 ) AND ( (patient_data.sex = ?) )', $plan->filteredCountSql);
         $this->assertSame(['Female'], $plan->filteredCountBinds);
-        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE 1', $plan->totalCountSql);
+        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE ( 1 )', $plan->totalCountSql);
         $this->assertSame([], $plan->totalCountBinds);
+    }
+
+    public function testNumbersMustBeIntegersOrDigitStrings(): void
+    {
+        foreach (['18.0', 'true', '1.5', 'null'] as $value) {
+            $criteria = PatientFinderCriteria::fromArray(
+                ['criteria' => '[{"key":"age","operator":"at_least","value":' . $value . '}]']
+            );
+            $this->assertTrue($criteria->isEmpty());
+        }
+        $this->assertFalse(PatientFinderCriteria::fromArray(
+            ['criteria' => '[{"key":"age","operator":"at_least","value":18}]']
+        )->isEmpty());
+    }
+
+    public function testSexIdLimitCountsCharactersNotBytes(): void
+    {
+        $id = str_repeat('é', 60);
+        $criteria = PatientFinderCriteria::fromArray(self::request([['key' => 'sex', 'operator' => 'is', 'value' => $id]]));
+
+        $this->assertSame([$id], $criteria->filters[0]['values'] ?? null);
+    }
+
+    public function testVisitsDatedAfterTodayAreNotCounted(): void
+    {
+        [$within] = self::where([['key' => 'last_visit', 'operator' => 'within', 'value' => '30']]);
+
+        $this->assertStringContainsString('fe.date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)', $within);
+    }
+
+    public function testBlankPolicyStartRanksBelowAZeroStart(): void
+    {
+        [$has] = self::where([['key' => 'insurance', 'operator' => 'has', 'value' => '']]);
+
+        $this->assertStringContainsString("COALESCE(later.date, '') > COALESCE(ins.date, '')", $has);
     }
 }

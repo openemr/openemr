@@ -72,6 +72,9 @@
     var tables = {};
     // The search each table last drew with, so switching tabs redraws only when it changed.
     var drawnSearch = {};
+    // The search each table is asking for; it becomes drawnSearch once the rows arrive, so a
+    // failed request leaves drawnSearch describing the rows still on screen.
+    var requestedSearch = {};
     var activeTab = TABS.list;
 
     function escapeAttr(text) {
@@ -404,7 +407,7 @@
                 criteria.forEach(function (param) {
                     aoData.push(param);
                 });
-                drawnSearch[tab.key] = {
+                requestedSearch[tab.key] = {
                     term: search.term,
                     mode: search.mode,
                     exact: searchType,
@@ -430,6 +433,11 @@
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": cfg.pageLength || 10,
             "infoCallback": countLine,
+            "drawCallback": function () {
+                if (requestedSearch[tab.key]) {
+                    drawnSearch[tab.key] = requestedSearch[tab.key];
+                }
+            },
             "createdRow": markInactive,
             "language": language
         });
@@ -483,7 +491,8 @@
             createTable(tab);
         } else if (tab === TABS.recent) {
             // Keep the page unless the filters changed, which can leave fewer pages.
-            var filtersChanged = drawnSearch[tab.key].criteria !== JSON.stringify(criteriaParams());
+            var drawn = drawnSearch[tab.key];
+            var filtersChanged = !drawn || drawn.criteria !== JSON.stringify(criteriaParams());
             tables[tab.key].api().search(search.term).draw(filtersChanged);
         } else {
             applySearch(tab);

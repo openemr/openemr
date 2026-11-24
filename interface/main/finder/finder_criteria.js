@@ -72,6 +72,24 @@
         return row.value !== '' && row.value !== null;
     }
 
+    // Whether a whole number written as digits is inside the operator's range.
+    function inRange(operator, text) {
+        if (!/^[0-9]{1,6}$/.test(String(text).trim())) {
+            return false;
+        }
+        var number = parseInt(text, 10);
+        return number >= operator.min && number <= operator.max;
+    }
+
+    // Whether a number or range row holds numbers the server will accept; other rows always do.
+    function isValid(row) {
+        var operator = operatorOf(byKey[row.key], row.operator);
+        if (operator.input === 'range') {
+            return inRange(operator, row.value[0]) && inRange(operator, row.value[1]);
+        }
+        return operator.input !== 'number' || inRange(operator, row.value);
+    }
+
     function clone(rows) {
         return JSON.parse(JSON.stringify(rows));
     }
@@ -102,7 +120,7 @@
     }
 
     function numberInput(operator, value, label, onInput) {
-        return $('<input type="number" class="form-control form-control-sm" style="width: 5.5em;">')
+        return $('<input type="number" class="form-control form-control-sm finder-number">')
             .attr({min: operator.min, max: operator.max, 'aria-label': label}).val(value)
             .on('input', function () {
                 onInput(this.value);
@@ -232,7 +250,14 @@
     }
 
     function apply() {
-        applied = clone(draft.filter(isComplete));
+        var complete = draft.filter(isComplete);
+        if (!complete.every(isValid)) {
+            // Keep the panel open: a value the server would drop must not show as an active filter.
+            renderPanel();
+            $panel.prepend($('<div class="alert alert-danger py-1 px-2 mb-2" role="alert"></div>').text($panel.data('invalid')));
+            return;
+        }
+        applied = clone(complete);
         $button.dropdown('hide');
         changed();
     }
@@ -262,6 +287,12 @@
         // Clicks inside the panel must not close it (Bootstrap closes a dropdown on any click).
         $panel.on('click', function (event) {
             event.stopPropagation();
+        });
+        // Bootstrap's dropdown keydown handler cancels the arrow keys, which a focused select needs.
+        $panel.on('keydown', function (event) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                event.stopPropagation();
+            }
         });
         $('#finder-filter').on('show.bs.dropdown', function () {
             draft = clone(applied);

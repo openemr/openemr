@@ -29,8 +29,8 @@ final readonly class LastVisitCriterion implements PatientFinderCriterion
     public function operators(): array
     {
         return [
-            'within' => new PatientFinderOperator(xl('within the last'), PatientFinderOperator::INPUT_NUMBER, 1, self::MAX_DAYS, xl('days')),
-            'older' => new PatientFinderOperator(xl('more than'), PatientFinderOperator::INPUT_NUMBER, 1, self::MAX_DAYS, xl('days ago')),
+            'within' => new PatientFinderOperator(xl('within the last'), PatientFinderInput::Number, 1, self::MAX_DAYS, xl('days')),
+            'older' => new PatientFinderOperator(xl('more than'), PatientFinderInput::Number, 1, self::MAX_DAYS, xl('days ago')),
             'never' => new PatientFinderOperator(xl('never')),
         ];
     }
@@ -48,18 +48,20 @@ final readonly class LastVisitCriterion implements PatientFinderCriterion
         if ($operator !== 'within' && $operator !== 'older') {
             return null;
         }
-        $days = (new PatientFinderOperator('', PatientFinderOperator::INPUT_NUMBER, 1, self::MAX_DAYS))->wholeNumber($value);
+        $days = (new PatientFinderOperator('', PatientFinderInput::Number, 1, self::MAX_DAYS))->wholeNumber($value);
         return $days === null ? null : [$days];
     }
 
     public function toWhere(string $operator, array $values): array
     {
-        $any = 'SELECT 1 FROM form_encounter fe WHERE fe.pid = patient_data.pid';
+        $days = is_int($values[0] ?? null) ? $values[0] : 0;
+        // A visit is one that has happened: an encounter dated later than today is not counted.
+        $any = 'SELECT 1 FROM form_encounter fe WHERE fe.pid = patient_data.pid AND fe.date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)';
         $recent = $any . ' AND fe.date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)';
         return match ($operator) {
-            'within' => ["EXISTS ($recent)", [(int) ($values[0] ?? 0)]],
+            'within' => ["EXISTS ($recent)", [$days]],
             // Seen before, but not within the period.
-            'older' => ["EXISTS ($any) AND NOT EXISTS ($recent)", [(int) ($values[0] ?? 0)]],
+            'older' => ["EXISTS ($any) AND NOT EXISTS ($recent)", [$days]],
             default => ["NOT EXISTS ($any)", []],
         };
     }

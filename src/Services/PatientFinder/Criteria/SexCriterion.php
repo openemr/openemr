@@ -39,7 +39,7 @@ final readonly class SexCriterion implements PatientFinderCriterion
 
     public function operators(): array
     {
-        return ['is' => new PatientFinderOperator(xl('is'), PatientFinderOperator::INPUT_SELECT)];
+        return ['is' => new PatientFinderOperator(xl('is'), PatientFinderInput::Select)];
     }
 
     public function options(): array
@@ -49,8 +49,8 @@ final readonly class SexCriterion implements PatientFinderCriterion
 
     public function normalize(string $operator, mixed $value): ?array
     {
-        $text = is_scalar($value) ? trim((string) $value) : '';
-        if ($operator !== 'is' || $text === '' || strlen($text) > self::MAX_LENGTH) {
+        $text = is_string($value) ? trim($value) : '';
+        if ($operator !== 'is' || $text === '' || mb_strlen($text, 'UTF-8') > self::MAX_LENGTH) {
             return null;
         }
         return [$text];
@@ -58,7 +58,7 @@ final readonly class SexCriterion implements PatientFinderCriterion
 
     public function toWhere(string $operator, array $values): array
     {
-        $sex = (string) ($values[0] ?? '');
+        $sex = is_string($values[0] ?? null) ? $values[0] : '';
         if ($sex === self::NOT_RECORDED) {
             return ["(patient_data.sex IS NULL OR patient_data.sex = '')", []];
         }

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientFinder;
 
 use JsonException;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Services\PatientFinder\Criteria\PatientFinderCriteriaRegistry;
 use OpenEMR\Services\PatientFinder\Criteria\PatientFinderCriterion;
 
@@ -47,7 +48,7 @@ final readonly class PatientFinderCriteria
             return new self();
         }
         try {
-            $decoded = json_decode($text, true, 8, JSON_THROW_ON_ERROR);
+            $decoded = Json::decode($text);
         } catch (JsonException) {
             return new self();
         }

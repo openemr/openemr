@@ -52,10 +52,10 @@ final readonly class PrimaryInsuranceCriterion implements PatientFinderCriterion
         $inForce = $this->inForce('ins');
         $laterInForce = $this->inForce('later');
         $covered = 'SELECT 1 FROM insurance_data ins WHERE ins.pid = patient_data.pid AND ' . $inForce
-            . " AND ins.provider REGEXP '^0*[1-9][0-9]*$'"
+            . " AND ins.provider REGEXP '^[[:space:]]*0*[1-9][0-9]*[[:space:]]*$'"
             . ' AND NOT EXISTS (SELECT 1 FROM insurance_data later WHERE later.pid = ins.pid AND ' . $laterInForce
-            . " AND (COALESCE(later.date, '0000-00-00') > COALESCE(ins.date, '0000-00-00')"
-            . " OR (COALESCE(later.date, '0000-00-00') = COALESCE(ins.date, '0000-00-00') AND later.id > ins.id)))";
+            . " AND (COALESCE(later.date, '') > COALESCE(ins.date, '')"
+            . " OR (COALESCE(later.date, '') = COALESCE(ins.date, '') AND later.id > ins.id)))";
         return [($operator === 'has' ? 'EXISTS' : 'NOT EXISTS') . " ($covered)", []];
     }
 

@@ -24,6 +24,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -104,7 +105,7 @@ $criteriaDefinitions = (new PatientFinderCriteriaRegistryFactory())->create()->d
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
             // The Filter panel's criteria (finder_criteria.js draws the panel from these).
-            criteria: <?php echo json_encode($criteriaDefinitions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+            criteria: <?php echo Json::encode($criteriaDefinitions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
             // The Recent Patients tab: its columns, and the list Customize opens for it.
             recent: {
                 columns: <?php echo json_encode($recentColumns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,

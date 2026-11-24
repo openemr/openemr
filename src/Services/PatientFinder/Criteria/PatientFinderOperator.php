@@ -14,23 +14,14 @@ namespace OpenEMR\Services\PatientFinder\Criteria;
 
 final readonly class PatientFinderOperator
 {
-    /** The operator takes no value ("has none"). */
-    public const INPUT_NONE = 'none';
-    /** One choice from the criterion's options. */
-    public const INPUT_SELECT = 'select';
-    /** One whole number between $min and $max. */
-    public const INPUT_NUMBER = 'number';
-    /** Two whole numbers between $min and $max, the lower first. */
-    public const INPUT_RANGE = 'range';
-
     /**
      * @param string $label the translated text of the operator, e.g. "between"
-     * @param string $input one of the INPUT_* constants
+     * @param PatientFinderInput $input the kind of value the operator takes
      * @param string $unit the translated unit shown after a number, e.g. "days"; empty for none
      */
     public function __construct(
         public string $label,
-        public string $input = self::INPUT_NONE,
+        public PatientFinderInput $input = PatientFinderInput::None,
         public int $min = 0,
         public int $max = 0,
         public string $unit = ''
@@ -44,7 +35,7 @@ final readonly class PatientFinderOperator
     {
         return [
             'label' => $this->label,
-            'input' => $this->input,
+            'input' => $this->input->value,
             'min' => $this->min,
             'max' => $this->max,
             'unit' => $this->unit,
@@ -56,7 +47,7 @@ final readonly class PatientFinderOperator
      */
     public function wholeNumber(mixed $value): ?int
     {
-        $text = is_scalar($value) ? trim((string) $value) : '';
+        $text = is_string($value) ? trim($value) : (is_int($value) ? (string) $value : '');
         if ($text === '' || !ctype_digit($text) || strlen($text) > 6) {
             return null;
         }

@@ -32,9 +32,9 @@ final readonly class AgeCriterion implements PatientFinderCriterion
     public function operators(): array
     {
         return [
-            'between' => new PatientFinderOperator(xl('between'), PatientFinderOperator::INPUT_RANGE, 0, self::MAX_AGE),
-            'at_least' => new PatientFinderOperator(xl('at least'), PatientFinderOperator::INPUT_NUMBER, 0, self::MAX_AGE),
-            'at_most' => new PatientFinderOperator(xl('at most'), PatientFinderOperator::INPUT_NUMBER, 0, self::MAX_AGE),
+            'between' => new PatientFinderOperator(xl('between'), PatientFinderInput::Range, 0, self::MAX_AGE),
+            'at_least' => new PatientFinderOperator(xl('at least'), PatientFinderInput::Number, 0, self::MAX_AGE),
+            'at_most' => new PatientFinderOperator(xl('at most'), PatientFinderInput::Number, 0, self::MAX_AGE),
         ];
     }
 
@@ -71,8 +71,8 @@ final readonly class AgeCriterion implements PatientFinderCriterion
     private function rule(string $operator): ?PatientFinderOperator
     {
         return match ($operator) {
-            'between' => new PatientFinderOperator('', PatientFinderOperator::INPUT_RANGE, 0, self::MAX_AGE),
-            'at_least', 'at_most' => new PatientFinderOperator('', PatientFinderOperator::INPUT_NUMBER, 0, self::MAX_AGE),
+            'between' => new PatientFinderOperator('', PatientFinderInput::Range, 0, self::MAX_AGE),
+            'at_least', 'at_most' => new PatientFinderOperator('', PatientFinderInput::Number, 0, self::MAX_AGE),
             default => null,
         };
     }
@@ -93,12 +93,12 @@ final readonly class AgeCriterion implements PatientFinderCriterion
         if ($atLeast !== null) {
             // Aged N or more: born on or before the date N years ago.
             $parts[] = 'patient_data.DOB <= DATE_SUB(CURDATE(), INTERVAL ? YEAR)';
-            $binds[] = (int) $atLeast;
+            $binds[] = is_int($atLeast) ? $atLeast : 0;
         }
         if ($maximum !== null) {
             // Aged N or less: born after the date N + 1 years ago.
             $parts[] = 'patient_data.DOB > DATE_SUB(CURDATE(), INTERVAL ? YEAR)';
-            $binds[] = (int) $maximum + 1;
+            $binds[] = (is_int($maximum) ? $maximum : 0) + 1;
         }
         return [implode(' AND ', $parts), $binds];
     }

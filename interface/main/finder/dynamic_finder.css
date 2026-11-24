@@ -400,3 +400,27 @@ table thead .sorting_desc::after,
 table thead .sorting::after {
   display: none !important;
 }
+
+/* Filter panel (finder_criteria.js): each row stays on one line, with room for its longest text. */
+#finder-filter-panel {
+  min-width: 34rem;
+  max-width: 95vw;
+}
+
+#finder-filter-panel .form-row {
+  flex-wrap: nowrap;
+}
+
+#finder-filter-panel .finder-number {
+  width: 5.5em;
+}
+
+#finder-filter {
+  margin-right: 0.5rem;
+}
+
+/* Chips read at the toolbar's own text size. */
+#finder-chips .badge {
+  font-size: 1em;
+  font-weight: normal;
+}
