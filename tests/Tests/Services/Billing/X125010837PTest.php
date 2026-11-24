@@ -109,6 +109,17 @@ class X125010837PTest extends TestCase
         $this->assertSame(['HI', 'ABK:I10'], $this->elements($segments, 'HI')[0]);
     }
 
+    public function testTheClaimLogNamesTheClaimByPatientAndEncounter(): void
+    {
+        $this->generate();
+
+        // The billing log names an 837P claim the way it names a HCFA or 837I claim: pid-encounter, then the patient.
+        $this->assertStringStartsWith(
+            'Generating 837P claim ' . self::PID . '-' . self::ENC . ' for JANE  TESTPATIENT on ',
+            $this->log
+        );
+    }
+
     public function testTheServiceLineCarriesItsBillingIdAsTheLineItemControlNumber(): void
     {
         $billingId = QueryUtils::fetchSingleValue(
