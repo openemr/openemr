@@ -24,7 +24,7 @@ belong in the parent `docs/`.
 
 | Item | Cadence | Sub-document |
 |---|---|---|
-| Cut a new release on the active rel branch | ~Monthly (patch cycle) | [release-schedule.md](release-schedule.md) |
+| Cut a new release on the active rel branch | Monthly minor; patches between minors as needed | [release-schedule.md](release-schedule.md) |
 | Drop oldest-supported PHP version | November beat ~3y after that minor's GA (~13mo before EOL) | [php-version-support.md](php-version-support.md) |
 | Add newest PHP version (RC → GA) | On upstream RC publish; promote on GA | [php-version-support.md](php-version-support.md) |
 | Add newest Alpine version | On Alpine release (~every 6 months, May + November) | [alpine-version-support.md](alpine-version-support.md) |
