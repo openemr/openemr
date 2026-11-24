@@ -121,6 +121,7 @@ on:
     paths:
     - '.github/workflows/acceptance-docker.yml'
     - '.github/docker/acceptance-docker-compose.yml'
+    - '.github/actions/setup-chromedriver-multiarch/**'
     - 'tests/Acceptance/**'
     - 'composer.json'
     - 'composer.lock'
@@ -132,6 +133,7 @@ on:
     paths:
     - '.github/workflows/acceptance-docker.yml'
     - '.github/docker/acceptance-docker-compose.yml'
+    - '.github/actions/setup-chromedriver-multiarch/**'
     - 'tests/Acceptance/**'
     - 'composer.json'
     - 'composer.lock'

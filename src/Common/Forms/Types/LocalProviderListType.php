@@ -101,6 +101,7 @@ class LocalProviderListType implements IOptionFormType
         $field_id = $frow['field_id'];
         $list_id = $frow['list_id'] ?? null;
         $edit_options = $frow['edit_options'] ?? null;
+        $edit_options = is_string($edit_options) ? $edit_options : null;
         $form_id = $frow['form_id'] ?? null;
 
         // 'smallform' can be 'true' if we want a smaller form field, otherwise

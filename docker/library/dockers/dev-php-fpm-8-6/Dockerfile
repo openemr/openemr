@@ -10,17 +10,14 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-# 8.6-rc rolls forward as upstream cuts new RCs, giving the dev-track sidecar
-# coverage of the imminent 8.6 GA. The dev-source (php-src master) slot moved
-# to 8.7 in dev-php-fpm-8-7.
-FROM php:8.6-rc-fpm
+FROM php:8.6-fpm
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
 #
-# libonig-dev is needed for mbstring's mbregex functionality; php:8.6-rc-fpm
+# libonig-dev is needed for mbstring's mbregex functionality; php:8.6-fpm
 # no longer bundles mbstring (docker-library/php#1654 dropped `--enable-mbstring`
 # alongside PECL removal), so install-php-extensions compiles it from source
 # below and needs oniguruma headers apt-installed first.
@@ -134,7 +131,7 @@ RUN apt-get update && apt-get install -y git \
 # imagick, redis, and pcov are handled by the from-source workaround blocks above;
 # the tripwire above monitors when they can move back into this list.
 #
-# mbstring is explicitly listed because php:8.6-rc-fpm no longer bundles it
+# mbstring is explicitly listed because php:8.6-fpm no longer bundles it
 # (docker-library/php#1654 dropped `--enable-mbstring` from the 8.6+ image
 # template alongside PECL removal). libonig-dev is already apt-installed above
 # so install-php-extensions can compile it.

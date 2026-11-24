@@ -538,3 +538,112 @@ CREATE INDEX `pc_visit_list` ON `openemr_postcalendar_events` (`pc_aid`, `pc_eve
 INSERT INTO `openemr_postcalendar_categories` (`pc_constant_id`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`, `aco_spec`)
 SELECT 'visit_list', 'Visit List', '#9ec5fe', 'Provider block holding an untimed, ordered list of patients for the day.', 1, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"1";s:22:"event_repeat_freq_type";s:1:"4";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 28800, 1, 3, 2, 0, 0, 1, 1, COALESCE(MAX(`pc_seq`), 0) + 1, 'encounters|notes' FROM `openemr_postcalendar_categories`;
 #EndIf
+
+-- Patient active status (FHIR Patient.active). Every existing patient starts active, except
+-- patients with a deceased date, who become inactive with reason Deceased as of that date.
+#IfMissingColumn patient_data active
+ALTER TABLE `patient_data` ADD `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = active patient record (FHIR Patient.active)';
+UPDATE `patient_data` SET `active` = 0 WHERE `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
+#EndIf
+
+#IfMissingColumn patient_data inactive_reason
+ALTER TABLE `patient_data` ADD `inactive_reason` varchar(63) NOT NULL DEFAULT '' COMMENT 'list_options patient_inactive_reason';
+UPDATE `patient_data` SET `inactive_reason` = 'deceased' WHERE `active` = 0 AND `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
+#EndIf
+
+#IfMissingColumn patient_data inactive_date
+ALTER TABLE `patient_data` ADD `inactive_date` date DEFAULT NULL COMMENT 'Date the patient became inactive';
+UPDATE `patient_data` SET `inactive_date` = DATE(`deceased_date`) WHERE `active` = 0 AND `deceased_date` IS NOT NULL AND `deceased_date` > '0000-00-00 00:00:00';
+#EndIf
+
+#IfNotIndex patient_data idx_patient_active
+CREATE INDEX `idx_patient_active` ON `patient_data` (`active`);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id patient_inactive_reason
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'patient_inactive_reason', 'Patient Inactive Reason', 0, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'moved', 'Moved away', 10, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'transferred', 'Transferred care', 20, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'discharged', 'Discharged from practice', 30, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'deceased', 'Deceased', 40, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'duplicate', 'Duplicate record', 50, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('patient_inactive_reason', 'other', 'Other', 60, 0, 1);
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id active
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','active','1','Active',2,21,1,0,0,'',1,1,'1','','Uncheck when the patient is no longer seen here (FHIR Patient.active)',0,'','F','','','');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id inactive_reason
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_reason','1','Inactive Reason',4,1,1,0,0,'patient_inactive_reason',1,1,'','[\"J\"]','Why the patient is no longer active',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id inactive_date
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','inactive_date','1','Inactive Date',6,4,1,0,10,'',1,1,'','','Date the patient became inactive',0,'','F','a:1:{i:0;a:5:{s:2:"id";s:6:"active";s:6:"itemid";s:0:"";s:8:"operator";s:2:"se";s:5:"value";s:0:"";s:5:"andor";s:0:"";}}','','');
+#EndIf
+
+-- Unattended ERA posting (#15227): the user a partner's received 835s are posted as, what
+-- became of each received file, and one row per check and per claim payment.
+#IfMissingColumn x12_partners x12_era_auto_post_user
+ALTER TABLE `x12_partners` ADD `x12_era_auto_post_user` bigint(20) DEFAULT NULL COMMENT 'users.id that received 835s are posted as, unattended; empty leaves them for a person to post';
+#EndIf
+
+#IfMissingColumn x12_remote_received auto_post_status
+ALTER TABLE `x12_remote_received` ADD `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted';
+#EndIf
+
+#IfNotTable era_auto_post_check
+CREATE TABLE `era_auto_post_check` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `received_id` bigint(20) NOT NULL COMMENT 'x12_remote_received.id of the 835',
+  `sequence` int(11) NOT NULL COMMENT 'position of the check in the file, from 1',
+  `check_number` varchar(255) NOT NULL DEFAULT '' COMMENT 'TRN02',
+  `check_date` varchar(8) NOT NULL DEFAULT '' COMMENT 'BPR16, yyyymmdd',
+  `payer_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'N1*PR',
+  `payer_id` int(11) NOT NULL DEFAULT 0 COMMENT 'insurance_companies.id the check was posted for; 0 when none was found',
+  `check_amount` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'BPR02',
+  `claim_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the claim payments (CLP04)',
+  `plb_total` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'sum of the provider-level adjustments (PLB), which the payer takes off the claim payments',
+  `plb_reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'PLB adjustment reason codes, comma separated',
+  `status` varchar(31) NOT NULL COMMENT 'CheckStatus: posted or held',
+  `hold_reason` varchar(31) NOT NULL DEFAULT '' COMMENT 'HoldReason; empty when the check was posted',
+  `session_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'ar_session.session_id posted to; 0 when held',
+  `processed_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `received_sequence` (`received_id`, `sequence`),
+  KEY `check_number` (`check_number`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable era_auto_post_claim
+CREATE TABLE `era_auto_post_claim` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `check_id` bigint(20) NOT NULL COMMENT 'era_auto_post_check.id',
+  `sequence` int(11) NOT NULL COMMENT 'position of the claim payment in the check, from 1',
+  `our_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP01',
+  `payer_claim_id` varchar(255) NOT NULL DEFAULT '' COMMENT 'CLP07',
+  `patient_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'NM1*QC, as the payer sent it',
+  `pid` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `encounter` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the claim was not found',
+  `payer_level` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'insurance level the payer processed the claim at, 1 to 3',
+  `claim_status_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'CLP02',
+  `outcome` varchar(31) NOT NULL COMMENT 'ClaimOutcome: posted, review or skipped',
+  `reasons` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it needs review or was skipped, comma separated; empty when posted',
+  `claim_payment` decimal(12,2) NOT NULL DEFAULT 0.00 COMMENT 'CLP04',
+  `payments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `adjustments_posted` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `charges_added` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `level_closed` tinyint(1) NOT NULL DEFAULT 0,
+  `secondary_queued` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `check_sequence` (`check_id`, `sequence`),
+  KEY `outcome` (`outcome`),
+  KEY `patient_encounter` (`pid`, `encounter`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- v_database 583: the service facility's FDA (MQSA) mammography certification number, sent on a
+-- professional claim for a mammogram (837P loop 2300 REF*EW).
+#IfMissingColumn facility mammography_cert_number
+ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
+#EndIf

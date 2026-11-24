@@ -43,13 +43,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../setup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
+    'path' => __DIR__ . '/../../setup.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',

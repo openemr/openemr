@@ -32,6 +32,8 @@ class Claim
 {
     public const X12_VERSION = '005010X222A1';
     public const NOC_CODES = ['J3301']; // not otherwise classified HCPCS/CPT
+    /** Mammography and breast tomosynthesis: the exams done under an FDA (MQSA) certificate. */
+    public const MAMMOGRAPHY_CODES = ['77061', '77062', '77063', '77065', '77066', '77067', 'G0279'];
 
     public $procs;             // array of procedure rows from billing table
     public $diags;             // array of icd codes from billing table
@@ -776,6 +778,40 @@ class Claim
     public function cliaCode()
     {
         return $this->x12Clean(trim((string) $this->facility['domain_identifier']));
+    }
+
+    /**
+     * The service facility's FDA (MQSA) mammography certification number, for 837P loop 2300
+     * REF*EW. Empty unless the facility has one and the claim bills a mammogram.
+     */
+    public function mammographyCertNumber(): string
+    {
+        $facility = $this->facility;
+        $number = is_array($facility) ? ($facility['mammography_cert_number'] ?? '') : '';
+        if (!is_string($number) || !$this->hasMammography()) {
+            return '';
+        }
+        // Trimmed after cleaning: a value of only characters X12 does not allow leaves nothing to send.
+        return trim((string) $this->x12Clean($number));
+    }
+
+    /**
+     * Whether a service line is a screening or diagnostic mammogram or breast tomosynthesis,
+     * the exams a facility needs an FDA certificate to do.
+     */
+    public function hasMammography(): bool
+    {
+        $procs = $this->procs;
+        if (!is_array($procs)) {
+            return false;
+        }
+        foreach ($procs as $proc) {
+            $code = is_array($proc) ? ($proc['code'] ?? '') : '';
+            if (is_string($code) && in_array(strtoupper(trim($code)), self::MAMMOGRAPHY_CODES, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1613,6 +1649,24 @@ class Claim
      *
      * @return string
      */
+    /**
+     * The service line's billing.id, sent as the line item control number (REF*6R, loop 2400)
+     * so that an 835 can name the line it pays.
+     *
+     * @return string empty when the line has no usable id
+     */
+    public function lineItemControlNumber(int $prockey): string
+    {
+        $procs = $this->procs;
+        $row = is_array($procs) ? ($procs[$prockey] ?? null) : null;
+        $id = is_array($row) ? ($row['id'] ?? null) : null;
+        if (is_int($id) || (is_string($id) && ctype_digit($id))) {
+            return (string) $id;
+        }
+
+        return '';
+    }
+
     public function cptKey($prockey): string
     {
         $tmp = $this->cptModifier($prockey);

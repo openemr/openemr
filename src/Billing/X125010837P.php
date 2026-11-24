@@ -120,7 +120,11 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
 
-        $log .= $claim->patientFirstName() . ' ' .
+        // Name the claim in the billing log as the HCFA and 837I generators do.
+        $claimId = (is_int($pid) || is_string($pid) ? $pid : '') . '-'
+            . (is_int($encounter) || is_string($encounter) ? $encounter : '');
+        $log .= "Generating 837P claim $claimId for " .
+        $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
         $claim->patientLastName() . ' on ' .
         date('Y-m-d H:i', $today) . ".\n";
@@ -861,7 +865,17 @@ class X125010837P
 
         // Segment REF*4N (Service Authorization Exception Code) omitted.
         // Segment REF*F5 (Mandatory Medicare Crossover Indicator) omitted.
-        // Segment REF*EW (Mammography Certification Number) omitted.
+
+        if ($claim->mammographyCertNumber() !== '') {
+            // The service facility's FDA certification number; Medicare requires it on a mammogram.
+            ++$edicount;
+            $out .= "REF" .     // Mammography Certification Number
+                "*" . "EW" .
+                "*" . $claim->mammographyCertNumber() .
+                "~
+";
+        }
+
         // Segment REF*9F (Referral Number) omitted.
 
         if ($claim->priorAuth()) {
@@ -1474,6 +1488,16 @@ class X125010837P
                 "*" . $claim->serviceDate() .
                 "~\n";
 
+            // The REF segments of loop 2400 come before its NTE.
+            $lineItemControlNumber = $claim->lineItemControlNumber($prockey);
+            if ($lineItemControlNumber !== '') {
+                ++$edicount;
+                $out .= "REF" .     // Line Item Control Number.
+                    "*" . "6R" .
+                    "*" . $lineItemControlNumber .
+                    "~\n";
+            }
+
             $testnote = rtrim((string) $claim->cptNotecodes($prockey));
             if (!empty($testnote)) {
                 ++$edicount;
@@ -1499,8 +1523,6 @@ class X125010837P
             // Segment REF*9B (Repriced Line Item Reference Number) omitted.
             // Segment REF*9D (Adjusted Repriced Line Item Reference Number) omitted.
             // Segment REF*G1 (Prior Authorization) omitted.
-            // Segment REF*6R (Line Item Control Number) omitted.
-            //   (Really oughta have this for robust 835 posting!)
             // Segment REF*EW (Mammography Certification Number) omitted.
             // Segment REF*X4 (CLIA Number) omitted.
             // Segment REF*F4 (Referring CLIA Facility Identification) omitted.

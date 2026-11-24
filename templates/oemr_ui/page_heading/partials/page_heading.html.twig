@@ -9,6 +9,7 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
 @copyright Copyright (c) 2023 Robert Down
 @copyright Copyright (c) 2023 Providence Healthtech
 @copyright Copyright (c) 2025 Jerry Padgett
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 <nav class="navbar navbar-light navbar-expand-sm bg-light">
     {% block pageHeading %}
@@ -24,36 +25,8 @@ The HTML rendering a Page Heading from OemrUI->pageHeading()
             {{ navbar.navbar_nav(primaryMenu) }}
         {% endblock %}
         {% block actionButtons %}
-            <div class="navbar-nav ml-auto" id="pageHeadingNav">
-                {% for a in buttonList %}
-                    <a href="{{ a.getHref()|attr }}" id="{{ a.getId()|attr }}" title="{{ a.getTitle()|attr }}" {{ _self.renderAttributeArray(a.getAttributes()) }} class="nav-link {{ a.getAnchorClasses()|join(' ')|attr }} "><i class="{{ a.getIconClass()|attr }}">&nbsp;</i>{{ a.getDisplayText()|text }}</a>
-                {% endfor %}
-            </div>
+            {% include "oemr_ui/page_heading/partials/action_buttons.html.twig" %}
         {% endblock %}
     </div>
 </nav>
-<script>
-document.addEventListener('DOMContentLoaded', (event) => {
-{% for a in buttonList %}
-    {% if a.getClickHandlerFunctionName() %}
-        var actionButton = document.getElementById({{ a.getID()|js_escape }});
-        actionButton.addEventListener('click', () => {
-            {{ a.getClickHandlerFunctionName()|text }}();
-        });
-    {% endif %}
-{% endfor %}
-});
-
-{% for a in buttonList %}
-    {% if a.getClickHandlerTemplateName() %}
-        {% include a.getClickHandlerTemplateName() %}
-    {% endif %}
-{% endfor %}
-</script>
-
-{# Convert a key/value array into a key="value" string for injection into an element tag. #}
-{% macro renderAttributeArray(attributes) %}
-    {% for attribute, value in attributes %}
-        {{ attribute|text }}="{{ value|attr }}"
-    {% endfor %}
-{% endmacro %}
+{% include "oemr_ui/page_heading/partials/action_scripts.html.twig" %}

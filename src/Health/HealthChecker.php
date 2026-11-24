@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Health;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Health\Check\CacheCheck;
 use OpenEMR\Health\Check\DatabaseCheck;
 use OpenEMR\Health\Check\FilesystemCheck;
@@ -31,7 +32,7 @@ class HealthChecker
 
     private function registerDefaultChecks(): void
     {
-        $this->addCheck(new InstallationCheck());
+        $this->addCheck(new InstallationCheck(ServiceContainer::getSiteInstallState()));
         $this->addCheck(new DatabaseCheck());
         $this->addCheck(new FilesystemCheck());
         $this->addCheck(new SessionCheck());
