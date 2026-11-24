@@ -120,7 +120,11 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner, $payerId);
 
-        $log .= $claim->patientFirstName() . ' ' .
+        // Name the claim in the billing log as the HCFA and 837I generators do.
+        $claimId = (is_int($pid) || is_string($pid) ? $pid : '') . '-'
+            . (is_int($encounter) || is_string($encounter) ? $encounter : '');
+        $log .= "Generating 837P claim $claimId for " .
+        $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
         $claim->patientLastName() . ' on ' .
         date('Y-m-d H:i', $today) . ".\n";
@@ -861,7 +865,17 @@ class X125010837P
 
         // Segment REF*4N (Service Authorization Exception Code) omitted.
         // Segment REF*F5 (Mandatory Medicare Crossover Indicator) omitted.
-        // Segment REF*EW (Mammography Certification Number) omitted.
+
+        if ($claim->mammographyCertNumber() !== '') {
+            // The service facility's FDA certification number; Medicare requires it on a mammogram.
+            ++$edicount;
+            $out .= "REF" .     // Mammography Certification Number
+                "*" . "EW" .
+                "*" . $claim->mammographyCertNumber() .
+                "~
+";
+        }
+
         // Segment REF*9F (Referral Number) omitted.
 
         if ($claim->priorAuth()) {

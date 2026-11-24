@@ -207,11 +207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbase\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dupecount\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -8852,37 +8847,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbhost\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbpass\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbport\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbtabletype\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbtype\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbuname\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
 ];
