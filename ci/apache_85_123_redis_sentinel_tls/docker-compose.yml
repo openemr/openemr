@@ -42,7 +42,10 @@ services:
       openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
 
       # --- Server cert (covers every Redis/Sentinel hostname) ---
-      echo 'subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:sentinel-3,DNS:localhost' > /tmp/san.ext
+      # Redis 8.12+ redis-cli and Sentinel check that the cert names the
+      # address they dial. 127.0.0.1 covers the in-container redis-cli calls
+      # (healthchecks, ci/ciLibrary.source), which dial loopback by default.
+      echo 'subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:sentinel-3,DNS:localhost,IP:127.0.0.1' > /tmp/san.ext
       openssl genrsa -out server.key 2048
       openssl req -new -key server.key -subj "/CN=redis" \
         | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
@@ -205,6 +208,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-1
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000
@@ -244,6 +248,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-2
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000
@@ -283,6 +288,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-3
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000
