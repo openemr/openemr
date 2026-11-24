@@ -25,7 +25,10 @@ final class AuditTableWriteGuard
 
     public static function rejects(string $sql): bool
     {
-        $statement = self::withoutLeadingComments($sql);
+        $statement = self::expandUpdateModifiers(self::withoutLeadingComments($sql));
+        if (self::upsertsGuardedTable($statement)) {
+            return true;
+        }
         if (preg_match('/^(?:update|delete|replace|truncate|drop|alter|rename)\b/i', $statement) !== 1) {
             return false;
         }
@@ -43,6 +46,40 @@ final class AuditTableWriteGuard
         }
 
         return false;
+    }
+
+
+    /**
+     * UPDATE IGNORE and UPDATE LOW_PRIORITY still name the table after the modifier.
+     */
+    private static function expandUpdateModifiers(string $statement): string
+    {
+        $expanded = preg_replace(
+            '/\bupdate(?:\s+(?:low_priority|ignore))+\s+/i',
+            'update ',
+            $statement
+        );
+
+        return is_string($expanded) ? $expanded : $statement;
+    }
+
+    /**
+     * INSERT ... ON DUPLICATE KEY UPDATE changes an existing row.
+     * A plain insert still appends.
+     */
+    private static function upsertsGuardedTable(string $statement): bool
+    {
+        if (preg_match('/^insert\b/i', $statement) !== 1) {
+            return false;
+        }
+        if (preg_match('/\bon\s+duplicate\s+key\s+update\b/i', $statement) !== 1) {
+            return false;
+        }
+        if (preg_match('/\binto\s+((?:`?[A-Za-z0-9_]+`?\.)?`?[A-Za-z0-9_]+`?)/i', $statement, $match) !== 1) {
+            return false;
+        }
+
+        return self::targetIsGuarded($match[1]);
     }
 
     /**

@@ -45,6 +45,12 @@ class AuditTableWriteGuardTest extends TestCase
             'update patient' => ['UPDATE patient_data SET fname = 1 WHERE pid = 1', false],
             'literal mentions log' => ["UPDATE list_options SET notes = 'see log' WHERE list_id = 'x'", false],
             'comment then delete' => ['/* note */ DELETE FROM log WHERE id = 1', true],
+            'update ignore log' => ['UPDATE IGNORE log SET comments = 1 WHERE id = 1', true],
+            'update low priority log' => ['UPDATE LOW_PRIORITY IGNORE log_comment_encrypt SET checksum = 1', true],
+            'insert duplicate updates log' => ["INSERT INTO log (id, comments) VALUES (1, 'x') ON DUPLICATE KEY UPDATE comments = 'x'", true],
+            'insert duplicate updates another table' => ["INSERT INTO patient_data (pid) VALUES (1) ON DUPLICATE KEY UPDATE fname = 'a'", false],
+            'insert ignore still appends' => ['INSERT IGNORE INTO log (event) VALUES (1)', false],
+            'update ignore another table' => ['UPDATE IGNORE patient_data SET fname = 1 WHERE pid = 1', false],
         ];
     }
 
