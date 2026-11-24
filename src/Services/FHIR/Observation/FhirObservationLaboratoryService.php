@@ -65,7 +65,6 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
-//        $this->service = new ObservationLabService();
     }
 
     public function getProcedureService(): ProcedureService
