@@ -26,13 +26,23 @@ Check it when deciding whether a drop is due; don't rely on memory.
 Two touch-points per PHP release:
 
 1. **Upstream RC images published** — the `php:X.Y-rc-fpm` tag goes live
-   (sometime between upstream's RC1 and GA). At this point, flip the project's
-   dev-track sidecar for that version from `pre-build-dev-XY` to `X.Y-rc-fpm`
-   so CI starts catching compatibility regressions against the imminent GA.
-2. **Upstream GA** — the `php:X.Y-fpm` tag replaces `-rc-fpm`. Flip the sidecar
-   FROM, move the version from the "pre-release" bucket to the "supported"
-   bucket in `.github/workflows/isolated-tests.yml`, and add it to any matrix
-   workflows that iterate PHP versions.
+   (sometime between upstream's RC1 and GA). Two moves happen together at
+   this point because upstream `php-src` master simultaneously advances to
+   the *next* minor:
+   - Flip the project's dev-track sidecar for the new RC version from
+     `pre-build-dev-XY` to `X.Y-rc-fpm` so CI starts catching compatibility
+     regressions against the imminent GA.
+   - Advance the from-source master-tracking image
+     (`docker/library/dockers/dev-php-fpm/Dockerfile` and
+     `.github/workflows/build-dev-php-fpm-docker.yml`) from the old
+     master-tracked version to the new one (`X.(Y+1)`). Upstream has just
+     branched `PHP-X.Y` for release engineering, leaving `master` building
+     the next minor; our from-source slot follows.
+
+2. **Upstream GA** — the `php:X.Y-fpm` tag replaces `-rc-fpm`. Flip the
+   sidecar FROM, move the version from the "pre-release" bucket to the
+   "supported" bucket in `.github/workflows/isolated-tests.yml`, and add it
+   to any matrix workflows that iterate PHP versions.
 
 Both touch-points happen on the same calendar beat as the oldest-version drop,
 but they're independent commits/PRs. Keep them separate — bundling adds review
