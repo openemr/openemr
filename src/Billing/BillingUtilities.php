@@ -1967,6 +1967,21 @@ class BillingUtilities
         return $value;
     }
 
+
+    /**
+     * A server-wide lock name for one encounter in one database.
+     * MySQL allows 64 characters. A long database name is shortened to a digest.
+     */
+    public static function claimFileLockName(string $database, string $patientPart, string $encounterPart): string
+    {
+        $name = 'claim-file-' . $database . '-' . $patientPart . '-' . $encounterPart;
+        if (strlen($name) <= 64) {
+            return $name;
+        }
+
+        return 'cf-' . substr(hash('sha256', $database), 0, 12) . '-' . $patientPart . '-' . $encounterPart;
+    }
+
     /**
      * Store this file name only while no other unbilled claim owns the rows.
      *
@@ -1986,8 +2001,16 @@ class BillingUtilities
             return false;
         }
 
-        // Two payers share these billing rows. The lock makes their assignments wait.
-        $lockName = 'claim-file-' . $patientPart . '-' . $encounterPart;
+        // Named locks are server-wide. The database keeps two sites apart.
+        $database = QueryUtils::fetchSingleValue('SELECT DATABASE() AS dbname', 'dbname');
+        if (!is_string($database) || $database === '') {
+            ServiceContainer::getLogger()->error('Held claim file was not assigned', [
+                'reason' => 'The database name was not available',
+            ]);
+
+            return false;
+        }
+        $lockName = self::claimFileLockName($database, $patientPart, $encounterPart);
         $acquired = QueryUtils::fetchSingleValue('SELECT GET_LOCK(?, 10) AS locked', 'locked', [$lockName]);
         if ($acquired !== 1 && $acquired !== '1') {
             ServiceContainer::getLogger()->error('Held claim file was not assigned', [

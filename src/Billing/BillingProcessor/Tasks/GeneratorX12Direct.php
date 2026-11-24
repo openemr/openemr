@@ -273,14 +273,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if (!$this->billWhenTheFileLands) {
             if (!$this->claimGenerationIsFree($claim)) {
                 $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
-                $partnerId = $claim->getPartner();
-                $partnerBatch = null;
-                if (is_int($partnerId) || is_string($partnerId)) {
-                    $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
-                }
-                if ($partnerBatch instanceof BillingClaimBatch) {
-                    $this->closeRecoveredPartner($claim, $partnerBatch);
-                }
+                $this->closeRecoveredPartner($claim);
                 $this->insideGenerate = false;
 
                 return;
@@ -296,7 +289,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                     $this->printToScreen(xl($settled
                         ? UnbilledFileDecision::ALREADY_WRITTEN
                         : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
-                    $this->closeRecoveredPartner($claim, $partnerBatch);
+                    $this->closeRecoveredPartner($claim);
                     $this->insideGenerate = false;
 
                     return;
@@ -636,7 +629,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         return $partnerLabel . ':' . (string) $facilityId;
     }
 
-    protected function closeRecoveredPartner(BillingClaim $claim, BillingClaimBatch $batch): void
+    protected function closeRecoveredPartner(BillingClaim $claim): void
     {
         if ($claim->getIsLast() !== true) {
             return;
@@ -645,11 +638,26 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         if (!is_int($partner) && !is_string($partner)) {
             return;
         }
-        $count = $this->edi_counts[$partner] ?? null;
-        if (!is_int($count)) {
+        if (!isset($this->primaryFacility[$partner])) {
             return;
         }
-        $this->edi_counts[$partner] = $this->appendSeForHeldLastClaim($batch, $count);
+        $facilityId = $this->billingFacilityId($claim);
+        $partnerLabel = is_int($partner) ? (string) $partner : $partner;
+        if ($this->primaryFacility[$partner] === $facilityId) {
+            $batch = $this->x12_partner_batches[$partner] ?? null;
+            $countKey = $partner;
+        } else {
+            $countKey = $partnerLabel . ':' . (string) $facilityId;
+            $batch = $this->extraBatches[$countKey] ?? null;
+        }
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
+        $count = $this->edi_counts[$countKey] ?? null;
+        if (!is_int($count) || $count <= 0) {
+            return;
+        }
+        $this->edi_counts[$countKey] = $this->appendSeForHeldLastClaim($batch, $count);
     }
 
     /**
