@@ -248,7 +248,7 @@ class TelehealthGlobalConfig
         return $this->getGlobalSetting('images_static_relative');
     }
 
-    public function getInstitutionId()
+    public function getInstitutionId(): string
     {
         return UniqueInstallationUuid::getUniqueInstallationUuid();
     }

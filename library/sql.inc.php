@@ -17,8 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/sqlconf.php");
-
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
@@ -27,24 +25,9 @@ use OpenEMR\BC\{
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+use OpenEMR\Common\System\MissingSiteException;
 
-/**
- * Variables set by sqlconf.php
- *
- * @var string $host
- * @var string $port
- * @var string $login
- * @var string $pass
- * @var string $dbase
- * @var string $secure_host
- * @var string $secure_port
- * @var string $secure_login
- * @var string $secure_pass
- * @var string $secure_dbase
- * @var int    $config Install flag: 0 = setup required, 1 = installed.
- *                     Must not be reassigned in this file or anything it loads.
- */
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
@@ -58,10 +41,11 @@ $ADODB_LASTDB = 'mysqli_log';
 // The OPENEMR_STATIC_ANALYSIS constant can be defined in static analysis tool bootstrap files
 if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
     // Note: too early to use OEGlobalsBag reliably here.
-    // Do not name this $config: sqlconf.php owns that global as the int install
-    // flag, and consumers (index.php, setup.php, admin.php, Installer.class.php,
-    // the /meta/health/readyz probe) read it after bootstrap.
-    $connectionOptions = DatabaseConnectionOptions::forSite($GLOBALS['OE_SITE_DIR']);
+    $siteDir = $GLOBALS['OE_SITE_DIR'] ?? null;
+    if (!is_string($siteDir) || $siteDir === '') {
+        throw new MissingSiteException();
+    }
+    $connectionOptions = DatabaseConnectionOptions::forSite($siteDir);
     $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
     $database = DatabaseConnectionFactory::createAdodb($connectionOptions, $persistent);
     $GLOBALS['adodb']['db'] = $database;
@@ -69,10 +53,10 @@ if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
 
 // This makes the login screen informative when no connection can be made
     if (!$GLOBALS['dbh']) {
-        if ($host === "localhost") {
+        if ($connectionOptions->host === null || $connectionOptions->host === "localhost") {
             echo "Check that mysqld is running.<p>";
         } else {
-            echo "Check that you can ping the server " . text($host) . ".<p>";
+            echo "Check that you can ping the server " . text($connectionOptions->host) . ".<p>";
         }
         HelpfulDie("Could not connect to server!", QueryUtils::getLastError());
     }

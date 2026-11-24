@@ -25,6 +25,8 @@
 #     * xtradeb/apps PPA publishes native arm64 debs for both chromium
 #       + chromium-driver as a byte-matched-version pair — eliminates
 #       the drift risk that killed the browser-actions path.
+#   The PPA's debs are also kept in the Actions cache, so a Launchpad
+#   outage falls back to the last good pair instead of failing the job.
 #
 # When Chrome for Testing eventually ships linux-arm64, the arm64 branch
 # below becomes a drop-in swap to a manual CFT install (or, ideally,
@@ -60,15 +62,66 @@ runs:
     if: steps.arch.outputs.arch == 'amd64'
     uses: nanasess/setup-chromedriver@v2
 
+  # The PPA is the one source of Chromium on arm64, so a Launchpad outage
+  # fails every arm64 acceptance job before it reaches a test (2026-11-17:
+  # 503s for over an hour). Keep the last good xtradeb debs in the Actions
+  # cache and install those when the PPA can't be reached. Each new
+  # chromium-driver version saves a new entry, and the prefix match below
+  # restores the newest one, so a fallback runs at most one release behind.
+  - name: Restore last good Chromium debs (arm64)
+    id: deb-cache
+    if: steps.arch.outputs.arch == 'arm64'
+    uses: actions/cache/restore@v6
+    with:
+      path: ${{ runner.temp }}/chromium-debs
+      # Never an exact hit; restore-keys picks the newest saved pair.
+      key: chromium-debs-${{ runner.os }}-arm64-${{ github.run_id }}
+      restore-keys: chromium-debs-${{ runner.os }}-arm64-
+
   - name: Install Chromium + chromium-driver via xtradeb PPA (arm64)
+    id: install
     if: steps.arch.outputs.arch == 'arm64'
     shell: bash
+    env:
+      DEBS_DIR: ${{ runner.temp }}/chromium-debs
+      KEY_PREFIX: chromium-debs-${{ runner.os }}-arm64-
+      RESTORED_KEY: ${{ steps.deb-cache.outputs.cache-matched-key }}
     run: |
       set -euxo pipefail
-      # Add PPA + install matched-pair native arm64 debs.
-      sudo add-apt-repository -y ppa:xtradeb/apps
-      sudo apt-get update
-      sudo apt-get install -y chromium chromium-driver
+      # Launchpad 503s come in bursts that outlast apt's default 3 retries.
+      apt_opts=(-o Acquire::Retries=10)
+      : "${RUNNER_TEMP:?}" "${GITHUB_OUTPUT:?}" "${DEBS_DIR:?}" "${KEY_PREFIX:?}" "${RESTORED_KEY?}"
+      staging="${RUNNER_TEMP}/chromium-debs-new"
+
+      # Download the matched pair from the PPA into ${staging}. The last test
+      # requires the driver deb to come from xtradeb, so a PPA index that
+      # never loaded can't let apt resolve `chromium` from another source.
+      if sudo add-apt-repository -y -n ppa:xtradeb/apps &&
+        sudo apt-get "${apt_opts[@]}" update &&
+        sudo mkdir -p "${staging}/partial" &&
+        sudo apt-get "${apt_opts[@]}" install -y --download-only \
+          -o Dir::Cache::archives="${staging}" chromium chromium-driver &&
+        compgen -G "${staging}/chromium-driver_*xtradeb*.deb" > /dev/null; then
+        # Install from the debs just downloaded; apt finds them in ${staging}.
+        sudo apt-get "${apt_opts[@]}" install -y \
+          -o Dir::Cache::archives="${staging}" chromium chromium-driver
+        # Cache only the xtradeb debs. A fallback resolves the Ubuntu
+        # dependencies from the archive, so a runner image update can't
+        # turn a stale cached dependency into a downgrade.
+        rm -rf "${DEBS_DIR}"
+        mkdir -p "${DEBS_DIR}"
+        cp "${staging}"/*xtradeb*.deb "${DEBS_DIR}"/
+        version=$(dpkg-deb -f "${DEBS_DIR}"/chromium-driver_*.deb Version)
+        if [[ ${KEY_PREFIX}${version} != "${RESTORED_KEY}" ]]; then
+          echo "save-key=${KEY_PREFIX}${version}" >> "${GITHUB_OUTPUT}"
+        fi
+      elif compgen -G "${DEBS_DIR}/chromium-driver_*.deb" > /dev/null; then
+        echo "::warning::xtradeb PPA unreachable; installing cached Chromium debs from ${RESTORED_KEY}."
+        sudo apt-get "${apt_opts[@]}" install -y "${DEBS_DIR}"/*.deb
+      else
+        echo '::error::xtradeb PPA unreachable and no cached Chromium debs to fall back on.'
+        exit 1
+      fi
 
       # xtradeb ships chromedriver as /usr/bin/chromedriver — fail loudly
       # if that assumption drifts (packaging rename, install-path change)
@@ -77,7 +130,7 @@ runs:
       # /usr/local/bin (higher $PATH priority than /usr/bin) so callers
       # that resolve `chromedriver` always land on the freshly-installed
       # xtradeb copy, even if some other step pre-created the target.
-      if [ ! -x /usr/bin/chromedriver ]; then
+      if [[ ! -x /usr/bin/chromedriver ]]; then
         echo "::error::chromium-driver package did not install /usr/bin/chromedriver — xtradeb PPA may have restructured its packaging."
         dpkg -L chromium-driver 2>&1 | head -20 || true
         exit 1
@@ -97,3 +150,13 @@ runs:
       chromium --version
       chromedriver --version
       google-chrome --version
+
+  # Save only when this run fetched a pair the cache doesn't hold yet. On a
+  # pull_request run the entry is scoped to that PR; master's push and
+  # scheduled runs save the entries every branch can restore.
+  - name: Save Chromium debs for the next PPA outage (arm64)
+    if: steps.install.outputs.save-key != ''
+    uses: actions/cache/save@v6
+    with:
+      path: ${{ runner.temp }}/chromium-debs
+      key: ${{ steps.install.outputs.save-key }}
