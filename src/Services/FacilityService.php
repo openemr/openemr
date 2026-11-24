@@ -36,7 +36,7 @@ use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
 {
-    private $facilityValidator;
+    private FacilityValidator $facilityValidator;
     private const FACILITY_TABLE = "facility";
 
     /**
@@ -183,6 +183,8 @@ class FacilityService extends BaseService
      *
      * Status is saved or not saved. A sentence that cannot be encoded is
      * dropped, and the status stays.
+     *
+     * @param array<string, mixed> $errors validation messages keyed by field
      */
     public static function facilitySaveDialogBody(bool $saved, string $sentence, array $errors = []): string
     {
@@ -190,7 +192,7 @@ class FacilityService extends BaseService
             'status' => $saved ? 'saved' : 'not_saved',
             'message' => $sentence,
         ];
-        if (!empty($errors)) {
+        if ($errors !== []) {
             $payload['errors'] = $errors;
         }
 
@@ -750,7 +752,7 @@ class FacilityService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
-            $processingResult->addErrorMessage("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($uuid);
         }

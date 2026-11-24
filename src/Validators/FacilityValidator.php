@@ -32,7 +32,13 @@ class FacilityValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
-                $context->required('name')->callback(fn($value): bool => mb_strlen((string) $value) >= 1 && mb_strlen((string) $value) <= 255);
+                $context->required('name')->callback(static function ($value): bool {
+                    if (!is_scalar($value)) {
+                        return false;
+                    }
+                    $length = mb_strlen((string) $value);
+                    return $length >= 2 && $length <= 255;
+                });
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
                 $context->optional('domain_identifier')->numeric();
                 $context->optional('phone')->lengthBetween(3, 30);
@@ -86,7 +92,13 @@ class FacilityValidator extends BaseValidator
         $this->validator->context(
             self::FORM_SAVE_CONTEXT,
             function (Validator $context): void {
-                $context->optional('name')->callback(fn($value): bool => mb_strlen((string) $value) >= 1 && mb_strlen((string) $value) <= 255);
+                $context->required('name')->callback(static function ($value): bool {
+                    if (!is_scalar($value)) {
+                        return false;
+                    }
+                    $length = mb_strlen((string) $value);
+                    return $length >= 1 && $length <= 255;
+                });
                 $context->optional('phone')->lengthBetween(1, 30);
                 $context->optional('fax')->lengthBetween(1, 30);
                 $context->optional('street')->lengthBetween(1, 255);

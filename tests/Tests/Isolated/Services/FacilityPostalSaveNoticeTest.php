@@ -124,7 +124,6 @@ class FacilityPostalSaveNoticeTest extends TestCase
             'Not saved',
             ['name' => ['name is required'], 'phone' => ['phone is too long']]
         );
-        $this->assertIsString($body);
         $decoded = json_decode($body, true);
         $this->assertIsArray($decoded);
         $this->assertSame('not_saved', $decoded['status']);
@@ -199,6 +198,7 @@ class FacilityPostalSaveNoticeTest extends TestCase
         $result = $this->newFacilityService()->validateFormValues($values);
 
         $this->assertFalse($result->isValid());
+        $this->assertIsArray($result->getValidationMessages());
         $this->assertArrayHasKey('name', $result->getValidationMessages());
     }
 
