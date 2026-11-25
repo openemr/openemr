@@ -62,10 +62,13 @@ final readonly class CcdaPatientImporter
                 }
             }
         } finally {
-            $this->database->restoreAuditLog($previousAuditSettings);
-            // Also after a failure, so the patients already imported are
-            // complete for --reuse-import.
-            $this->database->populateMissingUuids();
+            try {
+                $this->database->restoreAuditLog($previousAuditSettings);
+            } finally {
+                // Also after a failure, so the patients already imported are
+                // complete for --reuse-import.
+                $this->database->populateMissingUuids();
+            }
         }
         return $imported;
     }
@@ -104,6 +107,17 @@ final readonly class CcdaPatientImporter
                 count($newPids),
             ));
         }
-        return new ImportedPatient($newPids[0], $this->database->assignPatientUuid($newPids[0]), $patient);
+        try {
+            $uuid = $this->database->assignPatientUuid($newPids[0]);
+        } catch (\Throwable $e) {
+            // The patient is in the database but can't go in the manifest.
+            throw new ImportException(sprintf(
+                'Synthea patient %s was imported as pid %d, but could not be given a UUID, so it is not in the'
+                . ' patient manifest and --reuse-import will leave it out; remove it or reset the database',
+                $patient->syntheaId,
+                $newPids[0],
+            ), 0, $e);
+        }
+        return new ImportedPatient($newPids[0], $uuid, $patient);
     }
 }

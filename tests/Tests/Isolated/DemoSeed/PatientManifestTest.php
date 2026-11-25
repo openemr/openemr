@@ -87,6 +87,20 @@ final class PatientManifestTest extends TestCase
         (new PatientManifest($this->filesystem))->read($this->path, 'default');
     }
 
+    public function testReportsABadRowAsAnImportError(): void
+    {
+        $row = ['pid' => 0, 'uuid' => '00000000-0000-4000-8000-000000000000', ...$this->patient(3)->synthea->toArray()];
+        $this->filesystem->dumpFile(
+            $this->path,
+            json_encode(['site' => 'default', 'patients' => [$row]], JSON_THROW_ON_ERROR),
+        );
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('Patient 1 in the manifest at ' . $this->path . ' is not valid: Patient pid must be positive');
+
+        (new PatientManifest($this->filesystem))->read($this->path, 'default');
+    }
+
     public function testAnEmptyManifestStartsANewImport(): void
     {
         $manifest = new PatientManifest($this->filesystem);

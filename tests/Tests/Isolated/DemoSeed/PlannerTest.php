@@ -345,6 +345,32 @@ final class PlannerTest extends TestCase
         $this->assertSame('Ana', $this->policiesOf($plan, 2)[1]->subscriber->firstName);
     }
 
+    public function testKeysWithColonsCanNotMakeAnotherPersonsReference(): void
+    {
+        $yaml = str_replace(
+            "    insurance:\n      wife:\n        primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: self, copay: 25}",
+            "    related_people:\n      wife:\n"
+                . "        - {key: \"x:index:0\", first_name: Ana, relationship: MTH, role: NOK}\n"
+                . "        - {first_name: Ben, relationship: FTH, role: ECON}\n"
+                . "    insurance:\n      wife:\n        primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: self, copay: 25}",
+            self::SEED_FILE,
+        );
+        $plan = $this->plan($yaml);
+
+        $this->assertSame('Ana', $this->person($plan, 'case:couple:wife:key:x%3Aindex%3A0')->firstName);
+        $this->assertSame('Ben', $this->person($plan, 'case:couple:wife:index:1')->firstName);
+    }
+
+    public function testSelfSubscriberOptionIsPassedOverWithoutAHome(): void
+    {
+        [$first, $second, $third] = $this->patients();
+        $patients = [$first, $second, $third, $this->patient(4, 'Dee', 'Fox', '2001-07-07', 'female', null, null, payer: 'Medicaid')];
+
+        // Medicaid has the patient as subscriber, which needs a home address,
+        // so it is passed over instead of stopping the plan.
+        $this->assertSame([], $this->policiesOf($this->plan(self::SEED_FILE, $patients), 4));
+    }
+
     public function testGrandparentGuardianCanBeTheSubscriber(): void
     {
         $plan = $this->plan($this->withGuardianRule('GRMTH'));

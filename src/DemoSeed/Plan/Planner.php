@@ -293,7 +293,7 @@ final class Planner
         $patient = $this->patients[$pid]->synthea;
         $ref = $entry->key !== null
             ? self::namedCasePersonRef($case->key, $patientKey, $entry->key)
-            : 'case:' . $case->key . ':' . $patientKey . ':index:' . $index;
+            : self::caseRefPrefix($case->key, $patientKey) . ':index:' . $index;
         $dice = Dice::for($this->seedFile->seed, $ref);
         $kind = RelationshipKind::of($entry->relationship);
         $sex = RelationshipKind::sexOf($entry->relationship)
@@ -585,9 +585,14 @@ final class Planner
             }
             $options = array_values(array_filter(
                 $plan->options,
-                static function (InsuranceOption $option) use ($available): bool {
+                function (InsuranceOption $option) use ($available, $pid): bool {
                     foreach ($option->needs as $kind) {
                         if (($available[$kind->name] ?? null) === null) {
+                            return false;
+                        }
+                    }
+                    foreach ($option->policies as $rule) {
+                        if ($rule->subscriber->kind === SubscriberKind::Self && !$this->patientCanSubscribe($pid)) {
                             return false;
                         }
                     }
@@ -686,11 +691,21 @@ final class Planner
             return false;
         }
         if ($person->linkedPid !== null) {
-            return isset($this->homes[$person->linkedPid]);
+            return $this->patientCanSubscribe($person->linkedPid);
         }
         return $person->birthDate !== null
             && $person->sex !== null
             && $this->subscriberAddress($relation->ownerPid, $relation->personRef) !== null;
+    }
+
+    /**
+     * Whether a patient has what patientSubscriber() puts on a policy: a
+     * home address and a sex.
+     */
+    private function patientCanSubscribe(int $pid): bool
+    {
+        return isset($this->homes[$pid])
+            && self::sexOption($this->patients[$pid]->synthea->gender()) !== null;
     }
 
     /**
@@ -714,7 +729,17 @@ final class Planner
      */
     private static function namedCasePersonRef(string $caseKey, string $patientKey, string $personKey): string
     {
-        return 'case:' . $caseKey . ':' . $patientKey . ':key:' . $personKey;
+        return self::caseRefPrefix($caseKey, $patientKey) . ':key:' . rawurlencode($personKey);
+    }
+
+    /**
+     * Keys are URL-encoded so one with a colon can't make another person's
+     * reference. Keys without special characters are unchanged, and so are
+     * the values seeded from their references.
+     */
+    private static function caseRefPrefix(string $caseKey, string $patientKey): string
+    {
+        return 'case:' . rawurlencode($caseKey) . ':' . rawurlencode($patientKey);
     }
 
     private function patientSubscriber(int $subscriberPid, string $relationship): PlannedSubscriber

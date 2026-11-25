@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\DemoSeed\Import;
 
+use OpenEMR\DemoSeed\Synthea\SyntheaException;
 use OpenEMR\DemoSeed\Synthea\SyntheaPatient;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -84,13 +85,21 @@ final readonly class PatientManifest
             throw new ImportException('The patient manifest has no list of patients: ' . $path);
         }
         $patients = [];
-        foreach ($rows as $row) {
+        foreach ($rows as $position => $row) {
             $pid = is_array($row) ? ($row['pid'] ?? null) : null;
             $uuid = is_array($row) ? ($row['uuid'] ?? null) : null;
             if (!is_array($row) || !is_int($pid) || !is_string($uuid)) {
                 throw new ImportException('A patient manifest row has no pid or uuid: ' . $path);
             }
-            $patients[] = new ImportedPatient($pid, $uuid, SyntheaPatient::fromArray($row));
+            try {
+                $patients[] = new ImportedPatient($pid, $uuid, SyntheaPatient::fromArray($row));
+            } catch (\DomainException | SyntheaException $e) {
+                throw new ImportException(
+                    sprintf('Patient %d in the manifest at %s is not valid: %s', $position + 1, $path, $e->getMessage()),
+                    0,
+                    $e,
+                );
+            }
         }
         return $patients;
     }

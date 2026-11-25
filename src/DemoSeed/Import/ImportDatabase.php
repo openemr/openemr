@@ -140,15 +140,30 @@ class ImportDatabase
      */
     public function restoreAuditLog(array $previous): void
     {
-        foreach ($previous as $name => $value) {
-            if ($value === '0') {
-                continue;
-            }
+        $this->restoreEach(array_keys(array_filter($previous, static fn (string $value): bool => $value !== '0')), $previous);
+    }
+
+    /**
+     * Puts the settings back one by one; a later one is still tried when an
+     * earlier one fails, and the failure propagates afterwards.
+     *
+     * @param list<string> $names
+     * @param array<string, string> $previous
+     */
+    private function restoreEach(array $names, array $previous): void
+    {
+        $name = array_shift($names);
+        if ($name === null) {
+            return;
+        }
+        try {
             QueryUtils::sqlStatementThrowException(
                 "UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ? AND `gl_value` = '0'",
-                [$value, $name],
+                [$previous[$name], $name],
                 true,
             );
+        } finally {
+            $this->restoreEach($names, $previous);
         }
     }
 
