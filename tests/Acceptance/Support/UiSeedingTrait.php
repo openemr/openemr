@@ -992,6 +992,13 @@ trait UiSeedingTrait
     protected const PERSIST_APPT_DATE = '2099-06-15';
 
     /**
+     * First release whose library/dialog.js dialogID() has the #15247
+     * fix. Images older than this get the test-side workaround in
+     * patchLegacyDialogIdOnPreFixRelease().
+     */
+    protected const FIRST_FIXED_DIALOG_ID_VERSION = '8.6.0';
+
+    /**
      * In-office slot bracketing the appointment — 08:00 for 540
      * minutes (9 hours) covers standard business hours + the 10:00
      * appointment time below. Prevents any "appointment scheduled
@@ -1349,6 +1356,7 @@ trait UiSeedingTrait
         $client->wait(30)->until(
             fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript('return typeof newEvt === "function";'),
         );
+        $this->patchLegacyDialogIdOnPreFixRelease();
         $client->executeScript(
             sprintf('newEvt(1, %d, %d, "%s", 0, 0);', $hour, $minute, $compactDate),
         );
@@ -1400,6 +1408,44 @@ trait UiSeedingTrait
             ),
         );
         $this->dismissAnyOpenModals();
+    }
+
+    /**
+     * Work around the pre-8.6.0 dialogID() bug on older release images.
+     *
+     * Before #15247, library/dialog.js built dialog names with a stray
+     * unary plus on one segment, so about 1% of names came out in
+     * exponent form (e.g. "...1e+46..."). dlgclose() looks its dialog
+     * up with top.$("div#" + name), where "+" is a sibling combinator,
+     * so such a dialog can never close. The add-event modal then stays
+     * open after a successful save and the close wait below times out.
+     *
+     * The "Fresh install of from_tag" and upgrade cells boot released
+     * images that still carry the bug and will never get a patch
+     * release, so on those versions only, replace dialogID() in the
+     * calendar frame (and top) with the fixed implementation before
+     * newEvt() calls dlgopen(). Versions from FIRST_FIXED_DIALOG_ID_VERSION
+     * on, and runs with no expected version, keep the shipped function.
+     * Delete this once every from_tag is at or above that version.
+     *
+     * Caller context: switched into the calendar iframe.
+     */
+    private function patchLegacyDialogIdOnPreFixRelease(): void
+    {
+        if (!AcceptanceContext::hasExpectedVersion()) {
+            return;
+        }
+        if (version_compare(AcceptanceContext::expectedVersion(), self::FIRST_FIXED_DIALOG_ID_VERSION, '>=')) {
+            return;
+        }
+        $this->requireClient()->executeScript(
+            'var fixed = function () {'
+            . '  function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }'
+            . '  return s4() + s4() + s4() + s4() + s4() + s4() + s4() + s4();'
+            . '};'
+            . 'window.dialogID = fixed;'
+            . 'if (top !== window && typeof top.dialogID === "function") { top.dialogID = fixed; }',
+        );
     }
 
     /**

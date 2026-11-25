@@ -2806,6 +2806,17 @@ install); the rest remain worth periodic re-visit.
   may not match post-upgrade if a migration renamed a column. Phase 4g
   persistence-flow tests deliberately use fixed-identity UI-seeded
   fixtures precisely so both phases exercise the same read path.
+- **Product bugs frozen into from_tag images.** The "Fresh install of
+  from_tag" and upgrade cells boot already-released images, which never
+  change. A product bug fixed on master after that release can keep
+  flaking those cells indefinitely, and a backport does not help unless
+  a patch release ships. When that happens, prefer a test-side
+  workaround gated on `AcceptanceContext::expectedVersion()` being below
+  the first fixed release, so newer versions still exercise the real
+  code, over skipping the test (which drops upgrade-persistence
+  coverage). Name the fix PR and the removal condition in the
+  workaround's docblock. Example: `UiSeedingTrait::patchLegacyDialogIdOnPreFixRelease()`
+  for the pre-8.6.0 `dialogID()` bug (openemr/openemr#15247).
 - **Compose file drift.** `docker/production/docker-compose.yml`
   evolves over time (new services, env vars). The acceptance override
   needs to track these; a `docker-compose config` sanity step in the
@@ -3041,6 +3052,10 @@ All four captures land under `tmp/acceptance-failure-artifacts/<class-short-name
 Both `acceptance-docker.yml` and `acceptance-package.yml` grew an `actions/upload-artifact@v7` step with `if: ${{ !cancelled() && failure() && hashFiles('tmp/acceptance-failure-artifacts/**') != '' }}` targeting `tmp/acceptance-failure-artifacts/`. Hash check avoids a warning + spurious empty artifact when the failure happened before any Panther client was alive (compose boot timeout, chromedriver install fail) and the hook never ran. Mirrors the pattern `test.yml` uses for e2e's `selenium-videos` upload.
 
 **Why screenshot + DOM + console (not video)**: the e2e workflow's selenium/video sidecar needs a selenium grid container to attach to via `DISPLAY_CONTAINER_NAME: selenium`. `acceptance-docker.yml` runs host-level Chrome + ChromeDriver (via `.github/actions/setup-chromedriver-multiarch`), not a grid service, so the e2e pattern doesn't drop in cleanly. For this specific flake class (single-moment Selenium-wait timeout) the signal density of a screenshot + DOM + browser console log at the moment of failure is higher per byte than a 30-second video of a mostly-static modal; the console log in particular surfaces the throwing line in the opener-chain, which is the key diagnostic. Switching to grid-mode for video is a separate larger refactor worth considering if other flake classes emerge that need time-sequence signal rather than moment-state signal.
+
+**Item 4 followup: AppointmentPersistence residual flake — pre-8.6.0 `dialogID()` on from_tag images** — **SHIPPED (openemr/openemr#TBD, 2026-11-25)**. After the Fix A / Fix B work above, the same test still failed occasionally (master scheduled 2026-11-23, master push 2026-11-24, the rel-850 byte-identical sync PR), always on a cell booting the released `8.4.1` image and always as the `invisibilityOfElementLocated` timeout after Save. The Fix B capture artifacts pinned it: in each failure the add-event dialog's id was in exponent form (`…1e+46…`, `…1e+52…`, `…5e+45…`). Before openemr/openemr#15247, `library/dialog.js` `dialogID()` had a stray unary plus on one segment, so about 1% of dialog names contain `e+`. `dlgclose()` finds its dialog with `top.$("div#" + name)`, where `+` is a sibling combinator, so such a dialog can never close; the save itself commits (container access log shows the `add_edit_event.php` POST and the calendar refresh). Master is fixed, but `8.4.1` / `8.5.0` and the rel branches still carry the bug and no further patch releases are planned, so every cell that boots one of those images keeps rolling the dice.
+
+**Fix — version-gated test-side shim.** `UiSeedingTrait::patchLegacyDialogIdOnPreFixRelease()` runs just before `createCalendarEvent()` calls `newEvt()`. When `AcceptanceContext::hasExpectedVersion()` is true and the expected version is below `FIRST_FIXED_DIALOG_ID_VERSION` (`8.6.0`), it replaces `dialogID` in the calendar frame (and top) with the fixed implementation; `dlgopen()` resolves `dialogID` at call time, so the next dialog gets a clean name. On `8.6.0`+ (master / rel-860 onward), or with no expected version, it is a no-op and the shipped `dialogID()` is what gets exercised. Because `tests/Acceptance/**` is in the byte-identical manifest, rel-branch rows pick up the shim too, and there it also covers their pre-fix to_tag images. Remove the shim once every row's from_tag is at or above `8.6.0`. See [Risks and wrinkles](#risks-and-wrinkles) for the general pattern.
 
 **Item 5 (hygiene): "Invocation contexts" reference section in this doc** — **SHIPPED (openemr/openemr#TBD, 2026-09-22)**. New [Invocation contexts reference](#invocation-contexts-reference) section added above between "What lives where (concrete)" and "What stays unchanged". Four subsections: trigger contexts (per-workflow trigger × artifact × version × matrix), scenario → step sequence, group → tests → scenario cells, `AcceptanceContext` env contract. Also closes Friction point #6 (no mapping-doc reference table). The pre-Item-1..4 "Current-state snapshot" tables under this section were superseded and trimmed to a pointer.
 
