@@ -134,5 +134,6 @@ exempt:
   - src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php
 - reason: PostNuke and PostCalendar, bundled third-party code.
   paths:
+  - interface/main/calendar/config.php
   - interface/main/calendar/includes/*
   - interface/main/calendar/modules/PostCalendar/*

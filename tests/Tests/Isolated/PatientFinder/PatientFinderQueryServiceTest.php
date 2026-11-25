@@ -150,6 +150,29 @@ class PatientFinderQueryServiceTest extends TestCase
         ], $aaData);
     }
 
+    public function testAssembleRowsClassesInactivePatientRows(): void
+    {
+        $service = new PatientFinderQueryService(
+            $this->dispatcher(),
+            null,
+            null,
+            null,
+            static fn(mixed $v): string => PatientFinderValue::string($v),
+        );
+        $columns = [PatientFinderColumn::fromTable('name', 'Name')];
+        $rows = [
+            ['pid' => 1, 'lname' => 'Active', 'fname' => 'A', 'mname' => '', PatientFinderQueryBuilder::ACTIVE_ALIAS => '1'],
+            ['pid' => 2, 'lname' => 'Gone', 'fname' => 'B', 'mname' => '', PatientFinderQueryBuilder::ACTIVE_ALIAS => '0'],
+            ['pid' => 3, 'lname' => 'Unknown', 'fname' => 'C', 'mname' => ''],
+        ];
+
+        $aaData = $service->assembleRows($columns, $rows, [], new PatientFinderRowEnrichEvent([1, 2, 3], []), 1);
+
+        $this->assertArrayNotHasKey('DT_RowClass', $aaData[0]);
+        $this->assertSame('finder-inactive', $aaData[1]['DT_RowClass'] ?? null);
+        $this->assertArrayNotHasKey('DT_RowClass', $aaData[2]);
+    }
+
     public function testBuildColumnRegistrySeedsPtlistcolsAndRunsEvent(): void
     {
         $fetch = static fn(string $sql, array $binds): array => in_array('ptlistcols', $binds, true)
@@ -348,7 +371,7 @@ class PatientFinderQueryServiceTest extends TestCase
     {
         $seen = $this->recentRequest(false);
 
-        $this->assertStringContainsString('WHERE patient_data.pid IN (?, ?)', $seen['dataSql']);
+        $this->assertStringContainsString('WHERE patient_data.active = 1 AND patient_data.pid IN (?, ?)', $seen['dataSql']);
         $this->assertStringContainsString('ORDER BY FIELD(patient_data.pid, ?, ?)', $seen['dataSql']);
         $this->assertSame([12, 4, 12, 4], $seen['dataBinds']);
     }

@@ -44,6 +44,7 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderRowEnrichEvent;
+use OpenEMR\Services\Patient\PatientActiveStatus;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class PatientFinderQueryService
@@ -233,6 +234,10 @@ final class PatientFinderQueryService
         foreach ($rows as $row) {
             $pid = PatientFinderValue::int($row['pid'] ?? null);
             $arow = ['DT_RowId' => 'pid_' . $pid];
+            // Present only when inactive patients show; DataTables puts the class on the row.
+            if (array_key_exists(PatientFinderQueryBuilder::ACTIVE_ALIAS, $row) && !PatientActiveStatus::toBool($row[PatientFinderQueryBuilder::ACTIVE_ALIAS])) {
+                $arow['DT_RowClass'] = 'finder-inactive';
+            }
             for ($i = 0; $i < $columnCount; ++$i) {
                 $column = $columns[$i] ?? null;
                 if ($column === null) {

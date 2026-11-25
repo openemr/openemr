@@ -29,7 +29,9 @@ services:
       # Idempotent: skip if certs already exist.  docker compose up may
       # restart this container on subsequent calls; regenerating would
       # invalidate certs the running Redis/Sentinel containers already loaded.
-      if [ -f /certs/ca.crt ]; then
+      # The marker is written only by the current cert layout (with
+      # IP:127.0.0.1), so a volume left by an older run is regenerated.
+      if [ -f /certs/ca.crt ] && [ -f /certs/.san-loopback ]; then
           echo "Certs already present — skipping generation."
           exit 0
       fi
@@ -42,7 +44,10 @@ services:
       openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
 
       # --- Server cert (covers every Redis/Sentinel hostname) ---
-      echo 'subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:sentinel-3,DNS:localhost' > /tmp/san.ext
+      # Redis 8.12+ redis-cli and Sentinel check that the cert names the
+      # address they dial. 127.0.0.1 covers the in-container redis-cli calls
+      # (healthchecks, ci/ciLibrary.source), which dial loopback by default.
+      echo 'subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:sentinel-3,DNS:localhost,IP:127.0.0.1' > /tmp/san.ext
       openssl genrsa -out server.key 2048
       openssl req -new -key server.key -subj "/CN=redis" \
         | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
@@ -63,6 +68,7 @@ services:
       ln -sf client.key redis-master-key
 
       chmod 644 *.crt *.key ca.key
+      touch .san-loopback
       ls -la /certs/
     volumes:
     - redis-certs:/certs
@@ -95,6 +101,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-master
     volumes:
@@ -143,6 +152,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-replica-1
     volumes:
@@ -181,6 +193,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-replica-2
     volumes:
@@ -205,6 +220,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-1
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000
@@ -244,6 +260,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-2
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000
@@ -283,6 +300,7 @@ services:
       daemonize no
       sentinel resolve-hostnames yes
       sentinel announce-hostnames yes
+      sentinel announce-ip sentinel-3
       sentinel monitor redis-master redis-master 6379 2
       sentinel auth-pass redis-master strongpassword
       sentinel down-after-milliseconds redis-master 5000

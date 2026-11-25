@@ -207,11 +207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbase\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dupecount\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../contrib/util/dupecheck/mergerecords.php',
@@ -8852,37 +8847,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbhost\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbname\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbpass\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbport\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbtabletype\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dbtype\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbuname\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/config.php',
 ];
@@ -32918,7 +32888,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 69,
+    'count' => 64,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
@@ -41165,16 +41135,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'to\' on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',

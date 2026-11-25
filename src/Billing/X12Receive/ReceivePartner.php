@@ -19,6 +19,7 @@ final readonly class ReceivePartner
     /**
      * @param array<value-of<X12FileType>, string> $folders remote folder by file type
      * @param string $workedFolder remote folder a stored file is moved to; empty leaves it in place
+     * @param int $autoPostUser the user received 835s are posted as, unattended; 0 leaves them for a person
      */
     public function __construct(
         public int $id,
@@ -28,6 +29,7 @@ final readonly class ReceivePartner
         public ?string $encryptedPassword,
         public array $folders,
         public string $workedFolder,
+        public int $autoPostUser = 0,
     ) {
     }
 }
