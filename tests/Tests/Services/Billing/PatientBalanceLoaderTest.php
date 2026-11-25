@@ -246,6 +246,7 @@ final class PatientBalanceLoaderTest extends TestCase
         self::assertSame('185.00', get_patient_balance($this->pid, false, 0));
         self::assertSame('185.00', get_patient_balance($this->pid, false, '0'));
         self::assertSame('185.00', get_patient_balance($this->pid, false, ''));
+        self::assertSame('185.00', get_patient_balance($this->pid, false, null));
     }
 
     #[Test]
@@ -254,6 +255,8 @@ final class PatientBalanceLoaderTest extends TestCase
         self::assertSame('0.00', get_patient_balance(0, true));
         self::assertSame('0.00', get_patient_balance('abc', true));
         self::assertSame('0.00', get_patient_balance($this->pid, true, 'abc'));
+        // MySQL used to read true as encounter 1; it is not an encounter id.
+        self::assertSame('0.00', get_patient_balance($this->pid, true, true));
     }
 
     #[Test]

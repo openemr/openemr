@@ -1565,7 +1565,7 @@ function getAllinsurances($pid): array
  * PatientBalanceLedger once with PatientBalanceLoader and ask it for each:
  * every call here loads the patient's billing again.
  *
- * An encounter id of false, 0, '0' or '' means every encounter, as it always
+ * An encounter id of false, null, 0, '0' or '' means every encounter, as it always
  * has. Any other patient or encounter id that isn't a whole number above 0
  * gives 0.00.
  *
@@ -1579,7 +1579,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
 {
     $patientId = EffectiveInsuranceRule::storedId($pid);
     $encounterId = null;
-    if (!empty($eid)) {
+    if (!in_array($eid, [false, null, 0, '0', ''], true)) {
         $encounterId = EffectiveInsuranceRule::storedId($eid);
         if ($encounterId === null) {
             return '0.00';

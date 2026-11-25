@@ -25,8 +25,14 @@ class BillingViewCard extends CardModel
 
     private const CARD_ID = 'billing';
 
-    public function __construct(private $pid, private $insco_name, private $billingNote, private $primaryInsurance, array $opts = [])
-    {
+    public function __construct(
+        private $pid,
+        private $insco_name,
+        private $billingNote,
+        private $primaryInsurance,
+        array $opts = [],
+        private readonly PatientBalanceLoader $balanceLoader = new PatientBalanceLoader(),
+    ) {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
@@ -58,7 +64,7 @@ class BillingViewCard extends CardModel
         $patientId = EffectiveInsuranceRule::storedId($pid);
         $ledger = $patientId === null
             ? new PatientBalanceLedger([])
-            : (new PatientBalanceLoader())->load($patientId);
+            : $this->balanceLoader->load($patientId);
         $patientbalance = $ledger->balance(false);
         $insurancebalance = $ledger->balance(true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;
