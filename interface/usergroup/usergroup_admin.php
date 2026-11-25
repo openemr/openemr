@@ -62,7 +62,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         $user = $user_service->getUser($_POST['id']);
         $targetUsername = is_array($user) ? ($user['username'] ?? null) : null;
         if (!is_string($targetUsername) || $targetUsername === '') {
-            die(xlt('Saving denied'));
+            AccessDeniedHelper::denyWithTemplate(
+                'User-update POST rejected: target user id resolved no users row',
+                xl('User / Groups')
+            );
         }
         $aro_groups = AclExtended::aclGetGroupTitles($targetUsername);
         foreach ($aro_groups as $aro_group) {
@@ -76,7 +79,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         // on the update boundary so a POST crafted against a user id
         // the attacker cannot see via the UI is rejected too.
         if (!AclExtended::iHavePermissionsOf($targetUsername)) {
-            die(xlt('Saving denied'));
+            AccessDeniedHelper::denyWithTemplate(
+                'User-update POST rejected: current user lacks iHavePermissionsOf for the target',
+                xl('User / Groups')
+            );
         }
     }
 }
