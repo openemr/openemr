@@ -60,11 +60,23 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         //block non-administrator user from update administrator
         $user_service = new UserService();
         $user = $user_service->getUser($_POST['id']);
-        $aro_groups = AclExtended::aclGetGroupTitles($user['username']);
+        $targetUsername = is_array($user) ? ($user['username'] ?? null) : null;
+        if (!is_string($targetUsername) || $targetUsername === '') {
+            die(xlt('Saving denied'));
+        }
+        $aro_groups = AclExtended::aclGetGroupTitles($targetUsername);
         foreach ($aro_groups as $aro_group) {
             if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
                 die(xlt('Saving denied'));
             };
+        }
+        // Mirror the user-list rendering gate: `iHavePermissionsOf` is
+        // the check the Users page already uses to decide whether to
+        // show a given user to the current admin. Enforce the same gate
+        // on the update boundary so a POST crafted against a user id
+        // the attacker cannot see via the UI is rejected too.
+        if (!AclExtended::iHavePermissionsOf($targetUsername)) {
+            die(xlt('Saving denied'));
         }
     }
 }
