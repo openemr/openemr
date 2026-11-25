@@ -27,20 +27,15 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 $allowList = $USER_SPECIFIC_GLOBALS;
 
 /**
- * Permit per-user UI settings but refuse `global:*` keys unless the suffix
- * is in the explicit allowlist used by the admin globals editor.
- *
- * The prefix comparison is case-insensitive because `user_settings.setting_label`
- * ships with the installation's default case-insensitive collation
- * (`utf8mb4_general_ci`). A case-sensitive write-side check would let
- * `GLOBAL:*` keys bypass the allowlist, while the read side's
- * `LIKE 'global:%'` would still select the row — so the two sides have
- * to agree on case sensitivity.
+ * Permit per-user UI settings; for `global:*` keys the suffix must be in
+ * the explicit allowlist.
  */
 $isUserSettingKeyAllowed = static function (mixed $key) use ($allowList): bool {
     if (!is_string($key) || $key === '') {
         return false;
     }
+    // Case-insensitive to match the read side's `setting_label LIKE 'global:%'`
+    // (case-insensitive under `utf8mb4_general_ci`). Do not swap to `str_starts_with`.
     if (stripos($key, 'global:') === 0) {
         return in_array(substr($key, strlen('global:')), $allowList, true);
     }
