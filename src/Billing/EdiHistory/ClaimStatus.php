@@ -1,7 +1,11 @@
 <?php
 
 /**
- * One status a 277 reports for a claim or for one of its service lines (an STC composite).
+ * One claim status from a 277: a category and code such as A1:19, with its date, action and
+ * amount, for the whole claim or for one service line.
+ *
+ * An STC segment holds up to three of these (STC01, STC10 and STC11), which share the
+ * segment's date, action and amount.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

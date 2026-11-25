@@ -62,12 +62,22 @@ final class ClaimStatusReader
      */
     public static function read(string $text): array
     {
-        $file = self::split($text);
-        if ($file === null) {
-            return [];
+        $reports = [];
+        foreach (self::interchanges($text) as $interchange) {
+            foreach (self::readInterchange($interchange['segments'], $interchange['component']) as $report) {
+                $reports[] = $report;
+            }
         }
-        $component = $file['component'];
+        return $reports;
+    }
 
+    /**
+     * @param list<non-empty-list<string>> $segments  the segments of one interchange, ISA first
+     * @param non-empty-string             $component the component separator of that interchange
+     * @return list<ClaimStatusReport>
+     */
+    private static function readInterchange(array $segments, string $component): array
+    {
         $reports = [];
         $interchangeControlNumber = '';
         $interchangeDate = null;
@@ -81,7 +91,7 @@ final class ClaimStatusReader
         /** @var list<list<string>> $block */
         $block = [];
 
-        foreach ($file['segments'] as $segment) {
+        foreach ($segments as $segment) {
             $id = $segment[0];
             $endsBlock = in_array($id, ['ISA', 'ST', 'SE', 'GE', 'IEA', 'HL', 'TRN'], true);
             if ($endsBlock && $block !== []) {
@@ -217,7 +227,8 @@ final class ClaimStatusReader
                         $serviceLine,
                     );
                 }
-            } elseif ($id === 'REF') {
+            } elseif ($id === 'REF' && $serviceLine === '') {
+                // A REF after an SVC identifies the service line, not the claim.
                 $value = self::element($segment, 2);
                 if ($value !== '') {
                     $references[self::element($segment, 1)][] = $value;
@@ -247,34 +258,49 @@ final class ClaimStatusReader
     }
 
     /**
-     * Split a file into segments of elements, using the separators its ISA declares.
+     * Split a file into its interchanges, and each interchange into segments of elements,
+     * using the separators that interchange's ISA declares. A file can hold more than one
+     * interchange, and they need not use the same separators.
      *
-     * @return ?array{segments: list<non-empty-list<string>>, component: non-empty-string} null when the text is not X12
+     * @return list<array{segments: list<non-empty-list<string>>, component: non-empty-string}>
+     *         empty when the text is not X12
      */
-    private static function split(string $text): ?array
+    private static function interchanges(string $text): array
     {
-        if (strlen($text) < self::ISA_LENGTH || !str_starts_with($text, 'ISA')) {
-            return null;
-        }
-        $elementSeparator = $text[3];
-        $terminator = $text[self::ISA_LENGTH - 1];
-        // A file that ends its segments with a line break only.
-        if ($terminator === "\r") {
-            $terminator = "\n";
-        }
-        if (ctype_alnum($elementSeparator) || ctype_alnum($terminator) || $elementSeparator === $terminator) {
-            return null;
-        }
-
-        $segments = [];
-        foreach (explode($terminator, $text) as $raw) {
-            $raw = trim($raw, " \t\r\n");
-            if ($raw !== '') {
-                $segments[] = array_map(trim(...), explode($elementSeparator, $raw));
+        $interchanges = [];
+        $rest = ltrim($text);
+        while (strlen($rest) >= self::ISA_LENGTH && str_starts_with($rest, 'ISA')) {
+            $elementSeparator = $rest[3];
+            $component = $rest[self::ISA_LENGTH - 2];
+            $terminator = $rest[self::ISA_LENGTH - 1];
+            // Segments that end with a line break only: CR, LF or CRLF.
+            if ($terminator === "\r" || $terminator === "\n") {
+                $rest = str_replace(["\r\n", "\r"], "\n", $rest);
+                $terminator = "\n";
             }
+            if (ctype_alnum($elementSeparator) || ctype_alnum($terminator) || $elementSeparator === $terminator) {
+                break;
+            }
+
+            $segments = [];
+            $consumed = 0;
+            foreach (explode($terminator, $rest) as $raw) {
+                $consumed += strlen($raw) + 1;
+                $raw = trim($raw, " \t\r\n");
+                if ($raw === '') {
+                    continue;
+                }
+                $segment = array_map(trim(...), explode($elementSeparator, $raw));
+                $segments[] = $segment;
+                if ($segment[0] === 'IEA') {
+                    break;
+                }
+            }
+            $interchanges[] = ['segments' => $segments, 'component' => $component];
+            $rest = ltrim(substr($rest, $consumed));
         }
 
-        return ['segments' => $segments, 'component' => $text[self::ISA_LENGTH - 2]];
+        return $interchanges;
     }
 
     /**

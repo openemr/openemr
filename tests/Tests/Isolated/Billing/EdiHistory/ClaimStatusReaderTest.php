@@ -294,6 +294,58 @@ class ClaimStatusReaderTest extends TestCase
         );
     }
 
+    #[DataProvider('lineBreakProvider')]
+    public function testSegmentsMayEndWithALineBreakOnly(string $lineBreak): void
+    {
+        $endedByLineBreaks = str_replace('~', $lineBreak, self::acknowledgment());
+
+        $this->assertEquals(
+            ClaimStatusReader::read(self::acknowledgment()),
+            ClaimStatusReader::read($endedByLineBreaks)
+        );
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function lineBreakProvider(): array
+    {
+        return [
+            'LF' => ["\n"],
+            'CRLF' => ["\r\n"],
+            'CR' => ["\r"],
+        ];
+    }
+
+    public function testEachInterchangeIsReadWithItsOwnSeparators(): void
+    {
+        $first = self::acknowledgment();
+        $second = strtr($first, ['*' => '|', ':' => '>', '~' => '!']);
+
+        $reports = ClaimStatusReader::read($first . "\n" . $second);
+
+        $expected = ClaimStatusReader::read($first);
+        $this->assertCount(2, $expected);
+        $this->assertEquals([...$expected, ...$expected], $reports);
+        $this->assertSame('PR', $reports[3]->statuses[1]->entityCode);
+    }
+
+    public function testServiceLineReferencesAreNotClaimReferences(): void
+    {
+        $reports = ClaimStatusReader::read(self::interchange(self::transaction(
+            '0001',
+            self::PAYER,
+            'HL*4*3*PT~NM1*QC*1*DOE*JANE****MI*MEMBER1~'
+            . 'TRN*2*100-200~STC*A2:20*20260128*WQ*257~REF*1K*PAYERCLAIM99~'
+            . 'SVC*HC:92014*257*0~STC*A2:20*20260128*WQ*257~REF*FJ*1~'
+        )));
+
+        $this->assertSame(['1K' => ['PAYERCLAIM99']], $reports[0]->references);
+        $this->assertFalse($reports[0]->isAbout('1'));
+    }
+
     public function testDatesThatAreNotDatesAreLeftEmpty(): void
     {
         $reports = ClaimStatusReader::read(self::interchange(self::transaction(
