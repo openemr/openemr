@@ -407,6 +407,7 @@ class ServerScopeListEntity
                 $scopes[] = "user/$resource.$actionString";
             }
             $scopes[] = 'user/insurance.$swap-insurance';
+            $scopes[] = 'user/insurance.$reopen-charges';
             $scopes[] = 'user/background_service.$run';
             $patientResources = [
                 'patient' => ['s']

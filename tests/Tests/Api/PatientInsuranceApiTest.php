@@ -9,6 +9,8 @@
  *   POST /api/patient/{puuid}/insurance                  — create
  *   PUT  /api/patient/{puuid}/insurance/{uuid}           — update
  *   GET  /api/patient/{puuid}/insurance/$swap-insurance  — swap operation
+ *   GET  /api/patient/{puuid}/insurance/{uuid}/$reopen-charges — encounters never billed to the policy's payer
+ *   POST /api/patient/{puuid}/insurance/{uuid}/$reopen-charges — reopen the chosen ones
  *
  * Insurance coverage lives in `insurance_data` keyed on `pid` + `type`
  * (primary/secondary/tertiary) + `date` (effective date). This test
@@ -31,6 +33,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 
 class PatientInsuranceApiTest extends TestCase
 {
@@ -72,6 +75,7 @@ class PatientInsuranceApiTest extends TestCase
         // reference pid + provider (insurance_company id), so clean
         // those first. Wrap in try/finally so cleanupClient still runs.
         try {
+            $this->removeBilledEncounter();
             $this->fixtureManager->removeCoverageFixtures();
             $this->fixtureManager->removeInsuranceCompanyFixtures();
             $this->fixtureManager->removePatientFixtures();
@@ -437,5 +441,176 @@ class PatientInsuranceApiTest extends TestCase
             $body['validationErrors'],
             'invalid puuid should surface the puuid::INVALID_PUUID key so a response that only fails on the unknown insurance uuid cannot silently satisfy this assertion'
         );
+    }
+
+    private const REOPEN_ENCOUNTER = 99990161;
+    private const REOPEN_INSURER = 99990061;
+
+    private function fixturePid(): int
+    {
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($this->fixturePuuid)]
+        );
+        $this->assertIsNumeric($pid);
+        return (int) $pid;
+    }
+
+    /**
+     * An encounter on 2026-03-01 with one 100.00 charge, marked as billed with no payer.
+     */
+    private function seedBilledEncounter(): void
+    {
+        $pid = $this->fixturePid();
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO form_encounter (pid, encounter, date, reason) VALUES (?, ?, '2026-03-01', 'test')",
+            [$pid, self::REOPEN_ENCOUNTER]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO billing (date, code_type, code, pid, encounter, user, groupname, authorized, activity, "
+            . "billed, bill_date, units, fee, code_text) "
+            . "VALUES (NOW(), 'CPT4', '99213', ?, ?, 1, 'Default', 1, 1, 1, NOW(), 1, 100.00, 'Office visit')",
+            [$pid, self::REOPEN_ENCOUNTER]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO claims (patient_id, encounter_id, version, payer_id, status, bill_time) VALUES (?, ?, 1, 0, 2, NOW())',
+            [$pid, self::REOPEN_ENCOUNTER]
+        );
+    }
+
+    /**
+     * A primary policy starting on the date, with an insurance company that has an id: the shared
+     * fixture insurer is inserted without one (the table's id is not auto-increment), and a policy
+     * whose company id is 0 names no payer to bill.
+     *
+     * @return string the policy's uuid
+     */
+    private function postPolicyWithPayer(string $date): string
+    {
+        $policy = $this->postFixturePolicy('primary', $date);
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO insurance_companies (id, name) VALUES (?, 'test-fixture-reopen-insurer')",
+            [self::REOPEN_INSURER]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE insurance_data SET provider = ? WHERE uuid = ?',
+            [self::REOPEN_INSURER, UuidRegistry::uuidToBytes($policy['uuid'])]
+        );
+        return $policy['uuid'];
+    }
+
+    private function removeBilledEncounter(): void
+    {
+        QueryUtils::sqlStatementThrowException('DELETE FROM claims WHERE encounter_id = ?', [self::REOPEN_ENCOUNTER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE encounter = ?', [self::REOPEN_ENCOUNTER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE encounter = ?', [self::REOPEN_ENCOUNTER]);
+    }
+
+    private function reopenEndpoint(string $policyUuid): string
+    {
+        return $this->listEndpoint() . '/' . $policyUuid . '/$reopen-charges';
+    }
+
+    /**
+     * @return array<mixed> the response's data
+     */
+    private function reopenData(ResponseInterface $response): array
+    {
+        $this->assertEquals(200, $response->getStatusCode(), 'Body: ' . (string) $response->getBody());
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame([], $body['validationErrors'] ?? ['SENTINEL']);
+        $data = $body['data'] ?? null;
+        $this->assertIsArray($data);
+        return $data;
+    }
+
+    #[Test]
+    public function testReopenChargesListsAnEncounterBilledBeforeThePolicyWasOnFile(): void
+    {
+        $this->seedBilledEncounter();
+        $policy = $this->postPolicyWithPayer('2026-01-01');
+
+        $data = $this->reopenData($this->testClient->get($this->reopenEndpoint($policy)));
+
+        $this->assertSame(
+            ['encounters' => [[
+                'encounter' => self::REOPEN_ENCOUNTER,
+                'date' => '2026-03-01',
+                'last_billed_to' => null,
+                'balance' => '100.00',
+            ]]],
+            $data
+        );
+    }
+
+    #[Test]
+    public function testReopenChargesListsNothingForAPolicyThatStartsAfterTheEncounter(): void
+    {
+        $this->seedBilledEncounter();
+        $policy = $this->postPolicyWithPayer('2026-04-01');
+
+        $data = $this->reopenData($this->testClient->get($this->reopenEndpoint($policy)));
+
+        $this->assertSame(['encounters' => []], $data);
+    }
+
+    #[Test]
+    public function testReopenChargesPostReopensTheChosenEncounter(): void
+    {
+        $this->seedBilledEncounter();
+        $policy = $this->postPolicyWithPayer('2026-01-01');
+
+        $data = $this->reopenData($this->testClient->post(
+            $this->reopenEndpoint($policy),
+            ['encounters' => [self::REOPEN_ENCOUNTER, self::REOPEN_ENCOUNTER + 1]]
+        ));
+
+        $this->assertSame(['reopened' => [self::REOPEN_ENCOUNTER]], $data);
+        // Loose on purpose: whether the driver hands back int or string is not the point.
+        $this->assertEquals(0, QueryUtils::fetchSingleValue(
+            'SELECT billed FROM billing WHERE encounter = ?',
+            'billed',
+            [self::REOPEN_ENCOUNTER]
+        ));
+        // Reopened, it is no longer listed.
+        $after = $this->reopenData($this->testClient->get($this->reopenEndpoint($policy)));
+        $this->assertSame(['encounters' => []], $after);
+    }
+
+    #[Test]
+    public function testReopenChargesPostWithoutAnEncounterListIsRejected(): void
+    {
+        $this->seedBilledEncounter();
+        $policy = $this->postPolicyWithPayer('2026-01-01');
+
+        foreach ([['encounter' => self::REOPEN_ENCOUNTER], ['encounters' => ['abc']]] as $payload) {
+            $response = $this->testClient->post($this->reopenEndpoint($policy), $payload);
+            $this->assertEquals(400, $response->getStatusCode(), 'Body: ' . (string) $response->getBody());
+            $body = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($body);
+            $this->assertIsArray($body['validationErrors'] ?? null);
+            $this->assertArrayHasKey('encounters', $body['validationErrors']);
+        }
+        $this->assertEquals(1, QueryUtils::fetchSingleValue(
+            'SELECT billed FROM billing WHERE encounter = ?',
+            'billed',
+            [self::REOPEN_ENCOUNTER]
+        ));
+    }
+
+    #[Test]
+    public function testReopenChargesWithInvalidPatientUuidReturnsValidationError(): void
+    {
+        $endpoint = '/apis/default/api/patient/not-a-real-uuid/insurance/00000000-0000-0000-0000-000000000000/$reopen-charges';
+
+        foreach ([$this->testClient->get($endpoint), $this->testClient->post($endpoint, ['encounters' => [1]])] as $response) {
+            $this->assertEquals(400, $response->getStatusCode(), 'Body: ' . (string) $response->getBody());
+            $body = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($body);
+            $this->assertIsArray($body['validationErrors'] ?? null);
+            $this->assertArrayHasKey('puuid::INVALID_PUUID', $body['validationErrors']);
+        }
     }
 }
