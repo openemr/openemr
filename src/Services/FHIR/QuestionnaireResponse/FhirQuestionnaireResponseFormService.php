@@ -31,7 +31,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireResponseStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -743,7 +742,10 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
      * Bound to the subject's compartment: the encounter reference and the subject reference are
      * resolved independently from the payload, so without the bind a caller could file a
      * response against another patient's visit -- and the response then reads back under it.
-     * EncounterService::getEncounter() already takes the bind; it simply was not being passed.
+     *
+     * A plain query rather than EncounterService: constructing that service backfills missing
+     * uuids in a transaction of its own, and its BEGIN and COMMIT would commit the transaction
+     * a patient app write's approval runs in, so a later failure could no longer roll it back.
      */
     private function resolveEncounterId(mixed $encounterUuid, mixed $puuid): ?int
     {
@@ -753,15 +755,19 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         if (!is_string($puuid) || $puuid === '') {
             throw new InvalidArgumentException("QuestionnaireResponse.subject must reference a Patient on this server.");
         }
-        $encounterRecords = ProcessingResult::extractDataArray(
-            (new EncounterService())->getEncounter($encounterUuid, $puuid)
-        );
-        if ($encounterRecords === []) {
-            // Reported the same way an unknown encounter is: an encounter outside the subject's
-            // compartment must not be distinguishable from one that does not exist.
+        if (!UuidRegistry::isValidStringUUID($encounterUuid) || !UuidRegistry::isValidStringUUID($puuid)) {
             throw new InvalidArgumentException("Encounter does not exist");
         }
-        $eid = self::toInt($encounterRecords[0]['eid'] ?? null);
+        $found = QueryUtils::fetchSingleValue(
+            'SELECT fe.`encounter` FROM `form_encounter` AS fe'
+            . ' JOIN `patient_data` AS pd ON pd.`pid` = fe.`pid`'
+            . ' WHERE fe.`uuid` = ? AND pd.`uuid` = ?',
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid), UuidRegistry::uuidToBytes($puuid)]
+        );
+        // An encounter outside the subject's compartment is reported the same way an unknown
+        // encounter is: it must not be distinguishable from one that does not exist.
+        $eid = self::toInt($found);
         if ($eid === null) {
             throw new InvalidArgumentException("Encounter does not exist");
         }
