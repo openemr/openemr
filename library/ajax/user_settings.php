@@ -29,12 +29,19 @@ $allowList = $USER_SPECIFIC_GLOBALS;
 /**
  * Permit per-user UI settings but refuse `global:*` keys unless the suffix
  * is in the explicit allowlist used by the admin globals editor.
+ *
+ * The prefix comparison is case-insensitive because `user_settings.setting_label`
+ * ships with the installation's default case-insensitive collation
+ * (`utf8mb4_general_ci`). A case-sensitive write-side check would let
+ * `GLOBAL:*` keys bypass the allowlist, while the read side's
+ * `LIKE 'global:%'` would still select the row — so the two sides have
+ * to agree on case sensitivity.
  */
 $isUserSettingKeyAllowed = static function (mixed $key) use ($allowList): bool {
     if (!is_string($key) || $key === '') {
         return false;
     }
-    if (str_starts_with($key, 'global:')) {
+    if (stripos($key, 'global:') === 0) {
         return in_array(substr($key, strlen('global:')), $allowList, true);
     }
     return true;
