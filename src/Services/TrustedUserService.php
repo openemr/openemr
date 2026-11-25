@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 
@@ -76,6 +77,39 @@ class TrustedUserService
 
     public function deleteTrustedUserById($id)
     {
+        // The admin "Revoke User" action offboards a specific OAuth app's
+        // hold on a user; it should close the API side of that one
+        // relationship. Deleting only the trusted-user row leaves the
+        // user's api_refresh_token / api_token rows for that client in
+        // place, which become usable again as soon as the user
+        // re-authorizes the same app (a fresh oauth_trusted_user row
+        // re-admits the old refresh token). Revoke the removed client's
+        // tokens alongside the delete so revoke means revoke.
+        //
+        // Two ordering invariants:
+        //   1. Scope to (user, client), not user-wide. Removing one app's
+        //      record must not revoke the user's tokens for every other
+        //      app they authorized. The account-lifecycle paths (admin
+        //      deactivation, password change) still revoke user-wide
+        //      because those events invalidate the identity itself.
+        //   2. Revoke before DELETE. If the revoke throws, the
+        //      trusted-user row stays in place and a retry runs the
+        //      whole operation again; the alternative (delete-first)
+        //      leaves orphaned active tokens on any revoke failure,
+        //      with no retry path.
+        $row = QueryUtils::querySingleRow(
+            "SELECT `user_id`, `client_id` FROM `oauth_trusted_user` WHERE `id` = ?",
+            [$id],
+            log: false
+        );
+        if (
+            is_array($row)
+            && isset($row['user_id'], $row['client_id'])
+            && is_string($row['user_id'])
+            && is_string($row['client_id'])
+        ) {
+            AuthUtils::revokeOAuthTokensForUserUuidAndClient($row['user_id'], $row['client_id']);
+        }
         QueryUtils::sqlStatementThrowException("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", [$id], noLog: true);
     }
 }

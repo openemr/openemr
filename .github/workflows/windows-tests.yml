@@ -41,11 +41,11 @@ jobs:
         fetch-depth: 0
         persist-credentials: false
 
-    - name: Setup PHP 8.2 and Composer
+    - name: Setup PHP 8.4 and Composer
       uses: ./.github/actions/setup-php-composer
       with:
         # Linux CI owns PHP-version coverage; Windows is the variable here.
-        php-version: '8.2'
+        php-version: '8.4'
         coverage: none
 
     - name: Report Windows environment

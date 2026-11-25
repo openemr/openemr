@@ -32878,7 +32878,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 69,
+    'count' => 64,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
@@ -41125,16 +41125,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'to\' on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',

@@ -62987,21 +62987,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$row of method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:createResultRecordFromDatabaseResult\\(\\) expects array\\<string, mixed\\>, array given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:search\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array\\<int\\<0, max\\>\\|string, OpenEMR\\\\Services\\\\Search\\\\StringSearchField\\|OpenEMR\\\\Services\\\\Search\\\\TokenSearchField\\> given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$values of class OpenEMR\\\\Services\\\\Search\\\\StringSearchField constructor expects array\\|int\\|string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$DateValue of static method OpenEMR\\\\Services\\\\Utils\\\\DateFormatterUtils\\:\\:dateStringToDateTime\\(\\) expects string, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',

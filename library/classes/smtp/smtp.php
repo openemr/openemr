@@ -139,7 +139,7 @@ class smtp_class
     public Function VerifyResultLines($code,&$responses): int
     {
         $responses=[];
-        Unset($this->result_code);
+        $this->result_code = null;
         while (strlen((string) $line=$this->GetLine())) {
             if (IsSet($this->result_code)) {
                 if (strcmp((string) $this->Tokenize($line," -"),$this->result_code)) {

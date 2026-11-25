@@ -223,7 +223,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     {
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $tokenId = 'clock-skew-token-id';
-        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+        $user = ['id' => 1, 'username' => 'testuser', 'active' => 1, 'role' => 'users'];
 
         $jwt = $this->mintTokenIssuedAt($issuedAt, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
         $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
@@ -406,7 +406,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     ): bool {
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
         $tokenId = 'claim-boundary-token-id';
-        $user = ['id' => 1, 'username' => 'testuser', 'role' => 'users'];
+        $user = ['id' => 1, 'username' => 'testuser', 'active' => 1, 'role' => 'users'];
 
         $jwt = $this->mintTokenWithClaimTimes($iat, $nbf, $exp, $tokenId, $userUuid, self::TEST_CLIENT_ID, $scopes);
         $request = $this->requestForRawToken($jwt, '/apis/default/api/patient');
@@ -461,6 +461,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $user = [
             'id' => 1,
             'username' => 'testuser',
+            'active' => 1,
             'role' => 'users',
         ];
         $userUuid = '123e4567-e89b-12d3-a456-426614174000';
@@ -503,6 +504,7 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $user = [
             'id' => 1,
             'username' => 'testuser',
+            'active' => 1,
             'uuid' => '123e4567-e89b-12d3-a456-426614174000',
             'role' => 'users',
         ];
@@ -535,6 +537,106 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
 
         // Simulating a request with a valid token
         $this->assertTrue($strategy->authorizeRequest($request));
+    }
+
+    /**
+     * The use-time gate on `users.active` must only apply to interactive
+     * staff accounts (USER_ROLE_USERS). An admin flipping an interactive
+     * user to inactive has to close their API side too, even though the
+     * access-token row itself may still be unrevoked.
+     */
+    public function testAuthorizeRequestRejectsDeactivatedStaffUser(): void
+    {
+        $user = [
+            'id' => 1,
+            'username' => 'testuser',
+            'active' => 0,
+            'role' => 'users',
+        ];
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $testClient = $this->getTestClientEntityForUser($userUuid);
+        $tokenId = 'deactivated-staff-token-id';
+        $accessToken = $this->getAccessTokenForUser($tokenId, $userUuid, $testClient);
+        $accessToken->addScope(ScopeEntity::createFromString("api:oemr"));
+        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/api/patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        $strategy->setAccessTokenRepository(
+            $this->getMockAccessTokenRepository($accessToken, ['openid', 'profile', 'email', 'api:oemr'])
+        );
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->method('isTrustedUser')->willReturn(true);
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+        // Plain mock, no expects(once): the gate throws before the role
+        // path reaches getAuthGroupForUser, so the strict-call helper
+        // used elsewhere would fail the expectation.
+        $strategy->setUserService($this->createMock(UserService::class));
+
+        $this->expectException(OAuthServerException::class);
+        $strategy->authorizeRequest($request);
+    }
+
+    /**
+     * USER_ROLE_SYSTEM is the non-interactive `oe-system` account that
+     * backs the client_credentials grant. It ships from the installer
+     * with `active = 0` by design and is intentionally excluded from the
+     * interactive-staff `users.active` gate — otherwise every backend
+     * API consumer would stop working the moment this PR lands.
+     *
+     * This test pins that exemption so a future "simplify this check"
+     * refactor cannot silently fold SYSTEM back into the gate.
+     *
+     * Uses a FHIR request path because `isValidRequestForUserRole()`
+     * admits USER_ROLE_SYSTEM only for FHIR resources — a /api/ path
+     * would throw a role-scope 403 before the test could observe
+     * whether the active-flag gate passed or not.
+     */
+    public function testAuthorizeRequestAcceptsSystemUserWithInactiveFlag(): void
+    {
+        $user = [
+            'id' => 1,
+            'username' => 'oe-system',
+            'active' => 0,
+            'role' => 'system',
+        ];
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $testClient = $this->getTestClientEntityForUser($userUuid);
+        $tokenId = 'system-user-token-id';
+        $accessToken = $this->getAccessTokenForUser($tokenId, $userUuid, $testClient);
+        $accessToken->addScope(ScopeEntity::createFromString("system/*.read"));
+        $request = $this->getAuthorizeHttpRestRequestForUrlAndToken($accessToken, '/apis/default/fhir/Patient');
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        $strategy->setAccessTokenRepository(
+            $this->getMockAccessTokenRepository($accessToken, ['system/*.read'])
+        );
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->method('isTrustedUser')->willReturn(true);
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn(UuidUserAccount::USER_ROLE_SYSTEM);
+            return $mock;
+        });
+        // Plain mock, no expects: the SYSTEM-role session setup path
+        // does not call getAuthGroupForUser.
+        $strategy->setUserService($this->createMock(UserService::class));
+
+        $this->assertTrue(
+            $strategy->authorizeRequest($request),
+            'Bearer tokens for the oe-system account must authorize even when users.active = 0'
+        );
     }
 
     public function testGetUuidUserAccountFactory(): void

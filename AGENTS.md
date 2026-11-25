@@ -46,7 +46,7 @@ These documents own the structural "why"; this file owns the line-level mechanic
 
 ## Technology Stack
 
-- **PHP:** 8.3+ required
+- **PHP:** 8.4+ required
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
@@ -814,3 +814,4 @@ exempt there instead: never add a GPL tag to code the project does not own.
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
 - `docs/pr-shepherding/` - Reviewing a batch of open PRs on a chosen subject (area, author, milestone)
+- `docs/maintainer-playbook/` - Recurring maintainer-side tasks on a predictable cadence (PHP/Alpine drops+adds, etc.)
