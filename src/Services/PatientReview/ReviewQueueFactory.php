@@ -25,12 +25,15 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
+use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseEncounterForm;
 use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseWriteApplier;
 use OpenEMR\Services\PatientReview\Migration\LegacyActivityMapping;
 use OpenEMR\Services\PatientReview\Migration\PortalActivityMigrator;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
+use OpenEMR\Services\QuestionnaireResponseService;
 
 final class ReviewQueueFactory
 {
@@ -88,7 +91,11 @@ final class ReviewQueueFactory
     public static function fhirWriteHandler(): FhirWriteReviewHandler
     {
         return new FhirWriteReviewHandler([
-            new QuestionnaireResponseWriteApplier(new FhirQuestionnaireResponseFormService(), new FhirRelatedPersonService()),
+            new QuestionnaireResponseWriteApplier(
+                new FhirQuestionnaireResponseFormService(),
+                new FhirRelatedPersonService(),
+                new QuestionnaireResponseEncounterForm(new QuestionnaireResponseService(), new FormService()),
+            ),
         ]);
     }
 

@@ -19,6 +19,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use JsonException;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
@@ -441,10 +442,20 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
      * @param array<array-key, mixed> $openEmrRecord from parseFhirResource()
      * @param string $issuedUuid the id the response is created under
      * @param bool $writtenByPatient the patient wrote it, so no staff user is recorded as its creator
+     * @param ?int $encounter one of the patient's encounters (form_encounter.encounter) to file
+     *        the response under, chosen by staff for a response that names none
+     * @return ProcessingResult on success its data holds the new record's id, uuid and the
+     *         encounter it was filed under (null for none)
+     * @throws InvalidArgumentException when what it refers to is missing, the encounter is not
+     *         the patient's, or the response already names an encounter
      */
-    public function insertOpenEMRRecordWithIssuedId(array $openEmrRecord, string $issuedUuid, bool $writtenByPatient): ProcessingResult
-    {
-        return $this->insertParsedRecord($openEmrRecord, $issuedUuid, $writtenByPatient);
+    public function insertOpenEMRRecordWithIssuedId(
+        array $openEmrRecord,
+        string $issuedUuid,
+        bool $writtenByPatient,
+        ?int $encounter = null,
+    ): ProcessingResult {
+        return $this->insertParsedRecord($openEmrRecord, $issuedUuid, $writtenByPatient, $encounter);
     }
 
     /**
@@ -480,10 +491,20 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     /**
      * @param mixed $openEmrRecord from parseFhirResource(); anything else is treated as empty
      */
-    private function insertParsedRecord(mixed $openEmrRecord, ?string $issuedUuid, bool $writtenByPatient = false): ProcessingResult
-    {
+    private function insertParsedRecord(
+        mixed $openEmrRecord,
+        ?string $issuedUuid,
+        bool $writtenByPatient = false,
+        ?int $chosenEncounter = null,
+    ): ProcessingResult {
         $record = is_array($openEmrRecord) ? $openEmrRecord : [];
         [$patientId, $encounterId, $questionnaire] = $this->resolveForInsert($record);
+        if ($chosenEncounter !== null) {
+            if ($encounterId !== null) {
+                throw new InvalidArgumentException('QuestionnaireResponse.encounter is already set; another encounter cannot be chosen.');
+            }
+            $encounterId = self::patientEncounter($chosenEncounter, $patientId);
+        }
 
         // note https://build.fhir.org/http.html#create specification states that an id SHALL be
         // ignored for our create operation, so the client's id is dropped from the payload as
@@ -637,6 +658,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             $processingResult->addData([
                 'id' => $saved['id'] ?? null,
                 'uuid' => $savedResponseId,
+                'encounter' => $encounter,
             ]);
             return $processingResult;
         }
@@ -694,6 +716,25 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             throw new InvalidArgumentException("Patient does not exist");
         }
         return $pid;
+    }
+
+    /**
+     * The encounter number, when it is one of the patient's encounters.
+     *
+     * @throws InvalidArgumentException when it is not; reported as an unknown encounter is
+     */
+    private static function patientEncounter(int $encounter, int $patientId): int
+    {
+        $found = QueryUtils::fetchSingleValue(
+            'SELECT `encounter` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+            'encounter',
+            [$encounter, $patientId]
+        );
+        if (self::toInt($found) !== $encounter) {
+            throw new InvalidArgumentException("Encounter does not exist");
+        }
+
+        return $encounter;
     }
 
     /**

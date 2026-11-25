@@ -24,6 +24,7 @@ use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
+use OpenEMR\Services\PatientReview\ReviewApprovalOptions;
 use OpenEMR\Services\PatientReview\ReviewHandlerInterface;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
@@ -346,6 +347,26 @@ class ReviewQueueServiceIsolatedTest extends TestCase
         $this->assertSame(0, $service->countPending());
     }
 
+    /**
+     * What the reviewer chose reaches the handler, and the handler's note (where it filed the
+     * change) goes on the completing entry, not on the reviewer's approval.
+     */
+    public function testApproveGivesTheHandlerTheOptionsAndRecordsItsNoteOnCompletion(): void
+    {
+        $handler = new RecordingReviewHandler(ReviewType::Profile, note: 'Filed in encounter 12');
+        $service = $this->service([$handler]);
+        $request = $service->submit($this->profile(), $this->patient());
+        $options = new class implements ReviewApprovalOptions {
+        };
+
+        $service->approve($request->id, $this->staff(), 'looks right', null, $options);
+
+        $this->assertSame([$options], $handler->options);
+        $notes = array_map(static fn($e): array => [$e->to->value, $e->note], $service->history($request->id));
+        $this->assertSame([['approved', 'looks right'], ['completed', 'Filed in encounter 12']], array_slice($notes, 1));
+        $this->assertSame('Filed in encounter 12', $this->trail->entries[2]['note'], 'the audit log says where it was filed');
+    }
+
     public function testApproveRollsBackWhenTheHandlerFails(): void
     {
         $service = $this->service([new RecordingReviewHandler(ReviewType::Profile, new \RuntimeException('chart write failed'))]);
@@ -375,10 +396,12 @@ class ReviewQueueServiceIsolatedTest extends TestCase
                 return ReviewType::Payment;
             }
 
-            public function apply(ReviewRequest $request, ReviewActor $reviewer): void
+            public function apply(ReviewRequest $request, ReviewActor $reviewer, ?ReviewApprovalOptions $options = null): ?string
             {
                 $this->statusSeen = $request->status;
                 $this->cardSeen = $this->service?->readSecret($request->id, ReviewQueueService::SECRET_PAYMENT_CARD);
+
+                return null;
             }
         };
         $service = $this->service([$handler]);

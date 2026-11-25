@@ -33,6 +33,11 @@ final readonly class PatientWriteReviewItem
      * @param bool $canApprove whether this type can be approved yet
      * @param ?string $questionnaireName the name of the Questionnaire a response answers, when it
      *                                   is stored on this server
+     * @param ?array{encounter: int, date: string, reason: string} $encounterNamed the patient's
+     *        encounter an approvable response names; approving adds the response to it
+     * @param list<array{encounter: int, date: string, reason: string}> $encounterChoices the
+     *        patient's latest encounters, newest first, that staff may add an approvable
+     *        response naming no encounter to; empty for other items
      */
     public function __construct(
         public ReviewRequest $request,
@@ -46,6 +51,8 @@ final readonly class PatientWriteReviewItem
         public bool $canApprove,
         public ?string $questionnaireName = null,
         public int $answersTooDeep = 0,
+        public ?array $encounterNamed = null,
+        public array $encounterChoices = [],
     ) {
     }
 }

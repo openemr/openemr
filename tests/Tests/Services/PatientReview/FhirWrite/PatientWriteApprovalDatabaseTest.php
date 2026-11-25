@@ -23,6 +23,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteApprovalOptions;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteContext;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteFields;
@@ -56,6 +57,9 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     private string $patientUuid;
     private string $questionnaireUuid;
     private ReviewQueueService $queue;
+
+    /** @var list<int> encounter numbers these tests created, some for no test patient */
+    private array $encounters = [];
 
     protected function setUp(): void
     {
@@ -104,8 +108,21 @@ class PatientWriteApprovalDatabaseTest extends TestCase
      */
     private function removeTestRows(): void
     {
+        foreach ($this->encounters as $encounter) {
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `uuid_registry` WHERE `uuid` IN (SELECT `uuid` FROM `form_encounter` WHERE `encounter` = ?)',
+                [$encounter]
+            );
+            QueryUtils::sqlStatementThrowException('DELETE FROM `form_encounter` WHERE `encounter` = ?', [$encounter]);
+        }
+        $this->encounters = [];
         $pids = QueryUtils::fetchTableColumn('SELECT `pid` FROM `patient_data` WHERE `pubpid` = ?', 'pid', [self::PUBPID]);
         foreach ($pids as $pid) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM `form_questionnaire_assessments` WHERE `id` IN (SELECT `form_id` FROM `forms` WHERE `formdir` = 'questionnaire_assessments' AND `pid` = ?)",
+                [$pid]
+            );
+            QueryUtils::sqlStatementThrowException('DELETE FROM `forms` WHERE `pid` = ?', [$pid]);
             QueryUtils::sqlStatementThrowException(
                 'DELETE FROM `uuid_registry` WHERE `uuid` IN (SELECT `uuid` FROM `questionnaire_response` WHERE `patient_id` = ?)',
                 [$pid]
@@ -474,6 +491,180 @@ class PatientWriteApprovalDatabaseTest extends TestCase
         $this->assertCount(1, $listed);
         $this->assertSame(self::QUESTIONNAIRE_NAME, $listed[0]->questionnaireName);
         $this->assertFalse($listed[0]->canApprove);
+    }
+
+    /**
+     * A response that names one of the patient's encounters is added to it as a Questionnaire
+     * Assessment form when approved, and reads back with its encounter.
+     */
+    public function testAResponseNamingAnEncounterIsAddedToItOnApproval(): void
+    {
+        $visit = $this->encounter('2026-11-20', 'Annual visit');
+        $held = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['encounter' => ['reference' => 'Encounter/' . $visit['uuid']]] + $this->response('Better')
+        );
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+
+        $this->assertFiledIn($held, $visit);
+        $history = $this->queue->history($held->id);
+        $last = end($history);
+        $this->assertNotFalse($last);
+        $this->assertSame('Filed in encounter ' . $visit['encounter'], $last->note);
+    }
+
+    /**
+     * Staff can add a response that names no encounter to one of the patient's encounters.
+     */
+    public function testStaffCanAddAResponseThatNamesNoEncounterToOne(): void
+    {
+        $visit = $this->encounter('2026-11-21', 'Follow-up');
+        $held = $this->heldResponse();
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'), null, null, new PatientWriteApprovalOptions($visit['encounter']));
+
+        $this->assertFiledIn($held, $visit);
+    }
+
+    /**
+     * Approved without an encounter, the response is in the chart but in no encounter.
+     */
+    public function testWithoutAnEncounterNoEncounterFormIsAdded(): void
+    {
+        $this->encounter('2026-11-21', 'Follow-up');
+        $held = $this->heldResponse();
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+
+        $this->assertSame(1, $this->storedResponseCount());
+        $this->assertSame(0, $this->encounterFormCount());
+        $history = $this->queue->history($held->id);
+        $last = end($history);
+        $this->assertNotFalse($last);
+        $this->assertNull($last->note);
+    }
+
+    /**
+     * An encounter that isn't the patient's, or one chosen for a response that already names
+     * its own, fails the approval: nothing is written and the request stays pending.
+     */
+    public function testAnEncounterApprovalCannotUseIsRefusedAndNothingIsWritten(): void
+    {
+        $other = $this->encounter('2026-11-22', 'Someone else', $this->pid + 1000000);
+        $own = $this->encounter('2026-11-20', 'Annual visit');
+        $plain = $this->heldResponse();
+        $naming = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['encounter' => ['reference' => 'Encounter/' . $own['uuid']]] + $this->response('Worse')
+        );
+        $attempts = [
+            "another patient's encounter" => [$plain, $other['encounter']],
+            'a second encounter for a response that names one' => [$naming, $own['encounter']],
+        ];
+        foreach ($attempts as $label => [$held, $encounter]) {
+            try {
+                $this->queue->approve($held->id, ReviewActor::user(1, 'admin'), null, null, new PatientWriteApprovalOptions($encounter));
+                $this->fail('Expected the approval to fail: ' . $label);
+            } catch (\RuntimeException) {
+                $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status, $label);
+            }
+        }
+        $this->assertSame(0, $this->storedResponseCount());
+        $this->assertSame(0, $this->encounterFormCount());
+    }
+
+    /**
+     * The list shows the encounter a response names, or the patient's latest encounters, newest
+     * first, to choose from when it names none.
+     */
+    public function testTheReviewListOffersThePatientsLatestEncounters(): void
+    {
+        $older = $this->encounter('2026-10-01', "Knee pain\nleft side, worse on stairs");
+        $newer = $this->encounter('2026-11-20', str_repeat('Long reason ', 10));
+        $plain = $this->heldResponse();
+        $naming = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['encounter' => ['reference' => 'Encounter/' . $older['uuid']]] + $this->response('Worse')
+        );
+
+        $items = [];
+        foreach ((new PatientWriteReviewQuery(new ReviewRequestMapper(), ReviewQueueFactory::fhirWriteHandler()))->pending()['items'] as $item) {
+            $items[$item->request->id] = $item;
+        }
+
+        $choices = $items[$plain->id]->encounterChoices;
+        $this->assertSame([$newer['encounter'], $older['encounter']], array_column($choices, 'encounter'), 'newest first');
+        $this->assertSame('2026-11-20', $choices[0]['date']);
+        $this->assertStringEndsWith('…', $choices[0]['reason'], 'a long reason is cut short');
+        $this->assertLessThanOrEqual(61, mb_strlen($choices[0]['reason']));
+        $this->assertSame('Knee pain', $choices[1]['reason'], 'the first line of the reason');
+        $this->assertNull($items[$plain->id]->encounterNamed);
+
+        $this->assertSame(['encounter' => $older['encounter'], 'date' => '2026-10-01', 'reason' => 'Knee pain'], $items[$naming->id]->encounterNamed);
+        $this->assertSame([], $items[$naming->id]->encounterChoices, 'no choice for a response that names its encounter');
+    }
+
+    /**
+     * Creates an encounter, for the test patient unless another pid is given.
+     *
+     * @return array{encounter: int, uuid: string}
+     */
+    private function encounter(string $date, string $reason, ?int $pid = null): array
+    {
+        $encounter = QueryUtils::generateId();
+        $uuid = (new UuidRegistry(['table_name' => 'form_encounter']))->createUuid();
+        QueryUtils::sqlInsert(
+            'INSERT INTO `form_encounter` (`uuid`, `date`, `reason`, `pid`, `encounter`) VALUES (?, ?, ?, ?, ?)',
+            [$uuid, $date . ' 09:00:00', $reason, $pid ?? $this->pid, $encounter]
+        );
+        $this->encounters[] = $encounter;
+
+        return ['encounter' => $encounter, 'uuid' => UuidRegistry::uuidToString($uuid)];
+    }
+
+    /**
+     * How many encounter forms the test patient has.
+     */
+    private function encounterFormCount(): int
+    {
+        $count = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM `forms` WHERE `pid` = ?', 'c', [$this->pid]);
+
+        return is_numeric($count) ? (int) $count : -1;
+    }
+
+    /**
+     * The approved response is stored under the encounter, is in it as a Questionnaire Assessment
+     * form the approver added, and reads back over FHIR with the encounter.
+     *
+     * @param array{encounter: int, uuid: string} $visit
+     */
+    private function assertFiledIn(ReviewRequest $held, array $visit): void
+    {
+        $stored = QueryUtils::fetchSingleValue(
+            'SELECT `encounter` FROM `questionnaire_response` WHERE `uuid` = ?',
+            'encounter',
+            [UuidRegistry::uuidToBytes($held->uuid)]
+        );
+        $this->assertSame($visit['encounter'], is_numeric($stored) ? (int) $stored : null, 'the response is stored under the encounter');
+
+        $form = QueryUtils::querySingleRow(
+            'SELECT f.`encounter`, f.`user`, f.`form_name`, a.`response_id`, a.`pid`'
+            . ' FROM `forms` AS f JOIN `form_questionnaire_assessments` AS a ON a.`id` = f.`form_id`'
+            . " WHERE f.`formdir` = 'questionnaire_assessments' AND f.`pid` = ?",
+            [$this->pid]
+        );
+        $this->assertIsArray($form, 'an encounter form was added');
+        $this->assertSame($visit['encounter'], is_numeric($form['encounter']) ? (int) $form['encounter'] : null);
+        $this->assertSame($held->uuid, $form['response_id'], 'the form shows the approved response');
+        $this->assertSame('admin', $form['user'], 'added by the approver');
+        $this->assertSame(self::QUESTIONNAIRE_NAME, $form['form_name']);
+        $this->assertSame(1, $this->encounterFormCount());
+
+        $resource = (new FhirQuestionnaireResponseFormService())->getOne($held->uuid)->getFirstDataResult();
+        $this->assertInstanceOf(FHIRQuestionnaireResponse::class, $resource);
+        $json = json_decode((string) json_encode($resource), true);
+        $this->assertSame('Encounter/' . $visit['uuid'], self::dig($json, 'encounter', 'reference'), 'it reads back with its encounter');
     }
 
     public function testAnIssuedUuidAlreadyInUseIsRefused(): void

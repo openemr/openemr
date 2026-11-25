@@ -276,20 +276,29 @@ final class ReviewQueueService
      *
      * @param ?string $reviewedRevision the revision() the reviewer was shown; required for a
      *                                  request its submitter can replace (see revise())
+     * @param ?ReviewApprovalOptions $options what the reviewer chose beyond approving, passed to
+     *                                        the handler
      * @throws ReviewHandlerMissingException when no handler is registered for the type
      * @throws ReviewRequestChangedException when the request was replaced since that revision
      */
-    public function approve(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
-    {
-        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision): ReviewRequest {
+    public function approve(
+        int $id,
+        ReviewActor $reviewer,
+        ?string $note = null,
+        ?string $reviewedRevision = null,
+        ?ReviewApprovalOptions $options = null,
+    ): ReviewRequest {
+        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision, $options): ReviewRequest {
             $request = $this->forDecision($id, $reviewedRevision);
             $handler = $this->handlers[$request->type->value]
                 ?? throw ReviewHandlerMissingException::forType($request->type);
 
             $approved = $this->transition($request, ReviewStatus::Approved, $reviewer, $note);
-            $handler->apply($approved, $reviewer);
+            // The handler's note, such as where in the chart it was filed, goes on the entry that
+            // completes the request.
+            $applied = $handler->apply($approved, $reviewer, $options);
 
-            return $this->transition($approved, ReviewStatus::Completed, $reviewer, null);
+            return $this->transition($approved, ReviewStatus::Completed, $reviewer, $applied);
         });
     }
 

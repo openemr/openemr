@@ -26,6 +26,7 @@ use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewActorType;
+use OpenEMR\Services\PatientReview\ReviewApprovalOptions;
 use OpenEMR\Services\PatientReview\ReviewHandlerInterface;
 use OpenEMR\Services\PatientReview\ReviewQueueFactory;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
@@ -450,7 +451,7 @@ class ReviewQueueDatabaseTest extends TestCase
                 return ReviewType::Profile;
             }
 
-            public function apply(ReviewRequest $request, ReviewActor $reviewer): void
+            public function apply(ReviewRequest $request, ReviewActor $reviewer, ?ReviewApprovalOptions $options = null): ?string
             {
                 throw new \RuntimeException('chart write failed');
             }
