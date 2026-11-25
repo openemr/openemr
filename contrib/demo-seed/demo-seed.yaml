@@ -232,7 +232,8 @@ rules:
     # Only someone with a birth date counts: a spouse, parent or grandparent,
     # not a friend or neighbor.
     # Companies are picked from `from` with equal weight. `percent` on a
-    # secondary/tertiary policy = the chance the patient has it.
+    # policy = the chance the patient has it (default 100); when the primary
+    # misses, the patient gets none of that option's policies.
     plans:
       - when: {age: 65+, synthea_payer: [Dual Eligible, Medicaid]}
         primary: {from: [medicare], subscriber: self, copay: 0}
