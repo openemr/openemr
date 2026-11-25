@@ -45,6 +45,8 @@ const PANEL_HTML = `
         <button type="button" class="btn-reopen-charges-dismiss">Not Now</button>
     </div>
     <div class="reopen-charges-done d-none">
+        <p class="reopen-charges-done-all">all</p>
+        <p class="reopen-charges-done-some d-none">some</p>
         <button type="button" class="btn-reopen-charges-dismiss">Close</button>
     </div>
 </div>`;
@@ -54,7 +56,8 @@ const secondary = { uuid: 'uuid-secondary', type: 'secondary' };
 const candidate = (encounter, date = '2026-09-01', last_billed_to = 'OLD PAYER', balance = '100.00') =>
     ({ encounter, date, last_billed_to, balance });
 
-function setUp(candidatesByUuid, reopenCharges = jest.fn(() => Promise.resolve([]))) {
+// By default the server reopens every encounter it is sent.
+function setUp(candidatesByUuid, reopenCharges = jest.fn((policyUuid, encounters) => Promise.resolve(encounters))) {
     document.body.innerHTML = PANEL_HTML;
     const service = {
         getReopenCandidates: jest.fn((policy) => Promise.resolve(candidatesByUuid[policy.uuid] || [])),
@@ -70,7 +73,11 @@ const cellText = (element) => Array.from(element.querySelectorAll('tbody tr'))
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {
-    window.oeFormatters = { I18NDateFormat: (date) => date.toISOString().slice(0, 10) };
+    // Local date parts, as the panel builds each date at local midnight.
+    const pad = (value) => String(value).padStart(2, '0');
+    window.oeFormatters = {
+        I18NDateFormat: (date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+    };
     window.restoreSession = jest.fn();
     jest.spyOn(console, 'error').mockImplementation(() => {});
 });
@@ -126,6 +133,21 @@ describe('ReopenChargesPanel.offer', () => {
             ['12', 'uuid-primary'],
             ['13', 'uuid-secondary'],
         ]);
+    });
+
+    test('a lookup that answers after a newer offer does not replace it', async () => {
+        const { service, element, panel } = setUp({});
+        let answerFirst;
+        service.getReopenCandidates
+            .mockImplementationOnce(() => new Promise((resolve) => { answerFirst = resolve; }))
+            .mockImplementationOnce(() => Promise.resolve([candidate(20)]));
+
+        const first = panel.offer([primary]);
+        await panel.offer([secondary]);
+        answerFirst([candidate(12)]);
+        await first;
+
+        expect(cellText(element).map((cells) => cells[1])).toEqual(['20']);
     });
 
     test('a failed lookup leaves the panel hidden and does not reject', async () => {
@@ -198,6 +220,21 @@ describe('ReopenChargesPanel reopen', () => {
         expect(element.querySelector('.reopen-charges-done').classList.contains('d-none')).toBe(false);
     });
 
+    test('says so when the server reopened only some of the checked visits', async () => {
+        const { element, panel } = setUp(
+            { 'uuid-primary': [candidate(12), candidate(15)] },
+            jest.fn(() => Promise.resolve([12]))
+        );
+        await panel.offer([primary]);
+
+        element.querySelector('.btn-reopen-charges').click();
+        await settle();
+
+        expect(element.querySelector('.reopen-charges-done').classList.contains('d-none')).toBe(false);
+        expect(element.querySelector('.reopen-charges-done-all').classList.contains('d-none')).toBe(true);
+        expect(element.querySelector('.reopen-charges-done-some').classList.contains('d-none')).toBe(false);
+    });
+
     test('a failure keeps the list and says so', async () => {
         const { element, panel } = setUp(
             { 'uuid-primary': [candidate(12)] },
@@ -211,6 +248,44 @@ describe('ReopenChargesPanel reopen', () => {
         expect(element.querySelector('.reopen-charges-failed').classList.contains('d-none')).toBe(false);
         expect(element.querySelector('.reopen-charges-offer').classList.contains('d-none')).toBe(false);
         expect(element.querySelector('.btn-reopen-charges').disabled).toBe(false);
+    });
+
+    test('when one policy\'s request fails, the visits already reopened leave the list', async () => {
+        const { service, element, panel } = setUp(
+            { 'uuid-primary': [candidate(12)], 'uuid-secondary': [candidate(13)] },
+            jest.fn((policyUuid, encounters) => policyUuid === 'uuid-primary'
+                ? Promise.resolve(encounters)
+                : Promise.reject(new Error('500')))
+        );
+        await panel.offer([primary, secondary]);
+
+        element.querySelector('.btn-reopen-charges').click();
+        await settle();
+
+        expect(cellText(element).map((cells) => cells[1])).toEqual(['13']);
+        expect(element.querySelector('.reopen-charges-failed').classList.contains('d-none')).toBe(false);
+        // Trying again sends only what is left.
+        element.querySelector('.btn-reopen-charges').click();
+        await settle();
+        expect(service.reopenCharges.mock.calls[2]).toEqual(['uuid-secondary', [13]]);
+    });
+
+    test('a reopen that answers after a newer offer leaves that offer on screen', async () => {
+        let answer;
+        const { element, panel } = setUp(
+            { 'uuid-primary': [candidate(12)], 'uuid-secondary': [candidate(13)] },
+            jest.fn(() => new Promise((resolve) => { answer = resolve; }))
+        );
+        await panel.offer([primary]);
+        element.querySelector('.btn-reopen-charges').click();
+
+        await panel.offer([secondary]);
+        answer([12]);
+        await settle();
+
+        expect(element.querySelector('.reopen-charges-offer').classList.contains('d-none')).toBe(false);
+        expect(element.querySelector('.reopen-charges-done').classList.contains('d-none')).toBe(true);
+        expect(cellText(element).map((cells) => cells[1])).toEqual(['13']);
     });
 });
 

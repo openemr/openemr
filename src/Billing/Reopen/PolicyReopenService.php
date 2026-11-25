@@ -48,6 +48,7 @@ final class PolicyReopenService
                 AND b.activity = 1 AND b.billed = 1 AND b.code_type != 'COPAY' )
             AND NOT EXISTS ( SELECT 1 FROM claims AS c WHERE c.patient_id = f.pid AND c.encounter_id = f.encounter
                 AND c.payer_id = ? AND c.status > 1 )
+            AND ( ? IS NULL OR f.encounter = ? )
         ORDER BY f.date DESC, f.encounter DESC
         SQL;
 
@@ -77,31 +78,44 @@ final class PolicyReopenService
      * or tertiary one the levels before it stay billed and closed, so the
      * Billing Manager offers this policy's payer. Statement counts restart.
      *
+     * Each encounter is checked and written in its own transaction with its
+     * form_encounter row locked, so of two requests for the same encounter
+     * (one for the primary policy and one for the secondary, say) the second
+     * sees what the first wrote and leaves the encounter alone.
+     *
      * @param list<int> $encounters
      * @return list<int> the encounters reopened
      */
     public function reopen(int $pid, string $policyUuid, array $encounters): array
     {
-        $found = $this->find($pid, $policyUuid);
-        $priorLevel = $found['level'] - 1;
-
         $reopened = [];
-        foreach ($found['candidates'] as $candidate) {
-            if (!in_array($candidate->encounter, $encounters, true)) {
-                continue;
-            }
-            QueryUtils::inTransaction(static function () use ($pid, $candidate, $priorLevel): void {
+        foreach (array_values(array_unique($encounters)) as $encounter) {
+            $done = QueryUtils::inTransaction(function () use ($pid, $policyUuid, $encounter): bool {
+                // The locking read comes first: the candidate check below then reads what any
+                // request that held the lock before this one committed.
+                QueryUtils::fetchRecords(
+                    'SELECT encounter FROM form_encounter WHERE pid = ? AND encounter = ? FOR UPDATE',
+                    [$pid, $encounter]
+                );
+                $found = $this->find($pid, $policyUuid, $encounter);
+                if ($found['candidates'] === []) {
+                    return false;
+                }
+                $priorLevel = $found['level'] - 1;
                 QueryUtils::sqlStatementThrowException(
                     'UPDATE billing SET billed = 0, bill_date = NULL WHERE pid = ? AND encounter = ? AND activity = 1',
-                    [$pid, $candidate->encounter]
+                    [$pid, $encounter]
                 );
                 QueryUtils::sqlStatementThrowException(
                     'UPDATE form_encounter SET last_level_billed = ?, last_level_closed = ?, stmt_count = 0, '
                     . 'last_stmt_date = NULL WHERE pid = ? AND encounter = ?',
-                    [$priorLevel, $priorLevel, $pid, $candidate->encounter]
+                    [$priorLevel, $priorLevel, $pid, $encounter]
                 );
+                return true;
             });
-            $reopened[] = $candidate->encounter;
+            if ($done === true) {
+                $reopened[] = $encounter;
+            }
         }
         return $reopened;
     }
@@ -109,9 +123,10 @@ final class PolicyReopenService
     /**
      * The policy's level (1 to 3) and the encounters to offer for it.
      *
+     * @param ?int $encounter only look at this encounter
      * @return array{level: int<1, 3>, candidates: list<ReopenCandidate>}
      */
-    private function find(int $pid, string $policyUuid): array
+    private function find(int $pid, string $policyUuid, ?int $encounter = null): array
     {
         $policies = QueryUtils::fetchRecords('SELECT * FROM `insurance_data` WHERE `pid` = ?', [$pid]);
         $policy = self::findPolicy($policies, $policyUuid);
@@ -120,12 +135,16 @@ final class PolicyReopenService
         }
 
         $candidates = [];
-        foreach (QueryUtils::fetchRecords(self::BILLED_ELSEWHERE_QUERY, [$pid, $policy['company']]) as $record) {
-            $encounter = EffectiveInsuranceRule::storedId($record['encounter'] ?? null);
+        $billedElsewhere = QueryUtils::fetchRecords(
+            self::BILLED_ELSEWHERE_QUERY,
+            [$pid, $policy['company'], $encounter, $encounter]
+        );
+        foreach ($billedElsewhere as $record) {
+            $listed = EffectiveInsuranceRule::storedId($record['encounter'] ?? null);
             $day = CoverageDay::fromStored($record['date'] ?? null);
             $closed = $record['last_level_closed'] ?? null;
             $balance = $record['balance'] ?? null;
-            if ($encounter === null || $day === null || !is_numeric($closed) || !is_numeric($balance)) {
+            if ($listed === null || $day === null || !is_numeric($closed) || !is_numeric($balance)) {
                 continue;
             }
             $inForce = EffectiveInsuranceRule::choose($policies, $day);
@@ -138,7 +157,7 @@ final class PolicyReopenService
             }
             $lastBilledTo = $record['last_billed_to'] ?? null;
             $candidates[] = new ReopenCandidate(
-                $encounter,
+                $listed,
                 $day->format('Y-m-d'),
                 is_string($lastBilledTo) && $lastBilledTo !== '' ? $lastBilledTo : null,
                 sprintf('%.2f', (float) $balance),

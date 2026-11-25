@@ -198,6 +198,24 @@ class PolicyReopenServiceTest extends TestCase
         );
     }
 
+    public function testAnEncounterIsCheckedAgainWhenItIsWritten(): void
+    {
+        $this->policy('primary', self::OLD_PAYER, '2020-01-01');
+        $secondary = $this->policy('secondary', self::SECONDARY_PAYER, '2026-07-01');
+        $this->billedEncounter(self::ENC, '2026-09-01', self::OLD_PAYER, 1, 1);
+        $service = new PolicyReopenService();
+
+        // Asked for twice in one request, it is reopened once.
+        $this->assertSame([self::ENC], $service->reopen(self::PID, $secondary, [self::ENC, self::ENC]));
+        // A later request finds the charges unbilled and writes nothing: levels changed since stay as they are.
+        $this->statement(
+            'UPDATE form_encounter SET last_level_billed = 0, last_level_closed = 0 WHERE pid = ? AND encounter = ?',
+            [self::PID, self::ENC]
+        );
+        $this->assertSame([], $service->reopen(self::PID, $secondary, [self::ENC]));
+        $this->assertSame(0, $this->encounterColumn(self::ENC, 'last_level_closed'));
+    }
+
     public function testReopeningForASecondaryKeepsThePrimaryBilledAndClosed(): void
     {
         $this->policy('primary', self::OLD_PAYER, '2020-01-01');

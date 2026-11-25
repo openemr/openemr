@@ -401,7 +401,8 @@ files for editing and adding new insurance policies for a patient.
                     <button type="button" class="btn btn-secondary btn-reopen-charges-dismiss">{{ "Not Now"|xlt }}</button>
                 </div>
                 <div class="reopen-charges-done d-none">
-                    <p>{{ "The selected charges were reopened. They are now listed in the Billing Manager as unbilled."|xlt }}</p>
+                    <p class="reopen-charges-done-all">{{ "The selected charges were reopened. They are now listed in the Billing Manager as unbilled."|xlt }}</p>
+                    <p class="reopen-charges-done-some d-none">{{ "Some of the selected visits were not reopened because their billing changed after they were listed. Check them in the Billing Manager."|xlt }}</p>
                     <button type="button" class="btn btn-secondary btn-reopen-charges-dismiss">{{ "Close"|xlt }}</button>
                 </div>
             </div>

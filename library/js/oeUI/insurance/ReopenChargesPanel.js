@@ -16,6 +16,13 @@ export class ReopenChargesPanel
     #panel;
 
     /**
+     * Counts the offers made. A lookup or a reopen that answers after a newer offer was made belongs to
+     * a list no longer on screen and must not change the panel.
+     * @type {number}
+     */
+    #generation = 0;
+
+    /**
      * @param {InsurancePolicyService} insurancePolicyService
      * @param {?HTMLElement} panel the #reopen-charges-panel element, or null when the user may not bill
      */
@@ -49,8 +56,12 @@ export class ReopenChargesPanel
             return Promise.resolve();
         }
         this.hide();
+        let generation = ++this.#generation;
         return Promise.all(policies.map(policy => this.#service.getReopenCandidates(policy)))
             .then(candidateLists => {
+                if (generation !== this.#generation) {
+                    return;
+                }
                 let rows = [];
                 let listed = new Set();
                 candidateLists.forEach((candidates, index) => {
@@ -83,6 +94,8 @@ export class ReopenChargesPanel
         this.#panel.querySelector('.reopen-charges-offer').classList.remove('d-none');
         this.#panel.querySelector('.reopen-charges-done').classList.add('d-none');
         this.#panel.querySelector('.reopen-charges-failed').classList.add('d-none');
+        this.#panel.querySelector('.reopen-charges-done-all').classList.remove('d-none');
+        this.#panel.querySelector('.reopen-charges-done-some').classList.add('d-none');
         this.#updateReopenButton();
         this.#panel.classList.remove('d-none');
         if (typeof this.#panel.scrollIntoView === 'function') {
@@ -126,27 +139,47 @@ export class ReopenChargesPanel
         this.#panel.querySelector('.btn-reopen-charges').disabled = !this.#checkboxes().some(checkbox => checkbox.checked);
     }
 
+    /**
+     * Sends the checked visits, one request per policy. The server reopens only the visits it still lists, so
+     * the confirmation says whether all of them were. When a request fails, the visits already reopened leave
+     * the list and the rest stay for another try.
+     */
     #reopenSelected() {
+        let generation = this.#generation;
         let encountersByPolicy = new Map();
-        this.#checkboxes().filter(checkbox => checkbox.checked).forEach(checkbox => {
+        let selected = this.#checkboxes().filter(checkbox => checkbox.checked);
+        selected.forEach(checkbox => {
             let encounters = encountersByPolicy.get(checkbox.dataset.policyUuid) || [];
             encounters.push(Number(checkbox.value));
             encountersByPolicy.set(checkbox.dataset.policyUuid, encounters);
         });
         let button = this.#panel.querySelector('.btn-reopen-charges');
         button.disabled = true;
+        this.#panel.querySelector('.reopen-charges-failed').classList.add('d-none');
         let requests = Array.from(encountersByPolicy, ([policyUuid, encounters]) => {
             return this.#service.reopenCharges(policyUuid, encounters);
         });
-        return Promise.all(requests)
-            .then(() => {
+        return Promise.allSettled(requests)
+            .then(results => {
+                if (generation !== this.#generation) {
+                    return;
+                }
+                let reopened = new Set(results.filter(result => result.status === 'fulfilled')
+                    .flatMap(result => result.value).map(Number));
+                let failures = results.filter(result => result.status === 'rejected');
+                if (failures.length > 0) {
+                    failures.forEach(failure => console.error(failure.reason));
+                    selected.filter(checkbox => reopened.has(Number(checkbox.value)))
+                        .forEach(checkbox => checkbox.closest('tr').remove());
+                    this.#panel.querySelector('.reopen-charges-failed').classList.remove('d-none');
+                    this.#updateReopenButton();
+                    return;
+                }
+                let allReopened = selected.every(checkbox => reopened.has(Number(checkbox.value)));
+                this.#panel.querySelector('.reopen-charges-done-all').classList.toggle('d-none', !allReopened);
+                this.#panel.querySelector('.reopen-charges-done-some').classList.toggle('d-none', allReopened);
                 this.#panel.querySelector('.reopen-charges-offer').classList.add('d-none');
                 this.#panel.querySelector('.reopen-charges-done').classList.remove('d-none');
-            })
-            .catch(error => {
-                console.error(error);
-                this.#panel.querySelector('.reopen-charges-failed').classList.remove('d-none');
-                button.disabled = false;
             });
     }
 }
