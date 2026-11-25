@@ -425,7 +425,7 @@ final readonly class CalendarRenderDataBuilder
             $rawDayEvents = $visitListColumn->gridEvents;
 
             $overlapPositions = $this->viewModel->detectEventOverlap(
-                $visitListColumn->overlapOrder(),
+                $visitListColumn->overlapOrder($intervalMinutes),
                 $times,
                 $intervalMinutes,
                 $providerId
@@ -962,7 +962,7 @@ final readonly class CalendarRenderDataBuilder
             $rawDayEvents = $visitListColumn->gridEvents;
 
             $overlapPositions = $this->viewModel->detectEventOverlap(
-                $visitListColumn->overlapOrder(),
+                $visitListColumn->overlapOrder($intervalMinutes),
                 $times,
                 $intervalMinutes,
                 $providerId
@@ -1144,7 +1144,7 @@ final readonly class CalendarRenderDataBuilder
                 $gridEvents = $visitListColumn->gridEvents;
 
                 $overlapPositions = $this->viewModel->detectEventOverlap(
-                    $visitListColumn->overlapOrder(),
+                    $visitListColumn->overlapOrder($intervalMinutes),
                     $times,
                     $intervalMinutes,
                     $providerId

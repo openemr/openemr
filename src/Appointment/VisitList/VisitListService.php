@@ -386,8 +386,12 @@ final readonly class VisitListService
      * After the editor saved a Visit List block: move the patients recorded before the save
      * to the block's occurrences now (see VisitListBlockMove), keeping their Order # and
      * Stop #, then renumber each list they landed on.
+     *
+     * @param ?VisitListPostedBlock $posted where the editor was told to save the block; null
+     *                                      when the form didn't say, and then no added event
+     *                                      is taken as the block's
      */
-    public function moveWithBlock(VisitListBlockSave $before): VisitListMoveResult
+    public function moveWithBlock(VisitListBlockSave $before, ?VisitListPostedBlock $posted): VisitListMoveResult
     {
         $categoryId = $this->categoryId();
         if ($categoryId === null) {
@@ -395,8 +399,24 @@ final readonly class VisitListService
         }
 
         // Events the save added (a date edited on its own, or a new series from a date on),
-        // and for a save of every date the block's own events, if they are still there.
-        $added = $this->seriesRows('WHERE `pc_eid` > ? AND `pc_catid` = ?', [$before->lastEventId, $categoryId]);
+        // and for a save of every date the block's own events, if they are still there. An
+        // added event counts only at the posted provider(s) and start time, and from the first
+        // date the save changes or the posted date, whichever is earlier (a provider added to
+        // every date gets the series' start), to a week after the posted date (a "days of the
+        // week" series starts on the first of its days from that date). So another user's
+        // block saved at the same moment is not taken for this one.
+        $added = $posted === null ? [] : $this->seriesRows(
+            'WHERE `pc_eid` > ? AND `pc_catid` = ? AND `pc_aid` IN (' . self::placeholders($posted->providerIds) . ')'
+            . ' AND `pc_startTime` = ? AND `pc_eventDate` BETWEEN ? AND ?',
+            [
+                $before->lastEventId,
+                $categoryId,
+                ...array_map(strval(...), $posted->providerIds),
+                $posted->startTime,
+                min($posted->date, $before->scopeStart)->format('Y-m-d'),
+                $posted->date->add(new DateInterval('P6D'))->format('Y-m-d'),
+            ]
+        );
         $kept = $before->scope === VisitListRepeatScope::AllDates && $before->eventIds !== []
             ? $this->seriesRows(
                 'WHERE `pc_catid` = ? AND `pc_eid` IN (' . self::placeholders($before->eventIds) . ')',

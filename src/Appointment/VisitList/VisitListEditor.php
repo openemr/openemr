@@ -150,7 +150,7 @@ final readonly class VisitListEditor
             return '';
         }
         if ($before instanceof VisitListBlockSave) {
-            return self::moveMessage($this->service->moveWithBlock($before));
+            return self::moveMessage($this->service->moveWithBlock($before, VisitListPostedBlock::fromPost($post)));
         }
 
         if (

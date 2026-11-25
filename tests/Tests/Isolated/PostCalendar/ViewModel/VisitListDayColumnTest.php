@@ -327,7 +327,7 @@ final class VisitListDayColumnTest extends TestCase
         $column = self::column([self::blockEvent(), self::patientEvent(41, 'Hollis, Margaret'), $timed], self::schedule([[41, 1, null]]));
 
         $this->assertSame(['40', '42'], self::eids($column->gridEvents), 'the grid keeps its order');
-        $this->assertSame(['42', '40'], self::eids($column->overlapOrder()));
+        $this->assertSame(['42', '40'], self::eids($column->overlapOrder(15)));
     }
 
     /**
@@ -352,45 +352,120 @@ final class VisitListDayColumnTest extends TestCase
 
     public function testOverlapOrderMovesBlocksThatFollowEachOther(): void
     {
-        $this->assertSame(['42', '40', '45'], self::eids(self::twoBlocks('10:00', '10:00', '11:00')->overlapOrder()));
+        $this->assertSame(['42', '40', '45'], self::eids(self::twoBlocks('10:00', '10:00', '11:00')->overlapOrder(15)));
     }
 
     public function testOverlapOrderKeepsTheOrderWhenBlocksOverlap(): void
     {
         // Moved last, A would take B's place in the 10:00 slot and keep it.
-        $this->assertSame(['40', '42', '45'], self::eids(self::twoBlocks('11:00', '10:00', '11:00')->overlapOrder()));
+        $this->assertSame(['40', '42', '45'], self::eids(self::twoBlocks('11:00', '10:00', '11:00')->overlapOrder(15)));
     }
 
     public function testAppointmentsBesideABlockAreDrawnToItsLeft(): void
     {
-        $builder = new CalendarRenderDataBuilder(new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0));
-        $timed = static fn (int $eid, string $start): array => [
-            'eid' => $eid, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0,
-            'startTime' => $start, 'duration' => 1800, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Ruiz, Ana', 'pid' => 500 + $eid,
-        ];
-        $events = [
+        $places = self::places([
             // As in the day's event list: the 9:00 appointment before the block that starts with it.
-            self::DATE => [
-                $timed(42, '09:00:00'),
-                ['eid' => 40, 'aid' => self::PROVIDER, 'catid' => 16, 'catname' => 'Visit List', 'pccattype' => 1, 'startTime' => '09:00:00', 'duration' => 7200, 'hometext' => '', 'apptstatus' => '-'],
-                ['eid' => 41, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0, 'startTime' => '09:00:00', 'duration' => 0, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Hollis, Margaret', 'pid' => 541],
-                $timed(43, '09:30:00'),
-                $timed(44, '10:00:00'),
-            ],
-        ];
+            self::timed(42, '09:00:00', 1800),
+            self::block(40, '09:00:00', 7200),
+            ['eid' => 41, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0, 'startTime' => '09:00:00', 'duration' => 0, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Hollis, Margaret', 'pid' => 541],
+            self::timed(43, '09:30:00', 1800),
+            self::timed(44, '10:00:00', 1800),
+        ], self::schedule([[41, 1, null]]), 30);
 
+        $this->assertSame([
+            40 => ['left: 50%', 'width: 50%'],
+            42 => ['left: 0%', 'width: 50%'],
+            43 => ['left: 0%', 'width: 50%'],
+            44 => ['left: 0%', 'width: 50%'],
+        ], $places);
+    }
+
+    public function testBlocksThatOverlapEachOtherAreDrawnAsOnMaster(): void
+    {
+        // A 9:00-11:00 and B 10:00-11:00 overlap, so the day's own order is kept, and the
+        // calendar's layout places them as it did before Visit Lists were moved: A takes the
+        // right half beside the 9:00 appointment and keeps it, and B gets the right half beside
+        // A in the 10:00 slot. The layout keeps each event's rightmost place across its slots,
+        // so two overlapping blocks can share a half; this pins that unchanged behavior.
+        $places = self::places([
+            self::timed(42, '09:00:00', 1800),
+            self::block(40, '09:00:00', 7200),
+            self::block(45, '10:00:00', 3600),
+        ], self::twoBlockSchedule('09:00', '11:00', '10:00', '11:00'), 30);
+
+        $this->assertSame([
+            40 => ['left: 50%', 'width: 50%'],
+            42 => ['left: 0%', 'width: 50%'],
+            45 => ['left: 50%', 'width: 50%'],
+        ], $places);
+    }
+
+    public function testBlocksMeetingInsideASlotAreDrawnSideBySide(): void
+    {
+        // A ends at 10:15 and B starts at 10:15: with 30-minute slots both are in the 10:00
+        // slot, so they count as overlapping and keep the day's order, side by side.
+        $places = self::places([
+            self::block(40, '09:00:00', 4500),
+            self::timed(42, '09:15:00', 1800),
+            self::block(45, '10:15:00', 2700),
+        ], self::twoBlockSchedule('09:00', '10:15', '10:15', '11:00'), 30);
+
+        $this->assertSame([
+            40 => ['left: 0%', 'width: 50%'],
+            42 => ['left: 50%', 'width: 50%'],
+            45 => ['left: 50%', 'width: 50%'],
+        ], $places);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function timed(int $eid, string $start, int $seconds): array
+    {
+        return [
+            'eid' => $eid, 'aid' => self::PROVIDER, 'catid' => 9, 'catname' => 'Established Patient', 'pccattype' => 0,
+            'startTime' => $start, 'duration' => $seconds, 'hometext' => '', 'apptstatus' => '-', 'patient_name' => 'Ruiz, Ana', 'pid' => 500 + $eid,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function block(int $eid, string $start, int $seconds): array
+    {
+        return ['eid' => $eid, 'aid' => self::PROVIDER, 'catid' => 16, 'catname' => 'Visit List', 'pccattype' => 1, 'startTime' => $start, 'duration' => $seconds, 'hometext' => '', 'apptstatus' => '-'];
+    }
+
+    private static function twoBlockSchedule(string $aStart, string $aEnd, string $bStart, string $bEnd): VisitListSchedule
+    {
+        $date = new DateTimeImmutable(self::DATE);
+        return (new VisitListMatcher())->match([
+            new VisitListBlock(40, self::PROVIDER, 3, $date->modify($aStart), $date->modify($aEnd)),
+            new VisitListBlock(45, self::PROVIDER, 3, $date->modify($bStart), $date->modify($bEnd)),
+        ], []);
+    }
+
+    /**
+     * Where the day view draws each event in the grid: its left and width, by pc_eid.
+     *
+     * @param list<array<string, mixed>> $dayEvents
+     * @return array<int, array{mixed, mixed}>
+     */
+    private static function places(array $dayEvents, VisitListSchedule $schedule, int $intervalMinutes): array
+    {
+        $builder = new CalendarRenderDataBuilder(new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0));
         $slots = [];
-        for ($minutes = 8 * 60; $minutes < 12 * 60; $minutes += 30) {
+        for ($minutes = 8 * 60; $minutes < 12 * 60; $minutes += $intervalMinutes) {
             $slots[] = ['hour' => intdiv($minutes, 60), 'minute' => $minutes % 60, 'mer' => 'am'];
         }
 
         $result = $builder->buildDayScreenRenderData(
-            $events,
+            [self::DATE => $dayEvents],
             [['id' => self::PROVIDER, 'fname' => 'Alex', 'lname' => 'Rivera', 'username' => 'arivera']],
             [],
             [['id' => 3, 'name' => 'Main']],
             $slots,
-            30,
+            $intervalMinutes,
             self::DATE_YMD,
             ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
             0,
@@ -405,27 +480,22 @@ final class VisitListDayColumnTest extends TestCase
             true,
             '',
             true,
-            self::schedule([[41, 1, null]]),
+            $schedule,
             self::STATUSES
         );
 
         $providers = $result['providers'];
-        $this->assertIsArray($providers);
-        $this->assertIsArray($providers[0]);
+        self::assertIsArray($providers);
+        self::assertIsArray($providers[0]);
         $decorated = $providers[0]['events'];
-        $this->assertIsArray($decorated);
+        self::assertIsArray($decorated);
         $places = [];
         foreach ($decorated as $event) {
-            $this->assertIsArray($event);
-            $this->assertIsInt($event['eid']);
+            self::assertIsArray($event);
+            self::assertIsInt($event['eid']);
             $places[$event['eid']] = [$event['divLeftCss'], $event['divWidthCss']];
         }
         ksort($places);
-        $this->assertSame([
-            40 => ['left: 50%', 'width: 50%'],
-            42 => ['left: 0%', 'width: 50%'],
-            43 => ['left: 0%', 'width: 50%'],
-            44 => ['left: 0%', 'width: 50%'],
-        ], $places);
+        return $places;
     }
 }

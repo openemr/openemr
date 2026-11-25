@@ -174,12 +174,15 @@ final readonly class VisitListDayColumn
      * starts before the appointments beside it would otherwise end up in the same place as
      * them, drawn over by them. Last, it stays on the right and the appointments on the left.
      *
-     * When two of those blocks overlap each other, the order is left as it is: moving both last
-     * can give the earlier one the later one's place.
+     * When two of those blocks share a time slot, the order is left as it is: moving both last
+     * can give the earlier one the later one's place. The layout works per slot, so each
+     * block's time is widened to whole slots before they are compared: a block ending at 10:15
+     * and one starting at 10:15 share the 10:00 slot of a 30-minute grid.
      *
+     * @param int $intervalMinutes the length of one time slot in the grid
      * @return list<array<string, mixed>>
      */
-    public function overlapOrder(): array
+    public function overlapOrder(int $intervalMinutes): array
     {
         $others = [];
         $blocks = [];
@@ -187,7 +190,7 @@ final readonly class VisitListDayColumn
         foreach ($this->gridEvents as $event) {
             if (isset($this->lists[self::eventId($event) ?? 0])) {
                 $blocks[] = $event;
-                $spans[] = self::minutes($event);
+                $spans[] = self::slots($event, max(1, $intervalMinutes));
             } else {
                 $others[] = $event;
             }
@@ -203,19 +206,24 @@ final readonly class VisitListDayColumn
     }
 
     /**
-     * An event's start and end, in minutes from midnight.
+     * The start of an event's first time slot and the end of its last one, in minutes from
+     * midnight: its start rounded down and its end rounded up to whole slots.
      *
      * @param array<string, mixed> $event
      * @return array{int, int}
      */
-    private static function minutes(array $event): array
+    private static function slots(array $event, int $intervalMinutes): array
     {
         $startTime = self::string($event['startTime'] ?? null);
         $parts = explode(':', $startTime);
         $start = (int) $parts[0] * 60 + (int) ($parts[1] ?? 0);
         $duration = $event['duration'] ?? 0;
         $seconds = is_numeric($duration) ? (int) $duration : 0;
-        return [$start, $start + intdiv($seconds, 60)];
+        $end = max($start + intdiv($seconds, 60), $start + 1);
+        return [
+            intdiv($start, $intervalMinutes) * $intervalMinutes,
+            intdiv($end + $intervalMinutes - 1, $intervalMinutes) * $intervalMinutes,
+        ];
     }
 
     /**

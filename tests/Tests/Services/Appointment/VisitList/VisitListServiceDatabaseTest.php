@@ -25,6 +25,7 @@ use OpenEMR\Appointment\VisitList\VisitListBlockRelease;
 use OpenEMR\Appointment\VisitList\VisitListBlockSave;
 use OpenEMR\Appointment\VisitList\VisitListEditor;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
+use OpenEMR\Appointment\VisitList\VisitListPostedBlock;
 use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
@@ -356,7 +357,7 @@ class VisitListServiceDatabaseTest extends TestCase
             ['13:00:00', $this->eids['weekly']]
         );
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-10', '13:00:00'));
 
         $this->assertSame(2, $result->moved);
         $this->assertSame(0, $result->stranded);
@@ -384,7 +385,7 @@ class VisitListServiceDatabaseTest extends TestCase
         );
         $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-10', '11:00:00', 14400);
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-10', '11:00:00'));
 
         $this->assertSame(2, $result->moved);
         $this->assertSame(
@@ -415,7 +416,7 @@ class VisitListServiceDatabaseTest extends TestCase
             'exdate' => '20310317',
         ]);
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-11', '09:00:00'));
 
         $this->assertSame(3, $result->moved);
         $this->assertSame(1, $result->stranded);
@@ -438,7 +439,7 @@ class VisitListServiceDatabaseTest extends TestCase
         $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
         QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_aid = ? WHERE pc_eid = ?', [(string) $third, $this->eids['weekly']]);
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-10', '09:00:00', $third));
 
         $this->assertSame(2, $result->moved);
         $rows = QueryUtils::fetchRecords(
@@ -446,6 +447,34 @@ class VisitListServiceDatabaseTest extends TestCase
             [$this->eids['first'], $this->eids['second']]
         );
         $this->assertSame([['pc_aid' => (string) $third, 'pc_visit_seq' => 1], ['pc_aid' => (string) $third, 'pc_visit_seq' => 2]], $rows);
+    }
+
+    public function testABlockSavedByAnotherUserMeanwhileIsNotTakenForThisOne(): void
+    {
+        // Made before the new provider, so it has the lower ID and would be paired first.
+        $intruder = $this->insertProvider('d');
+        $third = $this->insertProvider('c');
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        // The save gives the block to the new provider while another user saves a block for
+        // someone else on the same date.
+        QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_aid = ? WHERE pc_eid = ?', [(string) $third, $this->eids['weekly']]);
+        $this->insertEvent($intruder, $this->categoryId, '', '2031-03-10', '09:00:00', 14400);
+
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-10', '09:00:00', $third));
+
+        $this->assertSame(2, $result->moved);
+        $rows = QueryUtils::fetchRecords(
+            'SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid IN (?, ?)',
+            [$this->eids['first'], $this->eids['second']]
+        );
+        $this->assertSame([['pc_aid' => (string) $third], ['pc_aid' => (string) $third]], $rows);
+    }
+
+    private function posted(string $date, string $start, ?int $providerId = null): VisitListPostedBlock
+    {
+        $day = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
+        $this->assertNotFalse($day);
+        return new VisitListPostedBlock([$providerId ?? $this->providerId], $day, $start);
     }
 
     public function testABlockWithNoPatientsHasNothingToMove(): void
@@ -471,7 +500,7 @@ class VisitListServiceDatabaseTest extends TestCase
             ['13:00:00', $this->eids['weekly']]
         );
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-24', '13:00:00'));
 
         $this->assertSame(1, $result->moved);
         $this->assertSame(2, $result->leftOnPastDates);
@@ -661,7 +690,7 @@ class VisitListServiceDatabaseTest extends TestCase
         // Ours moves to 13:00 too: a patient there goes on the block made first (lower ID).
         QueryUtils::sqlStatementThrowException('UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?', ['13:00:00', $ours]);
 
-        $result = $this->service->moveWithBlock($save);
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-04-07', '13:00:00', $this->otherProviderId));
 
         $this->assertSame(0, $result->moved);
         $this->assertSame(1, $result->takenByOtherBlock);
