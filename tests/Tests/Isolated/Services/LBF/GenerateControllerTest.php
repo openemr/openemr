@@ -68,6 +68,15 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
             $text = GenerateController::editorParagraph('Mild note.', 'EF is mildly reduced.');
             $this->assertSame('Mild note. EF is mildly reduced.', $text);
             $this->assertSame($text, GenerateController::editorParagraph($text, 'EF is mildly reduced.'));
+            $again = GenerateController::editorParagraph("Discussed risks, etc.", 'Follow-up advised.');
+            $this->assertStringContainsString('Follow-up advised.', $again);
+            $this->assertSame(
+                $again,
+                GenerateController::editorParagraph($again, 'Follow-up advised.')
+            );
+            $asked = GenerateController::editorParagraph('Pulmonary embolism?', 'Pulmonary embolism.');
+            $this->assertStringContainsString('Pulmonary embolism?', $asked);
+            $this->assertStringContainsString('Pulmonary embolism.', $asked);
         }
 
         /**

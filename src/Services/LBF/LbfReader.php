@@ -228,6 +228,33 @@ class LbfReader
     }
 
     /**
+     * Same rows as readValues(), locked for the rest of this transaction.
+     *
+     * @return array<string, string>
+     */
+    public function readValuesForUpdate(int $instanceId): array
+    {
+        $rows = $this->sql->fetchRecords(
+            "SELECT field_id, field_value FROM lbf_data WHERE form_id = ? AND field_id != '' FOR UPDATE",
+            [$instanceId]
+        );
+        $out = [];
+        foreach ($rows as $raw) {
+            $row = Values::assocRow($raw);
+            if ($row === null) {
+                continue;
+            }
+            $fieldId = Values::rowString($row, 'field_id');
+            if ($fieldId === '') {
+                continue;
+            }
+            $out[$fieldId] = Values::rowString($row, 'field_value');
+        }
+
+        return $out;
+    }
+
+    /**
      * Sensitivity and the encounter's author, or null when the encounter is gone.
      *
      * @return array{sensitivity:string,encounter_user:string,pc_catid:int}|null
@@ -305,8 +332,9 @@ class LbfReader
 
     /**
      * Paragraph text locked for the rest of this transaction.
+     * Null means the row is not there. An empty string is a stored blank.
      */
-    public function paragraphValueForUpdate(int $instanceId, string $fieldId): string
+    public function paragraphValueForUpdate(int $instanceId, string $fieldId): ?string
     {
         Identifiers::assertFieldId($fieldId);
         $row = Values::assocRow($this->sql->querySingleRow(
@@ -314,7 +342,7 @@ class LbfReader
             [$instanceId, $fieldId]
         ));
         if ($row === null) {
-            return '';
+            return null;
         }
 
         return Values::rowString($row, 'field_value');

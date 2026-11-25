@@ -16,6 +16,21 @@ namespace OpenEMR\Services\LBF;
 
 class StatementApplier
 {
+    /** @var array<string, true> */
+    private const ABBREVIATIONS = [
+        'approx' => true,
+        'dr' => true,
+        'eq' => true,
+        'etc' => true,
+        'fig' => true,
+        'mr' => true,
+        'mrs' => true,
+        'ms' => true,
+        'sig' => true,
+        'st' => true,
+        'vs' => true,
+        'vol' => true,
+    ];
     /**
      * Merge generated text onto $paragraphField in overwrite or append mode.
      *
@@ -73,7 +88,13 @@ class StatementApplier
         if ($existing === '') {
             return implode(' ', $missing);
         }
-        $separator = preg_match('/[.!?]["\']?\s*$/u', $existing) === 1 ? ' ' : '. ';
+        if ($this->endsWithAbbreviation($existing)) {
+            $separator = "\n";
+        } elseif (preg_match('/[.!?]["\']?\s*$/u', $existing) === 1) {
+            $separator = ' ';
+        } else {
+            $separator = '. ';
+        }
 
         return rtrim($existing) . $separator . implode(' ', $missing);
     }
@@ -86,6 +107,16 @@ class StatementApplier
         $text = trim($text);
         if ($text === '') {
             return [];
+        }
+        if (preg_match('/\R/u', $text) === 1) {
+            $out = [];
+            foreach (preg_split('/\R/u', $text) ?: [] as $line) {
+                foreach ($this->sentenceParts($line) as $part) {
+                    $out[] = $part;
+                }
+            }
+
+            return $out;
         }
         $out = [];
         $start = 0;
@@ -145,20 +176,19 @@ class StatementApplier
             return false;
         }
 
-        return isset([
-            'approx' => true,
-            'dr' => true,
-            'eq' => true,
-            'etc' => true,
-            'fig' => true,
-            'mr' => true,
-            'mrs' => true,
-            'ms' => true,
-            'sig' => true,
-            'st' => true,
-            'vs' => true,
-            'vol' => true,
-        ][$word]);
+        return isset(self::ABBREVIATIONS[$word]);
+    }
+
+    /**
+     * The last word is an abbreviation, so a following sentence needs its own line.
+     */
+    private function endsWithAbbreviation(string $text): bool
+    {
+        if (preg_match('/(\p{L}+)\.\s*$/u', $text, $match) !== 1) {
+            return false;
+        }
+
+        return isset(self::ABBREVIATIONS[mb_strtolower($match[1], 'UTF-8')]);
     }
 
     /**
@@ -166,8 +196,10 @@ class StatementApplier
      */
     private function normalizeSentence(string $part): string
     {
-        $norm = mb_strtolower(trim($part, " \t\n\r\0\x0B.!?"), 'UTF-8');
-        return preg_replace('/\s+/u', ' ', $norm) ?? $norm;
+        $norm = mb_strtolower(trim($part), 'UTF-8');
+        $norm = preg_replace('/\s+/u', ' ', $norm) ?? $norm;
+
+        return trim(rtrim($norm, '.'));
     }
 
     /**

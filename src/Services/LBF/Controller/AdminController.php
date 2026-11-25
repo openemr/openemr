@@ -21,9 +21,9 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\LBF\BandLockException;
 use OpenEMR\Services\LBF\BandOverlapException;
 use OpenEMR\Services\LBF\Bootstrap;
-use OpenEMR\Services\LBF\RequestFields;
 use OpenEMR\Services\LBF\InvertedBoundsException;
 use OpenEMR\Services\LBF\LayoutCatalog;
+use OpenEMR\Services\LBF\RequestFields;
 use OpenEMR\Services\LBF\RuleNotFoundException;
 use OpenEMR\Services\LBF\StatementRepository;
 use OpenEMR\Services\LBF\Values;
@@ -206,7 +206,7 @@ class AdminController
             static fn (array $field): bool => LayoutCatalog::storesInLayout($field['source'])
         );
 
-        if ($request->query->has('edit')) {
+        if ($request->isMethod('GET') && $request->query->has('edit')) {
             $edit = $repo->getRule(Values::asInt($this->stringParam($request, 'edit')));
         }
 

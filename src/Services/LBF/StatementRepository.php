@@ -197,8 +197,8 @@ class StatementRepository
             $op,
             $min,
             $max,
-            Values::asBool($data['min_inclusive'] ?? 0) ? 1 : 0,
-            Values::asBool($data['max_inclusive'] ?? 0) ? 1 : 0,
+            Values::asBool($data['min_inclusive'] ?? 1) ? 1 : 0,
+            Values::asBool($data['max_inclusive'] ?? 1) ? 1 : 0,
             $matchToken !== '' ? $matchToken : null,
             Values::asString($data['statement_text'] ?? '') !== ''
                 ? Values::asString($data['statement_text'] ?? '')

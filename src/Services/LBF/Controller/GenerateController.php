@@ -14,12 +14,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\LBF\Controller;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\ESign\SignatureWriteLock;
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Services\LBF\RequestFields;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\LBF\Bootstrap;
@@ -30,6 +29,7 @@ use OpenEMR\Services\LBF\LbfReader;
 use OpenEMR\Services\LBF\LbfWriter;
 use OpenEMR\Services\LBF\MissingFormException;
 use OpenEMR\Services\LBF\Queries;
+use OpenEMR\Services\LBF\RequestFields;
 use OpenEMR\Services\LBF\StaleParagraphException;
 use OpenEMR\Services\LBF\StatementApplier;
 use OpenEMR\Services\LBF\StatementEngine;
@@ -285,11 +285,12 @@ class GenerateController
                     $edited = $request->request->getString('paragraph_text');
                     $submittedText = $edited;
                     $baseline = $this->stringParam($request, 'paragraph_baseline');
+                    $measurementBaseline = $this->stringParam($request, 'measurement_baseline');
                     $after = $this->stringParam($request, 'after');
                     if (!in_array($after, ['', 'print', 'form'], true)) {
                         $error = xl('Choose save, the encounter, or print.');
                     } elseif (!self::measurementsAreCurrent(
-                        $this->stringParam($request, 'measurement_baseline'),
+                        $measurementBaseline,
                         $values
                     )) {
                         $error = xl('The measurements changed after this page was opened. Reload it and try again.');
@@ -299,27 +300,29 @@ class GenerateController
                         $actionsToWrite = $applier->writeActions($paragraphField);
                         $formsId = Values::rowInt($row, 'id');
                         $encounterId = Values::rowInt($row, 'encounter');
-                        $lockedForm = SignatureWriteLock::acquire('forms', $formsId);
-                        $lockedEncounter = $lockedForm && SignatureWriteLock::acquire('form_encounter', $encounterId);
-                        if (!$lockedEncounter) {
+                        $lockedForm = false;
+                        $lockedEncounter = false;
+                        try {
+                            $lockedForm = SignatureWriteLock::acquire('forms', $formsId) === true;
                             if ($lockedForm) {
-                                SignatureWriteLock::release('forms', $formsId);
+                                $lockedEncounter = SignatureWriteLock::acquire('form_encounter', $encounterId) === true;
                             }
-                            $error = xl('The form could not be saved. Try again.');
-                            $keepSubmission = true;
-                            $baselineOverride = $baseline;
-                        } else {
-                            try {
-                                $sql = new Queries();
-                                $sql->inTransaction(function () use (
+                            if (!$lockedForm || !$lockedEncounter) {
+                                $error = xl('The form could not be saved. Try again.');
+                                $keepSubmission = true;
+                                $baselineOverride = $baseline;
+                            } else {
+                                try {
+                                    $sql = new Queries();
+                                    $sql->inTransaction(function () use (
                                 $reader,
                                 $writer,
                                 $repo,
                                 $instanceId,
                                 $paragraphField,
                                 $baseline,
+                                $measurementBaseline,
                                 $newValues,
-                                $values,
                                 $actionsToWrite,
                                 $formId,
                                 $pid,
@@ -327,55 +330,77 @@ class GenerateController
                                 $formsId,
                                 $encounterId
                             ): void {
-                                    $reader->lockFormRow($instanceId, $formId);
-                                    if ($this->writeIsLocked($reader, $formsId, $encounterId)) {
-                                        throw new FormLockedException('This form is locked.');
+                                        $reader->lockFormRow($instanceId, $formId);
+                                        if ($this->writeIsLocked($reader, $formsId, $encounterId)) {
+                                            throw new FormLockedException('This form is locked.');
+                                        }
+                                        $live = $reader->readValuesForUpdate($instanceId);
+                                        if (!self::measurementsAreCurrent($measurementBaseline, $live)) {
+                                            throw new StaleParagraphException('The measurements changed after this page was opened.');
+                                        }
+                                        $hasParagraph = array_key_exists($paragraphField, $live);
+                                        $storedText = $hasParagraph ? $live[$paragraphField] : '';
+                                        if (!self::paragraphIsCurrent($baseline, $instanceId, $paragraphField, $storedText)) {
+                                            throw new StaleParagraphException('The paragraph changed after this page was opened.');
+                                        }
+                                        $oldValues = $live;
+                                        if (!$hasParagraph) {
+                                            unset($oldValues[$paragraphField]);
+                                        }
+                                        $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
+                                        $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
+                                    });
+                                    $message = xl('Saved.');
+                                    try {
+                                        $values = $reader->readValues($instanceId);
+                                        $paragraphCurrent = $values[$paragraphField] ?? '';
+                                        $instances = $this->visibleInstances(
+                                            $reader->instancesForPatient($formId, $pid),
+                                            $notesAny,
+                                            $notesOwn,
+                                            $authUser
+                                        );
+                                    } catch (\RuntimeException $refreshFailure) {
+                                        ServiceContainer::getLogger()->error('Saved paragraph could not be reloaded', [
+                                        'exception' => $refreshFailure,
+                                        ]);
+                                        $paragraphCurrent = $newValues[$paragraphField] ?? $edited;
+                                        $message = xl('Saved. Reload the page to see the form.');
                                     }
-                                    $storedNow = $reader->paragraphValueForUpdate($instanceId, $paragraphField);
-                                    if (!self::paragraphIsCurrent($baseline, $instanceId, $paragraphField, $storedNow)) {
-                                        throw new StaleParagraphException('The paragraph changed after this page was opened.');
+                                    if ($after === 'print' || $after === 'form') {
+                                        $redirectAfter = $after;
                                     }
-                                    $oldValues = $values;
-                                    $oldValues[$paragraphField] = $storedNow;
-                                    $writer->apply($instanceId, $newValues, $oldValues, $actionsToWrite);
-                                    $repo->logRun($formId, $pid, $instanceId, $authUser, 'overwrite');
-                                });
-                                $message = xl('Saved.');
-                                try {
+                                } catch (FormLockedException) {
+                                    $error = xl('This form is locked.');
+                                } catch (MissingFormException) {
+                                    $error = xl('That form is no longer on file.');
+                                } catch (StaleParagraphException) {
+                                    $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
+                                    $keptDraft = $edited;
                                     $values = $reader->readValues($instanceId);
                                     $paragraphCurrent = $values[$paragraphField] ?? '';
-                                    $instances = $this->visibleInstances(
-                                        $reader->instancesForPatient($formId, $pid),
-                                        $notesAny,
-                                        $notesOwn,
-                                        $authUser
-                                    );
-                                } catch (\RuntimeException $refreshFailure) {
-                                    ServiceContainer::getLogger()->error('Saved paragraph could not be reloaded', [
-                                        'exception' => $refreshFailure,
-                                    ]);
-                                    $paragraphCurrent = $newValues[$paragraphField] ?? $edited;
-                                    $message = xl('Saved. Reload the page to see the form.');
+                                    $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
+                                } finally {
+                                    if ($lockedEncounter) {
+                                        try {
+                                            SignatureWriteLock::release('form_encounter', $encounterId);
+                                        } finally {
+                                            if ($lockedForm) {
+                                                SignatureWriteLock::release('forms', $formsId);
+                                                $lockedForm = false;
+                                            }
+                                        }
+                                    } elseif ($lockedForm) {
+                                        SignatureWriteLock::release('forms', $formsId);
+                                    }
                                 }
-                                if ($after === 'print' || $after === 'form') {
-                                    $redirectAfter = $after;
+                                if ($redirectAfter !== '') {
+                                    $this->redirectAfterSave($formId, $pid, $instanceId, $redirectAfter);
                                 }
-                            } catch (FormLockedException) {
-                                $error = xl('This form is locked.');
-                            } catch (MissingFormException) {
-                                $error = xl('That form is no longer on file.');
-                            } catch (StaleParagraphException) {
-                                $error = xl('The paragraph changed after this page was opened. Reload it and try again.');
-                                $keptDraft = $edited;
-                                $values = $reader->readValues($instanceId);
-                                $paragraphCurrent = $values[$paragraphField] ?? '';
-                                $actions = $engine->evaluate($formId, $values, $rules, $reader->patientSex($pid));
-                            } finally {
-                                SignatureWriteLock::release('form_encounter', $encounterId);
-                                SignatureWriteLock::release('forms', $formsId);
                             }
-                            if ($redirectAfter !== '') {
-                                $this->redirectAfterSave($formId, $pid, $instanceId, $redirectAfter);
+                        } finally {
+                            if ($lockedForm) {
+                                SignatureWriteLock::release('forms', $formsId);
                             }
                         }
                     }
@@ -494,7 +519,7 @@ class GenerateController
             'canSave' => self::maySaveParagraph(
                 AclMain::aclCheckCore('encounters', 'notes', '', 'write'),
                 $this->layoutWriteAllowed($catalog, $formId)
-            ),
+            ) && $this->categoryAllows($this->categoryId($reader, $pid, $encounter), true),
             'canAdmin' => AclMain::aclCheckCore('admin', 'super'),
             'activeTab' => 'generate',
             'postUrl' => $this->bootstrap->pageUrl('generate'),
