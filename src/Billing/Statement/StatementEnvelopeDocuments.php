@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\Statement;
 
 use OpenEMR\Billing\StatementEnvelope;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 
 final class StatementEnvelopeDocuments
@@ -75,10 +76,31 @@ final class StatementEnvelopeDocuments
      */
     public static function refusalMessage(): ?string
     {
-        if (!self::siteSupportsWindows() || !StatementEnvelope::fromGlobals()->isMisconfigured()) {
+        if (!self::siteSupportsWindows()) {
             return null;
         }
+        $env = StatementEnvelope::fromGlobals();
+        if (!$env->isWindowed() && !$env->isMisconfigured()) {
+            return null;
+        }
+        if (!StatementEnvelope::paperIsSupported()) {
+            return xl('The paper size in Globals is not a size this site can print. No statements were printed.');
+        }
+        if ($env->isMisconfigured()) {
+            return xl('The custom envelope measurements are blank or do not fit the page. No statements were printed.');
+        }
+        if (self::printsTextStatement() && !$env->textWindowFits()) {
+            return xl('The recipient window is shorter than one line of the text statement. No statements were printed.');
+        }
 
-        return xl('The custom envelope measurements are blank or do not fit the page. No statements were printed.');
+        return null;
+    }
+
+    /**
+     * statement_appearance 1 is the HTML statement. Anything else is the text stub.
+     */
+    private static function printsTextStatement(): bool
+    {
+        return OEGlobalsBag::getInstance()->getString('statement_appearance') !== '1';
     }
 }

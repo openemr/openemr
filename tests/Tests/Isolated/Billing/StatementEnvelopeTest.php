@@ -89,6 +89,7 @@ final class StatementEnvelopeTest extends TestCase
         $this->assertEqualsWithDelta(1.0, StatementEnvelope::parseLength('2.54 cm', 'in'), 0.000001);
         $this->assertEqualsWithDelta(3.875, StatementEnvelope::parseLength('9.8425', 'cm'), 0.000001);
         $this->assertEqualsWithDelta(0.375, StatementEnvelope::parseLength('3/8', 'in'), 0.000001);
+        $this->assertEqualsWithDelta(1.0, StatementEnvelope::parseLength('1"', 'cm'), 0.000001);
     }
 
     /**
@@ -116,6 +117,7 @@ final class StatementEnvelopeTest extends TestCase
     public function testCustomCartonNumbersMatchHash9Cut(): void
     {
         $hash9 = StatementEnvelope::presetHash9();
+        $this->assertNotNull($hash9);
         $legacy = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, [
             'envelope_height' => '3-7/8',
             'return_height' => '1-3/16',
@@ -433,15 +435,25 @@ final class StatementEnvelopeTest extends TestCase
         $inset = StatementEnvelope::WINDOW_INSET_IN;
         $maxReturn = (int) floor((($g['return']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
         $maxTo = (int) floor((($g['to']['w'] - 2.0 * $inset) * 10.0) + 1e-9);
-        $long = str_repeat('A', 80);
-        $block = $env->textAddressBlock('Clinic', $long, 'Town, ND, 00000', [$long]);
+        $returnToken = str_repeat('R', 80);
+        $toToken = str_repeat('P', 80);
+        $block = $env->textAddressBlock('Clinic', $returnToken, 'Town, ND, 00000', [$toToken]);
+        $returnLines = 0;
+        $toLines = 0;
         foreach (explode("\n", $block['text']) as $line) {
             $content = ltrim($line);
-            if (str_starts_with($content, 'A')) {
-                $this->assertLessThanOrEqual(max($maxReturn, $maxTo), mb_strlen($content, 'UTF-8'));
+            if (str_starts_with($content, 'R')) {
+                ++$returnLines;
+                $this->assertLessThanOrEqual($maxReturn, mb_strlen($content, 'UTF-8'));
+            }
+            if (str_starts_with($content, 'P')) {
+                ++$toLines;
+                $this->assertLessThanOrEqual($maxTo, mb_strlen($content, 'UTF-8'));
             }
         }
-        $this->assertGreaterThan(1, substr_count($block['text'], 'A'));
+        $this->assertGreaterThan(1, $returnLines);
+        $this->assertGreaterThan(1, $toLines);
+        $this->assertNotSame($maxReturn, $maxTo);
     }
 
     /**
@@ -550,6 +562,7 @@ final class StatementEnvelopeTest extends TestCase
         OEGlobalsBag::getInstance()->set('pdf_size', 'A4');
         try {
             $g = StatementEnvelope::presetHash9();
+            $this->assertNotNull($g);
             $this->assertEqualsWithDelta(210 / 25.4, $g['page_w'], 0.01);
             $this->assertEqualsWithDelta(297 / 25.4, $g['page_h'], 0.01);
             $this->assertEqualsWithDelta($g['page_h'] / 3.0, $g['panel'], 0.0001);
@@ -600,6 +613,85 @@ final class StatementEnvelopeTest extends TestCase
         } finally {
             self::restorePdfSize($had, $previous);
         }
+    }
+
+    public function testFitColumnsStopsOnACharacterBoundary(): void
+    {
+        $text = str_repeat('A', 37) . 'é';
+        $fitted = StatementEnvelope::fitColumns($text, 38);
+        $this->assertTrue(mb_check_encoding($fitted, 'UTF-8'));
+        $this->assertStringEndsWith('é', rtrim($fitted));
+        $this->assertSame(38, mb_strwidth($fitted, 'UTF-8'));
+
+        $wide = StatementEnvelope::fitColumns(str_repeat('緯', 20), 5);
+        $this->assertTrue(mb_check_encoding($wide, 'UTF-8'));
+        $this->assertSame(4, mb_strwidth(rtrim($wide), 'UTF-8'));
+    }
+
+    public function testShortRecipientWindowStillPrintsHtml(): void
+    {
+        $custom = self::defaultCarton();
+        $custom['to_height'] = '0.27';
+        $env = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, $custom);
+        $this->assertNotNull($env->geometry());
+        $this->assertFalse($env->textWindowFits());
+        $this->assertNotSame('', $env->windowHtml('Clinic', '1 Main', 'Town, ND, 00000', ['Pat']));
+    }
+
+    public function testFoldedLegalSheetDoesNotFitTheDefaultEnvelope(): void
+    {
+        $had = array_key_exists('pdf_size', $GLOBALS);
+        $previous = $had ? $GLOBALS['pdf_size'] : null;
+        try {
+            OEGlobalsBag::getInstance()->set('pdf_size', 'LETTER');
+            $letter = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, self::defaultCarton());
+            $this->assertNotNull($letter->geometry());
+            $this->assertTrue($letter->textWindowFits());
+
+            OEGlobalsBag::getInstance()->set('pdf_size', 'LEGAL');
+            $legal = new StatementEnvelope(StatementEnvelope::PROFILE_CUSTOM, self::defaultCarton());
+            $this->assertNull($legal->geometry());
+            $this->assertTrue($legal->isMisconfigured());
+            $hash9 = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+            $this->assertNull($hash9->geometry());
+            $this->assertTrue($hash9->isMisconfigured());
+        } finally {
+            self::restorePdfSize($had, $previous);
+        }
+    }
+
+    public function testUnsupportedPaperIsRefusedInsteadOfLetter(): void
+    {
+        $had = array_key_exists('pdf_size', $GLOBALS);
+        $previous = $had ? $GLOBALS['pdf_size'] : null;
+        OEGlobalsBag::getInstance()->set('pdf_size', 'A99');
+        try {
+            $this->assertFalse(StatementEnvelope::paperIsSupported());
+            $env = new StatementEnvelope(StatementEnvelope::PROFILE_HASH9);
+            $this->assertNull($env->geometry());
+            $this->assertTrue($env->isMisconfigured());
+            $this->assertSame(1, StatementEnvelope::textPageLines());
+        } finally {
+            self::restorePdfSize($had, $previous);
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function defaultCarton(): array
+    {
+        return [
+            'envelope_height' => '3-7/8',
+            'return_height' => '1-3/16',
+            'return_width' => '3-1/2',
+            'return_left' => '3/8',
+            'return_bottom' => '2',
+            'to_height' => '1',
+            'to_width' => '4',
+            'to_left' => '3/8',
+            'to_bottom' => '1/2',
+        ];
     }
 
     /**

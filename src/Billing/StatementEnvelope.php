@@ -37,6 +37,12 @@ final readonly class StatementEnvelope
     /** 2 mm inside the glass (Royal Mail window-internal minimum). */
     public const WINDOW_INSET_IN = 10.0 / 127.0;
 
+    /** US #9 double-window carton, flap-up height. */
+    public const HASH9_ENVELOPE_IN = 3.875;
+
+    /** US #10 double-window carton, flap-up height. */
+    public const HASH10_ENVELOPE_IN = 4.125;
+
     /** mPDF font used in the windows. Same family as the stock PDF body. */
     public const WINDOW_FONT = 'dejavusans';
 
@@ -263,17 +269,47 @@ final readonly class StatementEnvelope
      */
     public function geometry(): ?array
     {
+        if (self::pageSizeInches() === null) {
+            return null;
+        }
         $geometry = match ($this->profile) {
             self::PROFILE_HASH9 => self::presetHash9(),
             self::PROFILE_HASH10 => self::presetHash10(),
             self::PROFILE_CUSTOM => $this->customGeometry(),
             default => null,
         };
-        if ($geometry === null || $this->profile === self::PROFILE_CUSTOM) {
+        if ($geometry === null) {
+            return null;
+        }
+        $carton = match ($this->profile) {
+            self::PROFILE_HASH9 => self::HASH9_ENVELOPE_IN,
+            self::PROFILE_HASH10 => self::HASH10_ENVELOPE_IN,
+            default => null,
+        };
+        if ($carton !== null && $geometry['panel'] > $carton + 0.0001) {
+            return null;
+        }
+        if ($this->profile === self::PROFILE_CUSTOM) {
             return $geometry;
         }
 
         return self::geometryFitsPage($geometry) ? $geometry : null;
+    }
+
+    /**
+     * The text statement is Courier at 6 lines per inch. After the inset, the
+     * recipient window has to hold one of those rows. HTML still uses the
+     * shared 8-point check.
+     */
+    public function textWindowFits(): bool
+    {
+        $g = $this->geometry();
+        if ($g === null) {
+            return false;
+        }
+        $inner = $g['to']['h'] - (2.0 * self::WINDOW_INSET_IN);
+
+        return $inner + 1e-9 >= (1.0 / 6.0);
     }
 
     /**
@@ -427,11 +463,15 @@ body { margin: 0; padding: 0; }
      *   left: float,
      *   return: array{top: float, h: float, w: float, left: float},
      *   to: array{top: float, h: float, w: float, left: float}
-     * }
+     * }|null
      */
-    public static function presetHash9(): array
+    public static function presetHash9(): ?array
     {
-        [$pageW, $pageH] = self::pageSizeInches();
+        $size = self::pageSizeInches();
+        if ($size === null) {
+            return null;
+        }
+        [$pageW, $pageH] = $size;
         return self::fromBottomOrigin(
             left: 0.375,
             returnH: 1.1875,
@@ -455,11 +495,15 @@ body { margin: 0; padding: 0; }
      *   left: float,
      *   return: array{top: float, h: float, w: float, left: float},
      *   to: array{top: float, h: float, w: float, left: float}
-     * }
+     * }|null
      */
-    public static function presetHash10(): array
+    public static function presetHash10(): ?array
     {
-        [$pageW, $pageH] = self::pageSizeInches();
+        $size = self::pageSizeInches();
+        if ($size === null) {
+            return null;
+        }
+        [$pageW, $pageH] = $size;
         return self::fromBottomOrigin(
             left: 0.5,
             returnH: 1.0,
@@ -555,7 +599,11 @@ body { margin: 0; padding: 0; }
         ) {
             return null;
         }
-        [$pageW, $pageH] = self::pageSizeInches();
+        $size = self::pageSizeInches();
+        if ($size === null) {
+            return null;
+        }
+        [$pageW, $pageH] = $size;
         $g = self::fromBottomOrigin(
             left: $returnLeft,
             returnH: $returnH,
@@ -569,6 +617,9 @@ body { margin: 0; padding: 0; }
         );
         $g['to']['left'] = $toLeft;
         $g['left'] = $returnLeft;
+        if ($g['panel'] > $envH + 0.0001) {
+            return null;
+        }
         if (!self::geometryFitsPage($g)) {
             return null;
         }
@@ -643,6 +694,9 @@ body { margin: 0; padding: 0; }
      */
     public static function unitFromText(string $text): ?string
     {
+        if (str_contains($text, '"')) {
+            return 'in';
+        }
         $s = strtolower($text);
         if (preg_match('/\bcm\b|centimet/', $s) === 1) {
             return 'cm';
@@ -651,6 +705,34 @@ body { margin: 0; padding: 0; }
             return 'in';
         }
         return null;
+    }
+
+    /**
+     * Keep $text inside $columns display columns without splitting a character.
+     */
+    public static function fitColumns(string $text, int $columns): string
+    {
+        if ($columns < 1) {
+            return '';
+        }
+        $out = '';
+        $width = 0;
+        foreach (mb_str_split($text, 1, 'UTF-8') as $ch) {
+            $w = mb_strwidth($ch, 'UTF-8');
+            if ($w < 1) {
+                $w = 1;
+            }
+            if ($width + $w > $columns) {
+                break;
+            }
+            $out .= $ch;
+            $width += $w;
+        }
+        if ($width < $columns) {
+            $out .= str_repeat(' ', $columns - $width);
+        }
+
+        return $out;
     }
 
     /**
@@ -957,6 +1039,9 @@ body { margin: 0; padding: 0; }
             return 0.0;
         }
         $pdf = self::measurePdf(self::sheetFormat());
+        if ($pdf === null) {
+            return 0.0;
+        }
         $pdf->SetFont(self::WINDOW_FONT, '', $pt);
         // mPDF reports the current user unit, which is millimetres.
         $widthMm = $pdf->GetStringWidth($s);
@@ -977,9 +1062,12 @@ body { margin: 0; padding: 0; }
      */
     public static function textPageLines(): int
     {
-        [, $heightIn] = self::pageSizeInches();
+        $size = self::pageSizeInches();
+        if ($size === null) {
+            return 1;
+        }
 
-        return max(1, (int) floor(($heightIn * 6.0) + 1e-6));
+        return max(1, (int) floor(($size[1] * 6.0) + 1e-6));
     }
 
     /**
@@ -987,9 +1075,20 @@ body { margin: 0; padding: 0; }
      */
     public static function textPageColumns(): int
     {
-        [$widthIn] = self::pageSizeInches();
+        $size = self::pageSizeInches();
+        if ($size === null) {
+            return 1;
+        }
 
-        return max(1, (int) floor(($widthIn * 10.0) + 1e-6));
+        return max(1, (int) floor(($size[0] * 10.0) + 1e-6));
+    }
+
+    /**
+     * True when Globals names a paper size mPDF can construct.
+     */
+    public static function paperIsSupported(): bool
+    {
+        return self::pageSizeInches() !== null;
     }
 
     public static function sheetFormat(): string
@@ -1009,11 +1108,14 @@ body { margin: 0; padding: 0; }
     /**
      * Width and height of the PDF paper, in inches.
      *
-     * @return array{0: float, 1: float}
+     * @return array{0: float, 1: float}|null
      */
-    private static function pageSizeInches(): array
+    private static function pageSizeInches(): ?array
     {
         $pdf = self::measurePdf(self::sheetFormat());
+        if ($pdf === null) {
+            return null;
+        }
         $widthMm = $pdf->w;
         $heightMm = $pdf->h;
         if (
@@ -1022,24 +1124,37 @@ body { margin: 0; padding: 0; }
             || $widthMm <= 0
             || $heightMm <= 0
         ) {
-            return [8.5, 11.0];
+            return null;
         }
         return [$widthMm / 25.4, $heightMm / 25.4];
     }
 
     /**
      * One mPDF instance per paper size, used only to measure type.
+     * An unknown size is remembered as unsupported and is not replaced with Letter.
      */
-    private static function measurePdf(string $format): \Mpdf\Mpdf
+    private static function measurePdf(string $format): ?\Mpdf\Mpdf
     {
         /** @var array<string, \Mpdf\Mpdf> $cache */
         static $cache = [];
-        $cache[$format] ??= new \Mpdf\Mpdf([
-            'mode' => 'utf-8',
-            'format' => $format,
-            'default_font' => self::WINDOW_FONT,
-            'tempDir' => sys_get_temp_dir(),
-        ]);
+        /** @var array<string, true> $unsupported */
+        static $unsupported = [];
+        if (isset($unsupported[$format])) {
+            return null;
+        }
+        if (!isset($cache[$format])) {
+            try {
+                $cache[$format] = new \Mpdf\Mpdf([
+                    'mode' => 'utf-8',
+                    'format' => $format,
+                    'default_font' => self::WINDOW_FONT,
+                    'tempDir' => sys_get_temp_dir(),
+                ]);
+            } catch (\Mpdf\MpdfException) {
+                $unsupported[$format] = true;
+                return null;
+            }
+        }
         return $cache[$format];
     }
 }

@@ -823,7 +823,7 @@ function create_statement($stmt): string
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
-    // This must be set to the number of lines generated above.
+    // Aging covers every charge. Stopping at the page break must not drop a later one.
     //
     $num_ages = 4;
     $aging = [];
@@ -832,30 +832,112 @@ function create_statement($stmt): string
     }
 
     $todays_time = strtotime(date('Y-m-d'));
+    foreach ($stmt['lines'] as $line) {
+        $age_in_days = (int) (($todays_time - strtotime((string) $line['dos'])) / (60 * 60 * 24));
+        $age_index = (int) (($age_in_days - 1) / 30);
+        $age_index = max(0, min($num_ages - 1, $age_index));
+        $aging[$age_index] += $line['amount'] - $line['paid'];
+    }
+
+    $footer = "";
+    # Generate the string of aging text.  This will look like:
+    # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
+    # ....+....1....+....2....+....3....+....4....+....5....+....6....+
+    #
+    $ageline = xl('Current') . ' ' . sprintf("%.2f", $aging[0]);
+    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
+        $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
+            sprintf(" %.2f", $aging[$age_index]);
+    }
+
+    // Fixed text labels
+    $label_ptname = xl('Name');
+    $label_today = xl('Date');
+    $label_due = xl('Amount Due');
+    $label_thanks = xl('Thank you for choosing');
+    $label_call = xl('Please call if any of the above information is incorrect.');
+    $label_prompt = xl('We appreciate prompt payment of balances due.');
+    $label_dept = xl('Billing Department');
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
+    $label_appointments = xl('Future Appointments') . ':';
+
+    // This is the bottom portion of the page.
+    $footer .= "\n";
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
+        $footer .= sprintf("%-46s\n", $stmt['bill_note']);
+    }
+
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
+        $footer .= sprintf("%-46s\n", $dun_message);
+    }
+
+    $footer .= "\n";
+    $footer .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
+    $footer .= sprintf("__________________________________________________________________\n");
+    $footer .= "\n";
+    $footer .= sprintf("%-s\n", $label_call);
+    $footer .= sprintf("%-s\n", $label_prompt);
+    $footer .= "\n";
+    $footer .= sprintf("%-s\n", $billing_contact);
+    $footer .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
+        $footer .= "\n";
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
+        $footer .= sprintf("%-40s\n", $statement_message);
+    }
+
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
+        # code for ageing
+        $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
+            sprintf(" %.2f", $aging[$age_index]);
+        $footer .= "\n" . $ageline . "\n\n";
+    }
+
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
+        $footer .= "\n";
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
+        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
+        # add one day to date so it will not get todays appointment
+        $current_date2 = date('Y-m-d', $next_day);
+        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
+        $j = 0;
+        $footer .= sprintf("%-s\n", $label_appointments);
+        #loop to add the appointments
+        for ($x = 1; $x <= $num_appts; $x++) {
+            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
+                    ' ' .  $events[$j]['ulname'];
+            } else {
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
+            }
+
+            if (strlen($next_appoint_time) != 0) {
+                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
+                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+                $footer .= sprintf("%-s\n", $label_plsnote[$j]);
+            }
+
+            $j++;
+        }
+    }
 
     // Letter stubs pad to line 42. A shorter sheet keeps the footer on page one.
+    // The reserve is the footer that will actually be printed, including breaks in optional text.
     $padTo = 42;
     $pageLines = 0;
     if ($windowed) {
         $pageLines = StatementEnvelope::textPageLines();
-        $reserve = 9;
-        if (StatementEnvelope::stmtString($stmt, 'bill_note') !== '' && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
-            ++$reserve;
-        }
-        if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
-            ++$reserve;
-        }
-        if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
-            $reserve += 2;
-        }
-        if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
-            $reserve += 4;
-        }
-        $appointments = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
-        if ($appointments !== 0) {
-            $reserve += 2 + $appointments;
-        }
-        $padTo = min(42, $pageLines - $reserve);
+        $padTo = min(42, $pageLines - substr_count($footer, "\n"));
         if ($padTo < 1) {
             $padTo = 1;
         }
@@ -878,13 +960,6 @@ function create_statement($stmt): string
 
         $dos = $line['dos'];
         ksort($line['detail']);
-        # Compute the aging bucket index and accumulate into that bucket.
-        #
-        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
-        $age_index = (int) (($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
-
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
@@ -918,13 +993,13 @@ function create_statement($stmt): string
             $descWidth = 45;
             if ($windowed) {
                 $descWidth = max(1, StatementEnvelope::textPageColumns() - 20);
-                $descText = is_string($desc) ? $desc : '';
-                if (strlen($descText) > $descWidth) {
-                    $descText = substr($descText, 0, $descWidth);
-                }
-                $desc = $descText;
+                $descText = is_scalar($desc) ? (string) $desc : '';
+                $out .= sprintf('%-10s  ', oeFormatShortDate($dos))
+                    . StatementEnvelope::fitColumns($descText, $descWidth)
+                    . sprintf('%8s', $amount) . "\n";
+            } else {
+                $out .= sprintf("%-10s  %-" . $descWidth . "s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             }
-            $out .= sprintf("%-10s  %-" . $descWidth . "s%8s\n", oeFormatShortDate($dos), $desc, $amount);
             $dos = '';
             ++$count;
         }
@@ -940,97 +1015,7 @@ function create_statement($stmt): string
         ++$count;
     }
 
-    # Generate the string of aging text.  This will look like:
-    # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
-    # ....+....1....+....2....+....3....+....4....+....5....+....6....+
-    #
-    $ageline = xl('Current') . ' ' . sprintf("%.2f", $aging[0]);
-    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-        $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
-            sprintf(" %.2f", $aging[$age_index]);
-    }
-
-    // Fixed text labels
-    $label_ptname = xl('Name');
-    $label_today = xl('Date');
-    $label_due = xl('Amount Due');
-    $label_thanks = xl('Thank you for choosing');
-    $label_call = xl('Please call if any of the above information is incorrect.');
-    $label_prompt = xl('We appreciate prompt payment of balances due.');
-    $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
-    $label_appointments = xl('Future Appointments') . ':';
-
-    // This is the bottom portion of the page.
-    $out .= "\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
-        $out .= sprintf("%-46s\n", $stmt['bill_note']);
-    }
-
-    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
-        $out .= sprintf("%-46s\n", $dun_message);
-    }
-
-    $out .= "\n";
-    $out .= sprintf(
-        "%-s: %-25s %-s: %-14s %-s: %8s\n",
-        $label_ptname,
-        $stmt['patient'],
-        $label_today,
-        oeFormatShortDate($stmt['today']),
-        $label_due,
-        $stmt['amount']
-    );
-    $out .= sprintf("__________________________________________________________________\n");
-    $out .= "\n";
-    $out .= sprintf("%-s\n", $label_call);
-    $out .= sprintf("%-s\n", $label_prompt);
-    $out .= "\n";
-    $out .= sprintf("%-s\n", $billing_contact);
-    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
-        $out .= "\n";
-        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
-        $out .= sprintf("%-40s\n", $statement_message);
-    }
-
-    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
-        # code for ageing
-        $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
-            sprintf(" %.2f", $aging[$age_index]);
-        $out .= "\n" . $ageline . "\n\n";
-    }
-
-    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
-        $out .= "\n";
-        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
-        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
-        # add one day to date so it will not get todays appointment
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
-        $j = 0;
-        $out .= sprintf("%-s\n", $label_appointments);
-        #loop to add the appointments
-        for ($x = 1; $x <= $num_appts; $x++) {
-            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
-            if (strlen((string) $events[$j]['umname']) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
-                    ' ' .  $events[$j]['ulname'];
-            } else {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
-            }
-
-            if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
-                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n", $label_plsnote[$j]);
-            }
-
-            $j++;
-        }
-    }
-
+    $out .= $footer;
     $out .= "\014"; // this is a form feed
 
     return $out;
