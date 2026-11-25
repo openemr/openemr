@@ -371,6 +371,19 @@ final class PlannerTest extends TestCase
         );
     }
 
+    public function testGuardianWithNoAddressIsPassedOver(): void
+    {
+        [$first, $second, $third] = $this->patients();
+        $patients = [$first, $second, $third, $this->patient(4, 'Dee', 'Fox', '2001-07-07', 'female', null, null)];
+
+        $plan = $this->plan($this->withGuardianRule('GRMTH'), $patients);
+
+        // The grandparent has no address of their own and the patient has no
+        // home, so the guardian option is skipped rather than stopping the
+        // plan, and no other plan set fits.
+        $this->assertSame([], $this->policiesOf($plan, 4));
+    }
+
     /**
      * The seed file, with adults getting a guardian of this relationship and
      * 18-64s choosing Blue Cross with the guardian as subscriber.
@@ -390,10 +403,13 @@ final class PlannerTest extends TestCase
         );
     }
 
-    private function plan(string $yaml): Plan
+    /**
+     * @param ?list<ImportedPatient> $patients
+     */
+    private function plan(string $yaml, ?array $patients = null): Plan
     {
         $seedFile = (new SeedFileParser())->parse($yaml);
-        return (new Planner($seedFile, new \DateTimeImmutable(self::NOW)))->plan($this->patients());
+        return (new Planner($seedFile, new \DateTimeImmutable(self::NOW)))->plan($patients ?? $this->patients());
     }
 
     /**
@@ -416,13 +432,13 @@ final class PlannerTest extends TestCase
         string $birthDate,
         string $sex,
         ?string $marital,
-        PostalAddress $address,
+        ?PostalAddress $address,
         ?string $payer = null,
         ?string $middleName = null,
     ): ImportedPatient {
         $birth = \DateTimeImmutable::createFromFormat('!Y-m-d', $birthDate, new \DateTimeZone('UTC'));
         $this->assertNotFalse($birth);
-        return new ImportedPatient($pid, new SyntheaPatient(
+        return new ImportedPatient($pid, sprintf('00000000-0000-4000-8000-%012d', $pid), new SyntheaPatient(
             'synthea-' . $pid,
             'ccda-' . $pid . '.xml',
             'fhir-' . $pid . '.json',

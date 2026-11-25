@@ -6,7 +6,8 @@
  *
  * The loader runs the jar it finds there, so the directory must be one only
  * the user running the loader can write to: a directory under /tmp that
- * someone else made first is refused. A run also holds a lock on it, so two
+ * someone else made first is refused, and so is one under a directory
+ * someone else could rename it out of. A run also holds a lock on it, so two
  * runs can't share Synthea's output.
  *
  * @package   OpenEMR
@@ -46,7 +47,9 @@ final readonly class WorkDirectory
             $filesystem->mkdir($path, 0700);
             $filesystem->chmod($path, 0700);
         }
-        self::assertPrivateDirectory($path);
+        // From here on the resolved path, so a symlink above the directory
+        // can't be pointed elsewhere between the checks and the run.
+        $path = self::assertPrivateDirectory($path);
 
         $lock = fopen($path . '/.lock', 'c');
         if ($lock === false) {
@@ -92,9 +95,10 @@ final readonly class WorkDirectory
     }
 
     /**
+     * @return string the directory with symlinks above it resolved
      * @throws WorkDirectoryException
      */
-    private static function assertPrivateDirectory(string $path): void
+    private static function assertPrivateDirectory(string $path): string
     {
         clearstatcache(true, $path);
         if (is_link($path) || !is_dir($path)) {
@@ -106,21 +110,63 @@ final readonly class WorkDirectory
                 $path . ' can be written by other users; use --work-dir with a directory only you can write to',
             );
         }
+        // tempnam() gives a path under the resolved directory, e.g. under
+        // /private/tmp for /tmp on macOS.
+        $resolved = realpath($path);
+        if ($resolved === false) {
+            throw new WorkDirectoryException($path . ' is not a directory');
+        }
         // Without ext-posix there's no portable way to ask for this process's
         // user id, so compare the directory's owner with a file made here.
-        $probe = @tempnam($path, '.owner-');
-        if ($probe === false || dirname($probe) !== $path) {
+        $probe = @tempnam($resolved, '.owner-');
+        if ($probe === false || dirname($probe) !== $resolved) {
             if ($probe !== false) {
                 unlink($probe);
             }
             throw new WorkDirectoryException('Can not write to ' . $path);
         }
-        $ownsDirectory = fileowner($probe) === fileowner($path);
+        $user = fileowner($probe);
         unlink($probe);
-        if (!$ownsDirectory) {
+        if ($user === false || fileowner($resolved) !== $user) {
             throw new WorkDirectoryException(
                 $path . ' belongs to another user; use --work-dir with a directory of your own',
             );
+        }
+        self::assertSafeAncestors($path, $resolved, $user);
+        return $resolved;
+    }
+
+    /**
+     * Someone who can change a directory above the work directory could
+     * rename the work directory and put another in its place, with another
+     * jar in it. So each one must belong to root or this user, and if others
+     * can write to it, it must be sticky (like /tmp), so they can't rename
+     * what isn't theirs.
+     *
+     * @throws WorkDirectoryException
+     */
+    private static function assertSafeAncestors(string $path, string $resolved, int $user): void
+    {
+        $directory = $resolved;
+        while (($parent = dirname($directory)) !== $directory) {
+            $directory = $parent;
+            $owner = fileowner($directory);
+            $permissions = fileperms($directory);
+            if ($owner === false || $permissions === false) {
+                throw new WorkDirectoryException('Can not check ' . $directory . ', which holds ' . $path);
+            }
+            if ($owner !== 0 && $owner !== $user) {
+                throw new WorkDirectoryException(
+                    $directory . ' belongs to another user, who could replace ' . $path
+                    . '; use --work-dir with a directory of your own',
+                );
+            }
+            if (($permissions & 0o022) !== 0 && ($permissions & 0o1000) === 0) {
+                throw new WorkDirectoryException(
+                    $directory . ' can be written by other users, who could replace ' . $path
+                    . '; use --work-dir with a directory of your own',
+                );
+            }
         }
     }
 }

@@ -682,8 +682,29 @@ final class Planner
     private function canSubscribe(PlannedRelation $relation): bool
     {
         $person = $this->people[$relation->personRef] ?? null;
-        return $person !== null
-            && ($person->linkedPid !== null || ($person->birthDate !== null && $person->sex !== null));
+        if ($person === null) {
+            return false;
+        }
+        if ($person->linkedPid !== null) {
+            return isset($this->homes[$person->linkedPid]);
+        }
+        return $person->birthDate !== null
+            && $person->sex !== null
+            && $this->subscriberAddress($relation->ownerPid, $relation->personRef) !== null;
+    }
+
+    /**
+     * A related person's address for their policy: their own current one,
+     * or else the patient's home.
+     */
+    private function subscriberAddress(int $pid, string $ref): ?PostalAddress
+    {
+        foreach ($this->addresses as $planned) {
+            if ($planned->owner->personRef === $ref && $planned->primary && $planned->active) {
+                return $planned->address;
+            }
+        }
+        return $this->homes[$pid] ?? null;
     }
 
     /**
@@ -726,14 +747,7 @@ final class Planner
         if ($person->linkedPid !== null) {
             return $this->patientSubscriber($person->linkedPid, $relationship);
         }
-        $address = null;
         $phone = null;
-        foreach ($this->addresses as $planned) {
-            if ($planned->owner->personRef === $ref && $planned->primary && $planned->active) {
-                $address = $planned->address;
-                break;
-            }
-        }
         foreach ($this->telecoms as $telecom) {
             if ($telecom->owner->personRef === $ref && $telecom->system === 'phone' && $telecom->primary && $telecom->active) {
                 $phone = $telecom->value;
@@ -748,7 +762,7 @@ final class Planner
             $person->lastName,
             $person->birthDate ?? throw new PlanException($what . ' has no birth date; give a relationship that implies one'),
             $person->sex ?? throw new PlanException($what . ' has no sex; give a first name from the name pools'),
-            $address ?? $this->homes[$pid] ?? throw new PlanException($what . ' has no address'),
+            $this->subscriberAddress($pid, $ref) ?? throw new PlanException($what . ' has no address'),
             $phone,
         );
     }

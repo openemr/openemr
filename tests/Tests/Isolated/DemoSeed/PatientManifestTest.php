@@ -46,6 +46,7 @@ final class PatientManifestTest extends TestCase
 
         $this->assertCount(1, $patients);
         $this->assertSame(7, $patients[0]->pid);
+        $this->assertSame('00000000-0000-4000-8000-000000000007', $patients[0]->uuid);
         $this->assertSame('Al', $patients[0]->synthea->firstName);
         $this->assertSame('1960-01-10', $patients[0]->synthea->birthDate->format('Y-m-d'));
     }
@@ -61,14 +62,29 @@ final class PatientManifestTest extends TestCase
         $manifest->read($this->path, 'default');
     }
 
-    public function testReadsAnOlderManifestWithoutASite(): void
+    public function testRefusesAnOlderManifestWithoutASite(): void
     {
         $row = ['pid' => 3, ...$this->patient(3)->synthea->toArray()];
         $this->filesystem->dumpFile($this->path, json_encode([$row], JSON_THROW_ON_ERROR));
 
-        $patients = (new PatientManifest($this->filesystem))->read($this->path, 'default');
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('is from an older loader');
 
-        $this->assertSame([3], array_map(static fn (ImportedPatient $patient): int => $patient->pid, $patients));
+        (new PatientManifest($this->filesystem))->read($this->path, 'default');
+    }
+
+    public function testRefusesARowWithoutAUuid(): void
+    {
+        $row = ['pid' => 3, ...$this->patient(3)->synthea->toArray()];
+        $this->filesystem->dumpFile(
+            $this->path,
+            json_encode(['site' => 'default', 'patients' => [$row]], JSON_THROW_ON_ERROR),
+        );
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('has no pid or uuid');
+
+        (new PatientManifest($this->filesystem))->read($this->path, 'default');
     }
 
     public function testAnEmptyManifestStartsANewImport(): void
@@ -82,7 +98,7 @@ final class PatientManifestTest extends TestCase
 
     private function patient(int $pid): ImportedPatient
     {
-        return new ImportedPatient($pid, new SyntheaPatient(
+        return new ImportedPatient($pid, sprintf('00000000-0000-4000-8000-%012d', $pid), new SyntheaPatient(
             'synthea-' . $pid,
             'ccda-' . $pid . '.xml',
             'fhir-' . $pid . '.json',

@@ -47,10 +47,18 @@ final readonly class CcdaPatientImporter
         $previousAuditSettings = $this->database->disableAuditLog();
         try {
             foreach ($patients as $index => $patient) {
-                $importedPatient = $this->importOne($patient);
-                $imported[] = $importedPatient;
-                if ($onImported !== null) {
-                    $onImported($importedPatient, $index + 1, count($patients));
+                $maxAuditBefore = $this->database->maxAuditMasterId();
+                try {
+                    $importedPatient = $this->importOne($patient);
+                    $imported[] = $importedPatient;
+                    if ($onImported !== null) {
+                        $onImported($importedPatient, $index + 1, count($patients));
+                    }
+                } finally {
+                    // After the patient is recorded, so a failure here can't
+                    // leave an imported patient out of the manifest; also
+                    // after a failed import, which stages rows too.
+                    $this->database->deleteAuditStagingAbove($maxAuditBefore);
                 }
             }
         } finally {
@@ -65,7 +73,6 @@ final readonly class CcdaPatientImporter
     private function importOne(SyntheaPatient $patient): ImportedPatient
     {
         $maxPidBefore = $this->database->maxPid();
-        $maxAuditBefore = $this->database->maxAuditMasterId();
 
         $process = new Process(
             [
@@ -81,7 +88,6 @@ final readonly class CcdaPatientImporter
             null,
         );
         $process->run();
-        $this->database->deleteAuditStagingAbove($maxAuditBefore);
         if (!$process->isSuccessful()) {
             throw new ImportException(sprintf(
                 'CCDA import failed for Synthea patient %s (exit code %d)',
@@ -98,6 +104,6 @@ final readonly class CcdaPatientImporter
                 count($newPids),
             ));
         }
-        return new ImportedPatient($newPids[0], $patient);
+        return new ImportedPatient($newPids[0], $this->database->assignPatientUuid($newPids[0]), $patient);
     }
 }

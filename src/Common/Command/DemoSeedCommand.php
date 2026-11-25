@@ -132,8 +132,6 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             if ($input->getOption('reuse-import') === true) {
                 $imported = $manifest->read($manifestPath, $site);
                 $this->assertManifestMatchesDatabase($imported, $manifestPath);
-                $imported = $this->rereadSynthea($imported);
-                $manifest->write($manifestPath, $site, $imported);
                 $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
             } else {
                 $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem, $manifest, $site);
@@ -188,27 +186,6 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
     }
 
     /**
-     * Reads each patient's Synthea FHIR file again where it is still there,
-     * so a manifest from an older loader gets what this one reads.
-     *
-     * @param list<ImportedPatient> $imported
-     * @return list<ImportedPatient>
-     */
-    private function rereadSynthea(array $imported): array
-    {
-        $reader = new SyntheaOutputReader();
-        return array_map(
-            static fn (ImportedPatient $patient): ImportedPatient => is_readable($patient->synthea->fhirFile)
-                ? new ImportedPatient(
-                    $patient->pid,
-                    $reader->readFhir($patient->synthea->syntheaId, $patient->synthea->ccdaFile, $patient->synthea->fhirFile),
-                )
-                : $patient,
-            $imported,
-        );
-    }
-
-    /**
      * Stops before writing anything when a manifest pid is no longer the
      * patient imported there, e.g. after the database was reset.
      *
@@ -219,14 +196,15 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
     {
         $database = new ImportDatabase();
         foreach ($imported as $patient) {
-            if (!$database->patientMatches($patient->pid, $patient->synthea->firstName, $patient->synthea->birthDate)) {
+            if ($database->patientUuid($patient->pid) !== $patient->uuid) {
                 throw new ImportException(sprintf(
-                    'pid %d is not %s %s (born %s) as %s says; was the database reset since that import?',
+                    'pid %d is not the patient %s says was imported there (%s %s, UUID %s);'
+                    . ' was the database reset since that import?',
                     $patient->pid,
+                    $manifestPath,
                     $patient->synthea->firstName,
                     $patient->synthea->lastName,
-                    $patient->synthea->birthDate->format('Y-m-d'),
-                    $manifestPath,
+                    $patient->uuid,
                 ));
             }
         }

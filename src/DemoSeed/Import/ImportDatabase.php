@@ -70,19 +70,32 @@ class ImportDatabase
     }
 
     /**
-     * Whether the patient with this pid has this first name and birth date,
-     * i.e. is still the one a manifest says was imported there.
+     * Gives the patient a UUID if the import left it without one, and
+     * returns it. The manifest records it, so --reuse-import can tell that
+     * a pid is still the patient imported there.
      */
-    public function patientMatches(int $pid, string $firstName, \DateTimeImmutable $birthDate): bool
+    public function assignPatientUuid(int $pid): string
+    {
+        UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $pid);
+        return $this->patientUuid($pid)
+            ?? throw new \UnexpectedValueException('Patient ' . $pid . ' has no UUID after import');
+    }
+
+    /**
+     * The UUID of the patient with this pid, or null if there is no such
+     * patient or it has no UUID.
+     */
+    public function patientUuid(int $pid): ?string
     {
         $rows = QueryUtils::fetchRecordsNoLog(
-            'SELECT `fname`, `DOB` FROM `patient_data` WHERE `pid` = ?',
+            'SELECT `uuid` FROM `patient_data` WHERE `pid` = ?',
             [$pid],
         );
-        $row = $rows[0] ?? null;
-        return $row !== null
-            && ($row['fname'] ?? null) === $firstName
-            && ($row['DOB'] ?? null) === $birthDate->format('Y-m-d');
+        $uuid = $rows[0]['uuid'] ?? null;
+        if (!is_string($uuid) || strlen($uuid) !== 16 || $uuid === str_repeat("\0", 16)) {
+            return null;
+        }
+        return UuidRegistry::uuidToString($uuid);
     }
 
     /**
@@ -117,13 +130,22 @@ class ImportDatabase
     }
 
     /**
+     * Puts back the values disableAuditLog() found. A setting that was
+     * already off is left alone, and one is put back only while it is still
+     * off: if another run overlapped this one, the run that found the log on
+     * puts it back, and a run that found it off can't turn it off again
+     * afterwards.
+     *
      * @param array<string, string> $previous from disableAuditLog()
      */
     public function restoreAuditLog(array $previous): void
     {
         foreach ($previous as $name => $value) {
+            if ($value === '0') {
+                continue;
+            }
             QueryUtils::sqlStatementThrowException(
-                'UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ?',
+                "UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ? AND `gl_value` = '0'",
                 [$value, $name],
                 true,
             );

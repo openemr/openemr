@@ -68,6 +68,37 @@ final class WorkDirectoryTest extends TestCase
         WorkDirectory::open($this->base . '/link', '/', $this->filesystem);
     }
 
+    public function testRefusesADirectoryUnderOneOthersCanWriteTo(): void
+    {
+        $this->filesystem->mkdir($this->base . '/open');
+        $this->filesystem->chmod($this->base . '/open', 0o777);
+
+        $this->expectException(WorkDirectoryException::class);
+        $this->expectExceptionMessage('/open can be written by other users, who could replace');
+
+        WorkDirectory::open($this->base . '/open/work', '/', $this->filesystem);
+    }
+
+    public function testAcceptsADirectoryUnderAStickyOneLikeTmp(): void
+    {
+        $this->filesystem->mkdir($this->base . '/sticky');
+        $this->filesystem->chmod($this->base . '/sticky', 0o1777);
+
+        $workDirectory = WorkDirectory::open($this->base . '/sticky/work', '/', $this->filesystem);
+
+        $this->assertSame($this->base . '/sticky/work', $workDirectory->path);
+    }
+
+    public function testResolvesASymlinkAboveTheDirectory(): void
+    {
+        $this->filesystem->mkdir($this->base . '/real', 0700);
+        $this->filesystem->symlink($this->base . '/real', $this->base . '/link');
+
+        $workDirectory = WorkDirectory::open($this->base . '/link/work', '/', $this->filesystem);
+
+        $this->assertSame($this->base . '/real/work', $workDirectory->path);
+    }
+
     public function testASecondRunCanNotUseTheDirectoryWhileTheFirstHoldsIt(): void
     {
         $first = WorkDirectory::open($this->base . '/work', '/', $this->filesystem);

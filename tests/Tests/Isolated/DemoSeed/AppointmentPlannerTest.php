@@ -258,7 +258,7 @@ final class AppointmentPlannerTest extends TestCase
     {
         $birth = \DateTimeImmutable::createFromFormat('!Y-m-d', $birthDate, new \DateTimeZone('UTC'));
         $this->assertNotFalse($birth);
-        return new ImportedPatient($pid, new SyntheaPatient(
+        return new ImportedPatient($pid, sprintf('00000000-0000-4000-8000-%012d', $pid), new SyntheaPatient(
             'synthea-' . $pid,
             'ccda-' . $pid . '.xml',
             'fhir-' . $pid . '.json',

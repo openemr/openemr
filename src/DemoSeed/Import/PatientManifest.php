@@ -33,7 +33,7 @@ final readonly class PatientManifest
     public function write(string $path, string $site, array $patients): void
     {
         $rows = array_map(
-            static fn (ImportedPatient $patient): array => ['pid' => $patient->pid, ...$patient->synthea->toArray()],
+            static fn (ImportedPatient $patient): array => ['pid' => $patient->pid, 'uuid' => $patient->uuid, ...$patient->synthea->toArray()],
             $patients,
         );
         $this->filesystem->dumpFile(
@@ -46,8 +46,7 @@ final readonly class PatientManifest
     }
 
     /**
-     * Reads a manifest written for $site. A manifest from an older loader
-     * (a bare list, without the site) is read as it is.
+     * Reads a manifest written for $site.
      *
      * @return list<ImportedPatient>
      */
@@ -65,33 +64,33 @@ final readonly class PatientManifest
         } catch (\JsonException $e) {
             throw new ImportException('The patient manifest is not valid JSON: ' . $path, 0, $e);
         }
-        if (!is_array($decoded)) {
-            throw new ImportException('The patient manifest should be an object: ' . $path);
+        if (!is_array($decoded) || array_is_list($decoded)) {
+            throw new ImportException(
+                'The patient manifest at ' . $path . ' is from an older loader that did not record the site'
+                . ' or patient UUIDs; reset the database and run the loader without --reuse-import',
+            );
         }
-        if (array_is_list($decoded)) {
-            $rows = $decoded;
-        } else {
-            $manifestSite = $decoded['site'] ?? null;
-            if ($manifestSite !== $site) {
-                throw new ImportException(sprintf(
-                    'The patient manifest at %s was written for site "%s", not "%s"',
-                    $path,
-                    is_string($manifestSite) ? $manifestSite : '?',
-                    $site,
-                ));
-            }
-            $rows = $decoded['patients'] ?? null;
-            if (!is_array($rows) || !array_is_list($rows)) {
-                throw new ImportException('The patient manifest has no list of patients: ' . $path);
-            }
+        $manifestSite = $decoded['site'] ?? null;
+        if ($manifestSite !== $site) {
+            throw new ImportException(sprintf(
+                'The patient manifest at %s was written for site "%s", not "%s"',
+                $path,
+                is_string($manifestSite) ? $manifestSite : '?',
+                $site,
+            ));
+        }
+        $rows = $decoded['patients'] ?? null;
+        if (!is_array($rows) || !array_is_list($rows)) {
+            throw new ImportException('The patient manifest has no list of patients: ' . $path);
         }
         $patients = [];
         foreach ($rows as $row) {
             $pid = is_array($row) ? ($row['pid'] ?? null) : null;
-            if (!is_array($row) || !is_int($pid)) {
-                throw new ImportException('A patient manifest row has no pid: ' . $path);
+            $uuid = is_array($row) ? ($row['uuid'] ?? null) : null;
+            if (!is_array($row) || !is_int($pid) || !is_string($uuid)) {
+                throw new ImportException('A patient manifest row has no pid or uuid: ' . $path);
             }
-            $patients[] = new ImportedPatient($pid, SyntheaPatient::fromArray($row));
+            $patients[] = new ImportedPatient($pid, $uuid, SyntheaPatient::fromArray($row));
         }
         return $patients;
     }

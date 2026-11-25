@@ -20,10 +20,14 @@ final readonly class ImportedPatient
 {
     public function __construct(
         public int $pid,
+        public string $uuid,
         public SyntheaPatient $synthea,
     ) {
         if ($pid <= 0) {
             throw new \DomainException('Patient pid must be positive');
+        }
+        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) !== 1) {
+            throw new \DomainException('Patient uuid must be a lowercase UUID string');
         }
     }
 }
