@@ -73,7 +73,24 @@ testing. The GA stage then shares the November beat with the oldest-version
 drop review (see "When to drop" above). Both touch-points are independent
 commits/PRs either way — keep them separate.
 
-After the sidecar FROM flip in either stage, the next weekly rebuild of
+**Always do a local build of the flipped sidecar Dockerfile before
+merging.** The sidecars that still rely on from-source workarounds for
+imagick/redis/pcov (because `install-php-extensions` doesn't support those
+on pre-GA PHP yet) carry an **install-php-extensions tripwire**: at build
+time it probes whether each from-source extension can now install via the
+stock installer, and if so, deliberately fails the build with a
+`TRIPWIRE FIRED` message naming which extensions can be retired. If a
+tripwire fires on the flipped FROM, retire the named source-workaround
+block(s) in the same PR (move the extension into the standard
+`install-php-extensions` arg list) before merging. Merging a PR whose
+sidecar would fail the tripwire silently breaks the next weekly rebuild,
+and CI keeps pinned to the pre-flip digest until the workaround is
+retired. See [#15454](https://github.com/openemr/openemr/pull/15454) for
+the 8.6 RC-to-GA flip where the tripwire did *not* fire (workarounds
+stayed), as the reference precedent for the probe step.
+
+After the sidecar FROM flip in either stage (and after retiring any
+workaround the tripwire flags), the next weekly rebuild of
 `openemr/dev-php-fpm:X.Y` publishes the refreshed image to Docker Hub.
 Dependabot's `docker-compose` jobs (`.github/dependabot.yml`) then bump the
 `openemr/dev-php-fpm:X.Y@sha256:*` digest pins across `ci/nginx_8<Y>/` and

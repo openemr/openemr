@@ -9,20 +9,24 @@ maintainers know *when* to kick off a release pass. The *how* lives in
 
 ## Target cadence
 
-**Monthly minor release** on the active `rel-<NNN>` line. **Patch releases**
-between minors are unscheduled — cut them when a specific fix needs to ship
-ahead of the next monthly minor.
+**Monthly minor release.** Each monthly release cuts a **new**
+`rel-<MAJOR><MINOR>0` branch from master (e.g., `rel-860` for 8.6.0 after
+`rel-850`'s 8.5.0; `rel-8100` for 8.10.0 after `rel-890`). The minor digit
+increments; the `0` suffix is the initial patch position.
 
-A fresh `rel-<NNN+1>0` major-release branch cut happens on its own calendar
-beat (the November beat — see
-[php-version-support.md](php-version-support.md) for the rationale that
-anchors major cuts alongside new PHP/Alpine adoption).
+**Patch releases** happen on the existing `rel-<MAJOR><MINOR>0` branch
+(e.g., 8.5.1 on `rel-850`) and are unscheduled — cut them when a specific
+fix needs to ship ahead of the next monthly minor.
+
+**Major releases** (next major number, e.g. 9.0.0) are rare and not on a
+calendar cadence; they have their own planning window when needed.
 
 ## When to kick off
 
-Open the monthly minor pass when ~4 weeks have passed since the last tagged
-minor on the active `rel-<NNN>` line. Patch cycles kick off ad-hoc when a
-fix needs to ship before the next monthly minor.
+Open the monthly minor pass when ~4 weeks have passed since the last minor
+cut. The new branch is `rel-<MAJOR><MINOR+1>0` relative to the current
+active rel branch. Patch cycles kick off ad-hoc on the active rel branch
+when a fix needs to ship before the next monthly minor.
 
 ## How to execute
 
