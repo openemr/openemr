@@ -23,6 +23,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\Questionnaire\QuestionnaireAvailabilityService;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\Questionnaire\QuestionnaireSurface;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
@@ -105,6 +106,18 @@ if (!$isPortal && $formid > 0) {
         $pid = $auditForm->pid;
         $encounter = $auditForm->encounter;
     }
+}
+// Staff auditing a portal questionnaire that is in no encounter may file it into one of the
+// patient's encounters. The response is saved under that encounter, then the form is moved there.
+$fileInEncounter = null;
+$auditEncounterInput = filter_input(INPUT_POST, 'audit_encounter', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+if ($auditForm !== null && $auditForm->encounter === 0 && is_string($auditEncounterInput) && $auditEncounterInput !== '') {
+    $chosenEncounter = $nonNegativeInt($auditEncounterInput) ?? 0;
+    if ($chosenEncounter <= 0 || !(new QuestionnaireEncounterFiling())->isPatientEncounter($auditForm->pid, $chosenEncounter)) {
+        die(xlt('That encounter could not be found.'));
+    }
+    $fileInEncounter = $chosenEncounter;
+    $encounter = $chosenEncounter;
 }
 
 if ($mode !== 'new' && !$isRegistering) {
@@ -249,10 +262,15 @@ if ($formid === 0) {
         $nonNegativeInt($session->get('pid', 0)) ?? 0
     );
     $formUpdateData = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
-    unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
+    unset($formUpdateData['select_item'], $formUpdateData['save_registry'], $formUpdateData['audit_encounter']);
     $formUpdateData['response_id'] = $qrid;
     $formUpdateData['response_meta'] = $responseMeta;
     formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
+    if ($fileInEncounter !== null) {
+        // The encounter was checked above and the form is the document's own, waiting for one;
+        // a failure here is unexpected, so it is left to the global error handler to log.
+        (new QuestionnaireEncounterFiling())->fileForm($formid, $auditForm->pid, $fileInEncounter);
+    }
 }
 
 if ($isPortal || $patientPortalOther) {

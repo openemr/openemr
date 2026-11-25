@@ -25,20 +25,16 @@ use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 
 final readonly class PatientWriteReviewQuery
 {
     public const PAGE_SIZE = 100;
 
-    /** How many of a patient's latest encounters staff may file a response under. */
-    public const ENCOUNTER_CHOICES = 10;
-
-    /** How much of an encounter's reason the screen shows. */
-    private const REASON_SHOWN = 60;
-
     public function __construct(
         private ReviewRequestMapper $mapper,
         private FhirWriteReviewHandler $handler,
+        private QuestionnaireEncounterFiling $encounters = new QuestionnaireEncounterFiling(),
     ) {
     }
 
@@ -82,9 +78,9 @@ final readonly class PatientWriteReviewQuery
             if ($isResponse && $canApprove) {
                 $encounterUuid = self::encounterUuid($request->payload['encounter'] ?? null);
                 if ($encounterUuid !== null) {
-                    $encounterNamed = self::namedEncounter($encounterUuid, $request->pid);
+                    $encounterNamed = $this->encounters->encounterByUuid($request->pid, $encounterUuid);
                 } else {
-                    $encounterChoices = $choices[$request->pid] ??= self::latestEncounters($request->pid);
+                    $encounterChoices = $choices[$request->pid] ??= $this->encounters->latestEncounters($request->pid);
                 }
             }
             $items[] = new PatientWriteReviewItem(
@@ -165,67 +161,6 @@ final readonly class PatientWriteReviewQuery
         $uuid = UtilsService::parseReferenceString($reference, 'Encounter')['uuid'];
 
         return is_string($uuid) && UuidRegistry::isValidStringUUID($uuid) ? $uuid : null;
-    }
-
-    /**
-     * The patient's encounter with this uuid; null when it is not the patient's (approval would
-     * not be offered then).
-     *
-     * @return ?array{encounter: int, date: string, reason: string}
-     */
-    private static function namedEncounter(string $uuid, int $pid): ?array
-    {
-        $records = QueryUtils::fetchRecords(
-            'SELECT `encounter`, `date`, `reason` FROM `form_encounter` WHERE `uuid` = ? AND `pid` = ?',
-            [UuidRegistry::uuidToBytes($uuid), $pid]
-        );
-
-        return $records === [] ? null : self::encounter($records[0]);
-    }
-
-    /**
-     * The patient's latest encounters, newest first.
-     *
-     * @return list<array{encounter: int, date: string, reason: string}>
-     */
-    private static function latestEncounters(int $pid): array
-    {
-        $records = QueryUtils::fetchRecords(
-            'SELECT `encounter`, `date`, `reason` FROM `form_encounter` WHERE `pid` = ?'
-            // An integer constant, not request text; the driver cannot bind LIMIT.
-            . ' ORDER BY `date` DESC, `encounter` DESC LIMIT ' . self::ENCOUNTER_CHOICES,
-            [$pid]
-        );
-
-        return array_values(array_filter(array_map(self::encounter(...), $records)));
-    }
-
-    /**
-     * An encounter row as the screen shows it: its number, its date (Y-m-d) and its reason.
-     *
-     * @param array<array-key, mixed> $record
-     * @return ?array{encounter: int, date: string, reason: string}
-     */
-    private static function encounter(array $record): ?array
-    {
-        $encounter = $record['encounter'] ?? null;
-        $encounter = is_int($encounter) ? $encounter : (is_string($encounter) && ctype_digit($encounter) ? intval($encounter) : 0);
-        if ($encounter <= 0) {
-            return null;
-        }
-
-        // The reason is free text, often long; the start of its first line is enough to tell
-        // encounters apart.
-        $reason = trim(strtok(trim(self::text($record['reason'] ?? null)), "\r\n") ?: '');
-        if (mb_strlen($reason) > self::REASON_SHOWN) {
-            $reason = rtrim(mb_substr($reason, 0, self::REASON_SHOWN)) . '…';
-        }
-
-        return [
-            'encounter' => $encounter,
-            'date' => substr(self::text($record['date'] ?? null), 0, 10),
-            'reason' => $reason,
-        ];
     }
 
     /**
