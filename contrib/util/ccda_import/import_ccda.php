@@ -102,6 +102,28 @@ function outputMessage($message): void
     file_put_contents('/tmp/ccda_import.log', $message, FILE_APPEND);
 }
 
+/**
+ * Run a bin/console import command with every argument shell-escaped and
+ * capture its exit status and output (stdout and stderr) so a failed import
+ * is reported instead of being silently counted as imported.
+ *
+ * @return array{0: int, 1: string} exit code and combined command output
+ */
+function runConsoleCommand(string $consolePath, array $arguments): array
+{
+    // Use the running PHP binary rather than relying on 'php' being in PATH.
+    $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($consolePath);
+    foreach ($arguments as $argument) {
+        $command .= ' ' . escapeshellarg($argument);
+    }
+    // Merge stderr so console error messages are captured as well.
+    $command .= ' 2>&1';
+    $output = [];
+    $resultCode = 0;
+    exec($command, $output, $resultCode);
+    return [$resultCode, implode("\n", $output)];
+}
+
 // collect parameters (need to do before globals)
 $args = parseArgs($argv ?? []);
 
@@ -158,6 +180,7 @@ if ($seriousOptimize) {
 outputMessage("Starting patients import.\n");
 
 $counter = 0;
+$failed = 0;
 $millisecondsStart = round(microtime(true) * 1000);
 // iterate through all the files in the directory
 foreach (glob($dir) as $file) {
@@ -188,10 +211,16 @@ foreach (glob($dir) as $file) {
         echo "Error: " . $e->getMessage();
     }
     //  1. import ccda document (bypassed in development-mode)
+    $exitCode = 0;
+    $commandOutput = '';
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $session->get('site_id') . " --document=" . $file);
+        [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+            'openemr:ccda-newpatient-import',
+            '--site=' . $session->get('site_id'),
+            '--document=' . $file,
+        ]);
     } else {
         // development mode is off
         //  1. import ccda document
@@ -201,10 +230,31 @@ foreach (glob($dir) as $file) {
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
         //  2. import to ccda table
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $session->get('site_id') . " --document_id=" . $documentId . " --auth_name=" . $authName);
-        $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
-        //  3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $session->get('site_id') . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
+        [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+            'openemr:ccda-import',
+            '--site=' . $session->get('site_id'),
+            '--document_id=' . $documentId,
+            '--auth_name=' . $authName,
+        ]);
+        //  3. import as new patient (only when step 2 succeeded, otherwise the
+        //  max(audit_master.id) lookup would pick up a stale audit id)
+        if ($exitCode === 0) {
+            $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
+            [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+                'openemr:ccda-newpatient',
+                '--site=' . $session->get('site_id'),
+                '--am_id=' . $auditId,
+                '--document_id=' . $documentId,
+                '--auth_name=' . $authName,
+            ]);
+        }
+    }
+    if ($exitCode !== 0) {
+        // The console command failed: report it, count it as failed, and do
+        // not move the file to the processed directory or report success.
+        $failed++;
+        outputMessage("CCDA import failed (exit code " . $exitCode . "): " . text($file) . "\n" . $commandOutput . "\n");
+        continue;
     }
     try {
         if ($enableMoves) {
@@ -228,7 +278,7 @@ foreach (glob($dir) as $file) {
 }
 $timeSec = round(((round(microtime(true) * 1000)) - $millisecondsStart) / 1000);
 if ($counter > 0) {
-    outputMessage("Completed patients import (" . $counter . " patients) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)");
+    outputMessage("Completed patients import (" . $counter . " patients imported, " . $failed . " failed) (" . $timeSec . " total seconds) (" . (($timeSec) / $counter) . " average seconds per patient)");
     //  4. run function to populate all the uuids via the universal service function that already exists
     outputMessage("Started uuid creation");
     UuidRegistry::populateAllMissingUuids(false);
@@ -236,10 +286,16 @@ if ($counter > 0) {
     outputMessage("Completed uuid creation (" . $timeSec . " total seconds; " . $timeSec / 3600 . " total hours)\n");
 }
 
-outputMessage("Finished patients import" . " $counter\n");
+outputMessage("Finished patients import: " . $counter . " imported, " . $failed . " failed\n");
 
 if ($seriousOptimize) {
     // reset the audit log to the original value
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'enable_auditlog'", [$auditLogSetting]);
     sqlStatementNoLog("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'gbl_force_log_breakglass'", [$auditLogBreakglassSetting]);
+}
+
+// Signal failure to calling scripts/wrappers when any file failed to import.
+// Runs after the audit log settings have been restored above.
+if ($failed > 0) {
+    exit(1);
 }
