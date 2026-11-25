@@ -393,6 +393,21 @@ final class PlannerTest extends TestCase
         $this->assertNotContains('medigap', $companies);
     }
 
+    public function testZeroPercentGuardianPolicyDoesNotRuleOutAnOption(): void
+    {
+        // Every adult here has no guardian, so a guardian secondary at 0%
+        // must not stop the self-subscribed primary of the same option.
+        $yaml = str_replace(
+            '- {primary: {from: [bcbs], subscriber: spouse}}',
+            '- {primary: {from: [bcbs], subscriber: self}, secondary: {from: [medigap], subscriber: guardian, percent: 0}}',
+            self::SEED_FILE,
+        );
+
+        $companies = array_map(static fn (PlannedPolicy $p): string => $p->companyKey, $this->policiesOf($this->plan($yaml), 4));
+        $this->assertContains('bcbs', $companies);
+        $this->assertNotContains('medigap', $companies);
+    }
+
     public function testGrandparentGuardianCanBeTheSubscriber(): void
     {
         $plan = $this->plan($this->withGuardianRule('GRMTH'));

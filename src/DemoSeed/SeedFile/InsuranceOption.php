@@ -62,7 +62,8 @@ final readonly class InsuranceOption
         }
         foreach ($policies as $policy) {
             $kind = $policy->subscriber->kind;
-            if ($kind !== SubscriberKind::Self && !in_array($kind, $needs, true)) {
+            // A policy at 0% is never made, so its subscriber isn't needed.
+            if ($policy->percent > 0 && $kind !== SubscriberKind::Self && !in_array($kind, $needs, true)) {
                 $needs[] = $kind;
             }
         }

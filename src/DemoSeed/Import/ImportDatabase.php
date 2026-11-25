@@ -24,7 +24,10 @@ class ImportDatabase
     /** Globals the CCDA import turns off for speed, as import_ccda.php does. */
     private const AUDIT_GLOBALS = ['enable_auditlog', 'gbl_force_log_breakglass'];
 
-    /** Named lock (with the database name added) held while importing. */
+    /**
+     * Named lock held while importing, with an MD5 of the database name
+     * added so it stays within the 64 characters GET_LOCK() allows.
+     */
     private const IMPORT_LOCK_PREFIX = 'openemr-demo-seed-import:';
 
     public function patientCount(): int
@@ -110,7 +113,7 @@ class ImportDatabase
     public function lockImports(): void
     {
         $rows = QueryUtils::fetchRecordsNoLog(
-            "SELECT GET_LOCK(CONCAT(?, DATABASE()), 0) AS `value`",
+            "SELECT GET_LOCK(CONCAT(?, MD5(DATABASE())), 0) AS `value`",
             [self::IMPORT_LOCK_PREFIX],
         );
         $acquired = $rows[0]['value'] ?? null;
@@ -122,7 +125,7 @@ class ImportDatabase
     public function unlockImports(): void
     {
         QueryUtils::fetchRecordsNoLog(
-            "SELECT RELEASE_LOCK(CONCAT(?, DATABASE())) AS `value`",
+            "SELECT RELEASE_LOCK(CONCAT(?, MD5(DATABASE()))) AS `value`",
             [self::IMPORT_LOCK_PREFIX],
         );
     }
