@@ -1175,11 +1175,16 @@ var page = {
                 });
                 // Tell the patient what happened, once per upload request. Text comes from the template (translated) and is
                 // inserted as text only. "Submitted" is not "received": staff still have to confirm the document.
+                // The template passes the translated strings (window.portalUploadMessages). The fallbacks below only apply when it
+                // does not, and they go through xl() as well so they are translated too.
+                const translate = function (text) {
+                    return (typeof xl === 'function') ? xl(text) : text;
+                };
                 const uploadText = Object.assign({
-                    saved: 'Your upload was submitted. Our staff has not yet confirmed receipt. Please contact the office if confirmation does not arrive.',
-                    someFailed: 'Some files were not saved:',
-                    failed: 'Your upload was not saved. Please try again or contact the office.',
-                    unknown: 'We could not confirm that your upload was saved. Please try again or contact the office.'
+                    saved: translate('Your upload was submitted. Our staff has not yet confirmed receipt. Please contact the office if confirmation does not arrive.'),
+                    someFailed: translate('Some files were not saved:'),
+                    failed: translate('Your upload was not saved. Please try again or contact the office.'),
+                    unknown: translate('We could not confirm that your upload was saved. Please try again or contact the office.')
                 }, window.portalUploadMessages || {});
                 const showUploadResult = function (kind, lines) {
                     $('#uploadResult').remove();
@@ -1198,7 +1203,9 @@ var page = {
                     } catch (err) {
                         list = null;
                     }
-                    if (!Array.isArray(list) || list.length < 1) {
+                    // The endpoint answers with one result per submitted file. An answer that does not cover every file cannot
+                    // confirm the upload, so it is reported as unconfirmed instead of as a success.
+                    if (!Array.isArray(list) || list.length < 1 || list.length !== files.length) {
                         showUploadResult('error', [uploadText.unknown]);
                         return;
                     }
@@ -1215,7 +1222,10 @@ var page = {
                     }
                 });
                 this.on("errormultiple", function () {
-                    showUploadResult('error', [uploadText.failed]);
+                    // The request itself failed (connection dropped, timeout, server error). The endpoint stores the documents
+                    // before it answers, so the files may already be saved: say it is unconfirmed, not "not saved". "Not saved" is
+                    // reserved for an answer that says so (successmultiple above).
+                    showUploadResult('error', [uploadText.unknown]);
                 });
                 this.on("complete", function (file) {
                     this.removeFile(file);
