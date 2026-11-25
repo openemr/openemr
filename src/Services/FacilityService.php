@@ -436,7 +436,6 @@ class FacilityService extends BaseService
     /**
      * Replace the stored facility columns.
      *
-     * The column list has to be an array before the update is sent.
      * updateFacilityAndUsers() tells listeners, and only after the commit.
      *
      * @param array<string, mixed> $data
@@ -444,15 +443,11 @@ class FacilityService extends BaseService
     public function updateFacility(array $data)
     {
         $query = $this->buildUpdateColumns($data);
-        $set = $query['set'] ?? null;
-        $binds = $query['bind'] ?? null;
-        if (!is_string($set) || !is_array($binds)) {
-            throw new \LogicException('The facility columns could not be saved');
-        }
+        $binds = $query['bind'];
         $binds[] = $data['id'];
 
         return QueryUtils::sqlStatementThrowException(
-            " UPDATE facility SET " . $set . " WHERE id = ?",
+            " UPDATE facility SET " . $query['set'] . " WHERE id = ?",
             $binds
         );
     }

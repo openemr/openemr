@@ -29607,11 +29607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Messaging/SendSmsEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Patient\\\\BeforePatientUpdatedEvent\\:\\:__construct\\(\\) has parameter \\$patientData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Patient/BeforePatientUpdatedEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Patient\\\\PatientBeforeCreatedAuxEvent\\:\\:__construct\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Patient/PatientBeforeCreatedAuxEvent.php',

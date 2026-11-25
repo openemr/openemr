@@ -269,9 +269,6 @@ class PatientService extends BaseService
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
-        if (!is_array($data)) {
-            throw new \UnexpectedValueException('A BeforePatientUpdatedEvent listener replaced the patient data with a non-array');
-        }
 
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE $table SET ";
@@ -279,24 +276,13 @@ class PatientService extends BaseService
         $sql .= " WHERE `pid` = ?";
 
         $binds = $query['bind'];
-        if (!is_array($binds)) {
-            throw new \LogicException('buildUpdateColumns() did not return a bind list');
-        }
         $binds[] = $data['pid'];
 
         // Save the patient row and the portal fix-up together, so a failed
         // fix-up can't leave a saved patient change that listeners never hear about.
         QueryUtils::inTransaction(function () use ($sql, $binds, $data): void {
             QueryUtils::sqlStatementThrowException($sql, $binds);
-            // If portal access is enabled, ensure the portal login username exists
-            if (($data['allow_patient_portal'] ?? '') === 'YES') {
-                $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
-                $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
-                if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
-                    $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
-                    QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
-                }
-            }
+            $this->backfillPortalLoginUsername($data);
         });
 
         // Tell subscribers that a new patient has been updated
@@ -304,6 +290,26 @@ class PatientService extends BaseService
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
 
         return $data;
+    }
+
+    /**
+     * If portal access is enabled, make sure the portal login username is
+     * filled in. Runs inside databaseUpdate()'s transaction, so a failure
+     * here rolls back the patient row too.
+     *
+     * @param array<mixed> $data the patient data being saved
+     */
+    protected function backfillPortalLoginUsername(array $data): void
+    {
+        if (($data['allow_patient_portal'] ?? '') !== 'YES') {
+            return;
+        }
+        $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+        $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
+        if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
+            $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
+            QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
+        }
     }
 
     /**

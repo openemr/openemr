@@ -5477,11 +5477,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Patient/BeforePatientCreatedEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Patient\\\\BeforePatientUpdatedEvent\\:\\:setPatientData\\(\\) has parameter \\$patientData with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Patient/BeforePatientUpdatedEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Patient\\\\PatientBeforeCreatedAuxEvent\\:\\:__construct\\(\\) has parameter \\$patientData with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Patient/PatientBeforeCreatedAuxEvent.php',
@@ -9958,11 +9953,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:buildUpdateColumns\\(\\) has parameter \\$passed_in with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:buildUpdateColumns\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];

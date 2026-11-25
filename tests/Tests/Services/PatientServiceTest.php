@@ -278,6 +278,85 @@ class PatientServiceTest extends TestCase
         $this->assertFalse(QueryUtils::querySingleRow('SELECT `pid` FROM `patient_data` WHERE `pid` = ?', [$otherPid]));
     }
 
+    #[Test]
+    public function testFailedPortalBackfillRollsBackDatabaseUpdate(): void
+    {
+        [$pid] = $this->insertFixturePatient();
+        $this->patientFixture['pid'] = $pid;
+        $this->assertBackfillFailureRollsBack(
+            $pid,
+            fn(PatientService $service) => $service->databaseUpdate($this->patientFixture)
+        );
+    }
+
+    #[Test]
+    public function testFailedPortalBackfillRollsBackApiUpdate(): void
+    {
+        [$pid, $uuid] = $this->insertFixturePatient();
+        $this->assertBackfillFailureRollsBack(
+            $pid,
+            fn(PatientService $service) => $service->update($uuid, $this->patientFixture)
+        );
+    }
+
+    #[Test]
+    public function testUpdatePatientDataRejectsNonArrayFields(): void
+    {
+        [$pid] = $this->insertFixturePatient();
+
+        $this->expectException(\InvalidArgumentException::class);
+        updatePatientData($pid, 'not an array');
+    }
+
+    /**
+     * Save a new phone number with portal access on, through a service whose
+     * portal backfill throws, and check nothing was saved or announced.
+     *
+     * @param callable(PatientService): mixed $save
+     */
+    private function assertBackfillFailureRollsBack(int $pid, callable $save): void
+    {
+        $failingService = new class extends PatientService {
+            protected function backfillPortalLoginUsername(array $data): void
+            {
+                throw new \RuntimeException('forced portal backfill failure');
+            }
+        };
+        $phoneBefore = QueryUtils::fetchSingleValue(
+            'SELECT `phone_home` FROM `patient_data` WHERE `pid` = ?',
+            'phone_home',
+            [$pid]
+        );
+        $this->assertNotSame('555-888-9999', $phoneBefore);
+
+        $events = [];
+        $listener = function (PatientUpdatedEvent $event) use (&$events): void {
+            $events[] = $event;
+        };
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        $dispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, $listener);
+
+        $this->patientFixture['allow_patient_portal'] = 'YES';
+        $this->patientFixture['phone_home'] = '555-888-9999';
+        try {
+            $save($failingService);
+            $this->fail('the forced backfill failure should propagate');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('forced portal backfill failure', $e->getMessage());
+        } finally {
+            $dispatcher->removeListener(PatientUpdatedEvent::EVENT_HANDLE, $listener);
+        }
+
+        $row = QueryUtils::querySingleRow(
+            'SELECT `phone_home`, `allow_patient_portal` FROM `patient_data` WHERE `pid` = ?',
+            [$pid]
+        );
+        $this->assertIsArray($row);
+        $this->assertSame($phoneBefore, $row['phone_home'], 'the patient row is unchanged');
+        $this->assertNotSame('YES', $row['allow_patient_portal']);
+        $this->assertSame([], $events, 'no PatientUpdatedEvent for a rolled-back save');
+    }
+
     /**
      * @return array{int, string} the new patient's pid and string uuid
      */

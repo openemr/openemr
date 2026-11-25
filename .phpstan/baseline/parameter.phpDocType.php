@@ -74,11 +74,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$patientData with type mixed is not subtype of native type array\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Patient/BeforePatientUpdatedEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$patientData with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Patient/PatientBeforeCreatedAuxEvent.php',
 ];
 $ignoreErrors[] = [
