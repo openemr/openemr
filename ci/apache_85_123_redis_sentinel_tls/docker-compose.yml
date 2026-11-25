@@ -101,6 +101,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-master
     volumes:
@@ -149,6 +152,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-replica-1
     volumes:
@@ -187,6 +193,9 @@ services:
     - "no"
     - --tls-replication
     - "yes"
+    # A replica accepts only a master whose cert names a Redis server.
+    - --tls-expected-peer-name
+    - "redis-master redis-replica-1 redis-replica-2"
     - --replica-announce-ip
     - redis-replica-2
     volumes:
