@@ -710,6 +710,24 @@ body { margin: 0; padding: 0; }
     /**
      * Keep $text inside $columns display columns without splitting a character.
      */
+    /**
+     * Rows the text PDF paints for one source line.
+     *
+     * A line that ends with an amount wraps. Any other line that is
+     * wider than the sheet is clipped, so it stays one row.
+     */
+    public static function textRows(string $line, int $columns): int
+    {
+        if ($columns < 1 || strlen($line) <= $columns) {
+            return 1;
+        }
+        if (preg_match('/\d+\.\d{2}$/', $line) !== 1) {
+            return 1;
+        }
+
+        return (int) ceil(strlen($line) / $columns);
+    }
+
     public static function fitColumns(string $text, int $columns): string
     {
         if ($columns < 1) {

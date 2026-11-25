@@ -615,6 +615,24 @@ final class StatementEnvelopeTest extends TestCase
         }
     }
 
+    public function testAnAmountLineWrapsAndALongNoteStaysOneRow(): void
+    {
+        $note = str_repeat('_', 66);
+        $this->assertSame(1, StatementEnvelope::textRows($note, 58));
+        $amount = sprintf(
+            '%-s: %-25s %-s: %-14s %-s: %8s',
+            'Name',
+            str_repeat('A', 25),
+            'Date',
+            '11/25/2026',
+            'Amount Due',
+            '100.00'
+        );
+        $this->assertGreaterThan(58, strlen($amount));
+        $this->assertSame(2, StatementEnvelope::textRows($amount, 58));
+        $this->assertSame(1, StatementEnvelope::textRows('Billing Department', 58));
+    }
+
     public function testFitColumnsStopsOnACharacterBoundary(): void
     {
         $text = str_repeat('A', 37) . 'é';

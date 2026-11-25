@@ -932,12 +932,21 @@ function create_statement($stmt): string
     }
 
     // Letter stubs pad to line 42. A shorter sheet keeps the footer on page one.
-    // The reserve is the footer that will actually be printed, including breaks in optional text.
+    // An amount wider than the sheet wraps onto another row, and that row is reserved too.
     $padTo = 42;
     $pageLines = 0;
     if ($windowed) {
         $pageLines = StatementEnvelope::textPageLines();
-        $padTo = min(42, $pageLines - substr_count($footer, "\n"));
+        $pieces = explode("\n", $footer);
+        if ($pieces !== [] && $pieces[array_key_last($pieces)] === '') {
+            array_pop($pieces);
+        }
+        $footerRows = 0;
+        $columns = StatementEnvelope::textPageColumns();
+        foreach ($pieces as $piece) {
+            $footerRows += StatementEnvelope::textRows($piece, $columns);
+        }
+        $padTo = min(42, $pageLines - $footerRows);
         if ($padTo < 1) {
             $padTo = 1;
         }
