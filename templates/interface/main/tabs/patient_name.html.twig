@@ -1,0 +1,34 @@
+{#
+ # The patient bar's name line: the name (to the Dashboard; its ID is on the line below), a menu to open the patient in a
+ # new window or tab, and the close button. It sits inside the Knockout patient-data
+ # template, so the data-bind attributes are evaluated by Knockout, not Twig.
+ #
+ # Inputs:
+ # - display : OpenEMR\Tabs\PatientNameDisplay, the patient_name_display setting
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    David Eschelbacher <psoas@tampabay.rr.com>
+ # @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<{{ display.wrapperElement() }} class="patient-bar-name {{ display.wrapperClass()|attr }}">
+    <a class="ptName {{ display.nameClass()|attr }}" data-bind="click:refreshPatient,with: patient" href="#" title="{{ 'To Dashboard'|xla }}">
+        <span data-bind="text: pname()"></span>
+    </a>
+    {% if display.actionsElement() != '' %}<{{ display.actionsElement() }} class="patient-name-actions">{% endif %}
+    <div class="{{ display.isButton() ? 'btn-group btn-group-sm' : 'dropdown d-inline-block' }}">
+        <a href="#" class="pt-1 {{ display.linkClass()|attr }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+           title="{{ 'Open Patient in a New Window or Tab'|xla }}" aria-label="{{ 'Open Patient in a New Window or Tab'|xla }}">
+            <i class="fa fa-arrow-up-right-from-square patient-name-open-icon {{ display.iconClass()|attr }}" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewWindow">{{ 'Open in New Window'|xlt }}</a>
+            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewTab">{{ 'Open in New Tab'|xlt }}</a>
+        </div>
+    </div>
+    <a href="#" class="pt-1 {{ display.linkClass()|attr }}" data-bind="click:closePatientChart" title="{{ 'Close Patient Chart'|xla }}">
+        <i class="fa fa-times {{ display.iconClass()|attr }}"></i>
+    </a>
+    {% if display.actionsElement() != '' %}</{{ display.actionsElement() }}>{% endif %}
+</{{ display.wrapperElement() }}>
