@@ -572,7 +572,7 @@ class AppointmentService extends BaseService
                     " WHERE pc_eid = ?", [serialize($oldRecurrspec),$eid]);
             } elseif ($recurr_affect == 'future') {
                 // mod original event to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime((string) $event_selected_date) - 24 * 60 * 60));
+                $selected_date = (new \DateTimeImmutable((string) $event_selected_date))->modify('-1 day')->format('Ymd');
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? " .
                     " WHERE pc_eid = ?", [$selected_date,$eid]);
