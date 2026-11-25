@@ -16,6 +16,9 @@
        uses, MINUS the geometry fields (week_print uses flow layout, no
        positioning). Each event needs: eid, evtClass, catcolor,
        eventDate (YYYYMMDD), bodyContent (HTML).
+       A Visit List block additionally carries visitList (see
+       _visit_list_print.html.twig); its patients are not among the day's
+       other events.
        right may be null (the last pair's right column is empty when
        there are only 7 days).
    - dateRange : {firstMonth, firstDay, lastMonth, lastDay} — the
@@ -23,6 +26,10 @@
    - dowList : list<int>
    - A_SHORT_DAY_NAMES : list of 7 localized strings
    - currentMonthMini, nextMonthMini : from CalendarViewModel::buildMiniCalendar()
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 <!DOCTYPE html>
 <html>
@@ -45,6 +52,7 @@
         .event_appointment { background-color: white; border: 1px solid blue; font-size: 0.8em; }
         .event_noshow      { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
         .event_reserved    { background-color: pink;  border: 1px solid blue; font-size: 0.8em; }
+        {% include 'calendar/default/views/_visit_list_print_styles.html.twig' %}
         #datePicker { float: right; display: inline; padding: 5px; text-align: center; background-color: lightblue; }
         #datePicker td { font-family: Arial, Helvetica, sans-serif; font-size: 0.7em; }
         #datePicker table { border-collapse: collapse; }
@@ -102,22 +110,36 @@
                 <td>
                     <div id="dowheader">{{ pair.left.weekdayLabel|xlt }} {{ pair.left.dateMD|text }}</div>
                     {% for event in pair.left.events %}
+                        {% if event.visitList is defined %}
+                            <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                 id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                                {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                            </div>
+                        {% else %}
                         <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                              style="background-color:{{ event.catcolor|attr }}"
                              id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
                             {{ event.bodyContent|raw }}
                         </div>
+                        {% endif %}
                     {% endfor %}
                 </td>
                 <td>
                     {% if pair.right %}
                         <div id="dowheader">{{ pair.right.weekdayLabel|xlt }} {{ pair.right.dateMD|text }}</div>
                         {% for event in pair.right.events %}
+                            {% if event.visitList is defined %}
+                                <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                     id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
+                                    {% include 'calendar/default/views/_visit_list_print.html.twig' with {visitList: event.visitList} only %}
+                                </div>
+                            {% else %}
                             <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
                                  style="background-color:{{ event.catcolor|attr }}"
                                  id="{{ event.eventDate|attr }}-{{ event.eid|attr }}">
                                 {{ event.bodyContent|raw }}
                             </div>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 </td>

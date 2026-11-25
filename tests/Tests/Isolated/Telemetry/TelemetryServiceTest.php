@@ -25,6 +25,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SoftwareVersion;
 use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
@@ -36,24 +37,6 @@ use Psr\Log\LoggerInterface;
 
 class TelemetryServiceTest extends TestCase
 {
-    private bool $hadKernel;
-    private mixed $originalKernel;
-
-    protected function setUp(): void
-    {
-        $this->hadKernel = array_key_exists('kernel', $GLOBALS);
-        $this->originalKernel = $GLOBALS['kernel'] ?? null;
-    }
-
-    protected function tearDown(): void
-    {
-        if ($this->hadKernel) {
-            $GLOBALS['kernel'] = $this->originalKernel;
-        } else {
-            unset($GLOBALS['kernel']);
-        }
-    }
-
     /** An HTTP client that answers the next request with $reply. */
     private function clientReplying(Response|ConnectException $reply): Client
     {
@@ -63,6 +46,11 @@ class TelemetryServiceTest extends TestCase
     private function clientUsing(MockHandler $handler): Client
     {
         return new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
+    }
+
+    private static function globalsWithWebRoot(string $webRoot): OEGlobalsBag
+    {
+        return new OEGlobalsBag(['kernel' => new Kernel('/var/www/openemr', $webRoot)]);
     }
 
     public function testIsTelemetryEnabledReturnsTrueWhenTelemetryDisabledIsZero(): void
@@ -292,10 +280,13 @@ class TelemetryServiceTest extends TestCase
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
 
-        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
-
         // Set up a Kernel with webroot to test URL normalization
-        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
+        $telemetryService = new TelemetryService(
+            $mockRepository,
+            $mockVersionService,
+            $mockLogger,
+            globals: self::globalsWithWebRoot('/openemr'),
+        );
 
         $data = [
             'eventType' => 'click',
@@ -445,13 +436,83 @@ class TelemetryServiceTest extends TestCase
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('https://reg.open-emr.org/api/usage?SiteID=test-uuid-123', (string) $request->getUri());
         $this->assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        $payload = Json::decode((string) $request->getBody());
+        $payload = Json::decode($request->getBody()->__toString());
         $this->assertIsArray($payload);
         $this->assertArrayHasKey('usageRecords', $payload);
         $this->assertArrayHasKey('localeData', $payload);
         $options = $handler->getLastOptions();
         $this->assertFalse($options['allow_redirects']);
         $this->assertTrue($options['verify']);
+    }
+
+    public function testReportUsageDataReadsTheInjectedSettings(): void
+    {
+        $mockRepository = $this->createMock(TelemetryRepository::class);
+        $versionService = $this->createStub(VersionServiceInterface::class);
+        $versionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(8, 1, 0, '', 0, 0, 0));
+        $handler = new MockHandler([new Response(200, [], '{"status": "success"}')]);
+        $globals = new OEGlobalsBag([
+            'gbl_time_zone' => 'Europe/Paris',
+            'http_verify_ssl' => false,
+            'portal_onsite_two_enable' => '1',
+        ]);
+
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([
+                $mockRepository,
+                $versionService,
+                $this->createStub(LoggerInterface::class),
+                $this->clientUsing($handler),
+                $globals,
+            ])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
+            ->getMock();
+        $telemetryService->method('isTelemetryEnabled')->willReturn(1);
+        $telemetryService->method('getUniqueInstallationUuid')->willReturn('test-uuid-123');
+        $telemetryService->method('createGeoTelemetry')->willReturn($this->createStub(GeoTelemetryInterface::class));
+        // No time zone row in the globals table, so the setting supplies it.
+        $telemetryService->method('querySingleRow')->willReturn(false);
+
+        $this->assertSame(200, $telemetryService->reportUsageData());
+
+        $request = $handler->getLastRequest();
+        $this->assertInstanceOf(RequestInterface::class, $request);
+        $payload = Json::decode($request->getBody()->__toString());
+        $this->assertIsArray($payload);
+        $this->assertIsArray($payload['localeData'] ?? null);
+        $this->assertSame('Europe/Paris', $payload['localeData']['time_zone'] ?? null);
+        $this->assertSame('{"portal_enabled":true}', $payload['localeData']['settings'] ?? null);
+        $this->assertFalse($handler->getLastOptions()['verify']);
+    }
+
+    public function testReportUsageDataWithoutASiteUuidWarnsAndSendsAnEmptyId(): void
+    {
+        $versionService = $this->createStub(VersionServiceInterface::class);
+        $versionService->method('getSoftwareVersion')->willReturn(new SoftwareVersion(8, 1, 0, '', 0, 0, 0));
+        $handler = new MockHandler([new Response(200, [], '{"status": "success"}')]);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning')->with('Site UUID not found.');
+
+        $telemetryService = $this->getMockBuilder(TelemetryService::class)
+            ->setConstructorArgs([
+                $this->createStub(TelemetryRepository::class),
+                $versionService,
+                $logger,
+                $this->clientUsing($handler),
+                new OEGlobalsBag(),
+            ])
+            ->onlyMethods(['isTelemetryEnabled', 'getUniqueInstallationUuid', 'createGeoTelemetry', 'querySingleRow'])
+            ->getMock();
+        $telemetryService->method('isTelemetryEnabled')->willReturn(1);
+        $telemetryService->method('getUniqueInstallationUuid')->willReturn('');
+        $telemetryService->method('createGeoTelemetry')->willReturn($this->createStub(GeoTelemetryInterface::class));
+        $telemetryService->method('querySingleRow')->willReturn(false);
+
+        $telemetryService->reportUsageData();
+
+        $request = $handler->getLastRequest();
+        $this->assertInstanceOf(RequestInterface::class, $request);
+        $this->assertSame('SiteID=', $request->getUri()->getQuery());
     }
 
     public function testReportUsageDataThatCannotBeEncodedIsNotSent(): void
@@ -716,10 +777,13 @@ class TelemetryServiceTest extends TestCase
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
 
-        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
-
         // Set up a Kernel with empty webroot to test the fallback behavior
-        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '');
+        $telemetryService = new TelemetryService(
+            $mockRepository,
+            $mockVersionService,
+            $mockLogger,
+            globals: self::globalsWithWebRoot(''),
+        );
 
         $data = [
             'eventType' => 'click',
@@ -747,13 +811,16 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventNormalizesUrlWithFragmentOnly(): void
     {
-        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
-
         $mockRepository = $this->createMock(TelemetryRepository::class);
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
         $mockLogger = $this->createMock(LoggerInterface::class);
 
-        $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
+        $telemetryService = new TelemetryService(
+            $mockRepository,
+            $mockVersionService,
+            $mockLogger,
+            globals: self::globalsWithWebRoot('/openemr'),
+        );
 
         // Test URL that's just a fragment
         $data = [

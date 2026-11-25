@@ -7,18 +7,17 @@
 # PHP version strategy:
 # - Pull requests and pushes: supported, released PHP versions only.
 # - Scheduled nightly run and workflow_dispatch: supported versions plus every
-#   unreleased pre-release (8.6, 8.7), each tracking upstream (8.6 via
-#   shivammathur/setup-php's RC build, 8.7 via its nightly master build).
+#   unreleased pre-release (8.7), tracking upstream via shivammathur/setup-php's
+#   nightly master build.
 # - Pull requests that opt in via a commit trailer: supported versions plus
 #   whichever pre-release(s) the trailer names.
 #
 # Pre-release PHPs regress from time to time for reasons unrelated to the PR
 # under test, so they do not run on PRs by default. To check a change against
-# one -- e.g. when the change is about 8.6 or 8.7 compatibility -- add either
+# one -- e.g. when the change is about 8.7 compatibility -- add either
 # trailer to any commit in the PR:
 #
-#   Test-PHP: 8.6         # opts into just 8.6
-#   Test-PHP: 8.6, 8.7    # opts into both
+#   Test-PHP: 8.7         # opts into just 8.7
 #   Test-Mode: full       # opts into every pre-release
 #
 # When opted in, the pre-release job reports honestly and a failure blocks the
@@ -68,11 +67,11 @@ jobs:
       ##
       # Supported versions always run. Unreleased pre-releases run on the
       # nightly schedule, on manual dispatch, and on PRs that ask for one by
-      # commit trailer -- checked per-version so `Test-PHP: 8.6` opts into 8.6
+      # commit trailer -- checked per-version so `Test-PHP: 8.7` opts into 8.7
       # alone while `Test-Mode: full` opts into every pre-release.
       run: |
-        supported=( '8.3' '8.4' '8.5' )
-        prerelease=( '8.6' '8.7' )
+        supported=( '8.4' '8.5' '8.6' )
+        prerelease=( '8.7' )
 
         case "${EVENT_NAME}" in
         schedule | workflow_dispatch)

@@ -165,7 +165,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                     $ip = collectIpAddresses();
                     AuthUtils::resetMfaChallengeCounters(
                         is_string($username) ? $username : null,
-                        $ip['ip_string']
+                        $ip['ip']
                     );
                     return true;
                 }

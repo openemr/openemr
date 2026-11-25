@@ -311,6 +311,44 @@ div.dataTables_wrapper div.dataTables_processing {
   margin-right: 2rem;
 }
 
+/* The line under a list, "Showing 1 – 10". */
+.dataTables_wrapper .dataTables_info .finder-range {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Each tab's patient count: filled on the showing tab, gray on the other. */
+.finder-tab-count {
+  position: relative;
+  top: -2px;
+
+  /* A little more room above the number than below centers it in the pill. */
+  padding-top: 0.32em;
+  padding-bottom: 0.18em;
+  margin-left: 0.35rem;
+  vertical-align: middle;
+  background-color: var(--gray400);
+  color: var(--dark);
+  font-size: 0.75rem;
+}
+
+.nav-link.active .finder-tab-count {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+/* An inactive patient's row, shown when "Show inactive" is checked. */
+#finderTabs tr.finder-inactive td {
+  color: var(--gray600);
+}
+
+.finder-inactive-badge {
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  background-color: var(--gray400);
+  color: var(--dark);
+}
+
 /* Font Size and Customize sit at the right end of the line. */
 #finder-option-buttons {
   gap: 0.5rem;

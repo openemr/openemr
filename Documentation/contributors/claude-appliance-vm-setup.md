@@ -404,10 +404,11 @@ Required permissions:
 | Permission | Level |
 |------------|-------|
 | Metadata | Read (always required) |
+| Contents | Read |
 | Pull requests | Read and write |
 | Issues | Read and write |
 
-> `Contents` is **not** needed — agents push branches via `git push` using the existing repo remote (SSH deploy key), not via the token. The token is only used by `gh` CLI for API operations (opening PRs, reading issues).
+> `Contents: Write` is **not** needed — agents push branches via `git push` using the existing repo remote (SSH deploy key), not via the token. `Contents: Read` *is* needed because the PR-creation API internally resolves the base/head refs; without it, `gh pr create` fails with "not all refs are readable." Read grants `git clone`/`fetch` via the token path, but push paths still fail without `Contents: Write`, so the deploy key stays the only mechanism that can push.
 
 ---
 

@@ -40,6 +40,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
     use PHPUnit\Framework\TestCase;
     use Psr\Http\Message\RequestInterface;
     use Psr\Log\NullLogger;
+    use Symfony\Component\Filesystem\Filesystem;
 
     #[Group('isolated')]
     class CdaValidateDocumentsEttTest extends TestCase
@@ -48,24 +49,8 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         private const DOCUMENT = '<ClinicalDocument xmlns="urn:hl7-org:v3"/>';
 
-        private const SETTINGS = ['mdht_conformance_server', 'mdht_conformance_server_enable'];
-
-        /** @var array<string, mixed> */
-        private array $savedSettings = [];
-
-        protected function setUp(): void
-        {
-            foreach (self::SETTINGS as $key) {
-                $this->savedSettings[$key] = OEGlobalsBag::getInstance()->get($key);
-            }
-        }
-
-        protected function tearDown(): void
-        {
-            foreach ($this->savedSettings as $key => $value) {
-                OEGlobalsBag::getInstance()->set($key, $value);
-            }
-        }
+        private const CONFORMANT_DOCUMENT = __DIR__
+            . '/../../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/ccda-example-response1.xml';
 
         /**
          * @return array<string, array{string}>
@@ -84,10 +69,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         #[DataProvider('serverSettingProvider')]
         public function testTheServerSettingBecomesTheValidatorUrl(string $server): void
         {
-            OEGlobalsBag::getInstance()->set('mdht_conformance_server', $server);
-            OEGlobalsBag::getInstance()->set('mdht_conformance_server_enable', '1');
-
-            $validator = new CdaValidateDocuments(new Client(), new NullLogger());
+            $validator = new CdaValidateDocuments(new Client(), new NullLogger(), self::settings($server));
 
             $this->assertTrue($validator->externalValidatorEnabled);
             $this->assertSame(self::VALIDATOR_URL, $validator->externalValidatorUrl);
@@ -95,10 +77,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
 
         public function testAWhitespaceServerSettingLeavesTheValidatorOff(): void
         {
-            OEGlobalsBag::getInstance()->set('mdht_conformance_server', '   ');
-            OEGlobalsBag::getInstance()->set('mdht_conformance_server_enable', '1');
-
-            $validator = new CdaValidateDocuments(new Client(), new NullLogger());
+            $validator = new CdaValidateDocuments(new Client(), new NullLogger(), self::settings('   '));
 
             $this->assertFalse($validator->externalValidatorEnabled);
             $this->assertNull($validator->externalValidatorUrl);
@@ -169,8 +148,7 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
         public function testAMalformedServerSettingIsReportedAsOneFinding(): void
         {
             $handler = new MockHandler([new Response(200)]);
-            $validator = $this->validatorUsing($handler);
-            $validator->externalValidatorUrl = 'http://:8080/referenceccdaservice/';
+            $validator = $this->validatorUsing($handler, self::settings('http://:8080'));
 
             $results = $validator->ettValidateCcda(self::DOCUMENT);
 
@@ -281,6 +259,89 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             $this->assertSame($this->failureResults(302), $results);
         }
 
+        public function testTheRequestHonorsTheCertificateVerificationSetting(): void
+        {
+            $handler = new MockHandler([new Response(500)]);
+            $validator = $this->validatorUsing(
+                $handler,
+                self::settings('https://ett.example.test', ['http_verify_ssl' => false]),
+            );
+
+            $validator->ettValidateCcda(self::DOCUMENT);
+
+            $this->assertFalse($handler->getLastOptions()['verify']);
+        }
+
+        public function testTheXsdCheckListsEachSchemaViolation(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+
+            // The bare root element lacks every child the CDA schema requires.
+            $results = $validator->validateXmlXsd(self::DOCUMENT);
+
+            $this->assertNotSame([], $results['xsd']);
+            foreach ($results['xsd'] as $message) {
+                $this->assertMatchesRegularExpression('/^\RError \d+: .+ on line 1\R$/', $message);
+            }
+        }
+
+        public function testASchemaValidDocumentPassesTheXsdCheck(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+
+            $document = (new Filesystem())->readFile(self::CONFORMANT_DOCUMENT);
+
+            $this->assertSame(['xsd' => []], $validator->validateXmlXsd($document));
+        }
+
+        public function testTheXsdReportOmitsErrorsLeftByEarlierXmlParsing(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $document = '<ClinicalDocument xmlns="urn:hl7-org:v3"><unknownElement/></ClinicalDocument>';
+            $expected = $validator->validateXmlXsd($document);
+            // Leave an earlier parse error in the buffer, with internal errors still on
+            $previous = libxml_use_internal_errors(true);
+            try {
+                (new \DOMDocument())->loadXML('<unclosed>');
+                $report = $validator->validateXmlXsd($document);
+            } finally {
+                libxml_clear_errors();
+                libxml_use_internal_errors($previous);
+            }
+
+            $this->assertNotSame([], $expected['xsd']);
+            $this->assertSame($expected, $report);
+        }
+
+        public function testTheXsdCheckRestoresTheLibxmlErrorSetting(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $document = (new Filesystem())->readFile(self::CONFORMANT_DOCUMENT);
+            $previous = libxml_use_internal_errors(false);
+            try {
+                $validator->validateXmlXsd($document);
+                $after = libxml_use_internal_errors();
+            } finally {
+                libxml_use_internal_errors($previous);
+            }
+
+            $this->assertFalse($after);
+        }
+
+        public function testAnEmptyDocumentStillRestoresTheLibxmlErrorSetting(): void
+        {
+            $validator = $this->validatorUsing(new MockHandler());
+            $this->expectException(\ValueError::class);
+            $previous = libxml_use_internal_errors(false);
+            try {
+                $validator->validateXmlXsd('');
+            } finally {
+                $after = libxml_use_internal_errors();
+                libxml_use_internal_errors($previous);
+                $this->assertFalse($after);
+            }
+        }
+
         /**
          * @return array{errorCount: 1, warningCount: 0, ignoredCount: 0, errors: list<array<string, string>>}
          */
@@ -310,12 +371,25 @@ namespace OpenEMR\Tests\Isolated\Services\Cda {
             ];
         }
 
-        private function validatorUsing(MockHandler $handler): CdaValidateDocuments
+        private function validatorUsing(MockHandler $handler, ?OEGlobalsBag $globals = null): CdaValidateDocuments
         {
-            $stack = HandlerStack::create($handler);
-            $validator = new CdaValidateDocuments(new Client(['handler' => $stack, 'http_errors' => false]), new NullLogger());
-            $validator->externalValidatorUrl = self::VALIDATOR_URL;
-            return $validator;
+            $client = new Client(['handler' => HandlerStack::create($handler), 'http_errors' => false]);
+            return new CdaValidateDocuments(
+                $client,
+                new NullLogger(),
+                $globals ?? self::settings('https://ett.example.test'),
+            );
+        }
+
+        /**
+         * @param array<string, mixed> $extra
+         */
+        private static function settings(string $server, array $extra = []): OEGlobalsBag
+        {
+            return new OEGlobalsBag([
+                'mdht_conformance_server' => $server,
+                'mdht_conformance_server_enable' => '1',
+            ] + $extra);
         }
     }
 }

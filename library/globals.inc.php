@@ -92,11 +92,9 @@ use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteMode;
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
     $temporary_files_dir = 'C:/windows/temp';
-    $backup_log_dir = 'C:/windows/temp';
 } else {
     // Everything else
     $temporary_files_dir = '/tmp';
-    $backup_log_dir = '/tmp';
 }
 
 function getDefaultRenderListOptions(): array
@@ -2982,13 +2980,6 @@ $GLOBALS_METADATA = [
             'text',                           // data type
             $temporary_files_dir,             // default
             xl('Full path to directory used for temporary files.')
-        ],
-
-        'backup_log_dir' => [
-            xl('Path for Event Log Backup'),
-            'text',                           // data type
-            $backup_log_dir,                  // default
-            xl('Full path to directory for event log backup.')
         ],
 
         'state_data_type' => [

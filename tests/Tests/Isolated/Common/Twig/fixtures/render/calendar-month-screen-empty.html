@@ -185,6 +185,7 @@
      document.getElementById('popup').style.display = "none";
  }
 </script>
+<script src="/library/js/calendarVisitList.js?v=82"></script>
 <script>
         var tsHeight="20px";
     var tsHeightNum=20;
@@ -230,7 +231,7 @@
         }).on("dblclick", function(e) { e.stopPropagation(); });
         $(".visit-list-header").on("click", function(e) {
             e.stopPropagation();
-            EditEvent($(this).closest(".event").get(0));
+            EditEvent($(this).closest(".event_visit_list").get(0));
         }).on("dblclick", function(e) { e.stopPropagation(); });
         var editVisitListPatient = function(row) {
             oldEvt(row.data("date"), row.data("eid"), row.data("cattype"));
@@ -248,6 +249,12 @@
             e.stopPropagation();
             goPid($(this).data("pid"));
         }).on("dblclick", function(e) { e.stopPropagation(); });
+        // A Visit List block keeps the height of its time range. When its patients don't
+        // fit, it shows the rows that do and "+N more", which opens the whole list.
+        pcSetUpVisitLists(document, {
+            more: "+%s more",
+            fewer: "Show fewer"
+        });
         $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
         $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
