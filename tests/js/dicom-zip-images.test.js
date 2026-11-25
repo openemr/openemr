@@ -211,3 +211,117 @@ describe('createNavigator', () => {
         expect(ui.next.disabled).toBe(false);
     });
 });
+
+describe('fileType', () => {
+    test.each([
+        ['IM0001.dcm', 'application/dicom'],
+        ['IM0001.DCM', 'application/dicom'],
+        ['preview.jpg', 'image/jpeg'],
+        ['preview.JPEG', 'image/jpeg'],
+        ['scan.png', 'image/png'],
+        ['scan.gif', 'image/gif'],
+        ['scan.bmp', 'image/bmp'],
+        ['unknown.xyz', ''],
+        ['noextension', ''],
+        ['constructor', ''],
+    ])('%s', (name, expected) => {
+        expect(zipImages.fileType(name)).toBe(expected);
+    });
+
+    test('a name made by dicomFileName gets a type dwv can load', () => {
+        expect(zipImages.fileType(zipImages.dicomFileName('series/IM0001'))).toBe('application/dicom');
+        expect(zipImages.fileType(zipImages.dicomFileName('series/preview.jpg'))).toBe('image/jpeg');
+    });
+});
+
+describe('readResponse', () => {
+    const streamResponse = (chunks, contentLength) => {
+        let index = 0;
+        return {
+            headers: {get: (name) => (name === 'Content-Length' && contentLength !== undefined ? String(contentLength) : null)},
+            arrayBuffer: jest.fn(() => Promise.resolve(new ArrayBuffer(0))),
+            body: {
+                getReader: () => ({
+                    read: () => Promise.resolve(index < chunks.length
+                        ? {done: false, value: chunks[index++]}
+                        : {done: true, value: undefined}),
+                }),
+            },
+        };
+    };
+
+    test('joins the chunks in order and reports the progress after each chunk', async () => {
+        const response = streamResponse([Uint8Array.of(1, 2, 3), Uint8Array.of(4, 5)], 5);
+        const progress = jest.fn();
+        const buffer = await zipImages.readResponse(response, progress);
+        expect(Array.from(new Uint8Array(buffer))).toEqual([1, 2, 3, 4, 5]);
+        expect(progress.mock.calls).toEqual([[3, 5], [5, 5]]);
+        expect(response.arrayBuffer).not.toHaveBeenCalled();
+    });
+
+    test('reads the body in one go when the size is unknown', async () => {
+        const response = streamResponse([Uint8Array.of(1)], undefined);
+        const progress = jest.fn();
+        await zipImages.readResponse(response, progress);
+        expect(response.arrayBuffer).toHaveBeenCalledTimes(1);
+        expect(progress).not.toHaveBeenCalled();
+    });
+
+    test('reads the body in one go when it cannot be streamed', async () => {
+        const response = streamResponse([], 10);
+        response.body = null;
+        await zipImages.readResponse(response, jest.fn());
+        expect(response.arrayBuffer).toHaveBeenCalledTimes(1);
+    });
+
+    test('a read that fails (for example a cancelled download) rejects', async () => {
+        const response = streamResponse([], 10);
+        const abort = Object.assign(new Error('aborted'), {name: 'AbortError'});
+        response.body = {getReader: () => ({read: () => Promise.reject(abort)})};
+        await expect(zipImages.readResponse(response, jest.fn())).rejects.toBe(abort);
+    });
+});
+
+describe('isAbortError', () => {
+    test('only an AbortError counts as a cancel', () => {
+        expect(zipImages.isAbortError(Object.assign(new Error('x'), {name: 'AbortError'}))).toBe(true);
+        expect(zipImages.isAbortError(new Error('HTTP 500'))).toBe(false);
+        expect(zipImages.isAbortError(null)).toBe(false);
+        expect(zipImages.isAbortError(undefined)).toBe(false);
+    });
+});
+
+describe('createNavigator when the viewer refuses an image', () => {
+    const build = (loadFile) => {
+        const entries = [entry('1.dcm'), entry('2.dcm'), entry('3.dcm')];
+        const ui = {prev: {disabled: true}, next: {disabled: true}, count: {textContent: ''}};
+        const errors = [];
+        const nav = zipImages.createNavigator(entries, ui, loadFile, (error) => errors.push(String(error)));
+        return {ui, errors, nav};
+    };
+
+    test('the first image that the viewer refuses rejects, so the caller can fall back', async () => {
+        const {ui, nav} = build(() => {
+            throw new Error('No loader found for file');
+        });
+        await expect(nav.show(0)).rejects.toThrow('No loader found for file');
+        expect(ui.next.disabled).toBe(false); // not stuck busy
+    });
+
+    test('a later image that the viewer refuses is reported and the buttons work again', async () => {
+        let calls = 0;
+        const {ui, errors, nav} = build(() => {
+            calls += 1;
+            if (calls === 2) {
+                throw new Error('No loader found for file');
+            }
+        });
+        await nav.show(0);
+        nav.loadEnded();
+        ui.next.onclick();
+        await flush();
+        expect(errors).toEqual(['Error: No loader found for file']);
+        expect(ui.next.disabled).toBe(false);
+        expect(ui.prev.disabled).toBe(false);
+    });
+});

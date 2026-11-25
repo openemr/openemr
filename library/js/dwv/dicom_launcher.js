@@ -351,12 +351,27 @@ function startApp() {
                 oemrApp.loadURLs([url]);
             }
         };
-        window.fetch(url, {credentials: 'same-origin'}).then(function (response) {
+        // Progress and cancel of the download. dwv's own loader did both for a url; the zip is fetched here instead, so the
+        // progress bar is driven by the bytes received and Ctrl-X aborts the request. A cancel is not an error: it must not
+        // fall back to the default loader, which would start the download again.
+        const controller = (typeof AbortController === 'function') ? new AbortController() : null;
+        const cancelOnCtrlX = function (event) {
+            if (event.ctrlKey && event.keyCode === 88 && controller) { // crtl-x
+                console.log("Abort of the DICOM zip download received from user (crtl-x).");
+                controller.abort();
+            }
+        };
+        window.addEventListener("keydown", cancelOnCtrlX);
+        dwvOemr.gui.displayProgress(0);
+        window.fetch(url, controller ? {credentials: 'same-origin', signal: controller.signal} : {credentials: 'same-origin'}).then(function (response) {
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);
             }
-            return response.arrayBuffer();
+            return dwvOemr.zipImages.readResponse(response, function (received, total) {
+                dwvOemr.gui.displayProgress(Math.min(100, Math.ceil((received / total) * 100)));
+            });
         }).then(function (buffer) {
+            window.removeEventListener("keydown", cancelOnCtrlX);
             zipBuffer = buffer;
             return JSZip.loadAsync(buffer);
         }).then(function (zip) {
@@ -380,14 +395,25 @@ function startApp() {
                     oemrApp.reset();
                     toggle('loaderlist'); // the load end handler closes it again.
                 }
-                const isDicom = /\.dcm$/i.test(name);
-                oemrApp.loadFiles([new File([buffer], name, isDicom ? {type: 'application/dicom'} : {})]);
+                // dwv chooses its loader by the MIME type (pictures) or the .dcm extension, so the File gets the matching type.
+                oemrApp.loadFiles([new File([buffer], name, {type: dwvOemr.zipImages.fileType(name)})]);
             }, function () {
                 alert("The image could not be read. See log for details.");
             });
             // Rejects when the first image cannot be read: nothing is shown yet, so the default loader takes over.
             return zipNavigator.show(0);
-        }).catch(useDefaultLoader);
+        }).catch(function (error) {
+            window.removeEventListener("keydown", cancelOnCtrlX);
+            if (dwvOemr.zipImages.isAbortError(error)) {
+                // The user cancelled the download: nothing is shown, close the progress popup and show the drop box again.
+                console.warn("DICOM zip download was aborted.");
+                dwvOemr.gui.displayProgress(100);
+                toggle('loaderlist');
+                dropBoxLoader.showDropboxElement();
+                return;
+            }
+            useDefaultLoader(error);
+        });
     };
 
     if (dwvOemr.oemrDocumentUrl) {

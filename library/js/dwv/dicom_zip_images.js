@@ -51,6 +51,61 @@ dwvOemr.zipImages = (function () {
         return /\.dcm$/i.test(name) || PICTURE_NAME.test(name) ? name : name + '.dcm';
     };
 
+    // dwv picks its image loader by the MIME type of the File (RawImageLoader: file.type.match("image.*")) and its DICOM
+    // loader by the extension, so a picture needs its type or no loader is found for it.
+    const PICTURE_TYPES = {jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', bmp: 'image/bmp'};
+
+    /**
+     * The MIME type to give the File that dwv gets for a name made by dicomFileName(): the picture type for a picture,
+     * application/dicom for .dcm and '' for anything else.
+     */
+    const fileType = function (name) {
+        if (/\.dcm$/i.test(name)) {
+            return 'application/dicom';
+        }
+        const extension = name.split('.').pop().toLowerCase();
+        return Object.prototype.hasOwnProperty.call(PICTURE_TYPES, extension) ? PICTURE_TYPES[extension] : '';
+    };
+
+    /**
+     * Read a fetch() response into an ArrayBuffer. When the size is known (Content-Length) and the body can be read as a
+     * stream, onProgress(received, total) is called after every chunk, so a large zip shows progress while it downloads.
+     * Without a size or a stream reader the body is read in one go. A cancelled fetch (AbortController) rejects the read.
+     * Note that a compressed transfer can report more bytes than Content-Length: the caller should cap the percentage.
+     */
+    const readResponse = function (response, onProgress) {
+        const total = parseInt(response.headers.get('Content-Length'), 10) || 0;
+        if (!total || !response.body || typeof response.body.getReader !== 'function') {
+            return response.arrayBuffer();
+        }
+        const reader = response.body.getReader();
+        const chunks = [];
+        let received = 0;
+        const pump = function () {
+            return reader.read().then(function (result) {
+                if (result.done) {
+                    const all = new Uint8Array(received);
+                    let offset = 0;
+                    chunks.forEach(function (chunk) {
+                        all.set(chunk, offset);
+                        offset += chunk.length;
+                    });
+                    return all.buffer;
+                }
+                chunks.push(result.value);
+                received += result.value.length;
+                onProgress(received, total);
+                return pump();
+            });
+        };
+        return pump();
+    };
+
+    // Did the user cancel (AbortController.abort() rejects a fetch with an AbortError)?
+    const isAbortError = function (error) {
+        return !!error && error.name === 'AbortError';
+    };
+
     /**
      * Previous/next navigation. One image is read and loaded at a time: the buttons stay disabled until the
      * load ended, and a read that a newer click has replaced is dropped. The counter and the current index
@@ -90,6 +145,20 @@ dwvOemr.zipImages = (function () {
                 return buffer;
             });
         };
+        // A failure to read an entry or to hand it to the viewer (for example dwv finds no loader for the file): the buttons
+        // work again; the first image rethrows so that the caller can fall back, a later one is reported to onError.
+        const fail = function (error) {
+            busy = false;
+            loading = false;
+            updateNav();
+            if (!started) {
+                throw error;
+            }
+            console.log("DICOM zip entry could not be shown: " + error);
+            if (onError) {
+                onError(error);
+            }
+        };
         const show = function (index) {
             const mine = ++request;
             busy = true;
@@ -101,22 +170,18 @@ dwvOemr.zipImages = (function () {
                 current = index;
                 ui.count.textContent = (index + 1) + " / " + entries.length;
                 loading = true;
-                loadFile(buffer, dicomFileName(entries[index].name), !started);
+                try {
+                    loadFile(buffer, dicomFileName(entries[index].name), !started);
+                } catch (error) {
+                    fail(error);
+                    return;
+                }
                 started = true;
             }, function (error) {
                 if (mine !== request) {
                     return;
                 }
-                busy = false;
-                loading = false;
-                updateNav();
-                if (!started) {
-                    throw error;
-                }
-                console.log("DICOM zip entry could not be read: " + error);
-                if (onError) {
-                    onError(error);
-                }
+                fail(error);
             });
         };
         ui.prev.onclick = function () {
@@ -149,6 +214,9 @@ dwvOemr.zipImages = (function () {
         isZipDocumentUrl: isZipDocumentUrl,
         selectImageEntries: selectImageEntries,
         dicomFileName: dicomFileName,
+        fileType: fileType,
+        readResponse: readResponse,
+        isAbortError: isAbortError,
         createNavigator: createNavigator
     };
 })();
