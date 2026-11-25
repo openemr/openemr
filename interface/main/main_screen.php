@@ -209,7 +209,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $mfaUsername = $session->get('authUser');
                     AuthUtils::resetMfaChallengeCounters(
                         is_string($mfaUsername) ? $mfaUsername : null,
-                        $ip['ip_string']
+                        $ip['ip']
                     );
                 } else {
                     $mfaUsername = $session->get('authUser');

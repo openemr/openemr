@@ -263,9 +263,6 @@ class GeoTelemetry implements GeoTelemetryInterface
         }
 
         $statusLine = $responseHeaders[0];
-        if (!is_string($statusLine)) {
-            return;
-        }
 
         if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
             $statusCode = (int)$matches[1];
