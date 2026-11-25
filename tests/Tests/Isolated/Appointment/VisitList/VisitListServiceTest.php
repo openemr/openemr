@@ -328,8 +328,9 @@ class VisitListServiceTest extends TestCase
                 return str_contains($sql, '`pc_multiple`') ? $appointmentRows : [];
             },
             static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
-            execute: static function (string $sql, array $binds) use (&$statements): void {
+            execute: static function (string $sql, array $binds) use (&$statements): int {
                 $statements[] = [$sql, $binds];
+                return 1;
             }
         );
     }
@@ -520,8 +521,9 @@ class VisitListServiceTest extends TestCase
         return new VisitListService(
             static fn (string $sql, array $binds): array => [],
             static fn (string $from, string $to, string $where, array $binds): array => [],
-            execute: static function (string $sql, array $binds) use (&$statements): void {
+            execute: static function (string $sql, array $binds) use (&$statements): int {
                 $statements[] = [$sql, $binds];
+                return 1;
             }
         );
     }
@@ -626,7 +628,7 @@ class VisitListServiceTest extends TestCase
         $service = new VisitListService(
             static fn (string $sql, array $binds): array => [],
             static fn (string $from, string $to, string $where, array $binds): array => [],
-            execute: static function (string $sql, array $binds): void {
+            execute: static function (string $sql, array $binds): int {
                 self::fail('nothing is written');
             }
         );

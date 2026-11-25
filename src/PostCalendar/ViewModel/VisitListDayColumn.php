@@ -206,6 +206,58 @@ final readonly class VisitListDayColumn
     }
 
     /**
+     * Where the overlap layout places each grid event: laid out in overlapOrder(), unless the
+     * day's own order draws fewer events over each other. The layout keeps each event's
+     * rightmost place and narrowest width across its slots, so moving a block last can make an
+     * appointment that also runs past the block cover part of it.
+     *
+     * @param callable(list<array<string, mixed>>): array<int|string, array{width: float, leftpos: float}> $layout
+     * @param int $intervalMinutes the length of one time slot in the grid
+     * @return array<int|string, array{width: float, leftpos: float}>
+     */
+    public function overlapPositions(callable $layout, int $intervalMinutes): array
+    {
+        $ordered = $this->overlapOrder($intervalMinutes);
+        $positions = $layout($ordered);
+        if ($ordered === $this->gridEvents) {
+            return $positions;
+        }
+        $dayOrder = $layout($this->gridEvents);
+        return $this->collisions($dayOrder, $intervalMinutes) < $this->collisions($positions, $intervalMinutes)
+            ? $dayOrder
+            : $positions;
+    }
+
+    /**
+     * How many pairs of grid events these positions draw over each other: in the same time
+     * slot and sharing part of the column's width.
+     *
+     * @param array<int|string, array{width: float, leftpos: float}> $positions
+     */
+    private function collisions(array $positions, int $intervalMinutes): int
+    {
+        $placed = [];
+        foreach ($this->gridEvents as $event) {
+            $eid = $event['eid'] ?? null;
+            if ((is_int($eid) || is_string($eid)) && isset($positions[$eid])) {
+                $placed[] = [self::slots($event, max(1, $intervalMinutes)), $positions[$eid]];
+            }
+        }
+        $count = 0;
+        foreach ($placed as $index => [[$start, $end], $place]) {
+            foreach (array_slice($placed, $index + 1) as [[$otherStart, $otherEnd], $other]) {
+                $sameTime = $start < $otherEnd && $otherStart < $end;
+                $sameWidth = $place['leftpos'] < $other['leftpos'] + $other['width'] - 0.01
+                    && $other['leftpos'] < $place['leftpos'] + $place['width'] - 0.01;
+                if ($sameTime && $sameWidth) {
+                    $count++;
+                }
+            }
+        }
+        return $count;
+    }
+
+    /**
      * The start of an event's first time slot and the end of its last one, in minutes from
      * midnight: its start rounded down and its end rounded up to whole slots.
      *

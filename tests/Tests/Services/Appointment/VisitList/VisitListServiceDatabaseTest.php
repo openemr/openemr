@@ -29,6 +29,7 @@ use OpenEMR\Appointment\VisitList\VisitListPostedBlock;
 use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\AppointmentService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -449,6 +450,58 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->assertSame([['pc_aid' => (string) $third, 'pc_visit_seq' => 1], ['pc_aid' => (string) $third, 'pc_visit_seq' => 2]], $rows);
     }
 
+    public function testPatientsSharingAnOrderNumberKeepTheirOrderWhenTheBlockMoves(): void
+    {
+        // Both #3 with no stop, so their start puts them in order: 9:15 before 9:30. At the
+        // block's new start they share a start too, and the later one has the lower event ID.
+        $late = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:30:00', 0, ['visitList' => 1, 'seq' => 3]);
+        $early = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:15:00', 0, ['visitList' => 1, 'seq' => 3]);
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?',
+            ['13:00:00', $this->eids['weekly']]
+        );
+
+        $this->service->moveWithBlock($save, $this->posted('2031-03-10', '13:00:00'));
+
+        $rows = QueryUtils::fetchRecords(
+            'SELECT pc_eid, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid IN (?, ?) ORDER BY pc_visit_seq',
+            [$early, $late]
+        );
+        $this->assertSame([[$early, 3], [$late, 4]], array_map(
+            static fn (array $row): array => [
+                filter_var($row['pc_eid'], FILTER_VALIDATE_INT),
+                filter_var($row['pc_visit_seq'], FILTER_VALIDATE_INT),
+            ],
+            $rows
+        ));
+    }
+
+    public function testAPatientMovedMeanwhileIsNotCountedAsMoved(): void
+    {
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_startTime = ? WHERE pc_eid = ?',
+            ['13:00:00', $this->eids['weekly']]
+        );
+        // Another user moves one patient to another date before the block's patients follow it.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_eventDate = ? WHERE pc_eid = ?',
+            ['2031-03-11', $this->eids['second']]
+        );
+
+        $result = $this->service->moveWithBlock($save, $this->posted('2031-03-10', '13:00:00'));
+
+        $this->assertSame(1, $result->moved);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 13:00:00 a',
+                $this->eids['second'] => '2031-03-11 09:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $this->eids['second']])
+        );
+    }
+
     public function testABlockSavedByAnotherUserMeanwhileIsNotTakenForThisOne(): void
     {
         // Made before the new provider, so it has the lower ID and would be paired first.
@@ -606,6 +659,31 @@ class VisitListServiceDatabaseTest extends TestCase
             ],
             $this->timesOf([$this->eids['first'], $this->eids['second'], $march24])
         );
+    }
+
+    public function testDeletingThisDateOfAMultiProviderBlockExcludesThatDate(): void
+    {
+        // With multiple providers per event, a delete of one date writes the excluded date in
+        // its own branch, which must use the Ymd format the calendar compares.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_multiple = (SELECT m FROM (SELECT MAX(pc_multiple) + 1 AS m FROM openemr_postcalendar_events) AS x) WHERE pc_eid = ?',
+            [$this->eids['weekly']]
+        );
+        $globals = OEGlobalsBag::getInstance();
+        $had = $globals->has('select_multi_providers');
+        $old = $globals->getBoolean('select_multi_providers');
+        $globals->set('select_multi_providers', true);
+        try {
+            $this->deleteWeekly('current', '2031-03-10');
+        } finally {
+            if ($had) {
+                $globals->set('select_multi_providers', $old);
+            } else {
+                $globals->remove('select_multi_providers');
+            }
+        }
+
+        $this->assertSame(['2031-03-03', '2031-03-24', '2031-03-31'], $this->weeklyDates());
     }
 
     public function testDeletingEveryDateLeavesPatientsOnDatesBeforeToday(): void

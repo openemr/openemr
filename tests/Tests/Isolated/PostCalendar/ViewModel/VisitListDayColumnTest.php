@@ -417,6 +417,24 @@ final class VisitListDayColumnTest extends TestCase
         ], $places);
     }
 
+    public function testAnAppointmentRunningPastABlockIsNotDrawnOverIt(): void
+    {
+        // A 8:00-11:00 and C 9:00-11:00 run past block B 9:00-10:00. With B moved last, C
+        // would take the right half in the 10:00 slot and keep it at a third of the width,
+        // covering part of B, so the day's own order is used: three thirds side by side.
+        $places = self::places([
+            self::timed(42, '08:00:00', 10800),
+            self::block(40, '09:00:00', 3600),
+            self::timed(43, '09:00:00', 7200),
+        ], self::twoBlockSchedule('09:00', '10:00', '13:00', '14:00'), 30);
+
+        $this->assertSame([
+            40 => ['left: 33.333333333333%', 'width: 33.333333333333%'],
+            42 => ['left: 0%', 'width: 33.333333333333%'],
+            43 => ['left: 66.666666666667%', 'width: 33.333333333333%'],
+        ], $places);
+    }
+
     /**
      * @return array<string, mixed>
      */

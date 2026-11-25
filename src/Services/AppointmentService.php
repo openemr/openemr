@@ -506,7 +506,7 @@ class AppointmentService extends BaseService
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
                         " WHERE pc_aid <=> ? AND pc_multiple=?", [$provider,$row['pc_multiple']]);
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                    $selected_date = date("Y-m-d", strtotime((string) $event_selected_date));
+                    $selected_date = date("Ymd", strtotime((string) $event_selected_date));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= "," . $selected_date;
                     } else {

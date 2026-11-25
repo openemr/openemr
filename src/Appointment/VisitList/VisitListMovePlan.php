@@ -25,11 +25,13 @@ final readonly class VisitListMovePlan
      * @param list<VisitListMove>  $moves    patients whose date, start or provider changes
      * @param list<VisitListEntry> $stranded patients left without a block occurrence
      * @param list<VisitListEntry> $past     patients on dates before today, left where they are
+     * @param list<VisitList>      $from     the lists the moving patients are on, as captured
      */
     public function __construct(
         public array $moves,
         public array $stranded,
         public array $past = [],
+        public array $from = [],
     ) {
     }
 }

@@ -65,8 +65,9 @@ class VisitListEditorTest extends TestCase
                 return str_contains($sql, '`pc_multiple`') ? $appointmentRows : $entryRows;
             },
             static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
-            execute: function (string $sql, array $binds): void {
+            execute: function (string $sql, array $binds): int {
                 $this->statements[] = [$sql, $binds];
+                return 1;
             },
             repeatPattern: static fn (array $row, string $from, string $to): array => [$from],
             // By default before every date in these tests, so no patient is on a past date.

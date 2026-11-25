@@ -424,11 +424,9 @@ final readonly class CalendarRenderDataBuilder
             );
             $rawDayEvents = $visitListColumn->gridEvents;
 
-            $overlapPositions = $this->viewModel->detectEventOverlap(
-                $visitListColumn->overlapOrder($intervalMinutes),
-                $times,
-                $intervalMinutes,
-                $providerId
+            $overlapPositions = $visitListColumn->overlapPositions(
+                fn (array $events): array => $this->viewModel->detectEventOverlap($events, $times, $intervalMinutes, $providerId),
+                $intervalMinutes
             );
 
             $decoratedEvents = $this->decorateDayPrintEvents(
@@ -961,11 +959,9 @@ final readonly class CalendarRenderDataBuilder
             );
             $rawDayEvents = $visitListColumn->gridEvents;
 
-            $overlapPositions = $this->viewModel->detectEventOverlap(
-                $visitListColumn->overlapOrder($intervalMinutes),
-                $times,
-                $intervalMinutes,
-                $providerId
+            $overlapPositions = $visitListColumn->overlapPositions(
+                fn (array $events): array => $this->viewModel->detectEventOverlap($events, $times, $intervalMinutes, $providerId),
+                $intervalMinutes
             );
 
             $decoratedEvents = $this->decorateDayScreenEvents(
@@ -1143,11 +1139,9 @@ final readonly class CalendarRenderDataBuilder
                 );
                 $gridEvents = $visitListColumn->gridEvents;
 
-                $overlapPositions = $this->viewModel->detectEventOverlap(
-                    $visitListColumn->overlapOrder($intervalMinutes),
-                    $times,
-                    $intervalMinutes,
-                    $providerId
+                $overlapPositions = $visitListColumn->overlapPositions(
+                    fn (array $events): array => $this->viewModel->detectEventOverlap($events, $times, $intervalMinutes, $providerId),
+                    $intervalMinutes
                 );
 
                 $columnEvents = $this->decorateWeekScreenEvents(

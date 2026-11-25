@@ -73,11 +73,13 @@ class VisitListReleaseTest extends TestCase
         $this->assertSame('2026-03-09', $starts[4]->format('Y-m-d'));
     }
 
-    public function testABlockStartingInTheLastSlotKeepsItsStart(): void
+    public function testABlockStartingInTheDaysLastSlotStartsItsPatientsThere(): void
     {
-        $starts = VisitListRelease::starts(self::list('2026-03-09 23:50', [1, 2]), 15);
+        // 23:55 is past the day's last whole slot: started there, the visits would end on the
+        // next day, so they start in that slot instead.
+        $starts = VisitListRelease::starts(self::list('2026-03-09 23:55', [1, 2]), 15);
 
-        $this->assertSame([1 => '23:50', 2 => '23:50'], self::times($starts));
+        $this->assertSame([1 => '23:45', 2 => '23:45'], self::times($starts));
     }
 
     public function testAnEmptyListHasNoTimes(): void

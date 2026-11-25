@@ -51,7 +51,7 @@ final readonly class VisitListService
     /** @var Closure(string, string, string, array<int, string|int>): list<array<mixed>> */
     private Closure $fetchEvents;
 
-    /** @var Closure(string, array<int, int|string|null>): void */
+    /** @var Closure(string, array<int, int|string|null>): int */
     private Closure $execute;
 
     /** @var Closure(array<mixed>, string, string): list<string> */
@@ -62,7 +62,8 @@ final readonly class VisitListService
      * @param callable(string, string, string, array<int, string|int>): list<array<mixed>>|null $fetchEvents
      *        events from one date to another (Y-m-d) with repeating ones expanded to each date,
      *        given an extra WHERE clause and its binds, as fetchEvents() returns them
-     * @param callable(string, array<int, int|string|null>): void|null $execute runs a statement that changes rows
+     * @param callable(string, array<int, int|string|null>): int|null $execute runs a statement that changes rows
+     *        and returns how many rows it changed
      * @param callable(array<mixed>, string, string): list<string>|null $repeatPattern the dates (Y-m-d) an event
      *        row repeats on from one date to another, ignoring its excluded dates
      */
@@ -76,8 +77,10 @@ final readonly class VisitListService
     ) {
         $this->fetchRecords = Closure::fromCallable($fetchRecords ?? QueryUtils::fetchRecords(...));
         $this->fetchEvents = Closure::fromCallable($fetchEvents ?? self::fetchCalendarEvents(...));
-        $this->execute = Closure::fromCallable($execute ?? static function (string $sql, array $binds): void {
+        $this->execute = Closure::fromCallable($execute ?? static function (string $sql, array $binds): int {
             QueryUtils::sqlStatementThrowException($sql, $binds);
+            $changed = QueryUtils::affectedRows();
+            return is_int($changed) ? $changed : 0;
         });
         $this->repeatPattern = Closure::fromCallable($repeatPattern ?? self::calendarRepeatPattern(...));
     }
@@ -484,8 +487,9 @@ final readonly class VisitListService
     }
 
     /**
-     * Carry out a move plan: give each patient its block occurrence's date, start and
-     * provider, then renumber each list patients landed on. A patient stays where it is when:
+     * Carry out a move plan: number each list being moved in its order, give each patient its
+     * block occurrence's date, start and provider, then renumber each list patients landed on.
+     * A patient stays where it is when:
      * - it is a multi-provider copy whose new provider already has a copy of that appointment
      *   on that date;
      * - another Visit List block of the provider would claim it at the new time (the calendar
@@ -501,6 +505,11 @@ final readonly class VisitListService
         $takenByOtherBlock = 0;
         $targets = [];
         $claims = [];
+        // Number each list in its captured order first: at their new start, patients that
+        // shared an Order # would otherwise be put in order by event ID, not by their old start.
+        foreach ($plan->from as $list) {
+            $this->renumber($list);
+        }
         foreach ($plan->moves as $move) {
             $entry = $move->entry;
             $to = $move->to;
@@ -515,7 +524,7 @@ final readonly class VisitListService
                 $takenByOtherBlock++;
                 continue;
             }
-            ($this->execute)(
+            $changed = ($this->execute)(
                 'UPDATE `openemr_postcalendar_events` SET `pc_aid` = ?, `pc_eventDate` = ?, `pc_startTime` = ?,'
                 . ' `pc_endTime` = ? WHERE `pc_eid` = ?' . self::STILL_THERE,
                 [
@@ -523,6 +532,10 @@ final readonly class VisitListService
                     $entry->eventId, ...self::stillThereBinds($entry),
                 ]
             );
+            // Nothing changed when the patient was moved or taken off the list meanwhile.
+            if ($changed === 0) {
+                continue;
+            }
             $moved++;
             $targets[$key] = $to;
         }
@@ -549,7 +562,7 @@ final readonly class VisitListService
         );
         $probe = new VisitListEntry(PHP_INT_MAX, 1, $block->providerId, $block->start, null, null);
         $claimer = $this->matcher->blockFor($blocks, $probe);
-        return $claimer === null || self::blockKey($claimer) === self::blockKey($block);
+        return $claimer !== null && self::blockKey($claimer) === self::blockKey($block);
     }
 
     /**
@@ -591,7 +604,7 @@ final readonly class VisitListService
                 $entries[$entry->eventId] = $entry;
             }
             foreach (VisitListRelease::starts($list, $intervalMinutes) as $eventId => $start) {
-                ($this->execute)(
+                $released += ($this->execute)(
                     'UPDATE `openemr_postcalendar_events` SET `pc_visit_list` = 0, `pc_visit_seq` = NULL,'
                     . ' `pc_visit_stop` = NULL, `pc_startTime` = ?, `pc_endTime` = ?, `pc_duration` = ?'
                     . ' WHERE `pc_eid` = ?' . self::STILL_THERE,
@@ -603,7 +616,6 @@ final readonly class VisitListService
                         ...self::stillThereBinds($entries[$eventId]),
                     ]
                 );
-                $released++;
             }
         }
         return $released;

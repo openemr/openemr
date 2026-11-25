@@ -6,7 +6,8 @@
  * Works out the times a Visit List's patients get when their block is deleted (or changed to
  * another category): in list order, one calendar interval apart, starting at the block's
  * start. Times run past the block's old end if need be, but not past the end of the day: the
- * patients that would, share the day's last slot.
+ * patients that would, share the day's last whole slot, as do all of them when the block
+ * starts after that slot begins.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -41,7 +42,7 @@ final class VisitListRelease
         $starts = [];
         foreach ($list->entries as $index => $entry) {
             $time = $start->add(new DateInterval('PT' . ($index * $intervalMinutes) . 'M'));
-            $starts[$entry->eventId] = min($time, max($lastSlot, $start));
+            $starts[$entry->eventId] = min($time, $lastSlot);
         }
         return $starts;
     }

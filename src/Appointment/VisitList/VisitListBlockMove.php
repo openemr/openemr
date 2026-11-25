@@ -49,6 +49,7 @@ final class VisitListBlockMove
         $moves = [];
         $stranded = [];
         $past = [];
+        $from = [];
         foreach ($before as $list) {
             if ($list->block->date() < $today) {
                 array_push($past, ...$list->entries);
@@ -67,8 +68,9 @@ final class VisitListBlockMove
             foreach ($list->entries as $entry) {
                 $moves[] = new VisitListMove($entry, $to);
             }
+            $from[] = $list;
         }
-        return new VisitListMovePlan($moves, $stranded, $past);
+        return new VisitListMovePlan($moves, $stranded, $past, $from);
     }
 
     /**
