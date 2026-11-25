@@ -371,6 +371,28 @@ final class PlannerTest extends TestCase
         $this->assertSame([], $this->policiesOf($this->plan(self::SEED_FILE, $patients), 4));
     }
 
+    public function testZeroPercentSelfPolicyDoesNotRuleOutAnOption(): void
+    {
+        [$first, $second, $third] = $this->patients();
+        $patients = [
+            $first,
+            $second,
+            $third,
+            $this->patient(4, 'Dee', 'Fox', '2001-07-07', 'unknown', null, new PostalAddress('4 Fir Street', 'Quincy', 'MA', '02169')),
+        ];
+        $yaml = str_replace(
+            '- {primary: {from: [bcbs], subscriber: guardian}}',
+            '- {primary: {from: [bcbs], subscriber: guardian}, secondary: {from: [medigap], subscriber: self, percent: 0}}',
+            $this->withGuardianRule('GRMTH'),
+        );
+
+        // Pid 4 has no sex to subscribe with, but the secondary policy that
+        // would need it is never made, so the guardian's policy still is.
+        $companies = array_map(static fn (PlannedPolicy $p): string => $p->companyKey, $this->policiesOf($this->plan($yaml, $patients), 4));
+        $this->assertContains('bcbs', $companies);
+        $this->assertNotContains('medigap', $companies);
+    }
+
     public function testGrandparentGuardianCanBeTheSubscriber(): void
     {
         $plan = $this->plan($this->withGuardianRule('GRMTH'));

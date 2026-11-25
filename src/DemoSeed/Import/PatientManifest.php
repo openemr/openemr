@@ -47,6 +47,34 @@ final readonly class PatientManifest
     }
 
     /**
+     * Reads a manifest written for $site and checks, before anything is
+     * written, that each pid is still the patient imported there, e.g. that
+     * the database wasn't reset since.
+     *
+     * @param callable(int): ?string $uuidOfPid the UUID of the patient with
+     *        that pid in the database, or null if there is none
+     * @return list<ImportedPatient>
+     */
+    public function readForReuse(string $path, string $site, callable $uuidOfPid): array
+    {
+        $patients = $this->read($path, $site);
+        foreach ($patients as $patient) {
+            if ($uuidOfPid($patient->pid) !== $patient->uuid) {
+                throw new ImportException(sprintf(
+                    'pid %d is not the patient %s says was imported there (%s %s, UUID %s);'
+                    . ' was the database reset since that import?',
+                    $patient->pid,
+                    $path,
+                    $patient->synthea->firstName,
+                    $patient->synthea->lastName,
+                    $patient->uuid,
+                ));
+            }
+        }
+        return $patients;
+    }
+
+    /**
      * Reads a manifest written for $site.
      *
      * @return list<ImportedPatient>
@@ -95,7 +123,7 @@ final readonly class PatientManifest
                 $patients[] = new ImportedPatient($pid, $uuid, SyntheaPatient::fromArray($row));
             } catch (\DomainException | SyntheaException $e) {
                 throw new ImportException(
-                    sprintf('Patient %d in the manifest at %s is not valid: %s', $position + 1, $path, $e->getMessage()),
+                    sprintf('Patient %d in the manifest at %s is not valid', $position + 1, $path),
                     0,
                     $e,
                 );

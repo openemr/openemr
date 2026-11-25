@@ -43,6 +43,24 @@ final readonly class CcdaPatientImporter
      */
     public function importAll(array $patients, ?callable $onImported = null): array
     {
+        // Held from before the audit settings are read until they are put
+        // back, so a run on the same database with another work directory
+        // can't read them while they are off and restore them off.
+        $this->database->lockImports();
+        try {
+            return $this->importAllLocked($patients, $onImported);
+        } finally {
+            $this->database->unlockImports();
+        }
+    }
+
+    /**
+     * @param list<SyntheaPatient> $patients
+     * @param ?callable(ImportedPatient, int, int): void $onImported
+     * @return list<ImportedPatient>
+     */
+    private function importAllLocked(array $patients, ?callable $onImported): array
+    {
         $imported = [];
         $previousAuditSettings = $this->database->disableAuditLog();
         try {

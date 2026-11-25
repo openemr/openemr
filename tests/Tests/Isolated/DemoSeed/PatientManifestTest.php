@@ -95,10 +95,53 @@ final class PatientManifestTest extends TestCase
             json_encode(['site' => 'default', 'patients' => [$row]], JSON_THROW_ON_ERROR),
         );
 
-        $this->expectException(ImportException::class);
-        $this->expectExceptionMessage('Patient 1 in the manifest at ' . $this->path . ' is not valid: Patient pid must be positive');
+        try {
+            (new PatientManifest($this->filesystem))->read($this->path, 'default');
+            $this->fail('A row with pid 0 should be refused');
+        } catch (ImportException $e) {
+            $this->assertSame('Patient 1 in the manifest at ' . $this->path . ' is not valid', $e->getMessage());
+            $previous = $e->getPrevious();
+            $this->assertInstanceOf(\DomainException::class, $previous);
+            $this->assertSame('Patient pid must be positive', $previous->getMessage());
+        }
+    }
 
-        (new PatientManifest($this->filesystem))->read($this->path, 'default');
+    public function testReuseAcceptsPatientsStillInTheDatabase(): void
+    {
+        $manifest = new PatientManifest($this->filesystem);
+        $manifest->write($this->path, 'default', [$this->patient(7), $this->patient(8)]);
+
+        $patients = $manifest->readForReuse(
+            $this->path,
+            'default',
+            static fn (int $pid): string => sprintf('00000000-0000-4000-8000-%012d', $pid),
+        );
+
+        $this->assertSame([7, 8], array_map(static fn (ImportedPatient $patient): int => $patient->pid, $patients));
+    }
+
+    public function testReuseRefusesAPidThatIsNowAnotherPatientWithTheSameNameAndBirthDate(): void
+    {
+        // After a reset and a new import, pid 7 can be a patient with the
+        // same name and birth date; only the UUID tells them apart.
+        $manifest = new PatientManifest($this->filesystem);
+        $manifest->write($this->path, 'default', [$this->patient(7)]);
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('pid 7 is not the patient');
+
+        $manifest->readForReuse($this->path, 'default', static fn (int $pid): string => 'aaaaaaaa-0000-4000-8000-000000000007');
+    }
+
+    public function testReuseRefusesAPidWithNoPatient(): void
+    {
+        $manifest = new PatientManifest($this->filesystem);
+        $manifest->write($this->path, 'default', [$this->patient(7)]);
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('was the database reset since that import?');
+
+        $manifest->readForReuse($this->path, 'default', static fn (int $pid): ?string => null);
     }
 
     public function testAnEmptyManifestStartsANewImport(): void

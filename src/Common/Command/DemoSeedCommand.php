@@ -130,8 +130,7 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
 
         try {
             if ($input->getOption('reuse-import') === true) {
-                $imported = $manifest->read($manifestPath, $site);
-                $this->assertManifestMatchesDatabase($imported, $manifestPath);
+                $imported = $manifest->readForReuse($manifestPath, $site, (new ImportDatabase())->patientUuid(...));
                 $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
             } else {
                 $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem, $manifest, $site);
@@ -183,31 +182,6 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
 
         $io->success(sprintf('Loaded %d patients.', count($imported)));
         return Command::SUCCESS;
-    }
-
-    /**
-     * Stops before writing anything when a manifest pid is no longer the
-     * patient imported there, e.g. after the database was reset.
-     *
-     * @param list<ImportedPatient> $imported
-     * @throws ImportException
-     */
-    private function assertManifestMatchesDatabase(array $imported, string $manifestPath): void
-    {
-        $database = new ImportDatabase();
-        foreach ($imported as $patient) {
-            if ($database->patientUuid($patient->pid) !== $patient->uuid) {
-                throw new ImportException(sprintf(
-                    'pid %d is not the patient %s says was imported there (%s %s, UUID %s);'
-                    . ' was the database reset since that import?',
-                    $patient->pid,
-                    $manifestPath,
-                    $patient->synthea->firstName,
-                    $patient->synthea->lastName,
-                    $patient->uuid,
-                ));
-            }
-        }
     }
 
     /**

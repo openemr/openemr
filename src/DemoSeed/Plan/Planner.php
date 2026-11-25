@@ -592,7 +592,8 @@ final class Planner
                         }
                     }
                     foreach ($option->policies as $rule) {
-                        if ($rule->subscriber->kind === SubscriberKind::Self && !$this->patientCanSubscribe($pid)) {
+                        // A policy at 0% is never made, so it needs no subscriber.
+                        if ($rule->percent > 0 && $rule->subscriber->kind === SubscriberKind::Self && !$this->patientCanSubscribe($pid)) {
                             return false;
                         }
                     }

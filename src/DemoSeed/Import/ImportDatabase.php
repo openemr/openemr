@@ -24,6 +24,9 @@ class ImportDatabase
     /** Globals the CCDA import turns off for speed, as import_ccda.php does. */
     private const AUDIT_GLOBALS = ['enable_auditlog', 'gbl_force_log_breakglass'];
 
+    /** Named lock (with the database name added) held while importing. */
+    private const IMPORT_LOCK_PREFIX = 'openemr-demo-seed-import:';
+
     public function patientCount(): int
     {
         return $this->singleInt('SELECT COUNT(*) AS `value` FROM `patient_data`');
@@ -96,6 +99,32 @@ class ImportDatabase
             return null;
         }
         return UuidRegistry::uuidToString($uuid);
+    }
+
+    /**
+     * Takes a lock on this database for the import, or fails right away if
+     * another run of the loader holds it.
+     *
+     * @throws ImportException
+     */
+    public function lockImports(): void
+    {
+        $rows = QueryUtils::fetchRecordsNoLog(
+            "SELECT GET_LOCK(CONCAT(?, DATABASE()), 0) AS `value`",
+            [self::IMPORT_LOCK_PREFIX],
+        );
+        $acquired = $rows[0]['value'] ?? null;
+        if ($acquired !== 1 && $acquired !== '1') {
+            throw new ImportException('Another run of the loader is importing into this database; wait for it to finish');
+        }
+    }
+
+    public function unlockImports(): void
+    {
+        QueryUtils::fetchRecordsNoLog(
+            "SELECT RELEASE_LOCK(CONCAT(?, DATABASE())) AS `value`",
+            [self::IMPORT_LOCK_PREFIX],
+        );
     }
 
     /**
