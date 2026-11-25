@@ -80,14 +80,24 @@ on pre-GA PHP yet) carry an **install-php-extensions tripwire**: at build
 time it probes whether each from-source extension can now install via the
 stock installer, and if so, deliberately fails the build with a
 `TRIPWIRE FIRED` message naming which extensions can be retired. If a
-tripwire fires on the flipped FROM, retire the named source-workaround
-block(s) in the same PR (move the extension into the standard
-`install-php-extensions` arg list) before merging. Merging a PR whose
-sidecar would fail the tripwire silently breaks the next weekly rebuild,
-and CI keeps pinned to the pre-flip digest until the workaround is
-retired. See [#15454](https://github.com/openemr/openemr/pull/15454) for
-the 8.6 RC-to-GA flip where the tripwire did *not* fire (workarounds
-stayed), as the reference precedent for the probe step.
+tripwire fires on the flipped FROM, three edits in the same PR before
+merging:
+1. Delete the named extension's from-source workaround block.
+2. Add the extension name to the standard `install-php-extensions` arg
+   list further down in the Dockerfile.
+3. **Remove the extension name from the probe loop** itself (the
+   `for ext in imagick redis pcov` list). Skipping this step leaves the
+   probe testing an extension no longer under workaround, and it fires
+   again on the next build — the retirement must be reflected in all
+   three places for the build to go green.
+
+Rebuild locally after the three edits to confirm the tripwire no longer
+fires. Merging a PR that would fail the tripwire silently breaks the
+next weekly rebuild, and CI keeps pinned to the pre-flip digest until
+the workaround retirement lands. See
+[#15454](https://github.com/openemr/openemr/pull/15454) for the 8.6
+RC-to-GA flip where the tripwire did *not* fire (workarounds stayed),
+as the reference precedent for the probe step.
 
 After the sidecar FROM flip in either stage (and after retiring any
 workaround the tripwire flags), the next weekly rebuild of
