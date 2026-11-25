@@ -132,7 +132,7 @@ $registerAndEnableClient = function (string $nameSuffix, string $scope, string $
         fwrite(STDERR, "FAIL DCR request errored: " . $e->getMessage() . "\n");
         exit(3);
     }
-    if ($regResponse->getStatusCode() !== 200) {
+    if ($regResponse->getStatusCode() !== 201) {
         fwrite(STDERR, "FAIL DCR returned HTTP {$regResponse->getStatusCode()}\n");
         fwrite(STDERR, substr((string) $regResponse->getBody(), 0, 2000) . "\n");
         exit(4);

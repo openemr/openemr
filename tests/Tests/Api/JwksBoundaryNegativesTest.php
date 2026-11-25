@@ -84,7 +84,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'scope' => 'openid',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertIsString($clientData['client_id']);
@@ -152,7 +152,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertIsString($clientData['client_id']);
@@ -220,7 +220,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertIsString($clientData['client_id']);
@@ -285,7 +285,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode());
+        $this->assertSame(201, $reg->getStatusCode());
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
@@ -346,7 +346,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'jwks' => json_decode((string) file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR),
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode());
+        $this->assertSame(201, $reg->getStatusCode());
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
@@ -409,7 +409,7 @@ class JwksBoundaryNegativesTest extends TestCase
                 'jwks' => json_decode((string) file_get_contents(__DIR__ . '/../data/Unit/Common/Auth/Grant/jwk-public-valid.json'), true, 512, JSON_THROW_ON_ERROR),
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode());
+        $this->assertSame(201, $reg->getStatusCode());
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);
