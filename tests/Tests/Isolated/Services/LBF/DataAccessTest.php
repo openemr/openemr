@@ -605,6 +605,43 @@ namespace OpenEMR\Tests\Isolated\Services\LBF {
         }
 
         /**
+         * A parse rule ignores bounds left over from another operator.
+         */
+        public function testParseSeverityIgnoresLeftoverBounds(): void
+        {
+            $repo = new StatementRepository($this->sql);
+            $this->sql->queue[] = [
+                'id' => 7,
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'enabled' => 1,
+            ];
+            $this->sql->queue[] = ['id' => 7];
+            $this->assertSame(7, $repo->saveRule([
+                'form_id' => 'LBFecho',
+                'source_field_id' => 'n',
+                'op' => 'parse_severity',
+                'min_value' => 'not-a-number',
+                'max_value' => '9',
+                'match_token' => 'mild',
+                'statement_text' => 'Mild.',
+                'enabled' => 1,
+            ], 7));
+            $update = null;
+            foreach ($this->sql->calls as $call) {
+                if ($call['op'] === 'exec' && str_contains($call['sql'], 'UPDATE module_lbf_statement_rules')) {
+                    $update = $call;
+                }
+            }
+            $this->assertIsArray($update);
+            $binds = $update['binds'];
+            $this->assertIsArray($binds);
+            $this->assertNull($binds[4]);
+            $this->assertNull($binds[5]);
+        }
+
+        /**
          * Fail saveRule when the locked rule row is gone.
          */
         public function testSaveRuleRejectsMissingRow(): void

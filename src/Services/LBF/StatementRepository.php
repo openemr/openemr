@@ -116,8 +116,14 @@ class StatementRepository
         if (in_array($op, ['ratio_lt', 'ratio_gt'], true) && $source2 === '') {
             throw new \InvalidArgumentException('A ratio rule needs a second field.');
         }
-        $data['min_value'] = self::storedBound($data['min_value'] ?? null);
-        $data['max_value'] = self::storedBound($data['max_value'] ?? null);
+        if (in_array($op, ['band', 'ratio_lt', 'ratio_gt'], true)) {
+            $data['min_value'] = self::storedBound($data['min_value'] ?? null);
+            $data['max_value'] = self::storedBound($data['max_value'] ?? null);
+        } else {
+            // A parse rule does not use the bound fields. Leftover text must not block the save.
+            $data['min_value'] = null;
+            $data['max_value'] = null;
+        }
         // The advisory lock has to come before any rule-row lock. Two saves
         // that lock different rows first, then wait on each other, fail a
         // valid save.
