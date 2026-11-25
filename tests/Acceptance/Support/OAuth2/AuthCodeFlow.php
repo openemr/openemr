@@ -250,10 +250,16 @@ final class AuthCodeFlow
             ['CONTENT_TYPE' => 'application/json'],
             $regBody,
         );
-        Assert::assertSame(
-            200,
+        // Acceptance tests run against a packaged OpenEMR (potentially
+        // older than the current branch), so the DCR status may be
+        // either 200 (pre-15449 behavior) or 201 (RFC 7591 §3.2.1
+        // compliant, 15449+). Accept exactly those two; a stray 202
+        // or 204 would still be a regression. Strict 201 pin lives
+        // in the api-tier test suite that runs against branch code.
+        Assert::assertContains(
             $browser->getResponse()->getStatusCode(),
-            'DCR should return 200 — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
+            [200, 201],
+            'DCR should return 200 (pre-15449) or 201 (RFC 7591 §3.2.1) — 404 means the OAuth server is unreachable, 400 means the registration body was rejected',
         );
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
@@ -304,10 +310,12 @@ final class AuthCodeFlow
             ['CONTENT_TYPE' => 'application/json'],
             $regBody,
         );
-        Assert::assertSame(
-            200,
+        // Accept 200 or 201 per the packaged-OpenEMR compat rule
+        // documented above the first DCR assertion in this file.
+        Assert::assertContains(
             $browser->getResponse()->getStatusCode(),
-            'DCR (private_key_jwt) should return 200 — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
+            [200, 201],
+            'DCR (private_key_jwt) should return 200 (pre-15449) or 201 (RFC 7591 §3.2.1) — 400 usually means the JWKS payload was rejected or token_endpoint_auth_method is not accepted',
         );
         $client = json_decode($browser->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
         Assert::assertIsArray($client);
