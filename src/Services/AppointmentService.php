@@ -505,18 +505,12 @@ class AppointmentService extends BaseService
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
                         " WHERE pc_aid <=> ? AND pc_multiple=?", [$provider,$row['pc_multiple']]);
-                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                     $selected_date = date("Ymd", strtotime((string) $event_selected_date));
-                    if ($oldRecurrspec['exdate'] != "") {
-                        $oldRecurrspec['exdate'] .= "," . $selected_date;
-                    } else {
-                        $oldRecurrspec['exdate'] .= $selected_date;
-                    }
 
                     // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_recurrspec = ? " .
-                        " WHERE " . $whereClause, [serialize($oldRecurrspec), $whereBind]);
+                        " WHERE " . $whereClause, [self::withExcludedDate($origEvent['pc_recurrspec'] ?? null, $selected_date), $whereBind]);
                 }
             } elseif ($recurr_affect == 'future') {
                 // update all existing event records to stop recurring on this date-1
@@ -559,17 +553,11 @@ class AppointmentService extends BaseService
                 // mod original event recur specs to exclude this date
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
-                $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
                 $selected_date = date("Ymd", strtotime((string) $_POST['selected_date']));
-                if ($oldRecurrspec['exdate'] != "") {
-                    $oldRecurrspec['exdate'] .= "," . $selected_date;
-                } else {
-                    $oldRecurrspec['exdate'] .= $selected_date;
-                }
 
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? " .
-                    " WHERE pc_eid = ?", [serialize($oldRecurrspec),$eid]);
+                    " WHERE pc_eid = ?", [self::withExcludedDate($origEvent['pc_recurrspec'] ?? null, $selected_date), $eid]);
             } elseif ($recurr_affect == 'future') {
                 // mod original event to stop recurring on this date-1
                 $selected_date = date("Ymd", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
@@ -581,6 +569,24 @@ class AppointmentService extends BaseService
                 $this->deleteAppointmentRecord($eid);
             }
         }
+    }
+
+    /**
+     * An event's serialized repeat settings with one more date excluded from its series.
+     *
+     * @param mixed  $recurrspec the event's pc_recurrspec as stored
+     * @param string $date       the date to exclude (Ymd, the format the calendar compares)
+     */
+    private static function withExcludedDate(mixed $recurrspec, string $date): string
+    {
+        $spec = is_string($recurrspec) ? unserialize($recurrspec, ['allowed_classes' => false]) : false;
+        if (!is_array($spec)) {
+            $spec = [];
+        }
+        $exdate = $spec['exdate'] ?? '';
+        $exdate = is_string($exdate) ? $exdate : '';
+        $spec['exdate'] = $exdate === '' ? $date : $exdate . ',' . $date;
+        return serialize($spec);
     }
 
     public function deleteAppointmentRecord($eid, ?int $pid = null): bool

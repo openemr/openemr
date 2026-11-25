@@ -36147,11 +36147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'exdate\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_aid\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
@@ -36193,11 +36188,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_multiple\' on array\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pc_recurrspec\' on array\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];

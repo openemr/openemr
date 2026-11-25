@@ -679,7 +679,9 @@ class VisitListServiceDatabaseTest extends TestCase
             if ($had) {
                 $globals->set('select_multi_providers', $old);
             } else {
+                // set() also wrote it to $GLOBALS, which the bag reads first; remove both.
                 $globals->remove('select_multi_providers');
+                unset($GLOBALS['select_multi_providers']);
             }
         }
 
