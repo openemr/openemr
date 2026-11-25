@@ -50,7 +50,7 @@ class X12RemoteReceiverTest extends TestCase
      * @param array<string, array<string, string>> $remoteFiles content by folder and name
      * @param list<string> $truncated names whose download comes back short
      * @param list<string> $grown names that are longer on download than in the listing
-     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>, downloads: list<string>}, object{rows: array<string, StoreOutcome>, types: array<string, ?X12FileType>}, object{stored: list<array{X12FileType, string, string}>}}
+     * @return array{X12RemoteReceiver, object{files: array<string, array<string, string>>, moves: list<array{string, string}>, downloads: list<string>}, object{rows: array<string, StoreOutcome>, types: array<string, ?X12FileType>, unattended: list<string>}, object{stored: list<array{X12FileType, string, string}>}}
      */
     private function receiver(array $remoteFiles, array $truncated = [], bool $reachable = true, array $grown = [], int $maxFileBytes = X12RemoteReceiver::DEFAULT_MAX_FILE_BYTES): array
     {
@@ -125,6 +125,9 @@ class X12RemoteReceiverTest extends TestCase
             /** @var array<string, ?X12FileType> the kind recorded for each file name */
             public array $types = [];
 
+            /** @var list<string> names recorded as waiting for unattended posting */
+            public array $unattended = [];
+
             public function isSettled(int $partnerId, string $folder, RemoteFile $file): bool
             {
                 $row = $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] ?? null;
@@ -138,9 +141,13 @@ class X12RemoteReceiverTest extends TestCase
                 ?X12FileType $type,
                 StoreOutcome $outcome,
                 \DateTimeImmutable $at,
+                bool $postUnattended = false,
             ): void {
                 if (str_contains($file->name, 'dbfail')) {
                     throw new \RuntimeException('the record could not be written');
+                }
+                if ($postUnattended) {
+                    $this->unattended[] = $file->name;
                 }
                 $this->rows[ReceivedFileRepository::remoteKey($partnerId, $folder, $file)] = $outcome;
                 $this->types[$file->name] = $type;
@@ -184,6 +191,31 @@ class X12RemoteReceiverTest extends TestCase
             [[X12FileType::Remittance835, 'a.RMT', self::x12('HP')], [X12FileType::ClaimStatus277, 'b.277', self::x12('HN')]],
             $store->stored
         );
+    }
+
+    public function testOnlyAStored835OfAPartnerWithAPostingUserIsMarkedForUnattendedPosting(): void
+    {
+        [$receiver, , $log] = $this->receiver([
+            '/remits' => ['a.RMT' => self::x12('HP'), 'note.txt' => 'hello'],
+            '/277' => ['b.277' => self::x12('HN')],
+        ]);
+        $folders = ['f835' => '/remits', 'f277' => '/277'];
+        $posting = new ReceivePartner(646, 'sftp.example.test', 22, 'biller', null, $folders, '', 9);
+
+        $receiver->receive([$posting]);
+
+        // Not the 277, and not the file that was rejected.
+        $this->assertSame(['a.RMT'], $log->unattended);
+    }
+
+    public function testNothingIsMarkedForAPartnerWithoutAPostingUser(): void
+    {
+        [$receiver, , $log] = $this->receiver(['/remits' => ['a.RMT' => self::x12('HP')]]);
+
+        $summary = $receiver->receive([$this->partner(['f835' => '/remits'])]);
+
+        $this->assertSame(1, $summary->stored);
+        $this->assertSame([], $log->unattended);
     }
 
     public function testSecondRunSkipsWhatTheFirstSettled(): void

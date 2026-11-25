@@ -46,9 +46,9 @@ jobs:
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
           coverage: true
         php:
-        - version: '8.3'
         - version: '8.4'
         - version: '8.5'
+        - version: '8.6'
           coverage: true
     env:
       # Only collect coverage on one matrix arm to save time

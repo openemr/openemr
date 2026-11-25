@@ -7,6 +7,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -28,9 +29,11 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\Patient\PatientActiveStatus;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
@@ -161,6 +164,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 ['state', 'contact_address_state']
             ),
 
+            'active' => new FhirSearchParameterDefinition('active', SearchFieldType::TOKEN, ['active']),
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email','email_direct']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
@@ -211,7 +215,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
         $patientResource->setMeta($meta);
 
-        $patientResource->setActive(true);
+        // A row from before the active column existed is an active patient.
+        $patientResource->setActive(new FHIRBoolean(!array_key_exists('active', $dataRecord) || PatientActiveStatus::toBool($dataRecord['active'])));
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
@@ -769,6 +774,53 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
 
     /**
+     * The value of a FHIR boolean element, or null when the element is absent. The
+     * generated getters claim a FHIRBoolean holding a string, but an absent element
+     * is null and a value parsed from JSON is a bool.
+     */
+    private static function fhirBooleanValue(mixed $element): ?bool
+    {
+        $value = $element instanceof FHIRBoolean ? $element->getValue() : $element;
+        return is_bool($value) ? $value : null;
+    }
+
+    /**
+     * The raw value of a FHIR date or dateTime element, or null when it is absent. The
+     * generated getters claim an element is always present.
+     */
+    private static function fhirDateTimeValue(mixed $element): ?string
+    {
+        $value = $element instanceof FHIRDateTime ? $element->getValue() : $element;
+        return is_string($value) ? $value : null;
+    }
+
+    /**
+     * A FHIR date or dateTime element as a local "Y-m-d H:i:s" value, or null when it is
+     * absent, not a full date, or not a real calendar date (such as February 30). A
+     * dateTime with a time zone is converted to the server's.
+     */
+    private static function fhirDateTimeToLocal(mixed $element): ?string
+    {
+        $value = self::fhirDateTimeValue($element);
+        if ($value === null) {
+            return null;
+        }
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $date) === 1) {
+            return checkdate((int) $date[2], (int) $date[3], (int) $date[1]) ? $value . ' 00:00:00' : null;
+        }
+        // FHIR allows any number of fractional-second digits; PHP reads at most six.
+        $value = preg_replace('/(\.\d{6})\d+/', '$1', $value) ?? $value;
+        $format = str_contains($value, '.') ? 'Y-m-d\\TH:i:s.uP' : 'Y-m-d\\TH:i:sP';
+        $parsed = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+        // createFromFormat() rolls an out-of-range day or time over into the next
+        // month or day and only reports it as a warning.
+        if ($parsed === false || \DateTimeImmutable::getLastErrors() !== false) {
+            return null;
+        }
+        return $parsed->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
+    }
+
+    /**
      * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
      *
      * @param array $fhirResource The source FHIR resource
@@ -785,6 +837,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $data = [];
         $data['uuid'] = (string)$fhirResource->getId();
+
+        $active = self::fhirBooleanValue($fhirResource->getActive());
+        if ($active !== null) {
+            $data['active'] = $active ? 1 : 0;
+        }
+        // A death date makes the patient inactive when the record is saved.
+        $deceasedDate = self::fhirDateTimeToLocal($fhirResource->getDeceasedDateTime());
+        if ($deceasedDate !== null) {
+            $data['deceased_date'] = $deceasedDate;
+        } elseif (self::fhirBooleanValue($fhirResource->getDeceasedBoolean()) === false) {
+            // An explicit "not deceased" clears a stored death date; an omitted element leaves it.
+            $data['deceased_date'] = null;
+        }
 
         if (!empty($fhirResource->getName())) {
             $name = new FHIRHumanName();
@@ -898,6 +963,46 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $data;
     }
 
+    public function insert(FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        return $this->invalidDeceasedDateResult($fhirResource) ?? parent::insert($fhirResource);
+    }
+
+    /**
+     * @param mixed $fhirResourceId The patient's FHIR id, a uuid string
+     */
+    public function update(mixed $fhirResourceId, FHIRDomainResource $fhirResource): ProcessingResult
+    {
+        if (!is_string($fhirResourceId)) {
+            throw new \InvalidArgumentException('The FHIR resource id must be a string');
+        }
+        return $this->invalidDeceasedDateResult($fhirResource) ?? parent::update($fhirResourceId, $fhirResource);
+    }
+
+    /**
+     * A validation error when Patient.deceasedDateTime holds a full date that is not a
+     * real calendar date (such as February 30), so the write is refused rather than
+     * saved without its death date. A date given only to the year or month is valid
+     * FHIR but cannot be stored, and is left out as before.
+     */
+    private function invalidDeceasedDateResult(FHIRDomainResource $fhirResource): ?ProcessingResult
+    {
+        if (!$fhirResource instanceof FHIRPatient) {
+            return null;
+        }
+        $value = self::fhirDateTimeValue($fhirResource->getDeceasedDateTime());
+        if (
+            $value === null
+            || preg_match('/^\d{4}(-\d{2})?$/', $value) === 1
+            || self::fhirDateTimeToLocal($value) !== null
+        ) {
+            return null;
+        }
+        $result = new ProcessingResult();
+        $result->setValidationMessages(['deceasedDateTime' => 'deceasedDateTime is not a valid date']);
+        return $result;
+    }
+
     /**
      * Inserts an OpenEMR record into the system.
      *
@@ -965,6 +1070,34 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $openEmrRecord;
     }
 
+    /**
+     * Turns the true/false codes of an active search into the stored 1/0. Any other
+     * code, or a modifier the token search would read as plain equality (such as
+     * :not), is a search error rather than a broader or opposite search.
+     *
+     * @throws SearchFieldException
+     */
+    private function convertActiveSearchCodes(TokenSearchField $field): void
+    {
+        $modifier = $field->getModifier();
+        if ($modifier === SearchModifier::MISSING) {
+            return;
+        }
+        if (!in_array($modifier, [null, '', SearchModifier::EXACT], true)) {
+            throw new SearchFieldException('active', 'Unsupported modifier for the active search parameter');
+        }
+        foreach ($field->getValues() as $tokenSearchValue) {
+            if (!$tokenSearchValue instanceof TokenSearchValue) {
+                continue;
+            }
+            $tokenSearchValue->setCode(match ($tokenSearchValue->getCode()) {
+                'true' => '1',
+                'false' => '0',
+                default => throw new SearchFieldException('active', 'The active search parameter must be true or false'),
+            });
+        }
+    }
+
     protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         // do any conversions on the data that we need here
@@ -976,13 +1109,20 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
             // :missing carries true or false, not a gender code
             if ($field->getModifier() !== SearchModifier::MISSING) {
-                $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {
-                    $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
-                    return $tokenSearchValue;
-                };
-
                 // need to convert our gender's to a format that are stored in the database.
-                $field->setValues(array_map($upperCaseCode, $field->getValues()));
+                foreach ($field->getValues() as $tokenSearchValue) {
+                    if ($tokenSearchValue instanceof TokenSearchValue) {
+                        $tokenSearchValue->setCode(ucfirst($tokenSearchValue->getCode()));
+                    }
+                }
+            }
+        }
+
+        // active is stored as 1 or 0; FHIR searches it as true or false.
+        if (isset($openEMRSearchParameters['active'])) {
+            $field = $openEMRSearchParameters['active'];
+            if ($field instanceof TokenSearchField) {
+                $this->convertActiveSearchCodes($field);
             }
         }
 

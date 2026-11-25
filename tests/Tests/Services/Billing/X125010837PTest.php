@@ -109,6 +109,17 @@ class X125010837PTest extends TestCase
         $this->assertSame(['HI', 'ABK:I10'], $this->elements($segments, 'HI')[0]);
     }
 
+    public function testTheClaimLogNamesTheClaimByPatientAndEncounter(): void
+    {
+        $this->generate();
+
+        // The billing log names an 837P claim the way it names a HCFA or 837I claim: pid-encounter, then the patient.
+        $this->assertStringStartsWith(
+            'Generating 837P claim ' . self::PID . '-' . self::ENC . ' for JANE  TESTPATIENT on ',
+            $this->log
+        );
+    }
+
     public function testTheServiceLineCarriesItsBillingIdAsTheLineItemControlNumber(): void
     {
         $billingId = QueryUtils::fetchSingleValue(
@@ -260,6 +271,54 @@ class X125010837PTest extends TestCase
 
         $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $secondaryLog);
         $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $this->log);
+    }
+
+    public function testAMammogramSendsTheServiceFacilitysCertificationNumber(): void
+    {
+        $this->setTheFacilitysMammographyNumber(' 123456 ');
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET code = '77067' WHERE pid = ? AND encounter = ? AND code = '99213'",
+            [self::PID, self::ENC]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([['REF', 'EW', '123456']], $this->elements($segments, 'REF*EW'));
+        // Loop 2300: after the claim (CLM), before its diagnoses (HI).
+        $this->assertGreaterThan($this->position($segments, 'CLM*'), $this->position($segments, 'REF*EW*'));
+        $this->assertLessThan($this->position($segments, 'HI*'), $this->position($segments, 'REF*EW*'));
+    }
+
+    public function testAClaimWithNoMammogramSendsNoCertificationNumber(): void
+    {
+        $this->setTheFacilitysMammographyNumber('123456');
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([], array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'REF*EW')));
+    }
+
+    public function testAMammogramAtAFacilityWithNoNumberSendsNone(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE billing SET code = '77067' WHERE pid = ? AND encounter = ? AND code = '99213'",
+            [self::PID, self::ENC]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame([], array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'REF*EW')));
+    }
+
+    private function setTheFacilitysMammographyNumber(string $number): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE facility SET mammography_cert_number = ? WHERE id = ?',
+            [$number, self::FACILITY]
+        );
     }
 
     private function postThePrimarysPayment(): void

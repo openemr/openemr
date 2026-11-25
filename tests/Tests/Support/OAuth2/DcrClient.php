@@ -56,7 +56,7 @@ class DcrClient
                 'scope' => $scope,
             ],
         ]);
-        Assert::assertSame(200, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
+        Assert::assertSame(201, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
         $data = json_decode((string) $reg->getBody(), true);
         Assert::assertIsArray($data);
         Assert::assertIsString($data['client_id'] ?? null);
@@ -107,7 +107,7 @@ class DcrClient
                 'scope' => $scope,
             ],
         ]);
-        Assert::assertSame(200, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
+        Assert::assertSame(201, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
         $data = json_decode((string) $reg->getBody(), true);
         Assert::assertIsArray($data);
         Assert::assertIsString($data['client_id'] ?? null);

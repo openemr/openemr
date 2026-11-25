@@ -62,7 +62,7 @@ class ClientCredentialsGrantFlowTest extends TestCase
             ->willReturn($globalsBag);
         $authorizationController = new AuthorizationController($session, $kernel);
         $response = $authorizationController->clientRegistration($request);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $body = $response->getBody()->getContents();
         $this->assertNotEmpty($body, "Response body should not be empty");
         $client = json_decode($body, true);

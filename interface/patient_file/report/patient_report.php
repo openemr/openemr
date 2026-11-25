@@ -97,16 +97,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body>
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <div id="patient_reports"> <!-- large outer DIV -->
-            <div class="row">
-                <div class="col-sm-12">
-                    <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
-                </div>
-            </div>
             <?php
-            $list_id = "report"; // to indicate nav item is active, count and give correct id
             // Collect the patient menu then build it
             $menuPatient = new PatientMenuRole();
-            $menuPatient->displayHorizNavBarMenu();
+            $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'report', $oemr_ui->screenReaderHeading());
             ?>
 
             <?php
@@ -817,10 +811,6 @@ function issueClick(issue) {
     });
 }
 
-var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(function () {
-    $(listId).addClass("active");
-});
 
 </script>
 </body>

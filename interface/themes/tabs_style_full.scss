@@ -2,6 +2,7 @@
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
  * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * Copyright (C) 2026 David Eschelbacher <psoas@tampabay.rr.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,7 +20,9 @@
  * @author  Robert Down <robertdown@live.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author  David Eschelbacher <psoas@tampabay.rr.com>
  * @link    https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* TODO: Fully redesign the navbar to be better supported with BS4 */
@@ -179,11 +182,51 @@ body {
 }
 
 .patientPicture img {
-  height: 75px;
+  height: 55px; // ends level with the line under the name
 }
 
 .patientCurrentEncounter {
   display: inline;
+}
+
+// The patient's name in the text styles: bold, a little tighter, still a blue link.
+.patient-name-link {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+// The open-elsewhere and close links after the patient's name, raised like a superscript
+// with a small gap after the name.
+.patient-name-actions {
+  margin-inline-start: 0.5rem;
+  vertical-align: super;
+}
+
+// Its square fills the whole icon box, so it looks bigger than the close X at the same size.
+.patient-name-open-icon {
+  transform: scale(0.85);
+}
+
+// Keeps the line under the name close to it: the name line's height comes from the h3 it sits in.
+.patient-bar-name {
+  line-height: 1.1;
+}
+
+// The line under the patient's name: its parts, never split across lines, with a bullet
+// and a little space between them, in a gray as dark as the open and close icons look.
+.patient-bar-info {
+  color: var(--gray600);
+  font-size: 0.9rem; // the size of the tab titles below it
+  line-height: 1.2;
+}
+
+.patient-bar-info > span {
+  white-space: nowrap;
+}
+
+.patient-bar-info > span + span::before {
+  content: "\2022";
+  margin-inline: 0.5em;
 }
 
 .patientCurrentEncounter a {

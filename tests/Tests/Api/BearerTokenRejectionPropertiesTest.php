@@ -210,7 +210,7 @@ class BearerTokenRejectionPropertiesTest extends TestCase
                 'scope' => 'openid api:oemr api:fhir offline_access user/Patient.read user/Patient.write user/patient.read',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);

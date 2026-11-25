@@ -446,25 +446,15 @@ if ($_REQUEST['form_csvexport']) {
             <div class="col-sm-12">
                 <?php
                 if ($type_form != '0') {
-                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php");
+                    // The patient tab row names the section, so the page title is left out.
+                    // Collect the patient menu then build it
+                    $menuPatient = new PatientMenuRole();
+                    $menuPatient->displayHorizNavBarMenu($oemr_ui->tabRowControls(), 'ledger', $oemr_ui->screenReaderHeading());
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>
             </div>
         </div>
-        <?php if ($type_form != '0') { ?>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php
-                $list_id = "ledger"; // to indicate nav item is active, count and give correct id
-                // Collect the patient menu then build it
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
-
-        <?php } ?>
 
         <div class="row hideaway" >
             <div class="col-sm-12">
@@ -899,12 +889,6 @@ if (! $_REQUEST['form_csvexport']) {
         </div>
     </div><!--end of container div-->
     <?php assert(isset($oemr_ui)); $oemr_ui->oeBelowContainerDiv();?>
-    <script>
-        var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
-        $(function () {
-            $(listId).addClass("active");
-        });
-    </script>
 </body>
 
 </html>

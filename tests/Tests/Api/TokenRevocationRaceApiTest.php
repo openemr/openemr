@@ -281,7 +281,7 @@ class TokenRevocationRaceApiTest extends TestCase
                 'scope' => 'openid api:fhir user/Patient.read',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);

@@ -251,7 +251,7 @@ class JwtAssertionExtendedNegativesTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $data = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id']);

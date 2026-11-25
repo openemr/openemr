@@ -376,7 +376,7 @@ class AuthorizationGrantFlowTest extends TestCase
             'CONTENT_TYPE' => 'application/json',
         ], json_encode($jsonRequest));
         $response = $authController->clientRegistration($registrationRequest);
-        $this->assertEquals(200, $response->getStatusCode(), " Request to register client should have been successful");
+        $this->assertEquals(201, $response->getStatusCode(), " Request to register client should have been successful");
 
         $contents = $response->getBody()->getContents();
         $this->assertNotEmpty($contents, 'Response body should not be empty');

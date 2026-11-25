@@ -25,7 +25,6 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCodeTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Services\ObservationLabService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -49,11 +48,6 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
     use VersionedProfileTrait;
-
-    /**
-     * @var ObservationLabService
-     */
-    private $observationService;
 
     /**
      * @var BaseService[]

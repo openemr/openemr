@@ -34,6 +34,7 @@ use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
 use OpenEMR\Services\PatientFinder\PatientFinderFontSize;
 use OpenEMR\Services\PatientFinder\PatientFinderPageService;
+use OpenEMR\Services\PatientFinder\PatientFinderRequest;
 use OpenEMR\Services\PatientFinder\PatientFinderValue;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -68,6 +69,7 @@ $detailEnabled = (new PatientFinderDetailService($eventDispatcher))->isEnabled()
 // Top-controls state for the finder form (rendered by the Twig template).
 $newWindowChecked = OEGlobalsBag::getInstance()->getBoolean('gbl_pt_list_new_window');
 $exactChecked = trim(PatientFinderValue::string($patient_finder_exact_search)) === 'checked';
+$showInactiveChecked = UserSettingsService::getUserSetting(PatientFinderRequest::SHOW_INACTIVE_SETTING) === '1';
 // The text size the user last picked for the lists.
 $fontSize = PatientFinderFontSize::fromSetting(UserSettingsService::getUserSetting(PatientFinderFontSize::SETTING));
 
@@ -89,6 +91,12 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             csrfToken: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             searchAny: <?php echo js_escape($searchAny); ?>,
             fontSizeSetting: <?php echo js_escape(PatientFinderFontSize::SETTING); ?>,
+            showInactiveSetting: <?php echo js_escape(PatientFinderRequest::SHOW_INACTIVE_SETTING); ?>,
+            inactiveLabel: <?php echo xlj('Inactive'); ?>,
+            // The line under each list, "Showing 1 – 10".
+            countText: {
+                showing: <?php echo xlj('Showing'); ?>
+            },
             pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
@@ -156,6 +164,7 @@ $templateVars = [
     'newWindowChecked' => $newWindowChecked,
     'exactSearch' => $patient_finder_exact_search,
     'exactChecked' => $exactChecked,
+    'showInactiveChecked' => $showInactiveChecked,
     'recentColumns' => $recentColumns,
     'fontSize' => $fontSize->value,
     // The Font Size menu, from PatientFinderFontSize.

@@ -1,0 +1,18 @@
+<div class="patient-bar-name d-inline">
+    <a class="ptName patient-name-link" data-bind="click:refreshPatient,with: patient" href="#" title="To Dashboard">
+        <span data-bind="text: pname()"></span>
+    </a>
+    <span class="patient-name-actions">    <div class="dropdown d-inline-block">
+        <a href="#" class="pt-1 text-muted" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+           title="Open Patient in a New Window or Tab" aria-label="Open Patient in a New Window or Tab">
+            <i class="fa fa-arrow-up-right-from-square patient-name-open-icon text-muted" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewWindow">Open in New Window</a>
+            <a class="dropdown-item" href="#" data-bind="click: openPatientInNewTab">Open in New Tab</a>
+        </div>
+    </div>
+    <a href="#" class="pt-1 text-muted" data-bind="click:closePatientChart" title="Close Patient Chart">
+        <i class="fa fa-times text-muted"></i>
+    </a>
+    </span></div>
