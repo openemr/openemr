@@ -98,6 +98,7 @@ class ClaimStatusReaderTest extends TestCase
         $this->assertSame('100-200', $report->claimReference);
         $this->assertSame(ClaimStatusSourceKind::Clearinghouse, $report->source->kind());
         $this->assertSame('EXAMPLE EDI', $report->source->name);
+        $this->assertSame('46', $report->source->identifierQualifier);
         $this->assertSame('123456789', $report->source->identifier);
         $this->assertSame('2026-01-27', $report->sourceReceivedDate?->format('Y-m-d'));
         $this->assertSame(['TRACE123'], $report->clearinghouseTraceNumbers());
@@ -121,6 +122,7 @@ class ClaimStatusReaderTest extends TestCase
 
         $this->assertSame(ClaimStatusSourceKind::Payer, $report->source->kind());
         $this->assertSame('EXAMPLE HEALTH PLAN', $report->source->name);
+        $this->assertSame('PI', $report->source->identifierQualifier);
         $this->assertSame('54321', $report->source->identifier);
         $this->assertSame('2026-01-28', $report->sourceReceivedDate?->format('Y-m-d'));
         $this->assertSame(['PAYERCLAIM99'], $report->payerClaimControlNumbers());

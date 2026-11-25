@@ -17,13 +17,16 @@ namespace OpenEMR\Billing\EdiHistory;
 final readonly class ClaimStatusSource
 {
     /**
-     * @param string $entityCode NM101, PR for a payer and AY for a clearinghouse
-     * @param string $name       NM103
-     * @param string $identifier NM109, the payer ID or the clearinghouse's ID
+     * @param string $entityCode          NM101, PR for a payer and AY for a clearinghouse
+     * @param string $name                NM103
+     * @param string $identifierQualifier NM108, what kind of ID the identifier is, e.g. PI for a
+     *                                    payer ID or 46 for an electronic transmitter ID (ETIN)
+     * @param string $identifier          NM109, the payer ID or the clearinghouse's ID
      */
     public function __construct(
         public string $entityCode,
         public string $name,
+        public string $identifierQualifier,
         public string $identifier,
     ) {
     }

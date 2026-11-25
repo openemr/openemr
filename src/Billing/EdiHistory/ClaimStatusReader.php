@@ -84,7 +84,7 @@ final class ClaimStatusReader
         $transactionControlNumber = '';
         $in277 = false;
         $level = '';
-        $source = new ClaimStatusSource('', '', '');
+        $source = new ClaimStatusSource('', '', '', '');
         $sourceReceivedDate = null;
         $patientLastName = '';
         $patientFirstName = '';
@@ -120,7 +120,7 @@ final class ClaimStatusReader
                 $in277 = self::element($segment, 1) === self::TRANSACTION_SET;
                 $transactionControlNumber = self::element($segment, 2);
                 $level = '';
-                $source = new ClaimStatusSource('', '', '');
+                $source = new ClaimStatusSource('', '', '', '');
                 $sourceReceivedDate = null;
                 continue;
             }
@@ -137,7 +137,7 @@ final class ClaimStatusReader
                 $patientLastName = '';
                 $patientFirstName = '';
                 if ($level === self::LEVEL_SOURCE) {
-                    $source = new ClaimStatusSource('', '', '');
+                    $source = new ClaimStatusSource('', '', '', '');
                     $sourceReceivedDate = null;
                 }
                 continue;
@@ -147,6 +147,7 @@ final class ClaimStatusReader
                     $source = new ClaimStatusSource(
                         self::element($segment, 1),
                         self::element($segment, 3),
+                        self::element($segment, 8),
                         self::element($segment, 9),
                     );
                 } elseif ($id === 'DTP' && self::element($segment, 1) === self::DTP_RECEIVED) {
