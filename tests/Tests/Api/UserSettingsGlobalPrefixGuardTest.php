@@ -32,8 +32,18 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
     private string $baseUrl = '';
     private Client $http;
     private int $adminUserId = 0;
-    /** @var list<string> labels of user_settings rows this test created or may have created */
-    private array $labelsToCleanUp = [];
+    /**
+     * Pre-test snapshots keyed by `<setting_user>|<setting_label>`.
+     * Value is the original `setting_value` string if the row existed,
+     * or `null` if the row was absent before the test (in which case
+     * tearDown should DELETE anything the test inserted at that key).
+     * Admin's own setting_label is case-literal; `setting_user=0`
+     * default rows are tracked separately when `setUserSetting()`
+     * created one during the test.
+     *
+     * @var array<string, ?string>
+     */
+    private array $userSettingsSnapshot = [];
 
     protected function setUp(): void
     {
@@ -68,13 +78,28 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach ($this->labelsToCleanUp as $label) {
-            QueryUtils::sqlStatementThrowException(
-                "DELETE FROM `user_settings` WHERE `setting_user` = ? AND `setting_label` = ?",
-                [$this->adminUserId, $label]
-            );
+        foreach ($this->userSettingsSnapshot as $key => $originalValue) {
+            [$userIdStr, $label] = explode('|', $key, 2);
+            $userId = (int) $userIdStr;
+            if ($originalValue === null) {
+                // Row was absent before the test — delete anything the
+                // test (or the write path's side-effect default insert)
+                // left behind at this (user_id, label).
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM `user_settings` "
+                        . "WHERE `setting_user` = ? AND `setting_label` = ?",
+                    [$userId, $label]
+                );
+            } else {
+                // Row existed — restore its exact pre-test value.
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `user_settings` SET `setting_value` = ? "
+                        . "WHERE `setting_user` = ? AND `setting_label` = ?",
+                    [$originalValue, $userId, $label]
+                );
+            }
         }
-        $this->labelsToCleanUp = [];
+        $this->userSettingsSnapshot = [];
     }
 
     #[Test]
@@ -82,12 +107,12 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
     {
         $csrf = $this->loginAndExtractCsrf();
         $uppercaseLabel = 'GLOBAL:gbl_ldap_host';
-        // Covers the case-equivalent labels the DB's case-insensitive
-        // collation would merge the uppercase write into.
-        $this->labelsToCleanUp[] = $uppercaseLabel;
-        $this->labelsToCleanUp[] = 'global:gbl_ldap_host';
 
-        $before = $this->countLabelsLike('global:gbl_ldap_host');
+        // Snapshot every case-equivalent row the write path (admin + the
+        // setting_user=0 default) OR a regressed write path (uppercase or
+        // mixed-case variant) could touch, so we can detect both an
+        // inserted row AND a value-mutated existing row.
+        $caseEquivalentRows = $this->snapshotLabelsLike('global:gbl_ldap_host');
 
         $response = $this->http->post($this->baseUrl . '/library/ajax/user_settings.php', [
             'form_params' => [
@@ -103,12 +128,14 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
             'user_settings.php returns 200 on both allowed and silently-rejected keys — assert on the DB, not the status'
         );
 
-        $after = $this->countLabelsLike('global:gbl_ldap_host');
+        $afterRows = $this->readLabelsLike('global:gbl_ldap_host');
         $this->assertSame(
-            $before,
-            $after,
-            'An uppercase `GLOBAL:` prefix must be rejected by the write-side guard; '
-                . 'no row with a case-equivalent setting_label may be created'
+            $caseEquivalentRows,
+            $afterRows,
+            'An uppercase `GLOBAL:` prefix must be rejected by the write-side guard — '
+                . 'no case-equivalent row may be inserted AND no existing row may be mutated. '
+                . 'A regression that admits `GLOBAL:*` may update an existing row without '
+                . 'changing row count, so both the shape and values are compared.'
         );
     }
 
@@ -121,7 +148,12 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
         // branch and must not break legitimate per-user writes.
         $csrf = $this->loginAndExtractCsrf();
         $allowlistedLabel = 'theme_tabs_layout';
-        $this->labelsToCleanUp[] = $allowlistedLabel;
+
+        // Snapshot both admin's row (what the test asserts on) and the
+        // setting_user=0 default that `setUserSetting()`'s createDefault
+        // side-effect may insert if absent. Both are restored on tearDown.
+        $this->snapshotUserSetting($this->adminUserId, $allowlistedLabel);
+        $this->snapshotUserSetting(0, $allowlistedLabel);
 
         $expectedValue = 'test-value-' . bin2hex(random_bytes(4));
 
@@ -180,16 +212,72 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
         return $match[1];
     }
 
-    private function countLabelsLike(string $pattern): int
+    /**
+     * Read every row whose setting_label is case-insensitively equal to
+     * `$pattern`, across all setting_user rows (admin + the setting_user=0
+     * default), and register each result for restoration in tearDown. The
+     * returned array is keyed `<setting_user>|<setting_label>` with the
+     * `setting_value` string — same shape {@see self::readLabelsLike()}
+     * returns post-mutation, so two captures compare directly with
+     * assertSame.
+     *
+     * @return array<string, string>
+     */
+    private function snapshotLabelsLike(string $pattern): array
     {
-        $row = QueryUtils::querySingleRow(
-            "SELECT COUNT(*) AS n FROM `user_settings` "
-                . "WHERE `setting_user` = ? AND `setting_label` LIKE ?",
-            [$this->adminUserId, $pattern]
-        );
-        if (!is_array($row) || !isset($row['n']) || !is_numeric($row['n'])) {
-            return 0;
+        $rows = $this->readLabelsLike($pattern);
+        foreach ($rows as $key => $value) {
+            if (!array_key_exists($key, $this->userSettingsSnapshot)) {
+                $this->userSettingsSnapshot[$key] = $value;
+            }
         }
-        return (int) $row['n'];
+        return $rows;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function readLabelsLike(string $pattern): array
+    {
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `setting_user`, `setting_label`, `setting_value` "
+                . "FROM `user_settings` WHERE `setting_label` LIKE ?",
+            [$pattern]
+        );
+        $out = [];
+        foreach ($rows as $row) {
+            $userId = isset($row['setting_user']) && is_numeric($row['setting_user'])
+                ? (int) $row['setting_user']
+                : 0;
+            $label = isset($row['setting_label']) && is_string($row['setting_label'])
+                ? $row['setting_label']
+                : '';
+            $value = isset($row['setting_value']) && is_string($row['setting_value'])
+                ? $row['setting_value']
+                : '';
+            $out[$userId . '|' . $label] = $value;
+        }
+        return $out;
+    }
+
+    /**
+     * Snapshot a specific (setting_user, setting_label) row so tearDown
+     * can restore its value (or delete if absent). Idempotent — repeated
+     * calls in the same test do not overwrite the initial snapshot.
+     */
+    private function snapshotUserSetting(int $settingUser, string $label): void
+    {
+        $key = $settingUser . '|' . $label;
+        if (array_key_exists($key, $this->userSettingsSnapshot)) {
+            return;
+        }
+        $row = QueryUtils::querySingleRow(
+            "SELECT `setting_value` FROM `user_settings` "
+                . "WHERE `setting_user` = ? AND `setting_label` = ?",
+            [$settingUser, $label]
+        );
+        $this->userSettingsSnapshot[$key] = (is_array($row) && isset($row['setting_value']) && is_string($row['setting_value']))
+            ? $row['setting_value']
+            : null;
     }
 }
