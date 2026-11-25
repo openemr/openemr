@@ -11,8 +11,10 @@
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,8 +26,9 @@ use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Billing\FacilityZipDenial;
+use OpenEMR\Billing\UnbilledFileDecision;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -41,6 +44,41 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      * @var array
      */
     protected $x12_partner_batches = [];
+
+    /**
+     * Batches for a second billing facility on a partner that already
+     * has a batch. The key is partner id, a colon, and the facility id.
+     *
+     * @var array<string, BillingClaimBatch>
+     */
+    private array $extraBatches = [];
+
+    /**
+     * Facility that opened the partner's first batch.
+     *
+     * @var array<int|string, int>
+     */
+    private array $primaryFacility = [];
+
+    /**
+     * Partner id for an extra batch key.
+     *
+     * @var array<string, int|string>
+     */
+    private array $batchPartner = [];
+
+    /** @var list<mixed> */
+    private array $runClaims = [];
+
+    /** @var array<string, mixed> */
+    private array $runContext = [];
+
+    private bool $facilityLastMarked = false;
+
+    /** @var array<string, int> */
+    private array $facilityByClaim = [];
+
+    private int|string|null $activeCountKey = null;
 
     /**
      * An array of x-12 partners, indexed by partner id
@@ -92,11 +130,31 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function setup(array $context)
     {
+        $storedContext = [];
+        foreach ($context as $key => $value) {
+            if (is_string($key)) {
+                $storedContext[$key] = $value;
+            }
+        }
+        $this->runContext = $storedContext;
+        $storedClaims = [];
+        $claims = $context['claims'] ?? null;
+        if (is_array($claims)) {
+            foreach ($claims as $claim) {
+                $storedClaims[] = $claim;
+            }
+        }
+        $this->runClaims = $storedClaims;
         // We have to prepare our batches here
         // Get all of our x-12 partners and make sure we have
         // directories to write to for them
         $result = sqlStatement("SELECT * from x12_partners");
         while ($row = sqlFetchArray($result)) {
+            $partnerId = $row['id'] ?? null;
+            if (!is_int($partnerId) && !is_string($partnerId)) {
+                continue;
+            }
+            $partnerLabel = is_int($partnerId) ? (string) $partnerId : $partnerId;
             $has_dir = true;
             if (!isset($row['x12_sftp_local_dir'])) {
                 // Local Directory not set
@@ -115,7 +173,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             $batch = new BillingClaimBatch('.txt', $context);
             $filename = $batch->getBatFilename();
-            $filename = str_replace('batch', 'batch-p' . $row['id'], $filename);
+            $filename = str_replace('batch', 'batch-p' . $partnerLabel, $filename);
             $batch->setBatFilename($filename);
 
             // Only set the batch file directory if we have a valid directory
@@ -124,16 +182,16 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             }
 
             // Store the x-12 partner's data in case we need to reference it (like need the Name or something)
-            $this->x12_partners[$row['id']] = $row;
+            $this->x12_partners[$partnerId] = $row;
 
             // We need to track the edi count for each x-12 partner, initialize them to zero here
-            $this->edi_counts[$row['id']] = 0;
+            $this->edi_counts[$partnerId] = 0;
 
             // We need to track the patient segment count for each x-12 partner, initialize them to zero here
-            $this->pat_segment_counts[$row['id']] = 0;
+            $this->pat_segment_counts[$partnerId] = 0;
 
             // Store the directory in an associative array with the partner ID as the index
-            $this->x12_partner_batches[$row['id']] = $batch;
+            $this->x12_partner_batches[$partnerId] = $batch;
 
             // Look through the claims and set is_last on each one that
             // is the last for this x-12 partner
@@ -157,7 +215,10 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function validateOnly(BillingClaim $claim)
     {
-        $this->updateBatchFile($claim);
+        $batch = $this->updateBatchFile($claim);
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
         $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
@@ -170,21 +231,33 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function validateAndClear(BillingClaim $claim)
     {
-        $return = BillingUtilities::updateClaim(
-            true,
-            $claim->getPid(),
-            $claim->getEncounter(),
-            $claim->getPayorId(),
-            $claim->getPayorType(),
-            BillingClaim::STATUS_MARK_AS_BILLED,
-            BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
-            '', // process_file
-            $claim->getTarget(),
-            $claim->getPartner()
-        );
+        if (!$this->insideGenerate) {
+            $this->billWhenTheFileLands = false;
+        }
+        $this->insertedClaimVersion = null;
+        if (!$this->insideGenerate && $this->manualClearIsBlocked($claim)) {
+            return null;
+        }
+        $billIfAccepted = false;
+        if ($this->holdClaimsThatWillDeny()) {
+            $billIfAccepted = true;
+        } else {
+            $this->writeClaimRow(
+                true,
+                $claim->getPid(),
+                $claim->getEncounter(),
+                $claim->getPayorId(),
+                $claim->getPayorType(),
+                BillingClaim::STATUS_MARK_AS_BILLED,
+                BillingClaim::BILL_PROCESS_IN_PROGRESS, // bill_process == 1 means??
+                '', // process_file
+                $claim->getTarget(),
+                $claim->getPartner()
+            );
+        }
 
         // Return the batch we updated (depending on x-12 partner)
-        return $this->updateBatchFile($claim);
+        return $this->updateBatchFile($claim, $billIfAccepted);
     }
 
     /**
@@ -198,9 +271,70 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // If we are doing final billing (normal) or validate and mark-as-billed,
         // Use the claim to update the appropriate batch file (depends on x-12 partner)
         // and return the batch we updated
-        $batch = $this->validateAndClear($claim);
+        $this->insideGenerate = true;
+        $this->billWhenTheFileLands = $this->holdClaimsThatWillDeny();
+        if ($this->billWhenTheFileLands) {
+            $partnerId = $claim->getPartner();
+            $partnerBatch = null;
+            if (is_int($partnerId) || is_string($partnerId)) {
+                $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
+            }
+            if ($partnerBatch instanceof BillingClaimBatch && $this->recoverHeldFile($claim, $partnerBatch)) {
+                $this->closeRecoveredPartner($claim);
+                $this->insideGenerate = false;
 
-        if (!BillingUtilities::updateClaim(false, $claim->getPid(), $claim->getEncounter(), -1, -1, 2, 2, $batch->getBatFilename())) {
+                return;
+            }
+        }
+        if (!$this->billWhenTheFileLands) {
+            if (!$this->claimGenerationIsFree($claim)) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $this->closeRecoveredPartner($claim);
+                $this->insideGenerate = false;
+
+                return;
+            }
+            $partnerId = $claim->getPartner();
+            $partnerBatch = null;
+            if (is_int($partnerId) || is_string($partnerId)) {
+                $partnerBatch = $this->x12_partner_batches[$partnerId] ?? null;
+            }
+            if ($partnerBatch instanceof BillingClaimBatch) {
+                $settled = $this->recoverPublishedFile($claim, $partnerBatch);
+                if ($settled !== null) {
+                    $this->printToScreen(xl($settled
+                        ? UnbilledFileDecision::ALREADY_WRITTEN
+                        : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+                    $this->closeRecoveredPartner($claim);
+                    $this->insideGenerate = false;
+
+                    return;
+                }
+            }
+        }
+        $batch = $this->validateAndClear($claim);
+        $this->insideGenerate = false;
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
+        if ($this->billWhenTheFileLands) {
+            return;
+        }
+
+        $updated = $this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            -1,
+            -1,
+            2,
+            2,
+            $batch->getBatFilename(),
+            '',
+            -1,
+            $this->insertedClaimVersion
+        );
+        if (!$updated) {
             $this->printToScreen(xl("Internal error: claim ") . $claim->getId() . xl(" not found!") . "\n");
         }
     }
@@ -213,25 +347,38 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      * @param BillingClaim $claim
      * @return mixed
      */
-    protected function updateBatchFile(BillingClaim $claim)
+    protected function updateBatchFile(BillingClaim $claim, bool $billIfAccepted = false)
     {
-        // Get the correct batch file using the X-12 partner ID
-        $batch = $this->x12_partner_batches[$claim->getPartner()];
+        $this->markLastClaimPerFacility();
+        $facilityId = $this->billingFacilityId($claim);
+        $batch = $this->batchForFacility($claim, $facilityId);
+        $countKey = $this->countKey($claim->getPartner(), $facilityId);
+        $this->activeCountKey = $countKey;
 
-        // Get the correct edi count for this x-12 partner using the partner ID
-        $edicount = $this->edi_counts[$claim->getPartner()];
+        // Get the correct edi count for this batch. The first facility keeps
+        // the partner id. Another facility has its own count.
+        $edicount = $this->edi_counts[$countKey] ?? 0;
 
-        // Get the correct patient segment count for this x-12 partner using the partner ID
-        $patSegmentCount = $this->pat_segment_counts[$claim->getPartner()];
+        // Get the correct patient segment count for this batch.
+        $patSegmentCount = $this->pat_segment_counts[$countKey] ?? 0;
+        $edicountBefore = $edicount;
+        $patSegmentCountBefore = $patSegmentCount;
 
-        // Tell our batch that we've processed this claim
-        $batch->addClaim($claim);
+        // Off: add the claim before the 837 is built, which is the master order.
+        // On: add it only after the ZIP is accepted, so a held claim is not in the batch.
+        $hold = $this->holdClaimsThatWillDeny();
+        if (!$hold) {
+            $batch->addClaim($claim);
+        }
 
         $log = 'X12Direct ' . $claim->action . ' ';
         $is_last_claim = $claim->getIsLast();
         $HLCount = count($batch->getClaims());
+        if ($hold) {
+            $HLCount++;
+        }
         $partner = $claim->getPartner();
-        $partnerKey = is_int($partner) || is_string($partner) ? $partner : '';
+        $partnerKey = $countKey;
         // The preceding claim's flag was worked out while that claim was being
         // processed, so its reads were audited against its own patient.
         if ($HLCount > 1 && !($this->prior_self_of_insured[$partnerKey] ?? true)) {
@@ -239,8 +386,8 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         }
         // Build this claim for the payer it's generated for; that payer is at
         // index 0, so its subscriber relationship is the one this claim's
-        // hierarchy uses. The next claim for this partner reads it.
-        $this->prior_self_of_insured[$partnerKey] = (new Claim(
+        // hierarchy uses. A claim left out of the batch must not change it.
+        $selfOfInsured = (new Claim(
             $claim->getPid(),
             $claim->getEncounter(),
             $partner,
@@ -248,6 +395,8 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         ))->isSelfOfInsured(0);
 
         //$is_self_of_insured = $claim->isSelfOfInsured();
+        $this->rememberRenderedCharges($claim);
+        $denial = new FacilityZipDenial();
         $segs = explode("~\n", (string) X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
@@ -258,16 +407,388 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $HLCount,
             $edicount,
             $patSegmentCount,
-            $claim->getSelectedPayerId()
+            payerId: $claim->getSelectedPayerId(),
+            zipDenial: $denial
         ));
+        assert($denial instanceof FacilityZipDenial);
+        if ($hold && $billIfAccepted && !$denial->willDeny() && $this->billWhenTheFileLands) {
+            if (!$this->holdGeneration($claim)) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $this->restorePartnerCounts($claim, $batch, $edicountBefore, $patSegmentCountBefore, $is_last_claim === true, $log);
+
+                return null;
+            }
+            $previous = $this->previousFileDecision($claim, $batch);
+            if ($previous === UnbilledFileDecision::Present) {
+                $sentence = $this->markStoredFileBilled($claim)
+                    ? UnbilledFileDecision::ALREADY_WRITTEN
+                    : FacilityZipDenial::LEFT_OUT_NOT_BILLED;
+                $this->printToScreen(xl($sentence));
+                $this->restorePartnerCounts($claim, $batch, $edicountBefore, $patSegmentCountBefore, $is_last_claim === true, $log);
+
+                return null;
+            }
+            if ($previous === UnbilledFileDecision::Busy) {
+                $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+                $this->restorePartnerCounts($claim, $batch, $edicountBefore, $patSegmentCountBefore, $is_last_claim === true, $log);
+
+                return null;
+            }
+            if ($previous === UnbilledFileDecision::Missing) {
+                $this->printToScreen(xl(UnbilledFileDecision::FILE_WAS_MISSING));
+            }
+        }
+        // A denial stores no version. The next run stores one only if the ZIP is accepted.
+        $insertLanded = true;
+        if ($hold && $billIfAccepted && !$denial->willDeny()) {
+            // The 837 already used the selected payer. Store that payer only
+            // after the ZIP is accepted, not before the generation fence.
+            $this->bindSelectedPayer($claim);
+            $insertLanded = $this->rememberPayer($claim);
+        }
+        if (
+            $insertLanded
+            && $hold
+            && $billIfAccepted
+            && !$denial->willDeny()
+            && !$this->billWhenTheFileLands
+            && $this->fileAssignmentIsActive($claim)
+        ) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+            $this->restorePartnerCounts(
+                $claim,
+                $batch,
+                $edicountBefore,
+                $patSegmentCountBefore,
+                $is_last_claim === true,
+                $log
+            );
+
+            return null;
+        }
+        $billedWriteLanded = true;
+        if ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny()) {
+            // The file name is stored while the row stays unbilled. The billed
+            // update runs after that file is written.
+            $billedWriteLanded = $this->billWhenTheFileLands
+                ? $this->noteClaimFile($claim, $batch)
+                : $this->markBilledExisting($claim);
+        } elseif ($insertLanded && $hold && $billIfAccepted && !$denial->willDeny()) {
+            $billedWriteLanded = $this->markBilledExisting($claim);
+        }
+        $omit = !$insertLanded || !$this->claimEntersBatch($hold, $denial, $billIfAccepted, $billedWriteLanded);
+        if ($omit) {
+            $edicount = $edicountBefore;
+            $patSegmentCount = $patSegmentCountBefore;
+            if (is_int($edicount) && $is_last_claim === true) {
+                $edicount = $this->appendSeForHeldLastClaim($batch, $edicount);
+            }
+        }
+
         // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
-        $this->edi_counts[$claim->getPartner()] = $edicount;
+        $this->edi_counts[$countKey] = $edicount;
         // also for the patient segment counts
-        $this->pat_segment_counts[$claim->getPartner()] = $patSegmentCount;
+        $this->pat_segment_counts[$countKey] = $patSegmentCount;
         $this->appendToLog($log);
+        if ($omit) {
+            if ($denial->willDeny()) {
+                $this->printDenialHold($denial);
+            } elseif (!$insertLanded) {
+                $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_SAVED));
+            } else {
+                $this->printToScreen(xl(FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+            }
+            return null;
+        }
+        if ($hold) {
+            $batch->addClaim($claim);
+        }
+        $this->prior_self_of_insured[$partnerKey] = $selfOfInsured;
         $batch->append_claim($segs);
 
         return $batch;
+    }
+
+    /**
+     * A recovered last claim skips rendering, so close a transaction that
+     * earlier claims in this run already opened.
+     */
+
+    /**
+     * Billing facility on the claim, or 0 when it cannot be read.
+     */
+    protected function billingFacilityId(BillingClaim $claim): int
+    {
+        $rawId = $claim->getId();
+        $cacheKey = is_int($rawId) ? (string) $rawId : $rawId;
+        if (!is_string($cacheKey) || $cacheKey === '') {
+            return 0;
+        }
+        if (array_key_exists($cacheKey, $this->facilityByClaim)) {
+            return $this->facilityByClaim[$cacheKey];
+        }
+        $built = new Claim(
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPartner(),
+            $claim->getSelectedPayerId()
+        );
+        $facility = $built->billing_facility ?? null;
+        $raw = is_array($facility) ? ($facility['id'] ?? 0) : 0;
+        $id = 0;
+        if (is_int($raw)) {
+            $id = $raw;
+        } elseif (is_string($raw) && preg_match('/^[1-9][0-9]*$/', $raw) === 1) {
+            $id = (int) $raw;
+        }
+        $this->facilityByClaim[$cacheKey] = $id;
+
+        return $id;
+    }
+
+    /**
+     * The last claim of each partner and billing facility closes that transaction.
+     */
+    private function markLastClaimPerFacility(): void
+    {
+        if ($this->facilityLastMarked || $this->runClaims === []) {
+            return;
+        }
+        $this->facilityLastMarked = true;
+        $last = [];
+        $seen = [];
+        foreach ($this->runClaims as $claim) {
+            if (!$claim instanceof BillingClaim) {
+                continue;
+            }
+            $partner = $claim->getPartner();
+            if (!is_int($partner) && !is_string($partner)) {
+                continue;
+            }
+            $key = $partner . ':' . $this->billingFacilityId($claim);
+            $last[$key] = $claim;
+            $seen[$partner][] = $claim;
+        }
+        foreach ($seen as $claims) {
+            foreach ($claims as $claim) {
+                $claim->setIsLast(false);
+            }
+        }
+        foreach ($last as $claim) {
+            $claim->setIsLast(true);
+        }
+    }
+
+    /**
+     * A partner batch stays with the first facility. Another facility gets its own file.
+     */
+    protected function batchForFacility(BillingClaim $claim, int $facilityId): BillingClaimBatch
+    {
+        $partner = $claim->getPartner();
+        if (!is_int($partner) && !is_string($partner)) {
+            throw new \RuntimeException('No batch for this X12 partner.');
+        }
+        $partnerLabel = is_int($partner) ? (string) $partner : $partner;
+        $primary = $this->x12_partner_batches[$partner] ?? null;
+        if (!$primary instanceof BillingClaimBatch) {
+            throw new \RuntimeException('No batch for this X12 partner.');
+        }
+        if (!isset($this->primaryFacility[$partner])) {
+            $this->primaryFacility[$partner] = $facilityId;
+
+            return $primary;
+        }
+        if ($this->primaryFacility[$partner] === $facilityId) {
+            return $primary;
+        }
+        $key = $partnerLabel . ':' . (string) $facilityId;
+        if (isset($this->extraBatches[$key])) {
+            return $this->extraBatches[$key];
+        }
+        $context = $this->runContext;
+        $claims = $context['claims'] ?? null;
+        if (!is_array($claims) || !array_key_exists(0, $claims)) {
+            $context['claims'] = [(object) ['action' => 'validate']];
+        }
+        $extra = new BillingClaimBatch('.txt', $context);
+        $filename = str_replace(
+            'batch',
+            'batch-p' . $partnerLabel . '-f' . (string) $facilityId,
+            $extra->getBatFilename()
+        );
+        $extra->setBatFilename($filename);
+        $directory = $primary->getBatFiledir();
+        if ($directory !== '') {
+            $extra->setBatFiledir($directory);
+        }
+        $this->extraBatches[$key] = $extra;
+        $this->batchPartner[$key] = $partner;
+        $this->edi_counts[$key] = 0;
+        $this->pat_segment_counts[$key] = 0;
+
+        return $extra;
+    }
+
+    /**
+     * Count key for the batch this facility writes.
+     */
+    private function countKey(mixed $partner, int $facilityId): int|string
+    {
+        if (!is_int($partner) && !is_string($partner)) {
+            return 0;
+        }
+        if (!isset($this->primaryFacility[$partner]) || $this->primaryFacility[$partner] === $facilityId) {
+            return $partner;
+        }
+
+        $partnerLabel = is_int($partner) ? (string) $partner : $partner;
+
+        return $partnerLabel . ':' . (string) $facilityId;
+    }
+
+    protected function closeRecoveredPartner(BillingClaim $claim): void
+    {
+        if ($claim->getIsLast() !== true) {
+            return;
+        }
+        $partner = $claim->getPartner();
+        if (!is_int($partner) && !is_string($partner)) {
+            return;
+        }
+        if (!isset($this->primaryFacility[$partner])) {
+            return;
+        }
+        $facilityId = $this->billingFacilityId($claim);
+        $partnerLabel = is_int($partner) ? (string) $partner : $partner;
+        if ($this->primaryFacility[$partner] === $facilityId) {
+            $batch = $this->x12_partner_batches[$partner] ?? null;
+            $countKey = $partner;
+        } else {
+            $countKey = $partnerLabel . ':' . (string) $facilityId;
+            $batch = $this->extraBatches[$countKey] ?? null;
+        }
+        if (!$batch instanceof BillingClaimBatch) {
+            return;
+        }
+        $count = $this->edi_counts[$countKey] ?? null;
+        if (!is_int($count) || $count <= 0) {
+            return;
+        }
+        $this->edi_counts[$countKey] = $this->appendSeForHeldLastClaim($batch, $count);
+    }
+
+    /**
+     * Keep the partner's earlier segment counts when this claim stays out of the batch.
+     */
+    private function restorePartnerCounts(
+        BillingClaim $claim,
+        BillingClaimBatch $batch,
+        mixed $edicount,
+        mixed $patSegmentCount,
+        bool $isLastClaim,
+        mixed $log
+    ): void {
+        if (is_int($edicount) && $isLastClaim) {
+            $edicount = $this->appendSeForHeldLastClaim($batch, $edicount);
+        }
+        $partnerKey = $this->activeCountKey ?? $claim->getPartner();
+        if (is_int($partnerKey) || is_string($partnerKey)) {
+            $this->edi_counts[$partnerKey] = $edicount;
+            $this->pat_segment_counts[$partnerKey] = $patSegmentCount;
+        }
+        $this->appendToLog($log);
+    }
+
+    /**
+     * The held claim included the SE trailer, and those segments were discarded.
+     * Claims already in the batch still need that trailer before GE and IEA.
+     */
+    protected function appendSeForHeldLastClaim(BillingClaimBatch $batch, int $segmentCount): int
+    {
+        if ($batch->getClaims() === [] || $batch->getBatContent() === '') {
+            return $segmentCount;
+        }
+
+        $segmentCount++;
+        $segments = ['SE*' . $segmentCount];
+        $batch->append_claim($segments);
+
+        return $segmentCount;
+    }
+
+    /**
+     * The opt-in hold for a claim whose facility ZIP will deny. Off still sends the claim and writes the log.
+     */
+    protected function holdClaimsThatWillDeny(): bool
+    {
+        return OEGlobalsBag::getInstance()->getBoolean('gbl_hold_claims_that_will_deny', false);
+    }
+
+    /**
+     * Screen text for a claim left out of the batch. Same sentences as the log.
+     */
+    protected function printDenialHold(FacilityZipDenial $denial): void
+    {
+        if ($denial->billing) {
+            $this->printToScreen(xl(X125010837P::BILLING_ZIP_LOG));
+        }
+        if ($denial->service) {
+            $this->printToScreen(xl(X125010837P::SERVICE_ZIP_LOG));
+        }
+    }
+
+    /**
+     * Store an accepted claim and leave that row unbilled.
+     *
+     * Called after the ZIP check. A denial does not store a version. An
+     * unbilled version from a failed billed update is kept and billed on
+     * the next run, instead of inserting another. False means this run
+     * has no version to bill.
+     */
+    protected function rememberPayer(BillingClaim $claim): bool
+    {
+        $existing = $this->openUnbilledVersion($claim);
+        if ($existing !== null) {
+            $this->insertedClaimVersion = $existing;
+
+            return true;
+        }
+
+        $version = $this->landedClaimWrite($this->writeClaimRow(
+            true,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_LEAVE_UNBILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner()
+        ));
+        $this->insertedClaimVersion = $version;
+
+        return $version !== null;
+    }
+
+    /**
+     * Mark the unbilled row from rememberPayer() as billed. Not a second claim version.
+     */
+    protected function markBilledExisting(BillingClaim $claim): bool
+    {
+        return $this->landedClaimWrite($this->writeClaimRow(
+            false,
+            $claim->getPid(),
+            $claim->getEncounter(),
+            $claim->getPayorId(),
+            $claim->getPayorType(),
+            BillingClaim::STATUS_MARK_AS_BILLED,
+            BillingClaim::BILL_PROCESS_IN_PROGRESS,
+            '',
+            $claim->getTarget(),
+            $claim->getPartner(),
+            $this->insertedClaimVersion
+        )) !== null;
     }
 
     /**
@@ -282,53 +803,107 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      */
     public function completeToFile(array $context)
     {
-        $this->finish($context, function ($context): void {
+        try {
+            $this->finish($context, function ($context): void {
 
             // Get the created_batches from the finish method
-            $created_batches = $context['created_batches'];
+                $created_batches = $context['created_batches'];
+                if (is_array($created_batches) && $created_batches === []) {
+                    $this->printToScreen(xl('No claim file was written.'));
+                    return;
+                }
 
             // In the "normal" operation, we have written the batch files to disk above, and
             // need to build a presentation for the user to download them.
-            $html = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'>";
+                $html = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'>";
 
             // If the global is enabled to SFTP claim files, tell the user
-            if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
-                $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
-            }
+                if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
+                    $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
+                }
 
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Build the download URLs for our claim files so we can present them to the
             // user for download.
-            $html .= "<ul class='list-group'>";
-            foreach ($created_batches as $x12_partner_id => $created_batch) {
-                // This is the final, validated claim, write to the edi location for this x12 partner
-                $created_batch->write_batch_file($x12_partner_id);
-                $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
-                // For the modal, build a list of downloads
-                $file = $created_batch->getBatFilename();
-                $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
+                $html .= "<ul class='list-group'>";
+                foreach ($created_batches as $x12_partner_id => $created_batch) {
+                    if (!$created_batch instanceof BillingClaimBatch) {
+                        continue;
+                    }
+                    // This is the final, validated claim, write to the edi location for this x12 partner
+                    $filename = $created_batch->getBatFilename();
+                    $created_batch->requireGenerationOwner(
+                        fn (string $phase): bool => $phase !== '' && $this->awaitingFileStillOwned($filename)
+                    );
+                    $wrote = $this->storeBatchFile($created_batch);
+                    $landed = $wrote && $this->claimFileLanded($created_batch, $filename);
+                    if ($this->awaitingFile !== []) {
+                        if ($landed) {
+                            foreach ($this->billAwaitingFile($filename) as $unbilledClaim) {
+                                $unbilledId = $unbilledClaim->getId();
+                                if (!is_string($unbilledId) && !is_int($unbilledId)) {
+                                    continue;
+                                }
+                                $this->printToScreen(xl(UnbilledFileDecision::WRITTEN_NOT_BILLED) . ' ' . $unbilledId);
+                            }
+                        } else {
+                            $this->releaseUnlessPublished($created_batch, $filename, $wrote);
+                        }
+                    }
+                    if (!$landed) {
+                        $this->printToScreen(xl('The claim file was not written.') . ' ' . $filename);
+                        continue;
+                    }
+                    $queuedPartner = $x12_partner_id;
+                    if (is_string($x12_partner_id) && array_key_exists($x12_partner_id, $this->batchPartner)) {
+                        $queuedPartner = $this->batchPartner[$x12_partner_id];
+                    }
+                    if (is_int($queuedPartner)) {
+                        $queuedLabel = (string) $queuedPartner;
+                    } elseif (is_string($queuedPartner) && $queuedPartner !== '') {
+                        $queuedLabel = $queuedPartner;
+                    } else {
+                        continue;
+                    }
+                    $rawName = $this->x12_partners[$queuedPartner]['name'] ?? '';
+                    $x12_partner_name = text(is_string($rawName) ? $rawName : '');
+                    // For the modal, build a list of downloads
+                    $file = $filename;
+                    $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
-                    '&partner=' . urlencode($x12_partner_id) .
+                    '&partner=' . urlencode($queuedLabel) .
                     '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
-                $html .=
+                    $html .=
                     "<li class='list-group-item d-flex justify-content-between align-items-center'>
                         <a href='" . attr($url) . "'>" . text($file) . "</a>
                         <span class='badge badge-primary badge-pill'>" . text($x12_partner_name) . "</span>
                     </li>";
-            }
-            $html .= "</ul>";
-            $html .= "</div></body></html>";
+                }
+                $html .= "</ul>";
+                $html .= "</div></body></html>";
 
-            echo $html;
-        });
+                echo $html;
+            });
+        } finally {
+            $this->releaseGenerationFences();
+        }
     }
 
+    /**
+     * Validation writes the batch text to the screen.
+     *
+     * @param array $context
+     */
     public function completeToScreen(array $context)
     {
         $this->finish($context, function ($context): void {
 
             // Get the format_bat string from the finish method
             $format_bat = $context['format_bat'];
+            if (is_string($format_bat) && $format_bat === '') {
+                $this->printToScreen(xl('No claims were added to the batch.'));
+                return;
+            }
 
             // if validating (sending to screen for user)
             $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
@@ -355,7 +930,11 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Loop through all of the X12 batch files we've created, one per x-12 partner,
         // and depending on the action we're running, either write the final claim
         // to disk, or format the content for printing to the screen.
-        foreach ($this->x12_partner_batches as $x12_partner_id => $x12_partner_batch) {
+        $batches = $this->x12_partner_batches;
+        foreach ($this->extraBatches as $batchKey => $extraBatch) {
+            $batches[$batchKey] = $extraBatch;
+        }
+        foreach ($batches as $x12_partner_id => $x12_partner_batch) {
             // If we didn't write any claims for this X12 partner
             // don't append the closing lines or write the claim file or do anything else
             if (empty($x12_partner_batch->getBatContent())) {
@@ -378,4 +957,58 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             'format_bat' => $format_bat
         ]);
     }
+
+    /**
+     * Write one partner batch. Tests replace this so they do not create an edi file.
+     */
+    protected function storeBatchFile(BillingClaimBatch $batch): bool
+    {
+        return (bool) $batch->write_batch_file();
+    }
+
+    /**
+     * Settle a file that is already on disk before the current ZIP rules run.
+     *
+     * True means this claim should not be rendered again.
+     */
+    private function recoverHeldFile(BillingClaim $claim, BillingClaimBatch $batch): bool
+    {
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        $settled = $this->recoverPublishedFile($claim, $batch, false);
+        if ($settled === null) {
+            return false;
+        }
+        $this->printToScreen(xl($settled
+            ? UnbilledFileDecision::ALREADY_WRITTEN
+            : FacilityZipDenial::LEFT_OUT_NOT_BILLED));
+
+        return true;
+    }
+
+    /**
+     * Stop a manual clear that would rewrite a payer while another file is open.
+     */
+    private function manualClearIsBlocked(BillingClaim $claim): bool
+    {
+        if (!$this->holdClaimsThatWillDeny()) {
+            return false;
+        }
+        if (!$this->claimGenerationIsFree($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+        if ($this->otherPayerFileIsOpen($claim)) {
+            $this->printToScreen(xl(UnbilledFileDecision::STILL_BEING_WRITTEN));
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

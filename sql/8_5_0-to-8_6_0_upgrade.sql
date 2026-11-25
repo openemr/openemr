@@ -631,3 +631,13 @@ CREATE TABLE `era_auto_post_claim` (
 #IfMissingColumn facility mammography_cert_number
 ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
 #EndIf
+
+-- v_database 584: one waiting tracker row for each partner and filename.
+DELETE `later` FROM `x12_remote_tracker` AS `later`
+INNER JOIN `x12_remote_tracker` AS `earlier`
+  ON `later`.`x12_partner_id` = `earlier`.`x12_partner_id`
+ AND `later`.`x12_filename` = `earlier`.`x12_filename`
+ AND `later`.`id` > `earlier`.`id`;
+#IfNotIndex x12_remote_tracker partner_filename
+ALTER TABLE `x12_remote_tracker` ADD UNIQUE KEY `partner_filename` (`x12_partner_id`, `x12_filename`);
+#EndIf

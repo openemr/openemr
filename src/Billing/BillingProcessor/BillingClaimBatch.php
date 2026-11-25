@@ -14,12 +14,18 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+ * @copyright Copyright (c) 2026 Simon Quigley <squigley@altispeed.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\BatchFilePublisher;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Core\OEGlobalsBag;
 
 class BillingClaimBatch
@@ -46,6 +52,19 @@ class BillingClaimBatch
      */
     protected $claims = [];
 
+    /**
+     * True while the claims in this batch still name its file.
+     */
+    private ?\Closure $generationOwner = null;
+
+    /**
+     * The file was published and the waiting-tracker insert did not land.
+     */
+    public bool $queueFailed = false;
+
+    /**
+     * Opens a batch for one billing run.
+     */
     public function __construct(
         protected string $ext = '.txt',
         private array $context = []
@@ -56,12 +75,13 @@ class BillingClaimBatch
         $this->bat_content = '';
         $this->bat_gscount = 0;
         $this->bat_stcount = 0;
-        $this->bat_time = time();
-        $this->bat_hhmm = date('Hi', $this->bat_time);
-        $this->bat_yymmdd = date('ymd', $this->bat_time);
-        $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
+        $batchTime = time();
+        $this->bat_time = $batchTime;
+        $this->bat_hhmm = date('Hi', $batchTime);
+        $this->bat_yymmdd = date('ymd', $batchTime);
+        $this->bat_yyyymmdd = date('Ymd', $batchTime);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
+        $this->bat_filename = self::batchFilename($batchTime, $this->ext);
         $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
@@ -139,6 +159,29 @@ class BillingClaimBatch
     }
 
     /**
+     * Batch file name written for this run.
+     *
+     * The random suffix keeps a later run from billing or clearing a file
+     * it does not own. Validate only downloads this name from the temporary
+     * directory, so that download has to accept the same shape.
+     */
+    public static function batchFilename(int $timestamp, string $extension): string
+    {
+        return date('Y-m-d-His', $timestamp) . '-' . bin2hex(random_bytes(3)) . '-batch' . $extension;
+    }
+
+    /**
+     * True when a temporary download may open this batch name.
+     */
+    public static function isTemporaryBatchName(string $filename): bool
+    {
+        return preg_match(
+            '/^\d{4}-\d{2}-\d{2}-\d{6}-[0-9a-f]{6}-batch\.(pdf|txt)$/',
+            $filename
+        ) === 1;
+    }
+
+    /**
      * Write the batch file to disk, and if enabled, queue the file
      * to be written to remote SFTP server.
      *
@@ -150,19 +193,55 @@ class BillingClaimBatch
      * billing manager, we handle the array case.
      *
      */
+    /**
+     * Publish and queue only while this callback says the claims still name the file.
+     */
+    public function requireGenerationOwner(\Closure $owner): void
+    {
+        $this->generationOwner = $owner;
+    }
+
+    /**
+     * The claims still name this file, or this batch is not holding a deferred claim.
+     */
+    private function generationStillOwnsBatch(string $phase): bool
+    {
+        if ($phase === '') {
+            return false;
+        }
+        $owner = $this->generationOwner;
+        if (!$owner instanceof \Closure) {
+            return true;
+        }
+
+        return $owner($phase) === true;
+    }
+
     public function write_batch_file()
     {
         $success = true;
-        // If a writable edi directory exists, log the batch to it.
-        // I guarantee you'll be glad we did this. :-)
-        if ($this->bat_filedir !== false) {
-            $fh = fopen($this->bat_filedir . DIRECTORY_SEPARATOR . $this->bat_filename, 'a');
-            if ($fh) {
-                fwrite($fh, (string) $this->bat_content);
-                fclose($fh);
-            } else {
-                $success = false;
+        // The batch name appears only after the full contents are synced.
+        // A short write does not replace the file and is not queued.
+        if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+            if (!$this->generationStillOwnsBatch('before-publish')) {
+                return false;
             }
+            $success = BatchFilePublisher::publish(
+                $this->bat_filedir,
+                $this->bat_filename,
+                (string) $this->bat_content,
+                true
+            );
+            if ($success && !$this->generationStillOwnsBatch('after-publish')) {
+                BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+
+                return false;
+            }
+            if ($success) {
+                BatchFilePublisher::allowDownload($this->bat_filedir, $this->bat_filename);
+            }
+        } elseif ($this->bat_filedir !== false) {
+            $success = false;
         }
 
         // If we are automatically uploading claims to X12 partners, do that here right after we
@@ -171,19 +250,89 @@ class BillingClaimBatch
             true === $success &&
             OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
-            $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
-            // Queue the batchfile to send to all x-12 partners
-            foreach ($unique_x12_partners as $x12_partner_id) {
-                X12RemoteTracker::create([
-                    'x12_partner_id' => $x12_partner_id,
-                    'x12_filename' => $this->bat_filename,
-                    'status' => X12RemoteTracker::STATUS_WAITING,
-                    'claims' => json_encode($this->claims)
+            if (!$this->generationStillOwnsBatch('before-queue')) {
+                if (is_string($this->bat_filedir) && is_string($this->bat_filename)) {
+                    BatchFilePublisher::discard($this->bat_filedir, $this->bat_filename);
+                }
+
+                return false;
+            }
+            try {
+                $this->queueMissingPartners();
+            } catch (SqlQueryException $exception) {
+                $this->queueFailed = true;
+                ServiceContainer::getLogger()->error('Published claim file was not queued', [
+                    'exception' => $exception,
                 ]);
             }
         }
 
         return $success;
+    }
+
+    /**
+     * Queue each partner that does not already have this file name.
+     *
+     * A second insert would send the same batch again.
+     */
+    public function queueMissingPartners(): void
+    {
+        if (!is_string($this->bat_filename) || $this->bat_filename === '') {
+            return;
+        }
+        $claims = json_encode($this->claims);
+        if (!is_string($claims)) {
+            $claims = '[]';
+        }
+        foreach ($this->extractUniqueX12PartnersFromClaims($this->claims) as $partnerId) {
+            self::queuePartnerFile($partnerId, $this->bat_filename, $claims);
+        }
+    }
+
+    /**
+     * One waiting tracker row for a file that is already on disk.
+     */
+    public static function queuePartnerFile(mixed $partnerId, string $filename, string $claimsJson): void
+    {
+        if (
+            $filename === ''
+            || (!is_int($partnerId) && !is_string($partnerId))
+            || !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
+        ) {
+            return;
+        }
+        $existing = QueryUtils::querySingleRow(
+            "SELECT id FROM x12_remote_tracker WHERE x12_partner_id = ? AND x12_filename = ? LIMIT 1",
+            [$partnerId, $filename]
+        );
+        if (is_array($existing)) {
+            return;
+        }
+        try {
+            X12RemoteTracker::create([
+                'x12_partner_id' => $partnerId,
+                'x12_filename' => $filename,
+                'status' => X12RemoteTracker::STATUS_WAITING,
+                'claims' => $claimsJson,
+            ]);
+        } catch (SqlQueryException $exception) {
+            if (!self::trackerRowAlreadyExists($exception)) {
+                throw $exception;
+            }
+        }
+    }
+
+    /**
+     * A second insert for the same partner and filename is the row we wanted.
+     */
+    private static function trackerRowAlreadyExists(SqlQueryException $exception): bool
+    {
+        $detail = $exception->sqlError;
+        if (!is_string($detail)) {
+            $detail = $exception->getMessage();
+        }
+
+        return str_contains(strtolower($detail), 'duplicate');
     }
 
     protected function extractUniqueX12PartnersFromClaims($claims): array

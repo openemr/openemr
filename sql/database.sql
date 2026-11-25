@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 583
+-- v_database: 584
 --
 
 --
@@ -14346,7 +14346,8 @@ CREATE TABLE `x12_remote_tracker` (
 `messages` text,
 `created_at` datetime DEFAULT NULL,
 `updated_at` datetime DEFAULT NULL,
-PRIMARY KEY (`id`)
+PRIMARY KEY (`id`),
+  UNIQUE KEY `partner_filename` (`x12_partner_id`, `x12_filename`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `x12_remote_received`;
