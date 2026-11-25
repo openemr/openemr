@@ -229,6 +229,8 @@ rules:
     # `subscriber`: self | spouse | guardian. A spouse or guardian is the one
     # the related_people rules above made (guardian = role GUARD, else a
     # parent); a choice needing one the patient doesn't have is skipped.
+    # Only someone with a birth date counts: a spouse, parent or grandparent,
+    # not a friend or neighbor.
     # Companies are picked from `from` with equal weight. `percent` on a
     # secondary/tertiary policy = the chance the patient has it.
     plans:

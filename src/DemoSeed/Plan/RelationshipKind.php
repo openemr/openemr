@@ -22,6 +22,7 @@ enum RelationshipKind
     case Parent;
     case Child;
     case Sibling;
+    case Grandparent;
     case OtherFamily;
     case NotFamily;
 
@@ -34,6 +35,7 @@ enum RelationshipKind
         'CHILD', 'NCHILD', 'DAUC', 'DAU', 'SONC', 'SON', 'CHLDADOPT', 'DAUADOPT', 'SONADOPT', 'CHLDFOST',
         'DAUFOST', 'SONFOST', 'STPCHLD', 'STPDAU', 'STPSON',
     ];
+    private const GRANDPARENT = ['GRPRN', 'GRFTH', 'GRMTH', 'MGRPRN', 'MGRFTH', 'MGRMTH', 'PGRPRN', 'PGRFTH', 'PGRMTH'];
     private const NOT_FAMILY = ['FRND', 'NBOR', 'ROOM'];
     private const FEMALE = [
         'WIFE', 'MTH', 'NMTH', 'ADOPTM', 'MTHFOST', 'STPMTH', 'GESTM', 'DAUC', 'DAU', 'DAUADOPT', 'DAUFOST',
@@ -54,6 +56,7 @@ enum RelationshipKind
             in_array($relationship, self::SPOUSE, true) => self::Spouse,
             in_array($relationship, self::PARENT, true) => self::Parent,
             in_array($relationship, self::CHILD, true) => self::Child,
+            in_array($relationship, self::GRANDPARENT, true) => self::Grandparent,
             str_contains($relationship, 'SIB') || str_contains($relationship, 'BRO')
                 || str_contains($relationship, 'SIS') || str_contains($relationship, 'TWIN') => self::Sibling,
             in_array($relationship, self::NOT_FAMILY, true) => self::NotFamily,
@@ -80,13 +83,14 @@ enum RelationshipKind
     {
         return match ($this) {
             self::Spouse, self::Parent, self::Child, self::Sibling => true,
-            self::OtherFamily, self::NotFamily => false,
+            self::Grandparent, self::OtherFamily, self::NotFamily => false,
         };
     }
 
     /**
      * Whether a patient of this age can plausibly have this relation as an
-     * adult contact: no adult children under 38, no living parents over 75.
+     * adult contact: no adult children under 38, no living parents over 75,
+     * no living grandparents over 45.
      */
     public function fitsPatientAge(int $age): bool
     {
@@ -94,6 +98,7 @@ enum RelationshipKind
             self::Child => $age >= 38,
             self::Parent => $age <= 75,
             self::Spouse => $age >= 18,
+            self::Grandparent => $age <= 45,
             self::Sibling, self::OtherFamily, self::NotFamily => true,
         };
     }

@@ -4,6 +4,9 @@
  * Writes the list of imported patients (pid and Synthea facts) as JSON, so
  * the mapping can be inspected and later steps can reuse an import.
  *
+ * The manifest names the site it was written for, so it isn't reused for
+ * another site.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    David Eschelbacher <psoas@tampabay.rr.com>
@@ -27,7 +30,7 @@ final readonly class PatientManifest
     /**
      * @param list<ImportedPatient> $patients
      */
-    public function write(string $path, array $patients): void
+    public function write(string $path, string $site, array $patients): void
     {
         $rows = array_map(
             static fn (ImportedPatient $patient): array => ['pid' => $patient->pid, ...$patient->synthea->toArray()],
@@ -35,14 +38,20 @@ final readonly class PatientManifest
         );
         $this->filesystem->dumpFile(
             $path,
-            json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n",
+            json_encode(
+                ['site' => $site, 'patients' => $rows],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
+            ) . "\n",
         );
     }
 
     /**
+     * Reads a manifest written for $site. A manifest from an older loader
+     * (a bare list, without the site) is read as it is.
+     *
      * @return list<ImportedPatient>
      */
-    public function read(string $path): array
+    public function read(string $path, string $site): array
     {
         if (!is_file($path)) {
             throw new ImportException('No patient manifest at ' . $path . '; run the loader once without --reuse-import');
@@ -52,12 +61,29 @@ final readonly class PatientManifest
             throw new ImportException('Could not read the patient manifest at ' . $path);
         }
         try {
-            $rows = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+            $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new ImportException('The patient manifest is not valid JSON: ' . $path, 0, $e);
         }
-        if (!is_array($rows) || !array_is_list($rows)) {
-            throw new ImportException('The patient manifest should be a list: ' . $path);
+        if (!is_array($decoded)) {
+            throw new ImportException('The patient manifest should be an object: ' . $path);
+        }
+        if (array_is_list($decoded)) {
+            $rows = $decoded;
+        } else {
+            $manifestSite = $decoded['site'] ?? null;
+            if ($manifestSite !== $site) {
+                throw new ImportException(sprintf(
+                    'The patient manifest at %s was written for site "%s", not "%s"',
+                    $path,
+                    is_string($manifestSite) ? $manifestSite : '?',
+                    $site,
+                ));
+            }
+            $rows = $decoded['patients'] ?? null;
+            if (!is_array($rows) || !array_is_list($rows)) {
+                throw new ImportException('The patient manifest has no list of patients: ' . $path);
+            }
         }
         $patients = [];
         foreach ($rows as $row) {

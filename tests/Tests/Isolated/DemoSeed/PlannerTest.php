@@ -19,8 +19,10 @@ use OpenEMR\DemoSeed\Import\ImportedPatient;
 use OpenEMR\DemoSeed\Plan\PatientUpdate;
 use OpenEMR\DemoSeed\Plan\Plan;
 use OpenEMR\DemoSeed\Plan\PlanException;
+use OpenEMR\DemoSeed\Plan\PlannedAddress;
 use OpenEMR\DemoSeed\Plan\PlannedPerson;
 use OpenEMR\DemoSeed\Plan\PlannedPolicy;
+use OpenEMR\DemoSeed\Plan\PlannedRelation;
 use OpenEMR\DemoSeed\Plan\PlannedTelecom;
 use OpenEMR\DemoSeed\Plan\Planner;
 use OpenEMR\DemoSeed\PostalAddress;
@@ -153,7 +155,7 @@ final class PlannerTest extends TestCase
         $this->assertSame(3, $person->linkedPid);
         $this->assertSame('Zed', $person->lastName);
         $this->assertSame('Male', $person->sex);
-        $relations = array_values(array_filter($plan->relations, static fn ($r): bool => $r->ownerPid === 2));
+        $relations = array_values(array_filter($plan->relations, static fn (PlannedRelation $r): bool => $r->ownerPid === 2));
         $this->assertCount(1, $relations);
         $this->assertSame('patient:3', $relations[0]->personRef);
     }
@@ -179,7 +181,7 @@ final class PlannerTest extends TestCase
         $this->assertSame('Able', $spouse->lastName);
         $homes = array_values(array_filter(
             $plan->addresses,
-            static fn ($a): bool => $a->owner->personRef === 'rule:1:0',
+            static fn (PlannedAddress $a): bool => $a->owner->personRef === 'rule:1:0',
         ));
         $this->assertCount(1, $homes);
         $this->assertSame('1 Elm Street', $homes[0]->address->street);
@@ -191,7 +193,7 @@ final class PlannerTest extends TestCase
         $plan = $this->plan(self::SEED_FILE);
 
         // pid 4 is 25: no adult child, so the second rule picks a friend
-        $relations = array_values(array_filter($plan->relations, static fn ($r): bool => $r->ownerPid === 4));
+        $relations = array_values(array_filter($plan->relations, static fn (PlannedRelation $r): bool => $r->ownerPid === 4));
         $this->assertCount(1, $relations);
         $this->assertSame('FRND', $relations[0]->relationship);
         $this->assertSame('Chen', $this->person($plan, $relations[0]->personRef)->lastName);
@@ -230,7 +232,7 @@ final class PlannerTest extends TestCase
     {
         $plan = $this->plan(self::SEED_FILE);
 
-        $boxes = array_values(array_filter($plan->addresses, static fn ($a): bool => $a->owner->pid === 1));
+        $boxes = array_values(array_filter($plan->addresses, static fn (PlannedAddress $a): bool => $a->owner->pid === 1));
         $this->assertCount(1, $boxes);
         $this->assertMatchesRegularExpression('/^PO Box \d+$/', $boxes[0]->address->street);
         $this->assertSame('Northampton', $boxes[0]->address->city);
@@ -317,6 +319,75 @@ final class PlannerTest extends TestCase
 
         $this->assertSame(['Bea', 'Ann'], [$this->update($plan, 2)->fields['fname'], $this->update($plan, 2)->fields['mname']]);
         $this->assertArrayNotHasKey('fname', $this->update($plan, 1)->fields);
+    }
+
+    public function testNamedAndUnnamedRelatedPeopleStayApart(): void
+    {
+        // The unnamed second person used to get the same reference as the
+        // one with key "1" and take its place.
+        $yaml = str_replace(
+            "    insurance:\n      wife:\n        primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: self, copay: 25}",
+            "    related_people:\n      wife:\n"
+                . "        - {key: \"1\", first_name: Ana, relationship: MTH, role: NOK}\n"
+                . "        - {first_name: Ben, relationship: FTH, role: ECON}\n"
+                . "    insurance:\n      wife:\n        primary: {company: bcbs, policy: BC0019900001, group: GRP10001, subscriber: {related: \"1\"}, copay: 25}",
+            self::SEED_FILE,
+        );
+        $plan = $this->plan($yaml);
+
+        $this->assertSame('Ana', $this->person($plan, 'case:couple:wife:key:1')->firstName);
+        $this->assertSame('Ben', $this->person($plan, 'case:couple:wife:index:1')->firstName);
+        $people = array_map(
+            fn (PlannedRelation $relation): string => $this->person($plan, $relation->personRef)->firstName,
+            array_values(array_filter($plan->relations, static fn (PlannedRelation $relation): bool => $relation->ownerPid === 2)),
+        );
+        $this->assertSame(['Cal', 'Ana', 'Ben'], $people);
+        $this->assertSame('Ana', $this->policiesOf($plan, 2)[1]->subscriber->firstName);
+    }
+
+    public function testGrandparentGuardianCanBeTheSubscriber(): void
+    {
+        $plan = $this->plan($this->withGuardianRule('GRMTH'));
+
+        // pid 4 is 25, so a grandparent fits; it gets a birth date and a sex
+        // (the first policy is the ended one every patient gets here)
+        [, $current] = $this->policiesOf($plan, 4);
+        $this->assertSame('bcbs', $current->companyKey);
+        $this->assertNull($current->end);
+        $this->assertSame('Ana', $current->subscriber->firstName);
+        $this->assertSame('Female', $current->subscriber->sex);
+        $this->assertLessThan(new \DateTimeImmutable('1960-01-01'), $current->subscriber->birthDate);
+    }
+
+    public function testGuardianWhoCanNotBeASubscriberIsPassedOver(): void
+    {
+        $plan = $this->plan($this->withGuardianRule('FRND'));
+
+        // A friend has no birth date, so the option that needs a guardian is
+        // skipped and the next plan set (Medicaid) applies.
+        $this->assertSame(
+            ['medicaid', 'medicaid'],
+            array_map(static fn (PlannedPolicy $p): string => $p->companyKey, $this->policiesOf($plan, 4)),
+        );
+    }
+
+    /**
+     * The seed file, with adults getting a guardian of this relationship and
+     * 18-64s choosing Blue Cross with the guardian as subscriber.
+     */
+    private function withGuardianRule(string $relationship): string
+    {
+        return str_replace(
+            [
+                'add: {relationship: [CHILD, FRND], role: ECON}',
+                '- {primary: {from: [bcbs], subscriber: spouse}}',
+            ],
+            [
+                'add: {relationship: [' . $relationship . '], role: GUARD}',
+                '- {primary: {from: [bcbs], subscriber: guardian}}',
+            ],
+            self::SEED_FILE,
+        );
     }
 
     private function plan(string $yaml): Plan

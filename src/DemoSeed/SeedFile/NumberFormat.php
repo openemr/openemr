@@ -53,6 +53,22 @@ final readonly class NumberFormat
     }
 
     /**
+     * The length of every number render() makes with this prefix.
+     */
+    public function length(string $cmsPrefix): int
+    {
+        $length = 0;
+        foreach ($this->parts as $part) {
+            $length += match (true) {
+                $part === self::CMS => strlen($cmsPrefix),
+                is_int($part) => $part,
+                default => strlen($part),
+            };
+        }
+        return $length;
+    }
+
+    /**
      * @param callable(int, int): int $between random whole number in a range
      */
     public function render(string $cmsPrefix, callable $between): string

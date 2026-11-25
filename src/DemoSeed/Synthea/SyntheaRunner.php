@@ -61,7 +61,9 @@ final readonly class SyntheaRunner
             return false;
         }
         $this->filesystem->mkdir(dirname($jarPath));
-        $partial = $jarPath . '.part';
+        // A file of this download's own, next to the jar, renamed only once
+        // the download is complete.
+        $partial = $this->filesystem->tempnam(dirname($jarPath), 'synthea-download-', '.part');
         try {
             $this->httpClient->request('GET', self::JAR_URL, ['sink' => $partial]);
         } catch (GuzzleException $e) {

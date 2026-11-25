@@ -58,6 +58,16 @@ final class SeedFileParserTest extends TestCase
 
         YAML;
 
+    private const TWO_PATIENT_CASE = <<<'YAML'
+
+        cases:
+          - key: c
+            patients:
+              - {key: a, pick: {age: 18+}}
+              - {key: b, pick: {age: 18+}}
+
+        YAML;
+
     private const APPOINTMENTS = self::MINIMAL . self::FACILITY . <<<'YAML'
 
         providers:
@@ -314,6 +324,34 @@ final class SeedFileParserTest extends TestCase
             'fixed list stop zero' => [
                 str_replace('stop: 1}', 'stop: 0}', self::APPOINTMENTS),
                 'appointments.visit_lists[1].patients[0].stop: must be at least 1',
+            ],
+            'case link repeated' => [
+                self::MINIMAL . self::TWO_PATIENT_CASE
+                    . "    links:\n      - {from: a, to: b, relationship: SPS, role: NOK}\n      - {from: a, to: b, relationship: SPS, role: ECON}\n",
+                'cases[0].links[1].to: "a" is already linked to "b" in this case',
+            ],
+            'case link to themselves' => [
+                self::MINIMAL . self::TWO_PATIENT_CASE . "    links:\n      - {from: a, to: a, relationship: SPS, role: NOK}\n",
+                'cases[0].links[0].to: a patient can not be linked to itself',
+            ],
+            'related person key used for two people' => [
+                self::MINIMAL . self::TWO_PATIENT_CASE
+                    . "    related_people:\n      a: [{key: father, first_name: Joe, relationship: FTH, role: NOK}]\n"
+                    . "      b: [{key: father, first_name: Jim, relationship: FTH, role: NOK}]\n",
+                'key "father" is used more than once',
+            ],
+            'policy number format too short' => [
+                self::MINIMAL . self::INSURANCE . "        primary: {from: [bcbs]}\n    policy_numbers: {format: \"{1 digit}\"}\n",
+                'rules.insurance.policy_numbers.format: makes 1-character numbers for insurance company "bcbs"; they must be 2 to 255 characters',
+            ],
+            'group number format too long with the CMS prefix' => [
+                self::MINIMAL . self::INSURANCE . "        primary: {from: [bcbs]}\n    group_numbers: {format: \"{CMS}{99 digits}{99 digits}{53 digits}\"}\n",
+                'rules.insurance.group_numbers.format: makes 256-character numbers',
+            ],
+            'case policy number too long' => [
+                self::MINIMAL . self::INSURANCE_COMPANIES . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}}\n"
+                    . "    insurance:\n      a: {primary: {company: bcbs, policy: \"" . str_repeat('9', 256) . "\", subscriber: self}}\n",
+                'cases[0].insurance.a.primary.policy: must be 2 to 255 characters',
             ],
             'same_as a later patient' => [
                 self::MINIMAL . "\ncases:\n  - key: c\n    patients:\n      - {key: a, pick: {age: 18+}, last_name: {same_as: b}}\n      - {key: b, pick: {age: 18+}}\n",

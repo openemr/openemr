@@ -37,7 +37,8 @@ final readonly class CcdaPatientImporter
     /**
      * @param list<SyntheaPatient> $patients
      * @param ?callable(ImportedPatient, int, int): void $onImported called after each
-     *        patient with the patient, its 1-based position and the total
+     *        patient with the patient, its 1-based position and the total, so
+     *        the caller can record it before the next import can fail
      * @return list<ImportedPatient>
      */
     public function importAll(array $patients, ?callable $onImported = null): array
@@ -54,8 +55,10 @@ final readonly class CcdaPatientImporter
             }
         } finally {
             $this->database->restoreAuditLog($previousAuditSettings);
+            // Also after a failure, so the patients already imported are
+            // complete for --reuse-import.
+            $this->database->populateMissingUuids();
         }
-        $this->database->populateMissingUuids();
         return $imported;
     }
 

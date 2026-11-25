@@ -228,6 +228,7 @@ final class SeedFileParser
         foreach ($seedFile->rules->insurance->companyKeys() as $key) {
             $requireCompany($key, 'rules.insurance');
         }
+        $this->checkNumberLengths($seedFile);
         foreach ($seedFile->cases as $caseIndex => $case) {
             foreach ($case->insurance as $patientKey => $insurance) {
                 $path = 'cases[' . $caseIndex . '].insurance.' . $patientKey;
@@ -249,6 +250,33 @@ final class SeedFileParser
                 }
                 foreach ($insurance->ended as $index => $ended) {
                     $requireCompany($ended->companyKey, $path . '.ended[' . $index . '].company');
+                }
+            }
+        }
+    }
+
+    /**
+     * Made-up policy and group numbers must be lengths the insurance check
+     * accepts, with each company's {CMS} prefix.
+     */
+    private function checkNumberLengths(SeedFile $seedFile): void
+    {
+        $insurance = $seedFile->rules->insurance;
+        $formats = ['rules.insurance.policy_numbers.format' => $insurance->policyNumbers];
+        if ($insurance->groupNumbers !== null) {
+            $formats['rules.insurance.group_numbers.format'] = $insurance->groupNumbers;
+        }
+        foreach ($formats as $path => $format) {
+            foreach ($seedFile->insuranceCompanies as $company) {
+                $length = $format->length($company->numberPrefix());
+                if ($length < CasePolicy::NUMBER_MIN_LENGTH || $length > CasePolicy::NUMBER_MAX_LENGTH) {
+                    throw SeedFileException::at($path, sprintf(
+                        'makes %d-character numbers for insurance company "%s"; they must be %d to %d characters',
+                        $length,
+                        $company->key,
+                        CasePolicy::NUMBER_MIN_LENGTH,
+                        CasePolicy::NUMBER_MAX_LENGTH,
+                    ));
                 }
             }
         }

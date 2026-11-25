@@ -70,25 +70,48 @@ class ImportDatabase
     }
 
     /**
-     * Turns the audit log off and returns the previous values.
+     * Whether the patient with this pid has this first name and birth date,
+     * i.e. is still the one a manifest says was imported there.
+     */
+    public function patientMatches(int $pid, string $firstName, \DateTimeImmutable $birthDate): bool
+    {
+        $rows = QueryUtils::fetchRecordsNoLog(
+            'SELECT `fname`, `DOB` FROM `patient_data` WHERE `pid` = ?',
+            [$pid],
+        );
+        $row = $rows[0] ?? null;
+        return $row !== null
+            && ($row['fname'] ?? null) === $firstName
+            && ($row['DOB'] ?? null) === $birthDate->format('Y-m-d');
+    }
+
+    /**
+     * Turns the audit log off and returns the previous values. If that fails
+     * part way, the values already changed are put back first.
      *
      * @return array<string, string>
      */
     public function disableAuditLog(): array
     {
         $previous = [];
-        foreach (self::AUDIT_GLOBALS as $name) {
-            $rows = QueryUtils::fetchRecordsNoLog(
-                'SELECT `gl_value` FROM `globals` WHERE `gl_name` = ?',
-                [$name],
-            );
-            $value = $rows[0]['gl_value'] ?? '0';
-            $previous[$name] = is_string($value) ? $value : '0';
-            QueryUtils::sqlStatementThrowException(
-                'UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = ?',
-                [$name],
-                true,
-            );
+        try {
+            foreach (self::AUDIT_GLOBALS as $name) {
+                $rows = QueryUtils::fetchRecordsNoLog(
+                    'SELECT `gl_value` FROM `globals` WHERE `gl_name` = ?',
+                    [$name],
+                );
+                $value = $rows[0]['gl_value'] ?? '0';
+                $value = is_string($value) ? $value : '0';
+                QueryUtils::sqlStatementThrowException(
+                    'UPDATE `globals` SET `gl_value` = 0 WHERE `gl_name` = ?',
+                    [$name],
+                    true,
+                );
+                $previous[$name] = $value;
+            }
+        } catch (\Throwable $e) {
+            $this->restoreAuditLog($previous);
+            throw $e;
         }
         return $previous;
     }

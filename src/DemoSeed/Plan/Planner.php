@@ -291,7 +291,9 @@ final class Planner
     {
         $pid = $this->casePid($patientKey);
         $patient = $this->patients[$pid]->synthea;
-        $ref = 'case:' . $case->key . ':' . $patientKey . ':' . ($entry->key ?? (string) $index);
+        $ref = $entry->key !== null
+            ? self::namedCasePersonRef($case->key, $patientKey, $entry->key)
+            : 'case:' . $case->key . ':' . $patientKey . ':index:' . $index;
         $dice = Dice::for($this->seedFile->seed, $ref);
         $kind = RelationshipKind::of($entry->relationship);
         $sex = RelationshipKind::sexOf($entry->relationship)
@@ -363,7 +365,8 @@ final class Planner
             $sex = RelationshipKind::sexOf($relationship) ?? match ($kind) {
                 RelationshipKind::Spouse => self::sexOption(self::opposite($synthea->gender())),
                 RelationshipKind::Parent => $parentSexes === [] ? null : self::oppositeOption($parentSexes[count($parentSexes) - 1]),
-                default => null,
+                RelationshipKind::Child, RelationshipKind::Sibling, RelationshipKind::Grandparent,
+                RelationshipKind::OtherFamily, RelationshipKind::NotFamily => null,
             } ?? $dice->pick(['Female', 'Male']);
             if ($kind === RelationshipKind::Parent) {
                 $parentSexes[] = $sex;
@@ -538,9 +541,11 @@ final class Planner
             ),
             SubscriberKind::Related => $this->personSubscriber(
                 $pid,
-                'case:' . $case->key . ':'
-                    . ($case->relatedPersonOwner($key) ?? throw new PlanException('cases.' . $case->key . ': no related person has key "' . $key . '"'))
-                    . ':' . $key,
+                self::namedCasePersonRef(
+                    $case->key,
+                    $case->relatedPersonOwner($key) ?? throw new PlanException('cases.' . $case->key . ': no related person has key "' . $key . '"'),
+                    $key,
+                ),
             ),
             SubscriberKind::Spouse, SubscriberKind::Guardian => throw new PlanException(
                 'cases.' . $case->key . ': name the subscriber with {patient: key} or {related: key}',
@@ -555,15 +560,22 @@ final class Planner
     private function applyInsuranceRules(ImportedPatient $patient): void
     {
         $pid = $patient->pid;
+        // Only people who can be a subscriber count, so an option that needs
+        // one is passed over rather than failing later.
         $available = [
             SubscriberKind::Spouse->name => $this->relatedRef(
                 $pid,
-                static fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Spouse,
+                fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Spouse
+                    && $this->canSubscribe($relation),
             ),
-            SubscriberKind::Guardian->name => $this->relatedRef($pid, static fn (PlannedRelation $relation): bool => $relation->role === 'GUARD')
+            SubscriberKind::Guardian->name => $this->relatedRef(
+                $pid,
+                fn (PlannedRelation $relation): bool => $relation->role === 'GUARD' && $this->canSubscribe($relation),
+            )
                 ?? $this->relatedRef(
                     $pid,
-                    static fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Parent,
+                    fn (PlannedRelation $relation): bool => RelationshipKind::of($relation->relationship) === RelationshipKind::Parent
+                        && $this->canSubscribe($relation),
                 ),
         ];
         $dice = Dice::for($this->seedFile->seed, $patient->synthea->syntheaId, 'insurance');
@@ -663,6 +675,27 @@ final class Planner
         return null;
     }
 
+    /**
+     * Whether personSubscriber() can make a subscriber of this person: a
+     * patient, or someone with a birth date and a sex.
+     */
+    private function canSubscribe(PlannedRelation $relation): bool
+    {
+        $person = $this->people[$relation->personRef] ?? null;
+        return $person !== null
+            && ($person->linkedPid !== null || ($person->birthDate !== null && $person->sex !== null));
+    }
+
+    /**
+     * The reference of a case's related person with a key. Kept apart from
+     * the unnamed ones (by index), so a key such as "1" can't take another
+     * person's place.
+     */
+    private static function namedCasePersonRef(string $caseKey, string $patientKey, string $personKey): string
+    {
+        return 'case:' . $caseKey . ':' . $patientKey . ':key:' . $personKey;
+    }
+
     private function patientSubscriber(int $subscriberPid, string $relationship): PlannedSubscriber
     {
         $synthea = $this->patients[$subscriberPid]->synthea;
@@ -730,7 +763,8 @@ final class Planner
                 return match (RelationshipKind::of($relation->relationship)) {
                     RelationshipKind::Spouse => 'spouse',
                     RelationshipKind::Parent => 'child',
-                    RelationshipKind::Child, RelationshipKind::Sibling, RelationshipKind::OtherFamily, RelationshipKind::NotFamily => 'other',
+                    RelationshipKind::Child, RelationshipKind::Sibling, RelationshipKind::Grandparent,
+                    RelationshipKind::OtherFamily, RelationshipKind::NotFamily => 'other',
                 };
             }
         }
@@ -893,6 +927,7 @@ final class Planner
             RelationshipKind::Parent => -$dice->between(20, 40),
             RelationshipKind::Child => $dice->between(20, max(20, min(40, $patientAge - 18))),
             RelationshipKind::Sibling => $dice->between(-8, 8),
+            RelationshipKind::Grandparent => -$dice->between(45, 65),
             RelationshipKind::OtherFamily, RelationshipKind::NotFamily => null,
         };
         if ($years === null) {

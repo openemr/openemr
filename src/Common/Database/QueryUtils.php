@@ -467,6 +467,37 @@ class QueryUtils
     }
 
     /**
+     * Like inTransaction(), but transactions that $action's own callees
+     * start (inTransaction(), startTransaction() and so on, as many services
+     * do) join this one instead of committing it.
+     *
+     * Plain transactions don't nest: each one sends BEGIN, which commits
+     * whatever came before it. This uses ADODB's smart transactions, which
+     * turn the inner begin, commit and rollback calls into no-ops, so
+     * everything $action writes is committed or rolled back together.
+     *
+     * @phpstan-template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public static function inOuterTransaction(callable $action): mixed
+    {
+        $database = self::getADODB();
+        $database->StartTrans();
+        try {
+            $return = $action();
+        } catch (Throwable $e) {
+            $database->FailTrans();
+            $database->CompleteTrans();
+            throw $e;
+        }
+        if ($database->CompleteTrans() !== true) {
+            throw new \RuntimeException('The transaction was rolled back after a database error');
+        }
+        return $return;
+    }
+
+    /**
      * @return int
      */
     public static function getLastInsertId()

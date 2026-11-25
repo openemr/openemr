@@ -16,6 +16,10 @@ namespace OpenEMR\DemoSeed\SeedFile;
 
 final readonly class CasePolicy
 {
+    /** Policy and group number lengths CoverageValidator accepts. */
+    public const NUMBER_MIN_LENGTH = 2;
+    public const NUMBER_MAX_LENGTH = 255;
+
     /**
      * @param ?string $policyNumber null = made up with the rules' format
      */
@@ -45,8 +49,11 @@ final readonly class CasePolicy
     public static function number(MapReader $map, string $key): ?string
     {
         $number = $map->optionalString($key);
-        if ($number !== null && strlen($number) < 2) {
-            throw SeedFileException::at($map->pathOf($key), 'must be at least 2 characters');
+        if ($number !== null && (strlen($number) < self::NUMBER_MIN_LENGTH || strlen($number) > self::NUMBER_MAX_LENGTH)) {
+            throw SeedFileException::at(
+                $map->pathOf($key),
+                sprintf('must be %d to %d characters', self::NUMBER_MIN_LENGTH, self::NUMBER_MAX_LENGTH),
+            );
         }
         return $number;
     }

@@ -28,6 +28,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\DemoSeed\Import\CcdaPatientImporter;
 use OpenEMR\DemoSeed\Import\ImportDatabase;
 use OpenEMR\DemoSeed\Import\ImportedPatient;
+use OpenEMR\DemoSeed\Import\ImportException;
 use OpenEMR\DemoSeed\Import\PatientManifest;
 use OpenEMR\DemoSeed\Load\CalendarCategory;
 use OpenEMR\DemoSeed\Load\PlanWriter;
@@ -40,6 +41,8 @@ use OpenEMR\DemoSeed\Synthea\SyntheaOutputReader;
 use OpenEMR\DemoSeed\Synthea\SyntheaRunner;
 use OpenEMR\DemoSeed\Validation\DatabaseListOptions;
 use OpenEMR\DemoSeed\Validation\ListValidator;
+use OpenEMR\DemoSeed\WorkDirectory;
+use OpenEMR\DemoSeed\WorkDirectoryException;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
@@ -58,6 +61,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 final class DemoSeedCommand extends Command implements IGlobalsAware
 {
@@ -108,22 +112,39 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             return Command::INVALID;
         }
 
-        $workDirectory = rtrim($this->stringOption($input, 'work-dir') ?? self::DEFAULT_WORK_DIRECTORY, '/');
-        $manifestPath = $workDirectory . '/patients.json';
         $filesystem = new Filesystem();
+        $site = $this->stringOption($input, 'site') ?? 'default';
+        $currentDirectory = getcwd();
+        try {
+            $workDirectory = WorkDirectory::open(
+                $this->stringOption($input, 'work-dir') ?? self::DEFAULT_WORK_DIRECTORY,
+                $currentDirectory === false ? '/' : $currentDirectory,
+                $filesystem,
+            );
+        } catch (WorkDirectoryException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
+        }
+        $manifest = new PatientManifest($filesystem);
+        $manifestPath = $workDirectory->file('patients.json');
 
-        if ($input->getOption('reuse-import') === true) {
-            $manifest = new PatientManifest($filesystem);
-            $imported = $this->rereadSynthea($manifest->read($manifestPath));
-            $manifest->write($manifestPath, $imported);
-            $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
-        } else {
-            $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem);
-            if ($imported === null) {
-                return Command::FAILURE;
+        try {
+            if ($input->getOption('reuse-import') === true) {
+                $imported = $manifest->read($manifestPath, $site);
+                $this->assertManifestMatchesDatabase($imported, $manifestPath);
+                $imported = $this->rereadSynthea($imported);
+                $manifest->write($manifestPath, $site, $imported);
+                $io->writeln(sprintf('Reusing the %d imported patients in %s.', count($imported), $manifestPath));
+            } else {
+                $imported = $this->generateAndImport($input, $io, $output, $seedFile, $workDirectory, $filesystem, $manifest, $site);
+                if ($imported === null) {
+                    return Command::FAILURE;
+                }
+                $io->writeln('Manifest: ' . $manifestPath);
             }
-            (new PatientManifest($filesystem))->write($manifestPath, $imported);
-            $io->writeln('Manifest: ' . $manifestPath);
+        } catch (ImportException | WorkDirectoryException $e) {
+            $io->error($e->getMessage());
+            return Command::FAILURE;
         }
 
         $io->section('Adding facilities, providers, related people, phones, addresses, insurance and appointments');
@@ -150,8 +171,13 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             new VisitListService(),
             $categories,
         );
-        $writer->write($plan, static function (string $line) use ($io): void {
-            $io->writeln('  ' . $line);
+        // One transaction for the whole plan, so a failure part way through
+        // leaves none of it behind and the run can be repeated with
+        // --reuse-import.
+        QueryUtils::inOuterTransaction(static function () use ($writer, $plan, $io): void {
+            $writer->write($plan, static function (string $line) use ($io): void {
+                $io->writeln('  ' . $line);
+            });
         });
         foreach ($plan->casePatients as $key => $pid) {
             $io->writeln(sprintf('  case patient %-12s pid %d', $key, $pid));
@@ -183,6 +209,33 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
     }
 
     /**
+     * Stops before writing anything when a manifest pid is no longer the
+     * patient imported there, e.g. after the database was reset.
+     *
+     * @param list<ImportedPatient> $imported
+     * @throws ImportException
+     */
+    private function assertManifestMatchesDatabase(array $imported, string $manifestPath): void
+    {
+        $database = new ImportDatabase();
+        foreach ($imported as $patient) {
+            if (!$database->patientMatches($patient->pid, $patient->synthea->firstName, $patient->synthea->birthDate)) {
+                throw new ImportException(sprintf(
+                    'pid %d is not %s %s (born %s) as %s says; was the database reset since that import?',
+                    $patient->pid,
+                    $patient->synthea->firstName,
+                    $patient->synthea->lastName,
+                    $patient->synthea->birthDate->format('Y-m-d'),
+                    $manifestPath,
+                ));
+            }
+        }
+    }
+
+    /**
+     * Writes the manifest after each patient is imported, so the patients
+     * already imported can be reused if a later import fails.
+     *
      * @return ?list<ImportedPatient> null when the database already has
      *         patients and the user didn't allow it
      */
@@ -191,8 +244,10 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         SymfonyStyle $io,
         OutputInterface $output,
         SeedFile $seedFile,
-        string $workDirectory,
+        WorkDirectory $workDirectory,
         Filesystem $filesystem,
+        PatientManifest $manifest,
+        string $site,
     ): ?array {
         $database = new ImportDatabase();
         $existing = $database->patientCount();
@@ -204,13 +259,23 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
             return null;
         }
 
-        $jarPath = $this->stringOption($input, 'synthea-jar') ?? $workDirectory . '/synthea-with-dependencies.jar';
-        $outputDirectory = $workDirectory . '/output';
+        $jarOption = $this->stringOption($input, 'synthea-jar');
+        $currentDirectory = getcwd();
+        // Absolute, because Synthea runs with the output directory as its
+        // working directory.
+        $jarPath = $jarOption === null
+            ? $workDirectory->file('synthea-with-dependencies.jar')
+            : Path::makeAbsolute($jarOption, $currentDirectory === false ? '/' : $currentDirectory);
+        $outputDirectory = $workDirectory->file('output');
 
         $runner = new SyntheaRunner(new Client(), $filesystem);
         $runner->assertJavaInstalled();
         if (!is_file($jarPath)) {
             $io->writeln('Downloading the Synthea jar (about 200 MB) to ' . $jarPath . ' ...');
+        } elseif ($jarOption === null) {
+            // A jar named with --synthea-jar is the user's choice; the cached
+            // one is run only if no one else could have put it there.
+            $workDirectory->assertPrivateFile($jarPath);
         }
         $runner->ensureJar($jarPath);
 
@@ -233,15 +298,18 @@ final class DemoSeedCommand extends Command implements IGlobalsAware
         }
 
         $io->section('Importing the patients (CCDA)');
-        $importer = new CcdaPatientImporter(
-            $database,
-            $this->openemrPath(),
-            $this->stringOption($input, 'site') ?? 'default',
-        );
+        $importer = new CcdaPatientImporter($database, $this->openemrPath(), $site);
+        $manifestPath = $workDirectory->file('patients.json');
+        // A new import starts a new manifest, so an older one isn't taken
+        // for this one's.
+        $checkpoint = [];
+        $manifest->write($manifestPath, $site, $checkpoint);
         $started = microtime(true);
         $imported = $importer->importAll(
             $patients,
-            static function (ImportedPatient $patient, int $position, int $total) use ($io): void {
+            static function (ImportedPatient $patient, int $position, int $total) use ($io, $manifest, $manifestPath, $site, &$checkpoint): void {
+                $checkpoint[] = $patient;
+                $manifest->write($manifestPath, $site, $checkpoint);
                 $io->writeln(sprintf(
                     '  %d/%d  pid %d  %s %s',
                     $position,

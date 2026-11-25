@@ -61,10 +61,21 @@ final readonly class CaseSpec
         }
 
         $links = [];
+        $linkedPairs = [];
         foreach ($map->optionalMapList('links') as $linkMap) {
             $link = CaseLink::parse($linkMap, $lists);
             self::requireKnown($known, $link->from, $linkMap->pathOf('from'));
             self::requireKnown($known, $link->to, $linkMap->pathOf('to'));
+            // A patient can be related to another person only once; the link
+            // back the other way is a separate one and is fine.
+            $pair = $link->from . "\0" . $link->to;
+            if (in_array($pair, $linkedPairs, true)) {
+                throw SeedFileException::at(
+                    $linkMap->pathOf('to'),
+                    '"' . $link->from . '" is already linked to "' . $link->to . '" in this case',
+                );
+            }
+            $linkedPairs[] = $pair;
             $links[] = $link;
         }
 
