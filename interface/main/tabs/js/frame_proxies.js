@@ -31,6 +31,7 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob, hasPicture)
         app_view_model.application_data.patient().pname(pname);
         app_view_model.application_data.patient().pubpid(pubpid);
         app_view_model.application_data.patient().str_dob(str_dob);
+        app_view_model.application_data.patient().loadInfo();
 
         return;
     }

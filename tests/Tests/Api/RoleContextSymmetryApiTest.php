@@ -407,7 +407,7 @@ class RoleContextSymmetryApiTest extends TestCase
             'headers' => ['Content-Type' => 'application/json'],
             'json' => $payload,
         ]);
-        $this->assertSame(200, $response->getStatusCode(), 'DCR must succeed. Body: ' . (string) $response->getBody());
+        $this->assertSame(201, $response->getStatusCode(), 'DCR must succeed. Body: ' . (string) $response->getBody());
         $data = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id'] ?? null);

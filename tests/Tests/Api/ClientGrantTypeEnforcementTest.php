@@ -86,7 +86,7 @@ class ClientGrantTypeEnforcementTest extends TestCase
     {
         $http = $this->buildClient();
         $registration = $this->register($http, []);
-        $this->assertSame(200, $registration['status'], 'DCR should succeed');
+        $this->assertSame(201, $registration['status'], 'DCR should succeed');
         $this->assertSame(['authorization_code'], $registration['body']['grant_types'] ?? null, 'omitted grant_types defaults to authorization_code (RFC 7591)');
 
         $response = $http->post($this->baseUrl . '/oauth2/default/token', [
@@ -113,7 +113,7 @@ class ClientGrantTypeEnforcementTest extends TestCase
         // grants a client is registered for (RFC 6749 5.2).
         $http = $this->buildClient();
         $registration = $this->register($http, []);
-        $this->assertSame(200, $registration['status'], 'DCR should succeed');
+        $this->assertSame(201, $registration['status'], 'DCR should succeed');
 
         $response = $http->post($this->baseUrl . '/oauth2/default/token', [
             'form_params' => [
@@ -138,7 +138,7 @@ class ClientGrantTypeEnforcementTest extends TestCase
         // RFC 7591 3.2.1: the response reports the grant types actually stored.
         $http = $this->buildClient();
         $registration = $this->register($http, ['grant_types' => ['authorization_code', 'password', 'refresh_token']]);
-        $this->assertSame(200, $registration['status']);
+        $this->assertSame(201, $registration['status']);
         $this->assertSame(['authorization_code', 'refresh_token'], $registration['body']['grant_types'] ?? null);
 
         $response = $http->post($this->baseUrl . '/oauth2/default/token', [
@@ -190,7 +190,7 @@ class ClientGrantTypeEnforcementTest extends TestCase
             'scope' => 'system/Patient.read user/Patient.read patient/Patient.read',
             'jwks' => $this->testJwks(),
         ]);
-        $this->assertSame(200, $registration['status'], 'Body: ' . json_encode($registration['body']));
+        $this->assertSame(201, $registration['status'], 'Body: ' . json_encode($registration['body']));
         QueryUtils::sqlStatementThrowException(
             'UPDATE `oauth_clients` SET `is_enabled` = 1 WHERE `client_id` = ?',
             [$registration['client_id']]

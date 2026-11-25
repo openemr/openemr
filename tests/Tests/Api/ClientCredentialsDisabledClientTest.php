@@ -82,7 +82,7 @@ class ClientCredentialsDisabledClientTest extends TestCase
                 'jwks' => $jwks,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertIsString($clientData['client_id']);

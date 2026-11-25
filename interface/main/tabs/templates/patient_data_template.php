@@ -20,7 +20,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Tabs\PatientNameDisplay;
 
 ?>
 <?php
@@ -58,62 +60,19 @@ switch ($search_any_type) {
                 <div data-bind="with: patient" class="patientPicture">
                     <img data-bind="attr: {src: patient_picture}"
                         class="img-thumbnail"
-                        width="75"
-                        height="75"
+                        width="55"
+                        height="55"
                         onError="this.src = '<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative(); ?>/patient-picture-default.png'" />
                 </div>
                 <!-- /ko -->
             </div>
             <div class="form-group">
                 <!-- ko if: patient -->
-                <?php
-                $classes = "";
-                $closeAnchorClasses = '';
-                switch (OEGlobalsBag::getInstance()->get('patient_name_display')) :
-                    case 'btn':
-                        $classes = "btn btn-sm btn-secondary";
-                        $wrapperElement = 'div';
-                        $wrapperElementClass = 'btn-group btn-group-sm mb-2';
-                        $closeElement = '';
-                        $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
-                        $pubpidElement = 'span';
-                        break;
-                    case 'text-large':
-                        $closeAnchorClasses = 'text-muted';
-                        $wrapperElement = 'h3';
-                        $wrapperElementClass = 'd-inline';
-                        $closeElement = 'small';
-                        $closeElementClass = '';
-                        $closeIconClass = 'text-muted fa-xs';
-                        $pubpidElement = 'small';
-                        break;
-                    default:
-                        $closeAnchorClasses = 'text-muted';
-                        $wrapperElement = 'div';
-                        $wrapperElementClass = 'd-inline';
-                        $pubpidElement = 'span';
-                        $closeElement = 'span';
-                        $closeElementClass = '';
-                        $closeIconClass = 'text-muted';
-                        break;
-                endswitch;
-                echo "<$wrapperElement class=\"$wrapperElementClass\">";
-                ?>
-                    <a class="ptName <?php echo $classes ?? ''; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
-                        <span data-bind="text: pname()"></span>
-                        <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
-                    </a>
-                    <?php echo ($closeElement !== '') ? "<$closeElement class=\"$closeElementClass\">" : ''; ?>
-                    <a href="#" class="pt-1<?php echo (($classes ?? '') !== '') ? ' ' . $classes : '';?> <?php echo ($closeAnchorClasses !== '') ? ' ' . $closeAnchorClasses : ''; ?>" data-bind="click:closePatientChart" title="<?php echo xla('Close Patient Chart') ?>">
-                        <i class="fa fa-times<?php echo ($closeIconClass !== "") ? " " . $closeIconClass : ""; ?>"></i>
-                    </a>
-                    <?php echo ($closeElement !== '') ? "</$closeElement>" : ''; ?>
-                <?php echo "</$wrapperElement>"; ?>
+                <?php echo ServiceContainer::getTwig()->render('interface/main/tabs/patient_name.html.twig', [
+                    'display' => PatientNameDisplay::fromSetting(OEGlobalsBag::getInstance()->getString('patient_name_display')),
+                ]); ?>
 
-                <div class="mt-2">
-                    <span data-bind="text:patient().str_dob()"></span>
-                </div>
+                <div class="patient-bar-info" data-bind="foreach: patient().infoParts()"><span data-bind="text: $data"></span></div>
                 <!-- /ko -->
             </div>
         </div>

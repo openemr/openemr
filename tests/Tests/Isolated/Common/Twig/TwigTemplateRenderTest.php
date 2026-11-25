@@ -36,6 +36,7 @@ use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
+use OpenEMR\Tabs\PatientNameDisplay;
 use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardControllerTest;
 use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\FakeAssessmentStore;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
@@ -1272,6 +1273,14 @@ class TwigTemplateRenderTest extends TestCase
             ['runtime' => $importRuntime, 'title' => 'Questionnaire Assessment', 'error' => 'Questionnaire response was not found.'],
             $fixtureDir . '/assessment-workspace-refused.html',
         ];
+
+        foreach (PatientNameDisplay::cases() as $display) {
+            yield 'interface/main/tabs/patient_name ' . $display->value => [
+                'interface/main/tabs/patient_name.html.twig',
+                ['display' => $display],
+                $fixtureDir . '/patient-name-' . $display->value . '.html',
+            ];
+        }
     }
 
     /**

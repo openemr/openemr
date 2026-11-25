@@ -186,7 +186,7 @@ class ClientRegistrationReadTest extends TestCase
                 'scope' => 'openid',
             ]),
         ]);
-        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(201, $response->getStatusCode());
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
         $this->assertIsString($body['client_id'] ?? null);

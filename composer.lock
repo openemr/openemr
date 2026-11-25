@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d8b57aeeff8307a7a1b04c02d86b3416",
+    "content-hash": "e6353b633f02ffab6e050a0024a1b95d",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -12933,16 +12933,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.30.0",
+            "version": "v3.31.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef"
+                "reference": "6f6ec372231b53d1d564567a78beb8844cafa132"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8c737079b726af72ff8ef3c595be9f6a810ea1ef",
-                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/6f6ec372231b53d1d564567a78beb8844cafa132",
+                "reference": "6f6ec372231b53d1d564567a78beb8844cafa132",
                 "shasum": ""
             },
             "require": {
@@ -12997,7 +12997,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.30.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.31.1"
             },
             "funding": [
                 {
@@ -13009,7 +13009,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-25T13:20:01+00:00"
+            "time": "2026-11-24T12:48:40+00:00",
+            "published-time": "2026-11-24T12:48:53+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -14925,11 +14926,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.6",
+            "version": "2.3.7",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
-                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
+                "reference": "90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
                 "shasum": ""
             },
             "require": {
@@ -14985,7 +14986,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-15T19:58:26+00:00"
+            "time": "2026-11-19T10:31:11+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -15773,16 +15774,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.8.4",
+            "version": "2.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "55acbd956d7e3907f7d21aab54edd68a310609e6"
+                "reference": "bf2982e3e2b8dfbcb43e5589fa301431cb1e479e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/55acbd956d7e3907f7d21aab54edd68a310609e6",
-                "reference": "55acbd956d7e3907f7d21aab54edd68a310609e6",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/bf2982e3e2b8dfbcb43e5589fa301431cb1e479e",
+                "reference": "bf2982e3e2b8dfbcb43e5589fa301431cb1e479e",
                 "shasum": ""
             },
             "require": {
@@ -15818,7 +15819,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.8.4"
+                "source": "https://github.com/rectorphp/rector/tree/2.8.5"
             },
             "funding": [
                 {
@@ -15826,7 +15827,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T18:48:08+00:00"
+            "time": "2026-11-14T23:24:35+00:00"
         },
         {
             "name": "roave/security-advisories",
@@ -18700,7 +18701,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.3.0",
+        "php": ">=8.4.0",
         "ext-bcmath": "*",
         "ext-calendar": "*",
         "ext-ctype": "*",
@@ -18737,40 +18738,40 @@
     },
     "platform-dev": {},
     "platform-overrides": {
-        "ext-bcmath": "8.3",
-        "ext-calendar": "8.3",
-        "ext-ctype": "8.3",
-        "ext-curl": "8.3",
-        "ext-dom": "8.3",
-        "ext-fileinfo": "8.3",
-        "ext-filter": "8.3",
-        "ext-gd": "8.3",
-        "ext-iconv": "8.3",
-        "ext-imagick": "8.3",
-        "ext-intl": "8.3",
-        "ext-json": "8.3",
-        "ext-ldap": "8.3",
-        "ext-libxml": "8.3",
-        "ext-mbstring": "8.3",
-        "ext-mysqli": "8.3",
-        "ext-openssl": "8.3",
-        "ext-pdo": "8.3",
-        "ext-pdo_mysql": "8.3",
-        "ext-phar": "8.3",
-        "ext-redis": "8.3",
-        "ext-session": "8.3",
-        "ext-simplexml": "8.3",
-        "ext-soap": "8.3",
-        "ext-sockets": "8.3",
-        "ext-sodium": "8.3",
-        "ext-tokenizer": "8.3",
-        "ext-xml": "8.3",
-        "ext-xmlreader": "8.3",
-        "ext-xmlwriter": "8.3",
-        "ext-xsl": "8.3",
-        "ext-zip": "8.3",
-        "ext-zlib": "8.3",
-        "php": "8.3"
+        "ext-bcmath": "8.4",
+        "ext-calendar": "8.4",
+        "ext-ctype": "8.4",
+        "ext-curl": "8.4",
+        "ext-dom": "8.4",
+        "ext-fileinfo": "8.4",
+        "ext-filter": "8.4",
+        "ext-gd": "8.4",
+        "ext-iconv": "8.4",
+        "ext-imagick": "8.4",
+        "ext-intl": "8.4",
+        "ext-json": "8.4",
+        "ext-ldap": "8.4",
+        "ext-libxml": "8.4",
+        "ext-mbstring": "8.4",
+        "ext-mysqli": "8.4",
+        "ext-openssl": "8.4",
+        "ext-pdo": "8.4",
+        "ext-pdo_mysql": "8.4",
+        "ext-phar": "8.4",
+        "ext-redis": "8.4",
+        "ext-session": "8.4",
+        "ext-simplexml": "8.4",
+        "ext-soap": "8.4",
+        "ext-sockets": "8.4",
+        "ext-sodium": "8.4",
+        "ext-tokenizer": "8.4",
+        "ext-xml": "8.4",
+        "ext-xmlreader": "8.4",
+        "ext-xmlwriter": "8.4",
+        "ext-xsl": "8.4",
+        "ext-zip": "8.4",
+        "ext-zlib": "8.4",
+        "php": "8.4.28"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

@@ -48,7 +48,7 @@ jobs:
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer
       with:
-        php-version: '8.3'
+        php-version: '8.4'
 
     - name: Regenerate TableTypes.php
       run: |
