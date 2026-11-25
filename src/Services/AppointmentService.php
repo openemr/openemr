@@ -506,7 +506,7 @@ class AppointmentService extends BaseService
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
                         " WHERE pc_aid <=> ? AND pc_multiple=?", [$provider,$row['pc_multiple']]);
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                    $selected_date = date("Y-m-d", strtotime((string) $event_selected_date));
+                    $selected_date = date("Ymd", strtotime((string) $event_selected_date));
                     if ($oldRecurrspec['exdate'] != "") {
                         $oldRecurrspec['exdate'] .= "," . $selected_date;
                     } else {
@@ -560,7 +560,7 @@ class AppointmentService extends BaseService
                 // get the original event's repeat specs
                 $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                $selected_date = date("Ymd", strtotime((string) $_POST['selected_date']));
+                $selected_date = date("Ymd", strtotime((string) $event_selected_date));
                 if ($oldRecurrspec['exdate'] != "") {
                     $oldRecurrspec['exdate'] .= "," . $selected_date;
                 } else {
@@ -572,7 +572,7 @@ class AppointmentService extends BaseService
                     " WHERE pc_eid = ?", [serialize($oldRecurrspec),$eid]);
             } elseif ($recurr_affect == 'future') {
                 // mod original event to stop recurring on this date-1
-                $selected_date = date("Ymd", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
+                $selected_date = date("Ymd", (strtotime((string) $event_selected_date) - 24 * 60 * 60));
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? " .
                     " WHERE pc_eid = ?", [$selected_date,$eid]);
