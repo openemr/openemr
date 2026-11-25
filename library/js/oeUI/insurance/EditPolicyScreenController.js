@@ -10,6 +10,7 @@
 let {InsurancePolicyService} = await import("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);
 let {InsurancePolicyModel} = await import("./InsurancePolicyModel.js?v=" + window.top.jsGlobals.assetVersion);
 let {ValidationFieldError, ValidationError} = await import("../Error/ValidationError.js?v=" + window.top.jsGlobals.assetVersion);
+let {ReopenChargesPanel} = await import("./ReopenChargesPanel.js?v=" + window.top.jsGlobals.assetVersion);
 
 export class EditPolicyScreenController
 {
@@ -57,6 +58,13 @@ export class EditPolicyScreenController
     __updatingSubscriberSelfRelationship = false;
 
     /**
+     * Offers to reopen the charges a saved policy's payer was never billed for.
+     * @type {ReopenChargesPanel}
+     * @private
+     */
+    __reopenChargesPanel = null;
+
+    /**
      *
      * @param insurancePolicyService InsurancePolicyService
      */
@@ -66,6 +74,7 @@ export class EditPolicyScreenController
         this.__types = insurancePolicyService.getInsuranceCategories();
         this.__insurancesByType = insurancePolicyService.getInsurancesByType();
         this.__insurancePolicyService = insurancePolicyService;
+        this.__reopenChargesPanel = new ReopenChargesPanel(insurancePolicyService, document.getElementById('reopen-charges-panel'));
     }
 
     hasDataToSave() {
@@ -415,6 +424,7 @@ export class EditPolicyScreenController
                 this.#updateSelectedInsuranceObject(result);
                 this.__insurancesByType = this.__insurancePolicyService.getInsurancesByType();
                 this.__policySaved = true;
+                this.__reopenChargesPanel.offer([result]);
             })
             .catch(error => {
                 if (error instanceof ValidationError) {
@@ -818,6 +828,7 @@ export class EditPolicyScreenController
             evt.target.querySelector('.wait').classList.remove('d-none');
             this.__isSaving = true;
             this.__policySaved = false;
+            let swappedTypes = [this.selectedInsurance.type, targetType];
             this.__insurancePolicyService.swapInsurance(this.selectedInsurance, targetType)
                 .then(selectedInsurance => {
                     evt.target.disabled = false;
@@ -828,6 +839,9 @@ export class EditPolicyScreenController
                     this.__isSaving = false;
                     this.__policySaved = true;
                     this.render();
+                    // A swap changes which payer is billed first for every policy of the two types.
+                    this.__reopenChargesPanel.offer(this.__types.filter(t => swappedTypes.includes(t))
+                        .flatMap(t => this.__insurancesByType[t] || []));
                 })
                 .catch(error => {
                     this.__isSaving = false;
