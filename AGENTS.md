@@ -46,7 +46,7 @@ These documents own the structural "why"; this file owns the line-level mechanic
 
 ## Technology Stack
 
-- **PHP:** 8.3+ required
+- **PHP:** 8.4+ required
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
