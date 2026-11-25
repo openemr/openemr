@@ -9,6 +9,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -285,7 +286,7 @@ class PatientServiceTest extends TestCase
         $this->patientFixture['pid'] = $pid;
         $this->assertBackfillFailureRollsBack(
             $pid,
-            fn(PatientService $service) => $service->databaseUpdate($this->patientFixture)
+            fn(PatientService $service): array => $service->databaseUpdate($this->patientFixture)
         );
     }
 
@@ -295,7 +296,7 @@ class PatientServiceTest extends TestCase
         [$pid, $uuid] = $this->insertFixturePatient();
         $this->assertBackfillFailureRollsBack(
             $pid,
-            fn(PatientService $service) => $service->update($uuid, $this->patientFixture)
+            fn(PatientService $service): ProcessingResult => $service->update($uuid, $this->patientFixture)
         );
     }
 
