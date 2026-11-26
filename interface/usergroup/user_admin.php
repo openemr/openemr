@@ -206,6 +206,8 @@ function submitform() {
             } else {
                 dlgclose('reload', false);
             }
+        }).fail(function () {
+            alert(<?php echo xlj('Access denied'); ?>);
         });
         return false;
     }
