@@ -604,7 +604,12 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     //
     //$csv_html .= "<table id='csvTable' class='csvDisplay'>".PHP_EOL;  class='display'max-width: fit-content
     $csv_html .= "<table id='csvTable' style='width: fit-content; float: left'>" . PHP_EOL;
-    $csv_html .= csv_thead_html($tp, $csv_type);
+    $thead = null;
+    if ($tp == 'f277' && $csv_type == 'claim') {
+        // The index adds what the acknowledgment said; the CSV columns are unchanged.
+        $thead = array_merge(csv_table_header($tp, $csv_type), ['Source', 'Received', 'Result', 'Payer Claim #']);
+    }
+    $csv_html .= csv_thead_html($tp, $csv_type, $thead);
     $csv_html .= "<tbody>" . PHP_EOL;
     //
     // now create the body of the table
@@ -766,6 +771,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
         } elseif ($tp == 'f277') {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Ins_ID', 'Trace');
+            $summaries = \OpenEMR\Billing\EdiHistory\ClaimStatusLookup::forCsvRows($csv_d);
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
                 $csv_html .= "<tr class='" . attr($bgc) . "'>" . PHP_EOL;
@@ -789,6 +795,14 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                     }
                 }
 
+                // What the index kept: who reported the status, when, the result, and the
+                // number the payer gave the claim (#15530 step 2).
+                $ref = ($val['Trace'] ?? '') !== '' ? $val['Trace'] : $val['CLM01'];
+                $sum = $summaries[\OpenEMR\Billing\EdiHistory\ClaimStatusSummary::key($fn, (string) $ref)] ?? [];
+                $csv_html .= "<td>" . text($sum['source'] ?? '') . "</td>" . PHP_EOL;
+                $csv_html .= "<td>" . text($sum['received'] ?? '') . "</td>" . PHP_EOL;
+                $csv_html .= "<td>" . text($sum['result'] ?? '') . "</td>" . PHP_EOL;
+                $csv_html .= "<td>" . text($sum['payer_numbers'] ?? '') . "</td>" . PHP_EOL;
                 $csv_html .= "</tr>" . PHP_EOL;
                 $idx++;
             }
