@@ -10,11 +10,12 @@
 
 namespace OpenEMR\Services\Qdm;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Cqm\PhpCqmCalculation;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
+use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
-use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 use OpenEMR\Services\Qrda\Util\DateHelper;
 
 class CqmCalculator
@@ -39,7 +40,7 @@ class CqmCalculator
     }
 
     /**
-     * @param  QdmRequestInterface $request
+     * @param list<Patient> $patients
      * @param  Measure $measure
      * @param  $effectiveDate the measurement period start; the period is the year from it, as with the Node service
      * @return array<string, array<string, array<string, mixed>>> results by patient id and population set id
@@ -109,12 +110,77 @@ class CqmCalculator
         if ($effectiveTime === false) {
             throw new \UnexpectedValueException('Unreadable measurement period start');
         }
+
+        $measureId = $measure->cms_id !== '' ? $measure->cms_id : $measure->hqmf_id;
+        return $this->calculateWithPatientIsolation(
+            $patients,
+            $patientsJson,
+            $measureData,
+            $valueSetsJson,
+            date('YmdHi', $effectiveTime) . '00',
+            $measureId
+        );
+    }
+
+    /**
+     * @param list<Patient> $patients
+     * @param array<mixed, mixed> $measureData
+     * @return array<string, array<string, array<string, mixed>>>
+     * @throws \JsonException
+     */
+    protected function calculateWithPatientIsolation(
+        array $patients,
+        string $patientsJson,
+        array $measureData,
+        string $valueSetsJson,
+        string $effectiveDate,
+        string $measureId
+    ): array {
         try {
-            return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, date('YmdHi', $effectiveTime) . '00');
-        } catch (\RuntimeException | \LogicException $e) {
-            // e.g. CQL the engine cannot run, as cqm-execution cannot: "no function with matching signature"
-            throw new MeasureCalculationException($measure->cms_id !== '' ? $measure->cms_id : $measure->hqmf_id, $e);
+            return $this->runEngine($patientsJson, $measureData, $valueSetsJson, $effectiveDate);
+        } catch (\InvalidArgumentException $exception) {
+            if (count($patients) < 2) {
+                throw new MeasureCalculationException($measureId, $exception);
+            }
+
+            $results = [];
+            foreach ($patients as $patient) {
+                try {
+                    $patientJson = json_encode([$patient], JSON_THROW_ON_ERROR);
+                    $patientResults = $this->runEngine($patientJson, $measureData, $valueSetsJson, $effectiveDate);
+                    $results = array_replace($results, $patientResults);
+                } catch (\RuntimeException | \LogicException $patientException) {
+                    $extendedData = $patient->extendedData ?? null;
+                    $pid = is_array($extendedData) ? ($extendedData['pid'] ?? null) : null;
+                    ServiceContainer::getLogger()->warning('eCQM calculation failed for an individual patient', [
+                        'measure_id' => $measureId,
+                        'patient_id' => is_int($pid) || is_string($pid) ? $pid : null,
+                        'exception' => $patientException,
+                    ]);
+                }
+            }
+
+            if ($results === []) {
+                throw new MeasureCalculationException($measureId, $exception);
+            }
+
+            return $results;
+        } catch (\RuntimeException | \LogicException $exception) {
+            throw new MeasureCalculationException($measureId, $exception);
         }
+    }
+
+    /**
+     * @param array<mixed, mixed> $measureData
+     * @return array<string, array<string, array<string, mixed>>>
+     */
+    protected function runEngine(
+        string $patientsJson,
+        array $measureData,
+        string $valueSetsJson,
+        string $effectiveDate
+    ): array {
+        return (new PhpCqmCalculation())->calculate($patientsJson, $measureData, $valueSetsJson, $effectiveDate);
     }
 
     public function getMeasure()
