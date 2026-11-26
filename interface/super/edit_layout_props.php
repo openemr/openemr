@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -32,6 +33,11 @@ if (!$thisauth) {
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
+$request = CurrentRequest::get();
+$form_form_id = $request->request->getString('form_form_id');
+$servicesCodes = '';
+$productsCodes = '';
+$diagnosesCodes = '';
 ?>
 <html>
 <head>
@@ -198,16 +204,14 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
         }
     }
 
-    // Close this window and redisplay the layout editor.
-    //
-    echo "<script>\n";
-    if ($alertmsg) {
-        echo " alert(" . js_escape($alertmsg) . ");\n";
+    if (!$alertmsg) {
+        // Close this window and redisplay the layout editor.
+        echo "<script>\n";
+        echo " if (opener.refreshme) opener.refreshme(" . js_escape($layout_id) . ");\n";
+        echo " window.close();\n";
+        echo "</script></body></html>\n";
+        exit();
     }
-    echo " if (opener.refreshme) opener.refreshme(" . js_escape($layout_id) . ");\n";
-    echo " window.close();\n";
-    echo "</script></body></html>\n";
-    exit();
 }
 
 $row = [
@@ -242,6 +246,39 @@ if ($layout_id) {
         die(xlt('This layout does not exist.'));
     }
 }
+
+if ($alertmsg) {
+    $servicesEnabled = $request->request->getBoolean('form_services');
+    $servicesCodes = $request->request->getString('form_services_codes');
+    $productsEnabled = $request->request->getBoolean('form_products');
+    $productsCodes = $request->request->getString('form_products_codes');
+    $diagnosesEnabled = $request->request->getBoolean('form_diags');
+    $diagnosesCodes = $request->request->getString('form_diags_codes');
+    $row = array_merge($row, [
+        'grp_title' => $request->request->getString('form_title'),
+        'grp_subtitle' => $request->request->getString('form_subtitle'),
+        'grp_mapping' => $request->request->getString('form_mapping'),
+        'grp_seq' => $request->request->getString('form_seq'),
+        'grp_activity' => $request->request->getBoolean('form_activity'),
+        'grp_repeats' => $request->request->getString('form_repeats'),
+        'grp_columns' => $request->request->getString('form_columns'),
+        'grp_size' => $request->request->getString('form_size'),
+        'grp_issue_type' => $request->request->getString('form_issue'),
+        'grp_aco_spec' => $request->request->getString('form_aco'),
+        'grp_init_open' => $request->request->getBoolean('form_init_open'),
+        'grp_referrals' => $request->request->getBoolean('form_referrals'),
+        'grp_unchecked' => $request->request->getBoolean('form_unchecked'),
+        'grp_services' => $servicesEnabled ? ($servicesCodes !== '' ? $servicesCodes : '*') : '',
+        'grp_products' => $productsEnabled ? ($productsCodes !== '' ? $productsCodes : '*') : '',
+        'grp_diags' => $diagnosesEnabled ? ($diagnosesCodes !== '' ? $diagnosesCodes : '*') : '',
+    ]);
+}
+$servicesValue = $alertmsg ? $servicesCodes : ($row['grp_services'] ?? '');
+$productsValue = $alertmsg ? $productsCodes : ($row['grp_products'] ?? '');
+$diagnosesValue = $alertmsg ? $diagnosesCodes : ($row['grp_diags'] ?? '');
+if (!is_string($servicesValue) || !is_string($productsValue) || !is_string($diagnosesValue)) {
+    throw new \UnexpectedValueException('Layout service, product, and diagnosis codes must be strings.');
+}
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
@@ -255,7 +292,7 @@ if ($layout_id) {
   </td>
   <td>
 <?php if (empty($layout_id)) { ?>
-   <input type='text' class='form-control' size='31' maxlength='31' name='form_form_id' value='' /><br />
+   <input type='text' class='form-control' size='31' maxlength='31' name='form_form_id' value='<?php echo attr($form_form_id); ?>' /><br />
     <?php echo xlt('Visit form ID must start with LBF. Transaction form ID must start with LBT.') ?>
 <?php } else { ?>
     <?php echo text($layout_id); ?>
@@ -471,7 +508,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' value='<?php echo ($servicesValue != '*') ? attr($servicesValue) : ""; ?>' />
   </td>
  </tr>
 
@@ -481,7 +518,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Products Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' value='<?php echo ($productsValue != '*') ? attr($productsValue) : ""; ?>' />
   </td>
  </tr>
 
@@ -491,7 +528,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Diagnoses Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($diagnosesValue != '*') ? attr($diagnosesValue) : ""; ?>' />
   </td>
  </tr>
 
@@ -547,7 +584,6 @@ for ($cols = 2; $cols <= 12; ++$cols) {
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
-    echo " window.close();\n";
 }
 ?>
 </script>
