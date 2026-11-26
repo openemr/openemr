@@ -9,6 +9,10 @@ inputs:
     description: Coverage driver (none, xdebug, pcov)
     required: false
     default: none
+  ini-values:
+    description: php.ini values to set (comma-separated, e.g., pcov.directory=.)
+    required: false
+    default: ''
   extensions:
     description: PHP extensions to install (comma-separated)
     required: false
@@ -42,6 +46,7 @@ runs:
     with:
       php-version: ${{ inputs.php-version }}
       coverage: ${{ inputs.coverage }}
+      ini-values: ${{ inputs.ini-values }}
       extensions: ${{ inputs.extensions }}
       tools: ${{ inputs.tools }}
 
