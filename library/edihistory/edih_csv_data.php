@@ -290,157 +290,94 @@ function edih_list_denied_claims($filetype, $filename, $trace = ''): string
  */
 function edih_claim_history($encounter): string
 {
-    //
-    if ($encounter) {
-        $e = (string)$encounter;
-    } else {
+    if (!$encounter) {
         return 'invalid encounter value ' . text($encounter) . '<br />' . PHP_EOL;
     }
+    $e = (string) $encounter;
 
-    // use function csv_table_select_list() so that only
-    // existing csv tables are queried
-    $tbl2 = csv_table_select_list('array');
-    //
-    $rtypes = [];
-    if (is_array($tbl2['claims']) && count($tbl2['claims'])) {
-        $rtypes = array_keys($tbl2['claims']);
-    } else {
-        csv_edihist_log("csv_claim_history: failed to get csv table names");
-        return "failed to get csv table names";
+    // One dated list of what the files state, instead of four tables of links (#15530 step 3).
+    $billed = csv_file_by_enctr($e, 'f837');
+    $acks = csv_file_by_enctr($e, 'f997');
+    $statusRows = csv_file_by_enctr($e, 'f277');
+    $remit = csv_file_by_enctr($e, 'f835');
+    $billed = is_array($billed) ? $billed : [];
+    $acks = is_array($acks) ? $acks : [];
+    $statusRows = is_array($statusRows) ? $statusRows : [];
+    $remit = is_array($remit) ? $remit : [];
+
+    $files837 = csv_assoc_array('f837', 'file');
+    $files835 = csv_assoc_array('f835', 'file');
+    $files837 = is_array($files837) ? $files837 : [];
+    $files835 = is_array($files835) ? $files835 : [];
+
+    // The remittance files give the content hash that lists a stored-twice era once,
+    // and the adjustments and remark codes the CSV columns do not carry.
+    $names = [];
+    foreach ($remit as $row) {
+        $names[] = (string) ($row['FileName'] ?? '');
     }
-
-    //
-    $ch_html = "<table class='clmhist' columns=4><caption>Encounter Record for " . text($e) . "</caption>";
-    $ch_html .= "<tbody>" . PHP_EOL;
-    //
-    if (in_array('f837', $rtypes)) {
-        $tp = 'f837';
-        $btar = csv_file_by_enctr($e, $tp);
-        //
-        if (is_array($btar) && count($btar)) {
-            $ch_html .= "<tr class='ch837'><td colspan=4>837 Claim " . text(count($btar)) . "</td></tr>" . PHP_EOL;
-            $ch_html .= "<tr class='chhead'>" . PHP_EOL;
-            $ch_html .= "<td>Name</td><td>SvcDate</td><td>CLM01</td><td>File</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            foreach ($btar as $ch) {
-                $dt = substr((string) $ch['SvcDate'], 0, 4) . '-' . substr((string) $ch['SvcDate'], 4, 2) . '-' . substr((string) $ch['SvcDate'], 6, 2);
-                //array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' );
-                $ch_html .= "<tr class='ch837'>" . PHP_EOL;
-                //
-                $ch_html .= "<td>" . text($ch['PtName']) . "</td>" . PHP_EOL;
-                $ch_html .= "<td>" . text($dt) . "</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($ch['CLM01']) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['CLM01']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='" . attr($ch['Control']) . "'><a  class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
-                //
-                $ch_html .= "</tr>" . PHP_EOL;
-            }
-        } else {
-            $ch_html .= "<tr class='ch837'>" . PHP_EOL;
-            $ch_html .= "<td colspan=4>837 Claim -- Nothing found for " . text($e) . "</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
+    $p835 = csv_parameters('f835');
+    $detail = \OpenEMR\Billing\EdiHistory\RemittanceDetail::forFiles((string) ($p835['directory'] ?? ''), $names);
+    foreach ($files835 as &$fileRow) {
+        $n = (string) ($fileRow['FileName'] ?? '');
+        if (isset($detail['sha'][$n])) {
+            $fileRow['Sha256'] = $detail['sha'][$n];
         }
     }
+    unset($fileRow);
 
-    //
-    if (in_array('f997', $rtypes)) {
-        $tp = 'f997';
-        $f997ar = csv_file_by_enctr($e, $tp);
-        //
-        if (is_array($f997ar) && count($f997ar)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $ch_html .= "<tr class='ch997'><td colspan=4>Ack 997/999 " . text(count($f997ar)) . "</td></tr>" . PHP_EOL;
-            $ch_html .= "<tr class='chhead'>" . PHP_EOL;
-            $ch_html .= "<td colspan=3>Acknowledgement File</td><td>Notes</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-            foreach ($f997ar as $ch) {
-                //
-                $msg = strlen((string) $ch[7]) ? $ch[7] : 'ST Number';
-                //array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');;
-                $ch_html .= "<tr class='ch997'>";
-                $ch_html .= "<td>Rsp Ack</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' target='_blank' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($ch['Trace']) . "&rsptype=" . attr_url($ch['RspType']) . "&errseg=" . attr_url($ch['err_seg']) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td><a class='seg' href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='Response type/date'>" . text($ch['RspType']) . " " . text($ch['RspDate']) . "</td>" . PHP_EOL;
-                $ch_html .= "</tr>" . PHP_EOL;
-            }
-        } else {
-            $ch_html .= "<tr class='ch997'>";
-            $ch_html .= "<td colspan=4>Ack 997/999 -- Nothing found for " . text($e) . "</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
+    // The index says who reported each status, when, and the number the payer gave.
+    $summaries = \OpenEMR\Billing\EdiHistory\ClaimStatusLookup::forCsvRows($statusRows);
+    $ackRows = [];
+    foreach ($statusRows as $row) {
+        $fn = (string) ($row['FileName'] ?? '');
+        $ref = (string) ($row['Trace'] ?? '');
+        if ($ref === '') {
+            $ref = (string) ($row['CLM01'] ?? '');
         }
+        $sum = $summaries[\OpenEMR\Billing\EdiHistory\ClaimStatusSummary::key($fn, $ref)] ?? null;
+        if ($sum === null) {
+            continue;
+        }
+        $ackRows[] = [
+            'file_name' => $fn,
+            'claim_reference' => $ref,
+            'source_name' => $sum['source'],
+            'source_kind' => '',
+            'source_received_date' => $sum['received'],
+            'result' => $sum['result'],
+            'payer_numbers' => $sum['payer_numbers'],
+        ];
     }
 
-    //
-    if (in_array('f277', $rtypes)) {
-        $tp = 'f277';
-        $f277ar = csv_file_by_enctr($e, $tp);
-        //
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        if (is_array($f277ar) && count($f277ar)) {
-            $ch_html .= "<tr class='ch277'><td colspan=4>Status 277 " . text(count($f277ar)) . "</td></tr>" . PHP_EOL;
-            $ch_html .= "<tr class='chhead'>" . PHP_EOL;
-            $ch_html .= "<td>Response</td><td>Status</td><td>File</td><td>ClaimID</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-            foreach ($f277ar as $ch) {
-                //'f277':array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Trace');
-                $ch_html .= "<tr class='ch277'>";
-                //
-                $ch_html .= "<td>Claim Status</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&bht03=" . attr_url($ch['BHT03']) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='" . attr($ch['FileName']) . "'><a href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['FileName']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='Payer " . attr($ch['Payer']) . "'>" . text($ch['Trace']) . "</td>" . PHP_EOL;
-                //
-                $ch_html .= "</tr>" . PHP_EOL;
-            }
-        } else {
-            $ch_html .= "<tr class='ch277'>";
-            $ch_html .= "<td colspan=4>Status 277 -- Nothing found for " . text($e) . "</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-        }
+    $pid = 0;
+    try {
+        $pid = (int) \OpenEMR\Common\Database\QueryUtils::fetchSingleValue(
+            'SELECT pid FROM form_encounter WHERE encounter = ? LIMIT 1',
+            'pid',
+            [$e]
+        );
+    } catch (\RuntimeException) {
+        // Without the pid the posting lookup still answers by encounter.
     }
 
-    //
-    if (in_array('f835', $rtypes)) {
-        $tp = 'f835';
-        $f835ar = csv_file_by_enctr($e, $tp);
-        //
-        if (is_array($f835ar) && count($f835ar)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $ch_html .= "<tr class='ch835'><td colspan=4>Payment 835 " . text(count($f835ar)) . "</td></tr>" . PHP_EOL;
-            $ch_html .= "<tr class='chhead'>" . PHP_EOL;
-            $ch_html .= "<td>Response</td><td>Status</td><td>Trace</td><td>Payer</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-            foreach ($f835ar as $ch) {
-                //
-                $msg = $ch['ClaimID'] . ' ' . $ch['Pmt'] . ' ' . $ch['PtResp'];
-                // array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer');
-                $ch_html .= "<tr class='ch835'>";
-                //
-                $ch_html .= "<td>" . text($ch['PtName']) . "</td>" . PHP_EOL;
-                $ch_html .= "<td><a class='rsp' href='edih_main.php?gtbl=claim&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&pid=" . attr_url($ch['CLM01']) . "&summary=no&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Status']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td><a href='edih_main.php?gtbl=file&fname=" . attr_url($ch['FileName']) . "&ftype=" . attr_url($tp) . "&trace=" . attr_url($ch['Trace']) . "&fmt=htm&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($ch['Trace']) . "</a></td>" . PHP_EOL;
-                $ch_html .= "<td title='" . attr($msg) . "'>" . text($ch['Payer']) . "</td>" . PHP_EOL;
-                //
-                $ch_html .= "</tr>" . PHP_EOL;
-            }
-        } else {
-            $ch_html .= "<tr class='ch835'>";
-            $ch_html .= "<td colspan=4>Payment 835 -- Nothing found for " . text($e) . "</td>" . PHP_EOL;
-            $ch_html .= "</tr>" . PHP_EOL;
-        }
+    $events = array_merge(
+        \OpenEMR\Billing\EdiHistory\EncounterHistorySources::billed($billed, $files837),
+        \OpenEMR\Billing\EdiHistory\EncounterHistorySources::acknowledged($acks),
+        \OpenEMR\Billing\EdiHistory\EncounterHistorySources::statuses($ackRows),
+        \OpenEMR\Billing\EdiHistory\EncounterHistorySources::remittances($remit, $files835, $detail['adjustments']),
+        \OpenEMR\Billing\EdiHistory\EncounterHistorySources::posted(
+            \OpenEMR\Billing\EdiHistory\EncounterPostedLookup::forEncounter((int) $e, $pid)
+        )
+    );
 
-        //
-    } // end if($tp ...
-    // -- this is where a query on the payments datatable could be used to show if payment
-    //    has been received, even if no era file shows the payment.
-    //
-    $ch_html .= "</tbody>" . PHP_EOL;
-    $ch_html .= "</table>" . PHP_EOL;
-    //
-    return $ch_html;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    return \OpenEMR\Billing\EdiHistory\EncounterHistoryRenderer::html(
+        \OpenEMR\Billing\EdiHistory\EncounterHistory::assemble($events),
+        $e,
+        CsrfUtils::collectCsrfToken(session: $session)
+    );
 }
-
 
 /**
  * Render one of our csv record files as an html table
