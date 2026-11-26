@@ -29,6 +29,7 @@ use Psr\Log\{
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\Location;
 use OpenEMR\Services\Storage\Manager;
@@ -222,6 +223,9 @@ class ServiceContainer
         return self::resolveOrCreate(
             SiteInstallState::class,
             static function (): SiteInstallState {
+                if (OEEnvBag::getInstance()->has('OPENEMR_DB_NAME')) {
+                    return new SiteInstallState(true);
+                }
                 $siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
                 if ($siteDir === '') {
                     throw new LogicException('OE_SITE_DIR not set');

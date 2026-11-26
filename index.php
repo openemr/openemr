@@ -22,12 +22,18 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 (function (): void {
-    // Any directory name in sites that contains a sqlconf.php can be a site id.
-    $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
-    $valid_site_ids = array_map(
-        basename(...),
-        array_filter($sites_dirs, fn($d): bool => is_file("{$d}/sqlconf.php"))
-    );
+    $env = \OpenEMR\Core\OEEnvBag::getInstance();
+    if ($env->has('OPENEMR_DB_NAME')) {
+        // Env-based database config is single-site.
+        $valid_site_ids = [$env->getString('OPENEMR_SITE', 'default')];
+    } else {
+        // Any directory name in sites that contains a sqlconf.php can be a site id.
+        $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
+        $valid_site_ids = array_map(
+            basename(...),
+            array_filter($sites_dirs, fn($d): bool => is_file("{$d}/sqlconf.php"))
+        );
+    }
 
     switch (count($valid_site_ids)) {
         case 0:

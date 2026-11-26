@@ -43,6 +43,7 @@ use Doctrine\ORM\{
 };
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\BC\SiteInstallState;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
@@ -81,8 +82,62 @@ return [
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
-        $site = $c->getString('OPENEMR_SITE');
-        return DatabaseConnectionOptions::forSite("sites/$site");
+        $dbName = $c->get('OPENEMR_DB_NAME');
+        if ($dbName === null) {
+            $site = $c->getString('OPENEMR_SITE');
+            return DatabaseConnectionOptions::fromSiteSqlconf("sites/$site");
+        }
+        $host = $c->get('OPENEMR_DB_HOST');
+        $port = $c->get('OPENEMR_DB_PORT');
+        $socket = $c->get('OPENEMR_DB_SOCKET');
+        $sslCa = $c->get('OPENEMR_DB_SSL_CA');
+        $sslCert = $c->get('OPENEMR_DB_SSL_CERT');
+        $sslKey = $c->get('OPENEMR_DB_SSL_KEY');
+        assert(is_string($dbName));
+        assert(is_string($host) || $host === null);
+        assert(is_string($socket) || $socket === null);
+        assert(is_string($sslCa) || $sslCa === null);
+        assert(is_string($sslCert) || $sslCert === null);
+        assert(is_string($sslKey) || $sslKey === null);
+        if (is_string($port)) {
+            $port = (int)$port;
+        } else {
+            assert($port === null);
+        }
+        return new DatabaseConnectionOptions(
+            dbname: $dbName,
+            user: $c->getString('OPENEMR_DB_USER'),
+            password: $c->getString('OPENEMR_DB_PASSWORD'),
+            host: $host,
+            port: $port,
+            unixSocket: $socket,
+            sslCaPath: $sslCa,
+            sslClientCert: DatabaseConnectionOptions::clientCert($sslCert, $sslKey),
+        );
+    },
+
+    SiteInstallState::class => function (TC $c): SiteInstallState {
+        // If using env-based DB config, always treats the application as
+        // installed. This assumes an operator a) set the envvars and b) ran
+        // the CLI installer.
+        if ($c->get('OPENEMR_DB_NAME') !== null) {
+            return new SiteInstallState(true);
+        }
+
+        // Otherwise, fall back to standard sqlconf config value.
+        $sqlconfPath = sprintf(
+            '%s/sites/%s/sqlconf.php',
+            $c->getString('installRoot'),
+            $c->getString('OPENEMR_SITE'),
+        );
+        if (!file_exists($sqlconfPath)) {
+            return new SiteInstallState(false);
+        }
+        $config = (static function (string $path): mixed {
+            require $path;
+            return $config ?? null;
+        })($sqlconfPath);
+        return new SiteInstallState($config === 1);
     },
 
     // Doctrine Migrations
