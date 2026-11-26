@@ -101,4 +101,88 @@ class EncounterHistorySourcesTest extends TestCase
         $this->assertSame('', $out[0]->date);
         $this->assertSame('', $out[1]->date);
     }
+
+    public function testPostedUsesThePostingDate(): void
+    {
+        $out = EncounterHistorySources::posted([
+            ['post_date' => '2026-02-12', 'post_time' => '2026-02-10 09:00:00', 'payer_type' => 1, 'code' => '92014', 'pay_amount' => '120.00', 'adj_amount' => '0.00'],
+        ]);
+        $this->assertSame('2026-02-12', $out[0]->date);
+        $this->assertSame('Posted to insurance level 1', $out[0]->title);
+        $this->assertStringContainsString('Code 92014', $out[0]->detail);
+    }
+
+    public function testPostedFallsBackToThePostTimeDay(): void
+    {
+        $out = EncounterHistorySources::posted([
+            ['post_date' => null, 'post_time' => '2026-02-10 09:00:00', 'payer_type' => 0],
+        ]);
+        $this->assertSame('2026-02-10', $out[0]->date);
+        $this->assertSame('Posted to patient', $out[0]->title);
+    }
+
+    public function testPostedClaimLevelAndReasons(): void
+    {
+        $out = EncounterHistorySources::posted([
+            [
+                'post_date' => '2026-02-12', 'payer_type' => 1, 'code' => '',
+                'pay_amount' => '0.00', 'adj_amount' => '257.00',
+                'reason_code' => '29', 'memo' => 'Timely filing', 'reference' => 'CHK1',
+                'payer_claim_number' => 'PAYER99',
+            ],
+        ]);
+        $this->assertStringContainsString('Claim level', $out[0]->detail);
+        $this->assertStringContainsString('reason 29', $out[0]->detail);
+        $this->assertStringContainsString('memo Timely filing', $out[0]->detail);
+        $this->assertStringContainsString('check CHK1', $out[0]->detail);
+        $this->assertSame('PAYER99', $out[0]->reference);
+    }
+
+    public function testPostedOmitsWhatTheRowDoesNotSay(): void
+    {
+        $out = EncounterHistorySources::posted([
+            ['post_date' => '2026-02-12', 'payer_type' => 1, 'code' => '92014', 'pay_amount' => '10.00', 'adj_amount' => '0.00'],
+        ]);
+        $this->assertStringNotContainsString('reason', $out[0]->detail);
+        $this->assertStringNotContainsString('check', $out[0]->detail);
+        $this->assertStringNotContainsString('payer claim number', $out[0]->detail);
+    }
+
+    public function testNoPostedRowsGivesNothing(): void
+    {
+        $this->assertSame([], EncounterHistorySources::posted([]));
+    }
+
+    public function testAdjustmentsKeepGroupReasonAndAmount(): void
+    {
+        $text = EncounterHistorySources::adjustmentsAndRemarks([
+            'svc' => [
+                ['adj' => [['group_code' => 'CO', 'reason_code' => '45', 'amount' => '120.00']]],
+                ['adj' => [['group_code' => 'PR', 'reason_code' => '2', 'amount' => '37.00']]],
+            ],
+        ]);
+        $this->assertSame('adjustments CO-45 120.00, PR-2 37.00', $text);
+    }
+
+    public function testRemarkCodesAreKeptOnce(): void
+    {
+        $text = EncounterHistorySources::adjustmentsAndRemarks([
+            'svc' => [['remark' => 'N130'], ['remark' => 'N130'], ['remark' => 'MA01']],
+        ]);
+        $this->assertSame('remarks N130, MA01', $text);
+    }
+
+    public function testAdjustmentsAndRemarksTogether(): void
+    {
+        $text = EncounterHistorySources::adjustmentsAndRemarks([
+            'svc' => [['adj' => [['group_code' => 'CO', 'reason_code' => '29', 'amount' => '257.00']], 'remark' => 'N130']],
+        ]);
+        $this->assertSame('adjustments CO-29 257.00; remarks N130', $text);
+    }
+
+    public function testAClaimWithNoAdjustmentsOrRemarksSaysNothing(): void
+    {
+        $this->assertSame('', EncounterHistorySources::adjustmentsAndRemarks([]));
+        $this->assertSame('', EncounterHistorySources::adjustmentsAndRemarks(['svc' => [['adj' => []]]]));
+    }
 }

@@ -147,6 +147,97 @@ final class EncounterHistorySources
     }
 
     /**
+     * What was posted, from ar_activity joined to ar_session. The caller passes active
+     * rows only (deleted IS NULL); a date is the posting date, or the post time's day.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @return list<EncounterEvent>
+     */
+    public static function posted(array $rows): array
+    {
+        $events = [];
+        foreach ($rows as $row) {
+            $date = self::date((string) ($row['post_date'] ?? ''));
+            if ($date === '') {
+                $date = self::date(substr((string) ($row['post_time'] ?? ''), 0, 10));
+            }
+            $level = (string) ($row['payer_type'] ?? '');
+            $title = 'Posted';
+            if ($level === '0') {
+                $title = 'Posted to patient';
+            } elseif ($level !== '') {
+                $title = 'Posted to insurance level ' . $level;
+            }
+            // ar_activity.code is empty for a claim-level entry.
+            $code = (string) ($row['code'] ?? '');
+            $detail = ($code === '' ? 'Claim level' : 'Code ' . $code)
+                . ', paid ' . (string) ($row['pay_amount'] ?? '')
+                . ', adjustment ' . (string) ($row['adj_amount'] ?? '');
+            $reason = (string) ($row['reason_code'] ?? '');
+            if ($reason !== '') {
+                $detail .= ', reason ' . $reason;
+            }
+            $memo = (string) ($row['memo'] ?? '');
+            if ($memo !== '') {
+                $detail .= ', memo ' . $memo;
+            }
+            $check = (string) ($row['reference'] ?? '');
+            if ($check !== '') {
+                $detail .= ', check ' . $check;
+            }
+            $payerClaim = (string) ($row['payer_claim_number'] ?? '');
+            if ($payerClaim !== '') {
+                $detail .= ', payer claim number ' . $payerClaim;
+            }
+            $events[] = new EncounterEvent(
+                $date,
+                EncounterHistory::KIND_POSTED,
+                $title,
+                $detail,
+                '',
+                $payerClaim
+            );
+        }
+        return $events;
+    }
+
+    /**
+     * The adjustments and remark codes a remittance states for one claim, as ParseERA
+     * reads them: each service line's adjustments in file order, its remarks once.
+     *
+     * @param array<string, mixed> $eraClaim one claim payment from ParseERA
+     */
+    public static function adjustmentsAndRemarks(array $eraClaim): string
+    {
+        $adjustments = [];
+        $remarks = [];
+        foreach ((array) ($eraClaim['svc'] ?? []) as $service) {
+            foreach ((array) ($service['adj'] ?? []) as $adjustment) {
+                $group = (string) ($adjustment['group_code'] ?? '');
+                $reason = (string) ($adjustment['reason_code'] ?? '');
+                $amount = (string) ($adjustment['amount'] ?? '');
+                $label = trim($group . '-' . $reason, '-');
+                $text = trim($label . ' ' . $amount);
+                if ($text !== '') {
+                    $adjustments[] = $text;
+                }
+            }
+            $remark = (string) ($service['remark'] ?? '');
+            if ($remark !== '' && !in_array($remark, $remarks, true)) {
+                $remarks[] = $remark;
+            }
+        }
+        $parts = [];
+        if ($adjustments !== []) {
+            $parts[] = 'adjustments ' . implode(', ', $adjustments);
+        }
+        if ($remarks !== []) {
+            $parts[] = 'remarks ' . implode(', ', $remarks);
+        }
+        return implode('; ', $parts);
+    }
+
+    /**
      * @param list<array<string, mixed>> $fileRows
      * @return array<string, string>
      */
