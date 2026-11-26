@@ -631,3 +631,12 @@ CREATE TABLE `era_auto_post_claim` (
 #IfMissingColumn facility mammography_cert_number
 ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
 #EndIf
+
+-- Address Book NPI requirement. NPI is US-only (CMS/NPPES). New installs use
+-- the globals.inc.php default of on. Upgrades insert the flag off and leave
+-- it off. Units for Visit Forms is not a country, so this upgrade does not
+-- turn the setting on. A site that wants it enables it explicitly. The insert
+-- stays inside #IfNotRow so a later run does not add the row again.
+#IfNotRow globals gl_name addrbook_require_npi
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES ('addrbook_require_npi', 0, '0');
+#EndIf
