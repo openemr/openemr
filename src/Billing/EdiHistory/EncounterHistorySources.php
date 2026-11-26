@@ -104,9 +104,11 @@ final class EncounterHistorySources
      * @param list<array<string, mixed>> $claimRows claims_f835.csv rows
      * @param list<array<string, mixed>> $fileRows  files_f835.csv rows, each optionally
      *                                            carrying Sha256 of the stored file
+     * @param array<string, string>      $adjustments adjustments and remarks per file and
+     *                                            claim, as adjustmentsAndRemarks() gives them
      * @return list<EncounterEvent>
      */
-    public static function remittances(array $claimRows, array $fileRows): array
+    public static function remittances(array $claimRows, array $fileRows, array $adjustments = []): array
     {
         $dates = self::fileDates($fileRows);
         $sha = [];
@@ -131,6 +133,10 @@ final class EncounterHistorySources
             $payer = (string) ($row['Payer'] ?? '');
             if ($payer !== '') {
                 $detail .= ', payer ' . $payer;
+            }
+            $extra = (string) ($adjustments[$file . "\0" . $reference] ?? '');
+            if ($extra !== '') {
+                $detail .= '; ' . $extra;
             }
             $content = $sha[$file] ?? '';
             $events[] = new EncounterEvent(

@@ -185,4 +185,24 @@ class EncounterHistorySourcesTest extends TestCase
         $this->assertSame('', EncounterHistorySources::adjustmentsAndRemarks([]));
         $this->assertSame('', EncounterHistorySources::adjustmentsAndRemarks(['svc' => [['adj' => []]]]));
     }
+
+    public function testRemittanceCarriesItsAdjustments(): void
+    {
+        $out = EncounterHistorySources::remittances(
+            [['FileName' => 'r.835', 'CLM01' => '100-200', 'Pmt' => '0.00']],
+            [['FileName' => 'r.835', 'Date' => '20260710']],
+            ["r.835\0" . '100-200' => 'adjustments CO-29 257.00; remarks N130']
+        );
+        $this->assertStringContainsString('adjustments CO-29 257.00; remarks N130', $out[0]->detail);
+    }
+
+    public function testAnotherClaimsAdjustmentsAreNotBorrowed(): void
+    {
+        $out = EncounterHistorySources::remittances(
+            [['FileName' => 'r.835', 'CLM01' => '100-201']],
+            [],
+            ["r.835\0" . '100-200' => 'adjustments CO-29 257.00']
+        );
+        $this->assertStringNotContainsString('CO-29', $out[0]->detail);
+    }
 }
