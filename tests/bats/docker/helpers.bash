@@ -109,3 +109,23 @@ run_with_stubbed_path() {
     shift
     run env PATH="${stub_dir}:$PATH" "$@"
 }
+
+# Assert two files are byte-identical.
+# Used for files that a Docker build context forces us to duplicate: a build
+# context cannot COPY from outside its own directory, so per-image copies are
+# structural, and only a check like this stops them drifting from the canonical
+# copy under src/.
+assert_files_identical() {
+    local expected="$1"
+    local actual="$2"
+    [[ -f "$expected" ]] || { echo "File not found: $expected"; return 1; }
+    [[ -f "$actual" ]] || { echo "File not found: $actual"; return 1; }
+    cmp -s "$expected" "$actual" || {
+        echo "Files differ (copy is out of sync with the canonical file):"
+        echo "  canonical: $expected"
+        echo "  copy:      $actual"
+        diff -u "$expected" "$actual" || true
+        return 1
+    }
+    return 0
+}

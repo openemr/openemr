@@ -45,3 +45,11 @@ setup() {
 @test "binary openemr.sh: /usr/local/bin/php-fpm or php-fpm" {
     assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'php-fpm'
 }
+
+@test "binary openemr.sh: uses /root/entrypoint_query.php instead of php -r" {
+    assert_script_contains "${SCRIPT_DIR}/openemr.sh" 'ENTRYPOINT_QUERY="/root/entrypoint_query.php"'
+    if grep -q 'php -r' "${SCRIPT_DIR}/openemr.sh"; then
+        echo "php -r still present in ${SCRIPT_DIR}/openemr.sh"
+        return 1
+    fi
+}
