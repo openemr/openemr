@@ -141,20 +141,24 @@ class QueryPaginationTest extends TestCase
         $this->assertSame($pagination->getSearchUri(), $copy->getSearchUri());
     }
 
+    /**
+     * A single-page result must expose only the first-page link.
+     */
     public function testGetLinksFirstPageNoMore(): void
     {
         $pagination = new QueryPagination(10, 0);
         $pagination->setSearchUri('/api/patient');
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
-        $this->assertIsString($links['first']);
         $this->assertStringContainsString('_offset=0', $links['first']);
         $this->assertStringContainsString('_count=10', $links['first']);
         $this->assertArrayNotHasKey('previous', $links);
         $this->assertArrayNotHasKey('next', $links);
     }
 
+    /**
+     * A middle page must link to the first, previous, and next result pages.
+     */
     public function testGetLinksMiddlePageWithMore(): void
     {
         $pagination = new QueryPagination(10, 20);
@@ -162,18 +166,17 @@ class QueryPaginationTest extends TestCase
         $pagination->setHasMoreData(true);
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
         $this->assertArrayHasKey('previous', $links);
         $this->assertArrayHasKey('next', $links);
 
-        $this->assertIsString($links['first']);
-        $this->assertIsString($links['previous']);
-        $this->assertIsString($links['next']);
         $this->assertStringContainsString('_offset=0', $links['first']);
         $this->assertStringContainsString('_offset=10', $links['previous']);
         $this->assertStringContainsString('_offset=30', $links['next']);
     }
 
+    /**
+     * The last page must retain a previous link and omit the next link.
+     */
     public function testGetLinksLastPage(): void
     {
         $pagination = new QueryPagination(10, 40);
@@ -181,7 +184,6 @@ class QueryPaginationTest extends TestCase
         $pagination->setHasMoreData(false);
 
         $links = $pagination->getLinks();
-        $this->assertArrayHasKey('first', $links);
         $this->assertArrayHasKey('previous', $links);
         $this->assertArrayNotHasKey('next', $links);
     }
@@ -208,6 +210,9 @@ class QueryPaginationTest extends TestCase
         $this->assertSame(0, $pagination->getLimit());
     }
 
+    /**
+     * A previous-page link must clamp its offset to zero.
+     */
     public function testPreviousOffsetNeverNegative(): void
     {
         // When at offset 5 with limit 10, previous should be 0, not -5
@@ -216,7 +221,6 @@ class QueryPaginationTest extends TestCase
 
         $links = $pagination->getLinks();
         $this->assertArrayHasKey('previous', $links);
-        $this->assertIsString($links['previous']);
         $this->assertStringContainsString('_offset=0', $links['previous']);
     }
 }

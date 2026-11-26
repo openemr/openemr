@@ -21,7 +21,7 @@ class SearchConfigClauseBuilder
      * Build an ORDER BY clause from the search config.
      *
      * @param SearchQueryConfig $config The search configuration
-     * @param array $allowedColumns Whitelist of allowed column names for sorting.
+     * @param list<string> $allowedColumns Whitelist of allowed column names for sorting.
      *                              Only columns in this list are allowed.
      * @return string The ORDER BY clause, or empty string if no valid sort fields
      */
