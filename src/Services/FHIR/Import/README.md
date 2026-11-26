@@ -99,8 +99,9 @@ noisily (counted under `failed`).
   code-level bans.** Simplified by filtering upstream: tier 1 drops the
   `laboratory` / `survey` / `social-history` categories entirely; tier 2
   drops specific LOINCs inside the accepted `vital-signs` category (BMI
-  39156-5 "derived from height and weight", pain scale 72514-3 "written
-  through form"). Transform:
+  39156-5 "derived from height and weight", pain scale 72514-3, dialysis
+  weight difference 74006-8, intraocular pressure 79892-6 / 79893-4, and
+  NT-proBNP 71425-3 — all "written through form"). Transform:
   `transformObservationDropRejectedLoincs`. Trim tier 1 as the write
   path adds laboratory / survey / social-history Observation support.
   Trim tier 2 as the narrow bans relax or get re-classified.
@@ -112,6 +113,21 @@ noisily (counted under `failed`).
   Practitioner-only. If every participant is non-Practitioner the whole
   CareTeam drops (participant has 1..* cardinality). Delete when the
   write path accepts Patient/Organization members alongside Practitioner.
+
+- ✅ **B5 — `At least one care plan item is required`.** Synthea emits
+  CarePlans with no `activity[]` (e.g. a major depressive disorder
+  management plan). Transform: `transformCareplanDropNoActivity` drops
+  them before `transformCareplanForcePlanIntent` runs. Delete when the
+  write path accepts item-less plans.
+
+- ✅ **B6 — `A 2708-6 reading already exists for this encounter at this
+  effectiveDateTime; POST does not overwrite`.** The vitals write path
+  folds 2708-6 and 59408-5 into one SpO2 row, and Synthea emits both codes
+  at the same instant. Transform: `transformObservationDropDuplicateSpo2`
+  keeps the first reading per encounter + effectiveDateTime across the
+  two codes and drops the rest (per-bundle seen map, reset in
+  `importBundle`). Delete when the write path accepts both codes as
+  separate readings.
 
 ### C. FHIR writes not implemented yet
 
@@ -184,3 +200,9 @@ A clean 3-patient run produces, roughly:
 Numbers vary bundle-to-bundle because Synthea produces different medical
 histories per patient (an older patient with many encounters generates many
 more Observations than a healthy young one).
+
+A 5-patient run that includes a dialysis patient used to report ~342
+failures from expected rejections (dialysis weight difference, intraocular
+pressure, NT-proBNP, duplicate SpO2, item-less CarePlans); those are now
+filtered by B3 / B5 / B6 (#15441) and land in `filtered-by-transform`
+instead of `failed`.
