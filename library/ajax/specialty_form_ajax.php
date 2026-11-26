@@ -40,18 +40,30 @@ function nameHistoryDelete($id): void
 
 function nameHistorySave($post_items): void
 {
-    if (!empty($post_items['previous_name_enddate'])) {
-        $date = new DateTime($post_items['previous_name_enddate']);
-        $post_items['previous_name_enddate'] = $date->format('Y-m-d');
+    // A previous name needs at least a first or a last name.
+    $hasName = false;
+    foreach (['previous_name_first', 'previous_name_last'] as $namePart) {
+        $value = is_array($post_items) ? ($post_items[$namePart] ?? '') : '';
+        $hasName = $hasName || (is_string($value) && trim($value) !== '');
     }
-    $patientNameService = new PatientNameHistoryService();
-    $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
-    $name = $patientNameService->formatPreviousName($post_items);
 
     $ret = [];
-    if (!empty($is_new)) {
-        $ret['id'] = $is_new;
-        $ret['name'] = $name;
+    if (!$hasName) {
+        $ret['error'] = xl('Enter a first or last name.');
+    } else {
+        if (!empty($post_items['previous_name_enddate'])) {
+            $date = new DateTime($post_items['previous_name_enddate']);
+            $post_items['previous_name_enddate'] = $date->format('Y-m-d');
+        }
+        $patientNameService = new PatientNameHistoryService();
+        $is_new = $patientNameService->createPatientNameHistory($post_items['pid'], $post_items);
+        $name = $patientNameService->formatPreviousName($post_items);
+        if (!empty($is_new)) {
+            $ret['id'] = $is_new;
+            $ret['name'] = $name;
+        } else {
+            $ret['error'] = xl('Previous name history already exist. Try again or Cancel.');
+        }
     }
 
     echo js_escape($ret);
