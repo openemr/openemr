@@ -126,10 +126,12 @@ ec002a7a520b   mariadb:10.6                    "docker-entrypoint.s…"   3 minu
 ```
  - Note the `NAMES` column is extremely important and how you run docker commands
 on specific containers. For example, to go into a shell script in the
-`development-insane_openemr-8-4_1` container, would use:
+`development-insane-openemr-8-4-1` container (Docker Compose v2 names
+containers `<project>-<service>-<index>`), would use:
 ```bash
-docker exec -it development-insane_openemr-8-4_1 bash
+docker exec -it development-insane-openemr-8-4-1 bash
 ```
+(Equivalently, from this directory: `docker compose exec openemr-8-4 bash`.)
 
 ##### Bash Access
 
