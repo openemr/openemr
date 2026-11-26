@@ -760,7 +760,8 @@ $globalsBag->set('groupname', $groupname);
 $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
 
-// Override temporary_files_dir
+// Use PHP's temporary directory. Set it with sys_temp_dir in php.ini or the
+// TMPDIR environment variable (TMP or TEMP on Windows).
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
 // User PHP debug reporting mode.
