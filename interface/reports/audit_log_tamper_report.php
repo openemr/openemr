@@ -7,6 +7,7 @@
  * @link    https://www.open-emr.org
  * @author  Anil N <aniln@ensoftek.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Simon Quigley <squigley@altispeed.com>
  * @copyright Copyright (c) 2014 Ensoftek
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,6 +21,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\Audit\AuditChainFailure;
+use OpenEMR\Common\Logging\Audit\AuditChainReader;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -231,6 +234,7 @@ $check_sum = isset($_GET['check_sum']);
             if (empty($iter["id"])) {
                 // Log item is missing; it has been deleted.
                 echo "<tr><td colspan='6' class='text tamperColor''>" . xlt("The log entry with following id has been deleted") . ": " . $iter['log_id_hash'] . "</td></tr>";
+                $dispArr[] = $icnt++;
                 continue;
             }
 
@@ -343,7 +347,29 @@ $check_sum = isset($_GET['check_sum']);
         }
     }
 
-    if (count($dispArr) == 0) {?>
+    $chainWarnings = 0;
+    foreach (AuditChainReader::failures($start_date, $end_date) as $chainFailure) {
+        $chainId = $chainFailure->id;
+        $chainText = match ($chainFailure->kind) {
+            AuditChainFailure::Break => xl('Audit log') . ' ' . $chainId . ' ' . xl('does not continue the chain.'),
+            AuditChainFailure::Missing => xl('Audit log') . ' ' . $chainId . ' ' . xl('has no chain value.'),
+            AuditChainFailure::Anchor => xl('The newest audit record does not match the chain anchor. A later record may have been deleted.'),
+            AuditChainFailure::Upgrade => xl('Run the database upgrade before checking the audit chain.'),
+            AuditChainFailure::Key => xl('The audit chain key is not available, so chained rows were not checked.'),
+            AuditChainFailure::Omitted => xl('Further chain breaks were omitted.'),
+        };
+        if (
+            $chainFailure->kind === AuditChainFailure::Key
+            || $chainFailure->kind === AuditChainFailure::Upgrade
+        ) {
+            $chainWarnings++;
+        } else {
+            $dispArr[] = $icnt++;
+        }
+        echo '<tr><td colspan="6" class="text tamperColor">' . text($chainText) . '</td></tr>';
+    }
+
+    if (count($dispArr) == 0 && $chainWarnings === 0) {?>
      <TR class="oneresult">
                 <?php
                 $colspan = 4;
@@ -354,7 +380,7 @@ $check_sum = isset($_GET['check_sum']);
         <TD class="text" colspan="<?php echo attr($colspan);?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
      </TR>
         <?php
-    } else {?>
+    } elseif (count($dispArr) > 0) {?>
     <script>$('#display_tamper').css('display', 'block');</script>
         <?php
     }
