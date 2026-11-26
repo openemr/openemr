@@ -1,0 +1,11 @@
+<thead class="table-light">
+    <tr>
+        <th>{{ 'Category' | xlt }}</th>
+        <th>{{ 'Item' | xlt }}</th>
+        {% if show_details %}
+            <th>{{ 'Date' | xlt }}</th>
+        {% endif %}
+        <th class="text-right">{{ 'Qty' | xlt }}</th>
+        <th class="text-right">{{ 'Amount' | xlt }}</th>
+    </tr>
+</thead>
