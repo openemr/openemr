@@ -108,10 +108,16 @@ class UserSettingsGlobalPrefixGuardTest extends TestCase
         $csrf = $this->loginAndExtractCsrf();
         $uppercaseLabel = 'GLOBAL:gbl_ldap_host';
 
-        // Snapshot every case-equivalent row the write path (admin + the
-        // setting_user=0 default) OR a regressed write path (uppercase or
-        // mixed-case variant) could touch, so we can detect both an
-        // inserted row AND a value-mutated existing row.
+        // Explicitly register the two keys the write path (admin + the
+        // setting_user=0 default) could land at for absent-state tracking
+        // — if the fix regresses and a forbidden row gets inserted, the
+        // assertion fails and tearDown must still clean up the stray row.
+        // Without these snapshots, an all-absent-pre-test regression would
+        // leave a dirty DB.
+        $this->snapshotUserSetting($this->adminUserId, $uppercaseLabel);
+        $this->snapshotUserSetting(0, $uppercaseLabel);
+        // Snapshot every case-equivalent existing row too so we can detect
+        // both an inserted row AND a value-mutated existing row.
         $caseEquivalentRows = $this->snapshotLabelsLike('global:gbl_ldap_host');
 
         $response = $this->http->post($this->baseUrl . '/library/ajax/user_settings.php', [
