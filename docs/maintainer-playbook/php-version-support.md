@@ -156,8 +156,25 @@ Surface the drop touches:
   `if ($server_port = …)` `fastcgi_pass` blocks for the removed
   `dev-php-fpm-<X>-<Y>[-redis]` backends. The insane compose bind-mounts this
   file, and nginx won't start if a `fastcgi_pass` hostname doesn't resolve.
-  To verify, run `nginx -t` in the pinned `openemr/dev-nginx` image with
-  `--add-host` stubs for the remaining backends only.
+  To verify, run `nginx -t` in the pinned `openemr/dev-nginx` image against
+  the **edited** files (bind-mounted read-only, as the insane compose does),
+  with `--add-host` stubs for the remaining backends only. A leftover route
+  then fails with `host not found in upstream`:
+
+  ```bash
+  cd docker/development-insane
+  d=../library/dockers/dev-nginx
+  img=$(grep -m1 'openemr/dev-nginx' docker-compose.yml | awk '{print $2}')
+  hosts=""; for v in 8-4 8-5 8-6 8-7; do   # remaining dev-php-fpm versions
+    hosts="$hosts --add-host dev-php-fpm-$v:127.0.0.1 --add-host dev-php-fpm-$v-redis:127.0.0.1"
+  done
+  docker run --rm $hosts \
+    -v "$PWD/$d/nginx.conf:/etc/nginx/nginx.conf:ro" \
+    -v "$PWD/$d/dummy-cert:/etc/nginx/dummy-cert:ro" \
+    -v "$PWD/$d/dummy-key:/etc/nginx/dummy-key:ro" \
+    "$img" nginx -t
+  ```
+
   Reference: [#15578](https://github.com/openemr/openemr/pull/15578) (8.2 and
   8.3 out of insane).
 - Any PHPStan deprecations the new target surfaces — fix at source (project
