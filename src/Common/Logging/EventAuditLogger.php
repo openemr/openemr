@@ -494,8 +494,7 @@ class EventAuditLogger implements AuditLoggerInterface
         if (
             (stripos($statement, "insert into log") !== false)      // avoid infinite loop
             || (stripos($statement, "insert into `log`") !== false) // avoid infinite loop
-            || (stripos($statement, "FROM log ") !== false)         // avoid infinite loop
-            || (stripos($statement, "FROM `log` ") !== false)       // avoid infinite loop
+            || (preg_match('/\bFROM\s+`?log`?\b/i', $statement) === 1) // avoid infinite loop (regex with word boundaries)
             || (str_contains($statement, "sequences"))          // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)         // Skip SELECT count() statements.
         ) {
