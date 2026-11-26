@@ -46,23 +46,18 @@ trait FhirBulkExportDomainResourceTrait
         }
         $searchParams = [];
 
-        // TODO: in order to handle bulk export for the group... we will need to grab our patient context resource and filter everything against
-        // the patients from the export
-
         $type = $job->getExportType();
 
         $searchParams = [];
-        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+        if ($type == ExportJob::EXPORT_OPERATION_GROUP || $type == ExportJob::EXPORT_OPERATION_PATIENT) {
             if ($this instanceof IPatientCompartmentResourceService) {
                 $patientUuids = $job->getPatientUuidsToExport();
                 if (empty($patientUuids)) {
-                    // TODO: @adunsulag do we want to handle this higher up the chain instead of creating a bunch of
-                    // empty files with no data?
                     return; // nothing to export here as we have no patients
                 }
                 ServiceContainer::getLogger()->debug(
                     "FhirBulkExportDomainResourceTrait->export() filtering by patient uuids",
-                    ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => $this::class]
+                    ['export-type' => $type, 'patients' => $patientUuids, 'resource-class' => $this::class]
                 );
                 $searchField = $this->getPatientContextSearchField();
                 $searchParams[$searchField->getName()] = implode(",", $patientUuids);
@@ -72,7 +67,6 @@ trait FhirBulkExportDomainResourceTrait
         if ($searchField !== null) {
             $searchParams[$searchField->getName()] = $job->getResourceIncludeSearchParamValue();
         }
-        // if we can grab our list of patient ids from the export job...
 
         $processingResult = $this->getAll($searchParams);
         $records = $processingResult->getData();
