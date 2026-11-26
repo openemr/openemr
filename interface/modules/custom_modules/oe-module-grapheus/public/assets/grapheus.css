@@ -1,0 +1,185 @@
+/* Grapheus by Exetazo */
+#grapheus h4 {
+  color: #022c44;
+}
+
+#grapheus .g-flag {
+  color: #b45309;
+  font-size: 12px;
+}
+
+#grapheus .g-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#grapheus .g-row:last-child {
+  border-bottom: 0;
+}
+
+#grapheus .g-row input[type='text'] {
+  font-size: 13px;
+}
+
+#grapheus .g-rx-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 3fr 1fr 1fr;
+  gap: 6px;
+  flex: 1;
+}
+
+@media (width <= 800px) {
+  #grapheus .g-rx-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+#grapheus .g-thread {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#grapheus .g-bubble {
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+
+#grapheus .g-me {
+  background: #022c44;
+  color: #fff;
+  margin-left: 15%;
+}
+
+#grapheus .g-ai {
+  background: #f1f5f9;
+  margin-right: 5%;
+}
+
+#grapheus .g-plan h6 {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  color: #022c44;
+}
+
+#grapheus .g-change {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+#grapheus .g-change.g-no {
+  opacity: 0.55;
+}
+
+#grapheus .g-why {
+  color: #64748b;
+  font-size: 12px;
+}
+
+body.g-rec {
+  margin: 0;
+  font: 15px/1.4 -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: #022c44;
+  color: #e6fffb;
+}
+
+main#rec {
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.g-rec-head {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  font-size: 14px;
+  color: #9fd6cf;
+}
+
+.g-rec-state {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+.g-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: g-pulse 1.2s infinite;
+}
+
+.g-dot.paused {
+  background: #f59e0b;
+  animation: none;
+}
+
+@keyframes g-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.g-timer {
+  font-size: 40px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: 6px 0;
+  color: #fff;
+}
+
+.g-meter {
+  height: 6px;
+  background: rgb(255 255 255 / 15%);
+  border-radius: 9px;
+  overflow: hidden;
+  max-width: 260px;
+  margin: 0 auto 12px;
+}
+
+.g-meter div {
+  height: 100%;
+  width: 0;
+  background: #2dd4bf;
+}
+
+.g-rec-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.g-rec-buttons button {
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  background: #e6fffb;
+  color: #022c44;
+}
+
+.g-rec-buttons button.g-stop {
+  background: #ef4444;
+  color: #fff;
+}
+
+.g-rec-buttons button:disabled {
+  opacity: 0.5;
+}
+
+.g-small {
+  font-size: 12px;
+  color: #9fd6cf;
+}
