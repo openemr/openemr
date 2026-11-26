@@ -485,6 +485,13 @@ class EventAuditLogger implements AuditLoggerInterface
      */
     public function auditSQLEvent($statement, $outcome, $binds = null): void
     {
+        // Honor the $skipAuditLog opt-out on every path (ADOdb and DBAL).
+        // Read through OEGlobalsBag: get() reads $GLOBALS where callers set
+        // the flag, and no `global` keyword is needed. See #15422.
+        if (OEGlobalsBag::getInstance()->get('skipAuditLog')) {
+            return;
+        }
+
         $statement = trim((string) $statement);
 
         if (preg_match(self::TRANSACTION_CONTROL_PATTERN, $statement) === 1) {
