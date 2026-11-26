@@ -288,14 +288,12 @@ function edih_list_denied_claims($filetype, $filename, $trace = ''): string
  *
  * @return string
  */
-function edih_claim_history($encounter): string
+function edih_encounter_events($encounter): array
 {
-    if (!$encounter) {
-        return 'invalid encounter value ' . text($encounter) . '<br />' . PHP_EOL;
-    }
     $e = (string) $encounter;
 
-    // One dated list of what the files state, instead of four tables of links (#15530 step 3).
+    // What the files state about this encounter, in date order (#15530 step 3).
+    // The Claim Filing History report reads the same facts, so nothing is parsed twice.
     $billed = csv_file_by_enctr($e, 'f837');
     $acks = csv_file_by_enctr($e, 'f997');
     $statusRows = csv_file_by_enctr($e, 'f277');
@@ -371,9 +369,18 @@ function edih_claim_history($encounter): string
         )
     );
 
+    return \OpenEMR\Billing\EdiHistory\EncounterHistory::assemble($events);
+}
+
+function edih_claim_history($encounter): string
+{
+    if (!$encounter) {
+        return 'invalid encounter value ' . text($encounter) . '<br />' . PHP_EOL;
+    }
+    $e = (string) $encounter;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     return \OpenEMR\Billing\EdiHistory\EncounterHistoryRenderer::html(
-        \OpenEMR\Billing\EdiHistory\EncounterHistory::assemble($events),
+        edih_encounter_events($e),
         $e,
         CsrfUtils::collectCsrfToken(session: $session)
     );
