@@ -78,7 +78,12 @@ jobs:
       uses: ./.github/actions/setup-php-composer
       with:
         # Action inputs are strings; map the env flag to a supported driver.
-        coverage: ${{ env.COLLECT_COVERAGE == 'true' && 'xdebug' || 'none' }}
+        # pcov is much faster than xdebug for line coverage, and new PHP
+        # versions get a stable build sooner. pcov.directory must be pinned:
+        # left unset, pcov narrows collection to src/ and silently drops
+        # library/, interface/ and the rest of the tree.
+        coverage: ${{ env.COLLECT_COVERAGE == 'true' && 'pcov' || 'none' }}
+        ini-values: pcov.directory=${{ github.workspace }}
         php-version: ${{ matrix.php.version }}
 
     - name: Run CLI installer
