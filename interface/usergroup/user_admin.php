@@ -206,8 +206,12 @@ function submitform() {
             } else {
                 dlgclose('reload', false);
             }
-        }).fail(function () {
-            alert(<?php echo xlj('Access denied'); ?>);
+        }).fail(function (jqXHR) {
+            if (jqXHR && jqXHR.status === 403) {
+                alert(<?php echo xlj('Access denied'); ?>);
+            } else {
+                alert(<?php echo xlj('Save failed'); ?>);
+            }
         });
         return false;
     }
