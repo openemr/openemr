@@ -62,12 +62,17 @@ class ForbiddenInstantiationsRule implements Rule
         ServiceContainer::class,
     ];
 
+    /**
+     * Inspect object construction expressions for forbidden service instantiations.
+     */
     public function getNodeType(): string
     {
         return New_::class;
     }
 
     /**
+     * Report direct construction of shared services outside their permitted callers.
+     *
      * @param New_ $node
      * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
@@ -89,6 +94,13 @@ class ForbiddenInstantiationsRule implements Rule
         $classReflection = $scope->getClassReflection();
         if ($classReflection !== null) {
             $currentClass = $classReflection->getName();
+            // Constructor tests must exercise the real container rather than the shared service.
+            if (
+                $className === Common\Twig\TwigContainer::class
+                && $currentClass === \OpenEMR\Tests\Isolated\Common\Twig\TwigContainerIsolatedTest::class
+            ) {
+                return [];
+            }
             if (in_array($currentClass, self::EXEMPT_CLASSES, true)) {
                 return [];
             }
