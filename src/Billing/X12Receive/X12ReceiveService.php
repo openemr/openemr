@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\X12Receive;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\EdiHistory\ClaimStatusIndexer;
+use OpenEMR\Billing\EdiHistory\ClaimStatusIndexRepository;
 use OpenEMR\Billing\EraAutoPost\AutoPostRepository;
 use OpenEMR\Billing\EraAutoPost\EngineCheckPoster;
 use OpenEMR\Billing\EraAutoPost\EraAutoPoster;
@@ -47,6 +49,12 @@ final class X12ReceiveService
             tempDirectory: $globals->getString('temporary_files_dir'),
         ))->receive($partners);
         $logger->info('X12 receive: run finished', $summary->toArray());
+
+        // Index the claim statuses of every 277 in EDI History, including ones stored by
+        // earlier runs, so the history is complete without a person pressing Process (#15530).
+        $indexed = (new ClaimStatusIndexer(new ClaimStatusIndexRepository()))
+            ->indexDirectory($globals->getString('OE_SITE_DIR') . '/documents/edi/history/f277');
+        $logger->info('277 index: run finished', $indexed);
 
         // Files this run, or one that was cut short, marked for unattended posting as it stored them.
         $posted = (new EraAutoPoster(

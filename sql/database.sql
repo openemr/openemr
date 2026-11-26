@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 583
+-- v_database: 584
 --
 
 --
@@ -14415,6 +14415,63 @@ CREATE TABLE `era_auto_post_claim` (
   UNIQUE KEY `check_sequence` (`check_id`, `sequence`),
   KEY `outcome` (`outcome`),
   KEY `patient_encounter` (`pid`, `encounter`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `x12_claim_ack_277` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `file_sha256` char(64) NOT NULL COMMENT 'sha256 of the file content: one indexing per content, whatever its name',
+  `file_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name it is stored under in EDI History',
+  `block_ordinal` int(11) NOT NULL COMMENT 'position of the claim block in the file, from 0',
+  `interchange_control_number` varchar(32) NOT NULL DEFAULT '' COMMENT 'ISA13',
+  `transaction_control_number` varchar(32) NOT NULL DEFAULT '' COMMENT 'ST02',
+  `interchange_date` date DEFAULT NULL COMMENT 'ISA09; NULL when absent or not a date',
+  `claim_reference` varchar(64) NOT NULL DEFAULT '' COMMENT 'TRN02, the submitter''s claim number (CLM01 of the 837) in a 277CA',
+  `pid` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the reference is not pid-encounter',
+  `encounter` bigint(20) NOT NULL DEFAULT 0 COMMENT '0 when the reference is not pid-encounter',
+  `patient_last_name` varchar(255) NOT NULL DEFAULT '',
+  `patient_first_name` varchar(255) NOT NULL DEFAULT '',
+  `service_date_from` date DEFAULT NULL COMMENT 'DTP*472, or the first day of a range',
+  `service_date_to` date DEFAULT NULL COMMENT 'the same date, or the last day of a range',
+  `source_entity_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'NM101 of the information source, PR or AY',
+  `source_kind` varchar(16) NOT NULL DEFAULT '' COMMENT 'ClaimStatusSourceKind: Payer, Clearinghouse or Other',
+  `source_name` varchar(255) NOT NULL DEFAULT '' COMMENT 'NM103',
+  `source_id_qualifier` varchar(8) NOT NULL DEFAULT '' COMMENT 'NM108, what kind of ID the identifier is',
+  `source_id` varchar(64) NOT NULL DEFAULT '' COMMENT 'NM109',
+  `source_received_date` date DEFAULT NULL COMMENT 'DTP*050, the date the source says it received the claims',
+  `indexed_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `file_block` (`file_sha256`,`block_ordinal`),
+  KEY `patient_encounter` (`pid`,`encounter`),
+  KEY `claim_reference` (`claim_reference`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `x12_claim_status_277` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ack_id` bigint(20) NOT NULL COMMENT 'x12_claim_ack_277.id',
+  `position` int(11) NOT NULL COMMENT 'position of the status in the claim block, from 0',
+  `category` varchar(8) NOT NULL DEFAULT '' COMMENT 'STC status category, e.g. A1 received, A2 accepted',
+  `code` varchar(8) NOT NULL DEFAULT '' COMMENT 'STC status code',
+  `entity_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'the entity the status code is about, when it needs one',
+  `effective_date` date DEFAULT NULL COMMENT 'STC02; NULL when absent or not a date',
+  `action_code` varchar(8) NOT NULL DEFAULT '' COMMENT 'STC03',
+  `amount` varchar(31) NOT NULL DEFAULT '' COMMENT 'STC04, as written in the file',
+  `status_text` varchar(511) NOT NULL DEFAULT '' COMMENT 'STC12, the source''s free text',
+  `service_line` varchar(64) NOT NULL DEFAULT '' COMMENT 'SVC01 for a service line status; empty for a claim status',
+  `rejected` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'ClaimStatus::isRejected()',
+  `accepted` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'ClaimStatus::isAccepted()',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ack_position` (`ack_id`,`position`),
+  KEY `category` (`category`)
+) ENGINE=InnoDB;
+
+CREATE TABLE `x12_claim_ref_277` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ack_id` bigint(20) NOT NULL COMMENT 'x12_claim_ack_277.id',
+  `qualifier` varchar(8) NOT NULL DEFAULT '' COMMENT 'REF01, e.g. 1K payer claim number, D9 clearinghouse trace',
+  `ref_value` varchar(64) NOT NULL DEFAULT '' COMMENT 'REF02',
+  PRIMARY KEY (`id`),
+  KEY `ack` (`ack_id`),
+  KEY `qualifier_value` (`qualifier`,`ref_value`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `export_job`;
