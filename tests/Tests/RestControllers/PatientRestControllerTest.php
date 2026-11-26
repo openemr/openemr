@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * PatientRestController tests
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Dixon Whitmire
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -15,7 +27,8 @@ class PatientRestControllerTest extends TestCase
 {
     const PATIENT_API_URL = "/apis/api/patient";
 
-    private $patientData;
+    /** @var array<string, string> */
+    private array $patientData;
     private PatientRestController $patientController;
     private $fixtureManager;
 
@@ -84,6 +97,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(2, count($actualResult["data"]));
 
         $actualUuid = $actualResult["data"]["uuid"];
+        $this->assertIsString($actualUuid);
         $this->patientData["uuid"] = $actualUuid;
 
         $response = $this->patientController->put("not-a-pid", $this->patientData, $this->createMock(HttpRestRequest::class));
@@ -102,6 +116,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(2, count($actualResult["data"]));
 
         $patientUuid = $actualResult["data"]["uuid"];
+        $this->assertIsString($patientUuid);
         $this->patientData["phone_home"] = "111-111-1111";
         $response = $this->patientController->put($patientUuid, $this->patientData, $this->createMock(HttpRestRequest::class));
 

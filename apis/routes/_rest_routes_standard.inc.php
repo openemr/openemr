@@ -90,7 +90,7 @@ return [
         return $return;
     },
 
-    "PUT /api/patient/:puuid" => function ($puuid, HttpRestRequest $request) {
+    "PUT /api/patient/:puuid" => function (string $puuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PatientRestController())->put($puuid, $data, $request);

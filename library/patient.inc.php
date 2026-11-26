@@ -1168,8 +1168,12 @@ function updatePatientData($pid, $new, $create = false)
             updateDupScore($result['pid']);
         }
     } else {
+        if (!is_array($new)) {
+            throw new \InvalidArgumentException('updatePatientData() needs an array of patient fields');
+        }
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
+        return $result['pid'];
     }
 
     // From the returned patient data array

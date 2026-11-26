@@ -181,9 +181,7 @@ final readonly class PortalProfileService
     {
         $columns = self::columns($record);
         unset($columns['id']);
-        if ($this->patients->databaseUpdate($columns) === false) {
-            throw new \RuntimeException('The patient profile was not saved');
-        }
+        $this->patients->databaseUpdate($columns);
         $id = filter_var($record['id'] ?? null, FILTER_VALIDATE_INT);
         if (!is_int($id)) {
             throw new \InvalidArgumentException('A patient record id is required');
