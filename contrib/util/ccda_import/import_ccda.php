@@ -107,14 +107,16 @@ function outputMessage($message): void
  * capture its exit status and output (stdout and stderr) so a failed import
  * is reported instead of being silently counted as imported.
  *
+ * A closure rather than a global function (openemr.noGlobalNsFunctions).
+ *
+ * @param list<string> $arguments
  * @return array{0: int, 1: string} exit code and combined command output
  */
-function runConsoleCommand(string $consolePath, array $arguments): array
-{
+$runConsoleCommand = function (string $consolePath, array $arguments): array {
     // Use the running PHP binary rather than relying on 'php' being in PATH.
     $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($consolePath);
     foreach ($arguments as $argument) {
-        $command .= ' ' . escapeshellarg($argument);
+        $command .= ' ' . escapeshellarg(is_string($argument) ? $argument : '');
     }
     // Merge stderr so console error messages are captured as well.
     $command .= ' 2>&1';
@@ -122,7 +124,7 @@ function runConsoleCommand(string $consolePath, array $arguments): array
     $resultCode = 0;
     exec($command, $output, $resultCode);
     return [$resultCode, implode("\n", $output)];
-}
+};
 
 // collect parameters (need to do before globals)
 $args = parseArgs($argv ?? []);
@@ -160,6 +162,14 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// Narrowed string copies for building console arguments. phpstan forbids
+// casting mixed to string directly, and the legacy values above must stay
+// untouched so their baseline entries remain valid.
+$openemrPathArg = is_scalar($openemrPath) ? (string) $openemrPath : '';
+$authNameArg = is_scalar($authName) ? (string) $authName : '';
+$siteId = $session->get('site_id');
+$siteIdArg = is_scalar($siteId) ? (string) $siteId : '';
 
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
@@ -216,9 +226,9 @@ foreach (glob($dir) as $file) {
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient
-        [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+        [$exitCode, $commandOutput] = $runConsoleCommand($openemrPathArg . "/bin/console", [
             'openemr:ccda-newpatient-import',
-            '--site=' . $session->get('site_id'),
+            '--site=' . $siteIdArg,
             '--document=' . $file,
         ]);
     } else {
@@ -229,23 +239,25 @@ foreach (glob($dir) as $file) {
         // TODO: collect CCDA category id instead of hardcoding 13
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
+        $documentIdArg = is_scalar($documentId) ? (string) $documentId : '';
         //  2. import to ccda table
-        [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+        [$exitCode, $commandOutput] = $runConsoleCommand($openemrPathArg . "/bin/console", [
             'openemr:ccda-import',
-            '--site=' . $session->get('site_id'),
-            '--document_id=' . $documentId,
-            '--auth_name=' . $authName,
+            '--site=' . $siteIdArg,
+            '--document_id=' . $documentIdArg,
+            '--auth_name=' . $authNameArg,
         ]);
         //  3. import as new patient (only when step 2 succeeded, otherwise the
         //  max(audit_master.id) lookup would pick up a stale audit id)
         if ($exitCode === 0) {
             $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
-            [$exitCode, $commandOutput] = runConsoleCommand($openemrPath . "/bin/console", [
+            $auditIdArg = is_scalar($auditId) ? (string) $auditId : '';
+            [$exitCode, $commandOutput] = $runConsoleCommand($openemrPathArg . "/bin/console", [
                 'openemr:ccda-newpatient',
-                '--site=' . $session->get('site_id'),
-                '--am_id=' . $auditId,
-                '--document_id=' . $documentId,
-                '--auth_name=' . $authName,
+                '--site=' . $siteIdArg,
+                '--am_id=' . $auditIdArg,
+                '--document_id=' . $documentIdArg,
+                '--auth_name=' . $authNameArg,
             ]);
         }
     }
