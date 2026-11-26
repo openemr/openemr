@@ -159,14 +159,16 @@ Surface the drop touches:
   To verify, run `nginx -t` in the pinned `openemr/dev-nginx` image against
   the **edited** files (bind-mounted read-only, as the insane compose does),
   with `--add-host` stubs for the remaining backends only. A leftover route
-  then fails with `host not found in upstream`:
+  then fails with `host not found in upstream`. The stub list comes from the
+  **edited** compose file, so it never includes a backend this drop removed.
+  Don't replace it with a hardcoded version list:
 
   ```bash
   cd docker/development-insane
   d=../library/dockers/dev-nginx
   img=$(grep -m1 'openemr/dev-nginx' docker-compose.yml | awk '{print $2}')
-  hosts=""; for v in 8-4 8-5 8-6 8-7; do   # remaining dev-php-fpm versions
-    hosts="$hosts --add-host dev-php-fpm-$v:127.0.0.1 --add-host dev-php-fpm-$v-redis:127.0.0.1"
+  hosts=""; for s in $(docker compose config --services | grep '^dev-php-fpm-'); do
+    hosts="$hosts --add-host $s:127.0.0.1"
   done
   docker run --rm $hosts \
     -v "$PWD/$d/nginx.conf:/etc/nginx/nginx.conf:ro" \
