@@ -187,11 +187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$eid \\(false\\) of function get_patient_balance\\(\\) is incompatible with type int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$authorized \\(string\\) of function addPnote\\(\\) is incompatible with type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',

@@ -22597,11 +22597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function get_patient_balance\\(\\) has parameter \\$in_collection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_patient_balance_excluding\\(\\) has parameter \\$excluded with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
