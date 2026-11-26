@@ -528,6 +528,23 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     }
 
     /**
+     * An encounter chosen that has no uuid yet is given one, so the stored response and the
+     * encounter form both name it.
+     */
+    public function testAChosenEncounterWithoutAUuidIsGivenOne(): void
+    {
+        $visit = $this->encounter('2026-11-21', 'Follow-up');
+        QueryUtils::sqlStatementThrowException('UPDATE `form_encounter` SET `uuid` = NULL WHERE `encounter` = ?', [$visit['encounter']]);
+        $held = $this->heldResponse();
+
+        $this->queue->approve($held->id, ReviewActor::user(1, 'admin'), null, null, new PatientWriteApprovalOptions($visit['encounter']));
+
+        $uuid = QueryUtils::fetchSingleValue('SELECT `uuid` FROM `form_encounter` WHERE `encounter` = ?', 'uuid', [$visit['encounter']]);
+        $this->assertIsString($uuid, 'the encounter was given a uuid');
+        $this->assertFiledIn($held, ['encounter' => $visit['encounter'], 'uuid' => UuidRegistry::uuidToString($uuid)]);
+    }
+
+    /**
      * Approved without an encounter, the response is in the chart but in no encounter.
      */
     public function testWithoutAnEncounterNoEncounterFormIsAdded(): void

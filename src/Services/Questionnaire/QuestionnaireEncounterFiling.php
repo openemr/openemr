@@ -103,7 +103,9 @@ final readonly class QuestionnaireEncounterFiling
         }
         $responseId = $form['response_id'] ?? null;
 
-        QueryUtils::inTransaction(static function () use ($formsId, $encounter, $responseId, $pid): void {
+        QueryUtils::inTransaction(function () use ($formsId, $encounter, $responseId, $pid): void {
+            // FHIR reads name the encounter of a filed form by its uuid.
+            $this->giveUuidIfMissing($pid, $encounter);
             QueryUtils::sqlStatementThrowException('UPDATE `forms` SET `encounter` = ? WHERE `id` = ?', [$encounter, $formsId]);
             if (is_string($responseId) && $responseId !== '') {
                 QueryUtils::sqlStatementThrowException(
@@ -112,6 +114,27 @@ final readonly class QuestionnaireEncounterFiling
                 );
             }
         });
+    }
+
+    /**
+     * Gives the patient's encounter a uuid when it has none, so that answers filed in it can be
+     * referred to as in that encounter. Starts no transaction of its own: called inside the
+     * caller's, it is undone with it.
+     */
+    public function giveUuidIfMissing(int $pid, int $encounter): void
+    {
+        $uuid = QueryUtils::fetchSingleValue(
+            'SELECT `uuid` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+            'uuid',
+            [$encounter, $pid]
+        );
+        if (is_string($uuid) && $uuid !== '') {
+            return;
+        }
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `form_encounter` SET `uuid` = ? WHERE `encounter` = ? AND `pid` = ? AND `uuid` IS NULL',
+            [(new UuidRegistry(['table_name' => 'form_encounter']))->createUuid(), $encounter, $pid]
+        );
     }
 
     /**

@@ -36,6 +36,7 @@ namespace OpenEMR\Services\PatientReview\FhirWrite;
 
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewLimitReachedException;
+use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
@@ -171,13 +172,36 @@ final readonly class PatientWriteHold
      */
     private function recordRefusal(PatientWriteContext $context, PatientWritableType $type, PatientWriteRefusal $refusal, ?string $id): void
     {
+        $this->recordRefusedWrite($context->pid(), $context->actor, $context->clientId, $type, $refusal->reason, $id);
+    }
+
+    /**
+     * Records that a patient's token was refused because its app is not a registered client,
+     * so no context could be made for it. Nothing is held.
+     *
+     * @param ReviewActor $actor the token's patient
+     * @param ?string $id the id an update was sent to; null for a create
+     */
+    public function recordUnregisteredClient(int $pid, ReviewActor $actor, string $clientId, PatientWritableType $type, ?string $id): void
+    {
+        $this->recordRefusedWrite($pid, $actor, $clientId, $type, PatientWriteRefusalReason::NotAllowed, $id);
+    }
+
+    private function recordRefusedWrite(
+        int $pid,
+        ReviewActor $actor,
+        string $clientId,
+        PatientWritableType $type,
+        PatientWriteRefusalReason $reason,
+        ?string $id,
+    ): void {
         $this->queue->recordRefusal(
-            $context->pid(),
-            $context->actor,
+            $pid,
+            $actor,
             ReviewType::FhirWrite,
             $type->fhirResourceType(),
-            $context->clientId,
-            $refusal->reason->name . ' (' . $refusal->reason->httpStatus() . ')',
+            $clientId,
+            $reason->name . ' (' . $reason->httpStatus() . ')',
             $id,
         );
     }

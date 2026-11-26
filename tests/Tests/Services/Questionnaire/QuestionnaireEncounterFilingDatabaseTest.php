@@ -85,6 +85,20 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         $this->assertSame($visit, $this->responseEncounter('resp-filed'));
     }
 
+    public function testAnEncounterWithoutAUuidIsGivenOneWhenAFormIsFiledInIt(): void
+    {
+        $visit = $this->encounter('2026-11-20', 'Annual visit');
+        QueryUtils::sqlStatementThrowException('UPDATE `form_encounter` SET `uuid` = NULL WHERE `encounter` = ?', [$visit]);
+        $formId = $this->portalForm('resp-no-uuid');
+
+        $this->filing->fileForm($formId, $this->pid, $visit);
+
+        $uuid = QueryUtils::fetchSingleValue('SELECT `uuid` FROM `form_encounter` WHERE `encounter` = ?', 'uuid', [$visit]);
+        $this->assertIsString($uuid);
+        $this->assertSame(16, strlen($uuid));
+        $this->assertSame($visit, $this->formEncounter($formId));
+    }
+
     /**
      * Another patient's encounter, a form already in an encounter, or another patient's form is
      * refused, and nothing changes.

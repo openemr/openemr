@@ -43,6 +43,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -718,7 +719,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     }
 
     /**
-     * The encounter number, when it is one of the patient's encounters.
+     * The encounter number, when it is one of the patient's encounters, which then has a uuid.
      *
      * @throws InvalidArgumentException when it is not; reported as an unknown encounter is
      */
@@ -732,6 +733,9 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         if (self::toInt($found) !== $encounter) {
             throw new InvalidArgumentException("Encounter does not exist");
         }
+        // The response refers to its encounter by uuid, and is saved in no encounter when the
+        // encounter has none; give it one so the response and the filed form agree.
+        (new QuestionnaireEncounterFiling())->giveUuidIfMissing($patientId, $encounter);
 
         return $encounter;
     }
