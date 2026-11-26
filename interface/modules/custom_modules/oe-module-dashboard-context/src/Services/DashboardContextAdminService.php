@@ -85,7 +85,17 @@ class DashboardContextAdminService
      */
     public function createContext(array $data, int $createdBy): int|false
     {
-        $contextKey = $data['context_key'] ?? $this->generateContextKey($data['context_name']);
+        // The admin form sends an empty string when the key field is left blank.
+        $requestedKey = $data['context_key'] ?? null;
+        $contextKey = is_string($requestedKey) ? trim($requestedKey) : '';
+        if ($contextKey === '') {
+            $contextKey = $this->generateContextKey($data['context_name']);
+        }
+
+        // A definition sharing a system key would take over that context's assignments in assignContextToUser().
+        if ($this->isSystemContextKey($contextKey)) {
+            return false;
+        }
 
         $existing = QueryUtils::querySingleRow(
             "SELECT id FROM {$this->contextTable} WHERE context_key = ?",
@@ -293,6 +303,20 @@ class DashboardContextAdminService
      */
     public function assignContextToUser(int $userId, string $contextKey, int $assignedBy, bool $isLocked = false, ?int $contextId = null): bool
     {
+        // Custom contexts are rows of the definitions table; deleteContext() finds their assignments by this id.
+        // A system key never takes an id, even from a definition saved before createContext() refused such keys.
+        if ($contextId === null && !$this->isSystemContextKey($contextKey)) {
+            $definition = QueryUtils::querySingleRow(
+                "SELECT id, context_key FROM {$this->contextTable} WHERE context_key = ?",
+                [$contextKey]
+            );
+            if (is_array($definition) && is_numeric($definition['id'] ?? null) && is_string($definition['context_key'] ?? null)) {
+                $contextId = (int) $definition['id'];
+                // The lookup ignores case; the dashboard widget compares keys with ===, so keep the definition's spelling.
+                $contextKey = $definition['context_key'];
+            }
+        }
+
         $currentContext = QueryUtils::querySingleRow(
             "SELECT active_context FROM {$this->userContextTable} WHERE user_id = ?",
             [$userId]
@@ -645,6 +669,16 @@ class DashboardContextAdminService
         }
 
         return $logs;
+    }
+
+    /**
+     * Whether the key belongs to a built-in context rather than a custom definition
+     *
+     * context_key compares case-insensitively in the database, so PRIMARY_CARE counts as primary_care.
+     */
+    private function isSystemContextKey(string $contextKey): bool
+    {
+        return array_key_exists(strtolower($contextKey), (new DashboardContextService())->getAvailableContexts());
     }
 
     /**
