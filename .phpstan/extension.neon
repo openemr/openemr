@@ -10,6 +10,7 @@
 # 6. Forbid shell execution functions and eval()
 #    Note: the backtick operator is enforced by phpstan-strict-rules
 #    (backtick.notAllowed), not by a custom rule registered here.
+# 7. Forbid direct output (inline HTML, echo, print, printf family) outside tests/
 #
 # Include this in phpstan.github.neon with:
 #   includes:
@@ -81,6 +82,9 @@ services:
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenAuthorizationHeaderReadRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenDirectOutputRule
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\Sql\ReservedWordRegistry
