@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -108,16 +109,16 @@ if (!$isPortal && $formid > 0) {
     }
 }
 // Staff auditing a portal questionnaire that is in no encounter may file it into one of the
-// patient's encounters. The response is saved under that encounter, then the form is moved there.
+// patient's encounters. The answers are saved where the form is (in no encounter); filing then
+// moves the form and its response together, or neither when the form was filed meanwhile.
 $fileInEncounter = null;
-$auditEncounterInput = filter_input(INPUT_POST, 'audit_encounter', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+$auditEncounterInput = CurrentRequest::get()->request->all()['audit_encounter'] ?? null;
 if ($auditForm !== null && $auditForm->encounter === 0 && is_string($auditEncounterInput) && $auditEncounterInput !== '') {
     $chosenEncounter = $nonNegativeInt($auditEncounterInput) ?? 0;
     if ($chosenEncounter <= 0 || !(new QuestionnaireEncounterFiling())->isPatientEncounter($auditForm->pid, $chosenEncounter)) {
         die(xlt('That encounter could not be found.'));
     }
     $fileInEncounter = $chosenEncounter;
-    $encounter = $chosenEncounter;
 }
 
 if ($mode !== 'new' && !$isRegistering) {
@@ -268,8 +269,10 @@ if ($formid === 0) {
     formUpdate('form_questionnaire_assessments', $formUpdateData, $formid, $userauthorized, $auditForm?->pid);
     if ($fileInEncounter !== null) {
         // The encounter was checked above and the form is the document's own, waiting for one;
-        // a failure here is unexpected, so it is left to the global error handler to log.
+        // a failure here (the form filed by another save meanwhile) changes nothing and is left
+        // to the global error handler to log.
         (new QuestionnaireEncounterFiling())->fileForm($formid, $auditForm->pid, $fileInEncounter);
+        $encounter = $fileInEncounter;
     }
 }
 

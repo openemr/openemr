@@ -90,20 +90,22 @@ final readonly class QuestionnaireEncounterFiling
         if ($encounter <= 0 || !$this->isPatientEncounter($pid, $encounter)) {
             throw new \InvalidArgumentException('The encounter is not one of the patient\'s');
         }
-        $form = QueryUtils::querySingleRow(
-            'SELECT f.`id`, a.`response_id` FROM `forms` AS f'
-            . ' JOIN `form_questionnaire_assessments` AS a ON a.`id` = f.`form_id`'
-            . " WHERE f.`formdir` = 'questionnaire_assessments' AND f.`form_id` = ? AND f.`pid` = ?"
-            . ' AND f.`deleted` = 0 AND f.`encounter` = 0',
-            [$formId, $pid]
-        );
-        $formsId = is_array($form) ? self::int($form['id'] ?? null) : null;
-        if (!is_array($form) || $formsId === null) {
-            throw new \InvalidArgumentException('The form is not one of the patient\'s forms waiting for an encounter');
-        }
-        $responseId = $form['response_id'] ?? null;
+        QueryUtils::inTransaction(function () use ($formId, $encounter, $pid): void {
+            // Read with a lock inside the transaction: a competing filing of the same form waits
+            // here, then finds it already in an encounter and is refused.
+            $form = QueryUtils::querySingleRow(
+                'SELECT f.`id`, a.`response_id` FROM `forms` AS f'
+                . ' JOIN `form_questionnaire_assessments` AS a ON a.`id` = f.`form_id`'
+                . " WHERE f.`formdir` = 'questionnaire_assessments' AND f.`form_id` = ? AND f.`pid` = ?"
+                . ' AND f.`deleted` = 0 AND f.`encounter` = 0 FOR UPDATE',
+                [$formId, $pid]
+            );
+            $formsId = is_array($form) ? self::int($form['id'] ?? null) : null;
+            if (!is_array($form) || $formsId === null) {
+                throw new \InvalidArgumentException("The form is not one of the patient's forms waiting for an encounter");
+            }
+            $responseId = $form['response_id'] ?? null;
 
-        QueryUtils::inTransaction(function () use ($formsId, $encounter, $responseId, $pid): void {
             // FHIR reads name the encounter of a filed form by its uuid.
             $this->giveUuidIfMissing($pid, $encounter);
             QueryUtils::sqlStatementThrowException('UPDATE `forms` SET `encounter` = ? WHERE `id` = ?', [$encounter, $formsId]);

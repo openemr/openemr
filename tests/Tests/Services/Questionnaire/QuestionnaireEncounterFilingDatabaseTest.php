@@ -44,8 +44,9 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         $this->assertTrue($patient->isValid(), 'test patient');
         $ids = $patient->getFirstDataResult();
         $this->assertIsArray($ids);
-        $this->assertIsNumeric($ids['pid']);
-        $this->pid = (int) $ids['pid'];
+        $pid = self::id($ids['pid'] ?? null);
+        $this->assertNotNull($pid, 'test patient pid');
+        $this->pid = $pid;
         $this->filing = new QuestionnaireEncounterFiling();
     }
 
@@ -191,7 +192,7 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
             [$formId, $this->pid]
         );
 
-        return is_numeric($value) ? (int) $value : null;
+        return self::id($value);
     }
 
     private function responseEncounter(string $responseId): ?int
@@ -202,6 +203,14 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
             [$responseId]
         );
 
-        return is_numeric($value) ? (int) $value : null;
+        return self::id($value);
+    }
+
+    /**
+     * A database id: a native integer or a string of decimal digits, nothing else.
+     */
+    private static function id(mixed $value): ?int
+    {
+        return is_int($value) ? $value : (is_string($value) && ctype_digit($value) ? intval($value) : null);
     }
 }
