@@ -139,19 +139,95 @@ Surface the drop touches:
   new-floor name, and bump their `flex-3.XX-php-<new>` image refs inside
 - `.github/dependabot.yml` — update the `docker-compose` directories list to
   match ci/ surgery
+- `.github/workflows/docker-test-flex-3<XX>.yml` / `docker-test-flex-edge.yml`
+  — remove the dropped version from `php_versions` and the header comment.
+  These run on PRs to master and test master's code, which can no longer run
+  on the dropped version (see "Master code on a dropped PHP fails at runtime"
+  below). Release branches carry their own copies of these workflows.
+- `docker/development-insane/` — remove the dropped version's services
+  (`openemr-<X>-<Y>` and `dev-php-fpm-<X>-<Y>`, plus their `-redis` variants)
+  from `docker-compose.yml`, with their nginx `depends_on` entries, nginx port
+  mappings and header endpoint lines. Also remove their endpoint lines and
+  sample rows from `README.md`. Those services run master's code too, so they
+  can only serve the runtime error. Keeping one version below the floor to
+  watch it fail isn't needed. Check for any older versions left behind by
+  earlier drops too: 8.2 was still there at the 8.3 drop.
+- `docker/library/dockers/dev-nginx/nginx.conf` — in the same PR, remove the
+  `if ($server_port = …)` `fastcgi_pass` blocks for the removed
+  `dev-php-fpm-<X>-<Y>[-redis]` backends. The insane compose bind-mounts this
+  file, and nginx won't start if a `fastcgi_pass` hostname doesn't resolve.
+  To verify, run `nginx -t` in the pinned `openemr/dev-nginx` image against
+  the **edited** files (bind-mounted read-only, as the insane compose does),
+  with `--add-host` stubs for the remaining backends only. A leftover route
+  then fails with `host not found in upstream`. The stub list comes from the
+  **edited** compose file, so it never includes a backend this drop removed.
+  Don't replace it with a hardcoded version list:
+
+  ```bash
+  cd docker/development-insane
+  d=../library/dockers/dev-nginx
+  img=$(grep -m1 'openemr/dev-nginx' docker-compose.yml | awk '{print $2}')
+  hosts=""; for s in $(docker compose config --services | grep '^dev-php-fpm-'); do
+    hosts="$hosts --add-host $s:127.0.0.1"
+  done
+  docker run --rm $hosts \
+    -v "$PWD/$d/nginx.conf:/etc/nginx/nginx.conf:ro" \
+    -v "$PWD/$d/dummy-cert:/etc/nginx/dummy-cert:ro" \
+    -v "$PWD/$d/dummy-key:/etc/nginx/dummy-key:ro" \
+    "$img" nginx -t
+  ```
+
+  Reference: [#15578](https://github.com/openemr/openemr/pull/15578) (8.2 and
+  8.3 out of insane).
 - Any PHPStan deprecations the new target surfaces — fix at source (project
   policy: no new baseline entries)
 - Docs — `AGENTS.md` "PHP X+ required", `CONTRIBUTING.md` references
 
 Left intact on drop PRs:
+- `.github/workflows/docker-build-3<XX>.yml` / `docker-build-edge.yml` keep
+  the dropped version in `php_versions`. These builds run only from master
+  (`docker-build-flex-core.yml` gates on `refs/heads/master`), so master's
+  `php_versions` decides which `openemr/openemr:flex-3.XX-php-<old>` images
+  keep getting rebuilt for **every** branch. Release branches whose
+  `composer.json` still allows the dropped version pin those images in their
+  `ci/` configs (e.g. after the 8.3 drop, rel-850's `ci/apache_83_123*` pinned
+  `flex-3.24-php-8.3`). `php_versions` here follows the release branches, not
+  master's `composer.json`. Dropping it here too is a known trap: 8.2 was
+  removed from `docker-build-322.yml` in
+  [#13612](https://github.com/openemr/openemr/pull/13612) and restored two
+  days later in [#13633](https://github.com/openemr/openemr/pull/13633), and
+  8.3 was nearly removed the same way in
+  [#15559](https://github.com/openemr/openemr/pull/15559).
 - `.github/workflows/weekly-build-php-fpm-dockers.yml` keeps building the
-  dropped version's `openemr/dev-php-fpm:<old>` image for release-branch flex
-  configs and community downstream
-- `docker-build-3<XX>.yml` / `docker-test-flex-3<XX>.yml` keep the full
-  PHP matrix per Alpine line for maintenance releases
+  dropped version's `openemr/dev-php-fpm:<old>` image, for the same reason:
+  release branches pin it (e.g. rel-850's `ci/nginx_83`), and community
+  downstream uses it.
 - Release workflows (`build-patch`, `build-release`, `ship-release`,
   `release-amendment`, `branch-cut-automation`, `docker-build-release`,
   `release-mechanism-smoketest`) — release-branch-facing, not master-facing
+
+Quick split rule: a workflow or compose file that **runs master's code**
+drops the version in the drop PR. A workflow that **builds images** for
+release branches keeps it until the retirement step below.
+
+### Later: retiring the dropped version's images
+
+Precedent: [#13764](https://github.com/openemr/openemr/pull/13764) (PHP 8.1).
+That PR also did the insane cleanup, which now belongs in the drop PR (see
+above).
+
+Once no maintained `rel-*` branch still uses the dropped version, stop
+building its images. To check, grep each maintained release branch's `ci/`,
+`docker/` and `.github/` for `php-<old>` and `dev-php-fpm:<old>`. Then, in
+one PR:
+- Remove the version from `docker-build-3<XX>.yml` / `docker-build-edge.yml`
+  `php_versions` and their header tag lists. The already-published Docker Hub
+  tags stay but stop being refreshed.
+- Remove the `dev-php-fpm:<old>` (and `-redis`) build steps from
+  `weekly-build-php-fpm-dockers.yml`, and delete
+  `docker/library/dockers/dev-php-fpm-<X>-<Y>/` if nothing else references it.
+- Sweep any leftover references to the version (`git grep` for `php-<old>`,
+  `dev-php-fpm:<old>`, `dev-php-fpm-<X>-<Y>`).
 
 ### PHP GA adoption — [#15454](https://github.com/openemr/openemr/pull/15454) (PHP 8.6 RC → GA)
 
@@ -201,6 +277,27 @@ automatically (docker-library/php tracks upstream), so the gap only matters
 for hand-installed deployments on an obsolete patch. If stricter enforcement
 is needed per-deployment, run `composer check-platform-reqs` in the
 deployment pipeline against the actual runtime.
+
+### Master code on a dropped PHP fails at runtime, not at build or install
+
+After a drop, running master's code on an image of the dropped version
+still **builds** and still **`composer install`s**: `config.platform.php`
+tells Composer to assume the pinned version (e.g. `8.4.28`), so the
+"Verifying lock file contents can be installed on current platform" step
+passes. The failure comes on the first request. `vendor/autoload.php` loads
+Composer's generated `vendor/composer/platform_check.php`, which checks the
+*real* PHP version against `require.php`:
+
+```
+PHP Fatal error: Uncaught RuntimeException: Composer detected issues in your platform:
+Your Composer dependencies require a PHP version ">= 8.4.0". You are running 8.3.37.
+in .../vendor/composer/platform_check.php:26
+```
+
+So a leftover master-facing lane on the dropped version doesn't fail at its
+build step. It fails later, when the stack's health or test step hits the
+app. That's how the stale 8.3 `docker-test-flex-*` lanes surfaced, on any PR
+touching `docker/flex/`, after #15455.
 
 ### Deprecations surfaced at the new PHP target
 
