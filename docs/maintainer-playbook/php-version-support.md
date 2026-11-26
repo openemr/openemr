@@ -145,11 +145,21 @@ Surface the drop touches:
   on the dropped version (see "Master code on a dropped PHP fails at runtime"
   below). Release branches carry their own copies of these workflows.
 - `docker/development-insane/` — remove the dropped version's services
-  (`flex-3.XX-php-<old>` and `dev-php-fpm:<old>`, plus any `-redis` variants)
-  from `docker-compose.yml`, and their ports and container listings from
-  `README.md`. Those services run master's code too, so they can only serve
-  the runtime error. Keeping one version below the floor to watch it fail
-  isn't needed.
+  (`openemr-<X>-<Y>` and `dev-php-fpm-<X>-<Y>`, plus their `-redis` variants)
+  from `docker-compose.yml`, with their nginx `depends_on` entries, nginx port
+  mappings and header endpoint lines. Also remove their endpoint lines and
+  sample rows from `README.md`. Those services run master's code too, so they
+  can only serve the runtime error. Keeping one version below the floor to
+  watch it fail isn't needed. Check for any older versions left behind by
+  earlier drops too: 8.2 was still there at the 8.3 drop.
+- `docker/library/dockers/dev-nginx/nginx.conf` — in the same PR, remove the
+  `if ($server_port = …)` `fastcgi_pass` blocks for the removed
+  `dev-php-fpm-<X>-<Y>[-redis]` backends. The insane compose bind-mounts this
+  file, and nginx won't start if a `fastcgi_pass` hostname doesn't resolve.
+  To verify, run `nginx -t` in the pinned `openemr/dev-nginx` image with
+  `--add-host` stubs for the remaining backends only.
+  Reference: [#15578](https://github.com/openemr/openemr/pull/15578) (8.2 and
+  8.3 out of insane).
 - Any PHPStan deprecations the new target surfaces — fix at source (project
   policy: no new baseline entries)
 - Docs — `AGENTS.md` "PHP X+ required", `CONTRIBUTING.md` references
@@ -181,7 +191,11 @@ Quick split rule: a workflow or compose file that **runs master's code**
 drops the version in the drop PR. A workflow that **builds images** for
 release branches keeps it until the retirement step below.
 
-### Later: retiring the dropped version's images — [#13764](https://github.com/openemr/openemr/pull/13764) (PHP 8.1)
+### Later: retiring the dropped version's images
+
+Precedent: [#13764](https://github.com/openemr/openemr/pull/13764) (PHP 8.1).
+That PR also did the insane cleanup, which now belongs in the drop PR (see
+above).
 
 Once no maintained `rel-*` branch still uses the dropped version, stop
 building its images. To check, grep each maintained release branch's `ci/`,
@@ -193,8 +207,8 @@ one PR:
 - Remove the `dev-php-fpm:<old>` (and `-redis`) build steps from
   `weekly-build-php-fpm-dockers.yml`, and delete
   `docker/library/dockers/dev-php-fpm-<X>-<Y>/` if nothing else references it.
-- Sweep any leftover references, such as `docker/library/dockers/dev-nginx/nginx.conf`
-  upstreams.
+- Sweep any leftover references to the version (`git grep` for `php-<old>`,
+  `dev-php-fpm:<old>`, `dev-php-fpm-<X>-<Y>`).
 
 ### PHP GA adoption — [#15454](https://github.com/openemr/openemr/pull/15454) (PHP 8.6 RC → GA)
 
