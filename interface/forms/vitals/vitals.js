@@ -525,7 +525,7 @@ function convFtoC(value) {
         return 0;
     }
     else if (Fdeg == parseFloat(Fdeg)) {
-        let Cdeg = (Fdeg-32)*5/9; // originally 0.5556 which is not precise!
+        let Cdeg = (Fdeg-32)*5/9;
         return Cdeg;
     }
     else {
@@ -540,7 +540,7 @@ function convCtoF(value) {
     }
     else if (Cdeg == parseFloat(Cdeg)) {
         Cdeg = parseFloat(Cdeg);
-        let Fdeg = (Cdeg*9/5)+32; // originally 0.5556 which is not precise when working with 2 digit decimal conversions!
+        let Fdeg = (Cdeg*9/5)+32;
         return Fdeg;
     }
     else {

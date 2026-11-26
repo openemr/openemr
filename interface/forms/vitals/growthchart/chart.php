@@ -46,6 +46,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VitalsService;
 
@@ -134,9 +135,9 @@ function unitsDist($dist): string
 }
 
 // convert vitals service data to US values for graphing
-function convertHeightToUs($height): float
+function convertHeightToUs(mixed $height): float
 {
-    return $height * 0.393701;
+    return MeasurementUtils::cmToInchesFloat(is_numeric($height) ? (float) $height : 0.0);
 }
 
 function convertWeightToUs($weight): float

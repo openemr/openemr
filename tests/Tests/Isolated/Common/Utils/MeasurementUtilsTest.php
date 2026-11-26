@@ -83,6 +83,27 @@ class MeasurementUtilsTest extends TestCase
         ];
     }
 
+    #[DataProvider('cmToInchesFloatProvider')]
+    public function testCmToInchesFloat(float $cm, float $expectedInches): void
+    {
+        $this->assertSame($expectedInches, MeasurementUtils::cmToInchesFloat($cm));
+    }
+
+    /**
+     * @return array<string, array{float, float}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function cmToInchesFloatProvider(): array
+    {
+        return [
+            'zero' => [0.0, 0.0],
+            'one inch in cm' => [2.54, 1.0],
+            'typical height' => [175.0, 68.897638],
+            'no thousands separator' => [2540.0, 1000.0],
+        ];
+    }
+
     #[DataProvider('inchesToCmProvider')]
     public function testInchesToCm(float $inches, string $expectedCm): void
     {
@@ -121,6 +142,28 @@ class MeasurementUtilsTest extends TestCase
             'absolute zero F' => [-459.67, '-273.150000'],
             'room temperature' => [68.0, '20.000000'],
             'fever temperature' => [102.0, '38.888889'],
+        ];
+    }
+
+    #[DataProvider('fhToCelsiusFloatProvider')]
+    public function testFhToCelsiusFloat(float $fahrenheit, float $expectedCelsius): void
+    {
+        $this->assertSame($expectedCelsius, MeasurementUtils::fhToCelsiusFloat($fahrenheit));
+    }
+
+    /**
+     * @return array<string, array{float, float}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function fhToCelsiusFloatProvider(): array
+    {
+        return [
+            'freezing point' => [32.0, 0.0],
+            'normal body temp' => [98.6, 37.0],
+            'hyperthermia' => [110.0, 43.333333], // 43.33 at 2 decimals; 0.5556 gave 43.34
+            'absolute zero F' => [-459.67, -273.15],
+            'no thousands separator' => [1832.0, 1000.0],
         ];
     }
 
