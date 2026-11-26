@@ -27,11 +27,16 @@ use PHPUnit\Framework\TestCase;
 
 class FhirBundleImporterTransformTest extends TestCase
 {
+    /**
+     * @param array<array-key, mixed> $resource
+     * @param array<string, array<array-key, mixed>> $bundleIndex
+     * @return array<array-key, mixed>|null
+     */
     private function invokeStatic(string $method, array $resource, array $bundleIndex = []): ?array
     {
         $m = new \ReflectionMethod(FhirBundleImporter::class, $method);
-        $m->setAccessible(true);
-        return $m->invoke(null, $resource, $bundleIndex);
+        $result = $m->invoke(null, $resource, $bundleIndex);
+        return is_array($result) ? $result : null;
     }
 
     private function newImporter(): FhirBundleImporter
@@ -39,13 +44,18 @@ class FhirBundleImporterTransformTest extends TestCase
         return new FhirBundleImporter('https://localhost', 'default', '.', 'admin', 'pass');
     }
 
+    /**
+     * @param array<array-key, mixed> $resource
+     * @return array<array-key, mixed>|null
+     */
     private function invokeSpo2(FhirBundleImporter $importer, array $resource): ?array
     {
         $m = new \ReflectionMethod(FhirBundleImporter::class, 'transformObservationDropDuplicateSpo2');
-        $m->setAccessible(true);
-        return $m->invoke($importer, $resource, []);
+        $result = $m->invoke($importer, $resource, []);
+        return is_array($result) ? $result : null;
     }
 
+    /** @return array<array-key, mixed> */
     private function observation(string $loinc, string $category = 'vital-signs'): array
     {
         return [
@@ -55,6 +65,7 @@ class FhirBundleImporterTransformTest extends TestCase
         ];
     }
 
+    /** @return array<array-key, mixed> */
     private function spo2(string $loinc, string $encounter, string $when): array
     {
         $o = $this->observation($loinc);
@@ -63,6 +74,7 @@ class FhirBundleImporterTransformTest extends TestCase
         return $o;
     }
 
+    /** @return array<string, array{0: string}> */
     public static function rejectedLoincProvider(): array
     {
         return [
@@ -98,6 +110,7 @@ class FhirBundleImporterTransformTest extends TestCase
         $this->assertSame($o, $this->invokeStatic('transformObservationDropRejectedLoincs', $o));
     }
 
+    /** @return array<string, array{0: array<array-key, mixed>}> */
     public static function emptyActivityProvider(): array
     {
         return [
@@ -107,6 +120,7 @@ class FhirBundleImporterTransformTest extends TestCase
         ];
     }
 
+    /** @param array<array-key, mixed> $plan */
     #[DataProvider('emptyActivityProvider')]
     public function testCareplanWithoutActivityIsDropped(array $plan): void
     {
