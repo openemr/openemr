@@ -688,6 +688,31 @@ class VisitListServiceDatabaseTest extends TestCase
         $this->assertSame(['2031-03-03', '2031-03-24', '2031-03-31'], $this->weeklyDates());
     }
 
+    public function testPatientsReleasedIntoTheDaysLastSlotEndAtMidnightOfThatDay(): void
+    {
+        // A block from 23:30 with three patients: the 2nd and 3rd share the 23:45 slot. Their
+        // end is written as 24:00:00, as the appointment editor writes it; 00:00:00 would make
+        // the open-slot search read the whole day before it as taken.
+        $date = new DateTimeImmutable('2031-03-12');
+        $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-12', '23:30:00', 1800);
+        $patients = [];
+        foreach ([1, 2, 3] as $seq) {
+            $patients[] = $this->insertEvent($this->providerId, 5, '1', '2031-03-12', '23:30:00', 0, ['visitList' => 1, 'seq' => $seq]);
+        }
+
+        $released = $this->service->release($this->service->forDates($date, $date, [$this->providerId])->lists, 15);
+
+        $this->assertSame(3, $released);
+        $this->assertSame(
+            [
+                $patients[0] => '2031-03-12 23:30:00-23:45:00 900 timed - -',
+                $patients[1] => '2031-03-12 23:45:00-24:00:00 900 timed - -',
+                $patients[2] => '2031-03-12 23:45:00-24:00:00 900 timed - -',
+            ],
+            $this->timesOf($patients)
+        );
+    }
+
     public function testDeletingEveryDateLeavesPatientsOnDatesBeforeToday(): void
     {
         $march24 = $this->insertEvent($this->providerId, 5, '1', '2031-03-24', '09:00:00', 0, ['visitList' => 1, 'seq' => 1]);

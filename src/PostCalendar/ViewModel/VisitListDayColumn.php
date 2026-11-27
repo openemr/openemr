@@ -206,8 +206,9 @@ final readonly class VisitListDayColumn
     }
 
     /**
-     * Where the overlap layout places each grid event: laid out in overlapOrder(), unless the
-     * day's own order draws fewer events over each other. The layout keeps each event's
+     * Where the overlap layout places each grid event: laid out in overlapOrder() only when
+     * that draws fewer events over each other than the day's own order. On a tie the day's
+     * order is kept, as on master. The layout keeps each event's
      * rightmost place and narrowest width across its slots, so moving a block last can make an
      * appointment that also runs past the block cover part of it.
      *
@@ -223,7 +224,7 @@ final readonly class VisitListDayColumn
             return $positions;
         }
         $dayOrder = $layout($this->gridEvents);
-        return $this->collisions($dayOrder, $intervalMinutes) < $this->collisions($positions, $intervalMinutes)
+        return $this->collisions($dayOrder, $intervalMinutes) <= $this->collisions($positions, $intervalMinutes)
             ? $dayOrder
             : $positions;
     }

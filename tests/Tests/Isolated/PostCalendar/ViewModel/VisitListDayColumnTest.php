@@ -435,6 +435,24 @@ final class VisitListDayColumnTest extends TestCase
         ], $places);
     }
 
+    public function testWhenBothOrdersDrawAnOverlapTheDaysOrderIsKept(): void
+    {
+        // Block B 9:00-10:00, C 9:00-10:30 and D 9:30-10:30. The day's order draws D over C,
+        // B moved last draws D over B: one overlap each, so the order is left as on master,
+        // where the overlap stays between the two appointments and the block is clear.
+        $places = self::places([
+            self::block(40, '09:00:00', 3600),
+            self::timed(42, '09:00:00', 5400),
+            self::timed(43, '09:30:00', 3600),
+        ], self::twoBlockSchedule('09:00', '10:00', '13:00', '14:00'), 30);
+
+        $this->assertSame([
+            40 => ['left: 0%', 'width: 33.333333333333%'],
+            42 => ['left: 50%', 'width: 33.333333333333%'],
+            43 => ['left: 66.666666666667%', 'width: 33.333333333333%'],
+        ], $places);
+    }
+
     /**
      * @return array<string, mixed>
      */

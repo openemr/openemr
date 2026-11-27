@@ -610,7 +610,7 @@ final readonly class VisitListService
                     . ' WHERE `pc_eid` = ?' . self::STILL_THERE,
                     [
                         $start->format('H:i:s'),
-                        $start->add(new DateInterval('PT' . $intervalMinutes . 'M'))->format('H:i:s'),
+                        self::endTime($start, $intervalMinutes),
                         $intervalMinutes * 60,
                         $eventId,
                         ...self::stillThereBinds($entries[$eventId]),
@@ -619,6 +619,17 @@ final readonly class VisitListService
             }
         }
         return $released;
+    }
+
+    /**
+     * The end (H:i:s) of a visit starting at this time and lasting this many minutes, on the
+     * same date. A visit in the day's last slot ends at 24:00:00, as the appointment editor
+     * writes it, not at 00:00:00, which the open-slot search would take as the day's start.
+     */
+    private static function endTime(DateTimeImmutable $start, int $minutes): string
+    {
+        $end = (int) $start->format('G') * 60 + (int) $start->format('i') + $minutes;
+        return sprintf('%02d:%02d:00', intdiv($end, 60), $end % 60);
     }
 
     /**
