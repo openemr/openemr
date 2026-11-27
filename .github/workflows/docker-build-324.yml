@@ -7,6 +7,9 @@ name: Flex 3.24 Dockers Build
 #    PHP 8.5: openemr/openemr:flex-3.24-php-8.5, openemr/openemr:flex-3.24, openemr/openemr:flex
 #
 # php_versions is a JSON array of PHP versions to build.
+# php_versions follows the release branches, not master's composer.json: release
+# branches still pin these images, so keep a version here after master drops it
+# (see docs/maintainer-playbook/php-version-support.md).
 #
 # The php_default will determine the default PHP version (ie. above tag without a php version).
 #
