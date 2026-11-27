@@ -365,8 +365,12 @@ function pnVarPrepHTMLDisplay()
 
     $resarray = [];
     foreach (func_get_args() as $ourvar) {
+        // \022 and \024 are internal tag markers; drop any present in the
+        // input so only the allowed-HTML preparse below can place them.
+        $ourvar = str_replace(["\022", "\024"], '', (string) $ourvar);
+
         // Preparse var to mark the HTML that we want
-        $ourvar = preg_replace($allowedhtml, "\022\\1\024", (string) $ourvar);
+        $ourvar = preg_replace($allowedhtml, "\022\\1\024", $ourvar);
 
         // Prepare var
         $ourvar = htmlspecialchars((string) $ourvar);
