@@ -79,6 +79,20 @@ final class WorkDirectoryTest extends TestCase
         WorkDirectory::open($this->base . '/open/work', '/', $this->filesystem);
     }
 
+    public function testMakesNothingUnderADirectoryOthersCanWriteTo(): void
+    {
+        $this->filesystem->mkdir($this->base . '/open');
+        $this->filesystem->chmod($this->base . '/open', 0o777);
+
+        try {
+            WorkDirectory::open($this->base . '/open/deeper/work', '/', $this->filesystem);
+            $this->fail('A work directory under one others can write to should be refused');
+        } catch (WorkDirectoryException $e) {
+            $this->assertStringContainsString('/open can be written by other users', $e->getMessage());
+        }
+        $this->assertDirectoryDoesNotExist($this->base . '/open/deeper');
+    }
+
     public function testAcceptsADirectoryUnderAStickyOneLikeTmp(): void
     {
         $this->filesystem->mkdir($this->base . '/sticky');

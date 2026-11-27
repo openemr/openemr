@@ -476,6 +476,11 @@ class QueryUtils
      * turn the inner begin, commit and rollback calls into no-ops, so
      * everything $action writes is committed or rolled back together.
      *
+     * An inner rollback is one of those no-ops: it undoes nothing until this
+     * block ends, and then only if the exception reaches it. A callee that
+     * catches its own failure and carries on has its writes committed with
+     * the rest.
+     *
      * @phpstan-template T
      * @param callable(): T $action
      * @return T

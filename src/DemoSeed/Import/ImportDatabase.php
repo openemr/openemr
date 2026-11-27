@@ -2,8 +2,9 @@
 
 /**
  * The few database reads and writes around a CCDA import: finding the new
- * patient, cleaning up the import's audit staging rows, turning the audit
- * log off while importing, and filling in missing UUIDs afterwards.
+ * patient, turning the audit log off while importing, and filling in
+ * missing UUIDs afterwards. The `openemr:ccda-newpatient-import` command
+ * writes the patient directly, without staging it in audit_master.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -50,29 +51,6 @@ class ImportDatabase
             [$pid],
         );
         return array_map(fn (array $row): int => $this->toInt($row['pid'] ?? null), $rows);
-    }
-
-    public function maxAuditMasterId(): int
-    {
-        return $this->singleInt('SELECT COALESCE(MAX(`id`), 0) AS `value` FROM `audit_master`');
-    }
-
-    /**
-     * The CCDA import stages each document in audit_master/audit_details;
-     * the rows are left behind once the patient exists.
-     */
-    public function deleteAuditStagingAbove(int $auditMasterId): void
-    {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM `audit_details` WHERE `audit_master_id` > ?',
-            [$auditMasterId],
-            true,
-        );
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM `audit_master` WHERE `id` > ?',
-            [$auditMasterId],
-            true,
-        );
     }
 
     /**

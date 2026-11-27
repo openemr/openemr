@@ -44,8 +44,11 @@ final readonly class WorkDirectory
     {
         $path = Path::makeAbsolute($path, $currentDirectory);
         if (!file_exists($path) && !is_link($path)) {
+            // Checked before anything is made, so no one else can put a
+            // symlink in place of what is made. mkdir() applies the mode
+            // itself (less the umask), so no chmod() follows it.
+            self::assertSafeToCreate($path);
             $filesystem->mkdir($path, 0700);
-            $filesystem->chmod($path, 0700);
         }
         // From here on the resolved path, so a symlink above the directory
         // can't be pointed elsewhere between the checks and the run.
@@ -110,30 +113,64 @@ final readonly class WorkDirectory
                 $path . ' can be written by other users; use --work-dir with a directory only you can write to',
             );
         }
-        // tempnam() gives a path under the resolved directory, e.g. under
-        // /private/tmp for /tmp on macOS.
         $resolved = realpath($path);
         if ($resolved === false) {
             throw new WorkDirectoryException($path . ' is not a directory');
         }
-        // Without ext-posix there's no portable way to ask for this process's
-        // user id, so compare the directory's owner with a file made here.
+        $user = self::userWritingIn($resolved, $path);
+        if (fileowner($resolved) !== $user) {
+            throw new WorkDirectoryException(
+                $path . ' belongs to another user; use --work-dir with a directory of your own',
+            );
+        }
+        self::assertSafeAncestors($path, dirname($resolved), $user);
+        return $resolved;
+    }
+
+    /**
+     * Checks the nearest directory that exists above a work directory that
+     * doesn't exist yet, and the ones above that, before it is made.
+     *
+     * @throws WorkDirectoryException
+     */
+    private static function assertSafeToCreate(string $path): void
+    {
+        $existing = dirname($path);
+        while (!file_exists($existing) && dirname($existing) !== $existing) {
+            $existing = dirname($existing);
+        }
+        $resolved = realpath($existing);
+        if ($resolved === false || !is_dir($resolved)) {
+            throw new WorkDirectoryException('Can not make ' . $path . ': ' . $existing . ' is not a directory');
+        }
+        self::assertSafeAncestors($path, $resolved, self::userWritingIn($resolved, $path));
+    }
+
+    /**
+     * The user id of this process. Without ext-posix there's no portable way
+     * to ask for it, so this makes a file in the directory and reads its owner.
+     *
+     * @param string $resolved a directory with no symlinks in its path
+     * @throws WorkDirectoryException
+     */
+    private static function userWritingIn(string $resolved, string $path): int
+    {
+        // tempnam() gives a path under the resolved directory, e.g. under
+        // /private/tmp for /tmp on macOS, and falls back to the system temp
+        // directory if it can't write here.
         $probe = @tempnam($resolved, '.owner-');
         if ($probe === false || dirname($probe) !== $resolved) {
             if ($probe !== false) {
                 unlink($probe);
             }
-            throw new WorkDirectoryException('Can not write to ' . $path);
+            throw new WorkDirectoryException('Can not write to ' . $resolved . ' for ' . $path);
         }
         $user = fileowner($probe);
         unlink($probe);
-        if ($user === false || fileowner($resolved) !== $user) {
-            throw new WorkDirectoryException(
-                $path . ' belongs to another user; use --work-dir with a directory of your own',
-            );
+        if ($user === false) {
+            throw new WorkDirectoryException('Can not write to ' . $resolved . ' for ' . $path);
         }
-        self::assertSafeAncestors($path, $resolved, $user);
-        return $resolved;
+        return $user;
     }
 
     /**
@@ -143,13 +180,14 @@ final readonly class WorkDirectory
      * can write to it, it must be sticky (like /tmp), so they can't rename
      * what isn't theirs.
      *
+     * @param string $from the first directory to check, with no symlinks in
+     *        its path; the ones above it are checked too
      * @throws WorkDirectoryException
      */
-    private static function assertSafeAncestors(string $path, string $resolved, int $user): void
+    private static function assertSafeAncestors(string $path, string $from, int $user): void
     {
-        $directory = $resolved;
-        while (($parent = dirname($directory)) !== $directory) {
-            $directory = $parent;
+        $directory = $from;
+        while (true) {
             $owner = fileowner($directory);
             $permissions = fileperms($directory);
             if ($owner === false || $permissions === false) {
@@ -167,6 +205,11 @@ final readonly class WorkDirectory
                     . '; use --work-dir with a directory of your own',
                 );
             }
+            $parent = dirname($directory);
+            if ($parent === $directory) {
+                return;
+            }
+            $directory = $parent;
         }
     }
 }

@@ -217,9 +217,8 @@ final class PlanWriter
         if ($unknown !== []) {
             throw new LoadException('patient_data has no column(s): ' . implode(', ', $unknown));
         }
-        if ($this->patientService->databaseUpdate(['pid' => $update->pid, ...$fields]) === false) {
-            throw new LoadException('Could not update patient ' . $update->pid);
-        }
+        // Throws if the save fails.
+        $this->patientService->databaseUpdate(['pid' => $update->pid, ...$fields]);
     }
 
     private function writePerson(PlannedPerson $planned): int

@@ -65,18 +65,10 @@ final readonly class CcdaPatientImporter
         $previousAuditSettings = $this->database->disableAuditLog();
         try {
             foreach ($patients as $index => $patient) {
-                $maxAuditBefore = $this->database->maxAuditMasterId();
-                try {
-                    $importedPatient = $this->importOne($patient);
-                    $imported[] = $importedPatient;
-                    if ($onImported !== null) {
-                        $onImported($importedPatient, $index + 1, count($patients));
-                    }
-                } finally {
-                    // After the patient is recorded, so a failure here can't
-                    // leave an imported patient out of the manifest; also
-                    // after a failed import, which stages rows too.
-                    $this->database->deleteAuditStagingAbove($maxAuditBefore);
+                $importedPatient = $this->importOne($patient);
+                $imported[] = $importedPatient;
+                if ($onImported !== null) {
+                    $onImported($importedPatient, $index + 1, count($patients));
                 }
             }
         } finally {
@@ -117,6 +109,9 @@ final readonly class CcdaPatientImporter
             ));
         }
 
+        // The command doesn't report the pid, so look for it. The import lock
+        // keeps other runs of the loader out; a patient someone adds by hand
+        // meanwhile makes this stop rather than guess.
         $newPids = $this->database->pidsAbove($maxPidBefore);
         if (count($newPids) !== 1) {
             throw new ImportException(sprintf(
