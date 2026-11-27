@@ -44,10 +44,9 @@ on:
         required: true
         type: choice
         options:
-        - apache_83_123
-        - apache_83_123_redis_sentinel_mtls
-        - apache_83_123_upgrade
         - apache_84_123
+        - apache_84_123_redis_sentinel_mtls
+        - apache_84_123_upgrade
         - apache_85_1011
         - apache_85_114
         - apache_85_118
@@ -58,7 +57,6 @@ on:
         - apache_85_123_upgrade
         - apache_85_84
         - apache_85_93
-        - nginx_83
         - nginx_84
         - nginx_85
         - nginx_86

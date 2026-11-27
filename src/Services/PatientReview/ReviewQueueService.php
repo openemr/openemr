@@ -219,8 +219,8 @@ final class ReviewQueueService
     }
 
     /**
-     * Records in the audit log that open requests were shown outside staff review: a patient app
-     * reading back what it submitted. Nothing is recorded for an empty list.
+     * Records in the audit log that open requests were shown: to a patient app reading back what
+     * it submitted, or to staff on a review screen. Nothing is recorded for an empty list.
      *
      * As with the audit of a change, a failure to write the entry is logged for the operator
      * rather than failing the read.
@@ -243,25 +243,62 @@ final class ReviewQueueService
     }
 
     /**
+     * Records in the audit log that a submission, or a change to one, was refused. As with
+     * recordAccess(), a failure to write the entry is logged for the operator; the refusal
+     * still stands.
+     *
+     * @param string $reason why, as the caller names it
+     * @param ?string $targetUuid the request uuid a change was sent to; null for a new submission
+     */
+    public function recordRefusal(
+        int $pid,
+        ReviewActor $actor,
+        ReviewType $type,
+        FhirResourceType $resourceType,
+        string $clientId,
+        string $reason,
+        ?string $targetUuid = null,
+    ): void {
+        try {
+            $this->auditTrail->recordRefusal($pid, $actor, $type, $resourceType, $clientId, $reason, $targetUuid);
+        } catch (\RuntimeException | \LogicException | DbalException $e) {
+            $this->logger->error('A review request was refused but the audit log entry could not be written', [
+                'pid' => $pid,
+                'reason' => $reason,
+                'exception' => $e,
+            ]);
+        }
+    }
+
+    /**
      * Approves a pending request and applies it to the chart through the handler for its type.
      * If the handler throws, nothing changes and the request stays pending.
      *
      * @param ?string $reviewedRevision the revision() the reviewer was shown; required for a
      *                                  request its submitter can replace (see revise())
+     * @param ?ReviewApprovalOptions $options what the reviewer chose beyond approving, passed to
+     *                                        the handler
      * @throws ReviewHandlerMissingException when no handler is registered for the type
      * @throws ReviewRequestChangedException when the request was replaced since that revision
      */
-    public function approve(int $id, ReviewActor $reviewer, ?string $note = null, ?string $reviewedRevision = null): ReviewRequest
-    {
-        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision): ReviewRequest {
+    public function approve(
+        int $id,
+        ReviewActor $reviewer,
+        ?string $note = null,
+        ?string $reviewedRevision = null,
+        ?ReviewApprovalOptions $options = null,
+    ): ReviewRequest {
+        return $this->atomically(function () use ($id, $reviewer, $note, $reviewedRevision, $options): ReviewRequest {
             $request = $this->forDecision($id, $reviewedRevision);
             $handler = $this->handlers[$request->type->value]
                 ?? throw ReviewHandlerMissingException::forType($request->type);
 
             $approved = $this->transition($request, ReviewStatus::Approved, $reviewer, $note);
-            $handler->apply($approved, $reviewer);
+            // The handler's note, such as where in the chart it was filed, goes on the entry that
+            // completes the request.
+            $applied = $handler->apply($approved, $reviewer, $options);
 
-            return $this->transition($approved, ReviewStatus::Completed, $reviewer, null);
+            return $this->transition($approved, ReviewStatus::Completed, $reviewer, $applied);
         });
     }
 

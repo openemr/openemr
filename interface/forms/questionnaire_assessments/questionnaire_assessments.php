@@ -20,6 +20,7 @@ use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -306,6 +307,12 @@ $responseForJs = json_encode(
     $questionnaireResponse,
     JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 );
+// Auditing a portal questionnaire that is in no encounter: staff may file it into one of the
+// patient's encounters when they save or chart it (save.php checks the choice).
+$encounterChoices = $auditForm !== null && !$auditForm->locked && $auditForm->encounter === 0
+    ? (new QuestionnaireEncounterFiling())->latestEncounters($auditForm->pid)
+    : [];
+
 $formAction = $rootdir . '/forms/questionnaire_assessments/save.php?form_id=' . urlencode((string) $formid);
 if ($isPortal) {
     $formAction .= '&isPortal=1';
@@ -496,6 +503,20 @@ $formAction .= '&mode=' . urlencode($mode);
             <?php } else { ?>
                 <input type="hidden" id="form_name" name="form_name" value="<?php echo attr($formName); ?>" />
                 <h5 class="mt-2"><?php echo text($assessmentTitle); ?></h5>
+            <?php } ?>
+            <?php if ($encounterChoices !== []) { ?>
+                <div class="form-inline mt-2">
+                    <label class="font-weight-bold mr-2" for="audit_encounter"><?php echo xlt('Add to encounter'); ?>:</label>
+                    <select class="form-control form-control-sm" id="audit_encounter" name="audit_encounter">
+                        <option value=""><?php echo xlt('None (assessments only)'); ?></option>
+                        <?php foreach ($encounterChoices as $choice) { ?>
+                            <option value="<?php echo attr((string) $choice['encounter']); ?>">
+                                <?php echo text($choice['date'] . ($choice['reason'] !== '' ? ': ' . $choice['reason'] : '')); ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                    <small class="form-text text-muted ml-2"><?php echo xlt('Filed there when you save or chart this document.'); ?></small>
+                </div>
             <?php } ?>
         </div>
 

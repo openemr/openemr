@@ -311,7 +311,7 @@ class sasl_client_class
                     $status=$this->driver->Start($this,$message,$interactions);
                     switch ($status) {
                         case SASL_NOMECH:
-                            Unset($this->driver);
+                            $this->driver = null;
                             if (strlen((string) $no_mechanism_error)==0)
                                 $no_mechanism_error=$this->error;
                             $this->error="";
@@ -320,12 +320,12 @@ class sasl_client_class
                             $this->mechanism=$mechanism;
                             return($status);
                         default:
-                            Unset($this->driver);
+                            $this->driver = null;
                             $this->error="";
                             return($status);
                     }
                 } else {
-                    Unset($this->driver);
+                    $this->driver = null;
                     if (strlen((string) $no_mechanism_error)==0)
                         $no_mechanism_error=$this->error;
                     $this->error="";

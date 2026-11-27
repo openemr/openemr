@@ -575,7 +575,7 @@ class ApiScopeSchemeV2EquivalenceTest extends TestCase
                 'scope' => $scopeString,
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR should succeed. Body: ' . (string) $reg->getBody());
         $data = $this->decodeJson((string) $reg->getBody());
         $this->assertIsString($data['client_id'] ?? null);
         $this->assertIsString($data['client_secret'] ?? null);

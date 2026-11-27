@@ -136,7 +136,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
                 'scope' => 'openid fhirUser offline_access',
             ],
         ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
+        $this->assertSame(201, $reg->getStatusCode(), 'DCR registration should succeed');
         $clientData = json_decode((string) $reg->getBody(), true);
         $this->assertIsArray($clientData);
         $this->assertArrayHasKey('client_id', $clientData);

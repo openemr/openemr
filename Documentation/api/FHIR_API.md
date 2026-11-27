@@ -115,7 +115,7 @@ https://localhost:9300/apis/alternate/fhir
 ```
 GET https://localhost:9300/apis/default/fhir/Patient/123
 GET https://localhost:9300/apis/default/fhir/Observation?patient=123
-POST https://localhost:9300/apis/default/fhir/Patient/$docref
+POST https://localhost:9300/apis/default/fhir/DocumentReference/$docref
 ```
 
 ## Authentication

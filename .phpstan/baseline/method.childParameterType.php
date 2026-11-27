@@ -672,11 +672,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition \\(bool\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:search\\(\\) should be contravariant with parameter \\$isAndCondition \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',

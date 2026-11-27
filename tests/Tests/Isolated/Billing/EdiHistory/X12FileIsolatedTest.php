@@ -412,4 +412,24 @@ class X12FileIsolatedTest extends TestCase
             }
         }
     }
+
+    public function testTransactionLookupSkipsClaimWithoutClosingSegment(): void
+    {
+        // A file cut off before its SE segment opens the claim's transaction
+        // but never closes it. The lookup used to read the missing segment
+        // count ("Undefined array key \"count\"") and return one empty
+        // transaction; the claim must be reported as not found instead.
+        $clm01 = 'PATIENT001';
+        $complete = $this->build837($clm01);
+        $sePosition = strpos($complete, 'SE*24*0001~');
+        self::assertIsInt($sePosition);
+        $truncated = substr($complete, 0, $sePosition);
+
+        $x = new X12File();
+
+        $this->assertSame([], $x->edih_x12_transaction($clm01, '', $truncated));
+
+        // The same text with its SE segment still yields the transaction.
+        $this->assertCount(1, $x->edih_x12_transaction($clm01, '', $complete));
+    }
 }

@@ -23,12 +23,19 @@ export class InsurancePolicyService
 
     __insurancePatientData = null;
 
-    constructor(csrfToken, apiURL, insuranceProviderList, types, puuid) {
+    /**
+     * Whether the user may reopen charges for billing (the acct/bill/write ACL).
+     * @type {boolean}
+     */
+    __canReopenCharges = false;
+
+    constructor(csrfToken, apiURL, insuranceProviderList, types, puuid, canReopenCharges = false) {
         this.__apiCSRFToken = csrfToken;
         this.__apiURL = apiURL;
         this.__insuranceProviderList = insuranceProviderList;
         this.__types = types;
         this.__puuid = puuid;
+        this.__canReopenCharges = canReopenCharges === true;
     }
 
     apiRequest(url) {
@@ -403,6 +410,53 @@ export class InsurancePolicyService
                     throw new Error("Failed to save insurance policy as no data came back");
                 }
             });
+    }
+
+    #reopenChargesUrl(policyUuid) {
+        return this.__apiURL + 'patient/' + this.__puuid + '/insurance/' + policyUuid + '/$reopen-charges';
+    }
+
+    /**
+     * The visits billed before the policy was on file, which its payer was never billed for.
+     *
+     * @param {InsurancePolicyModel} insurancePolicy a saved policy
+     * @returns {Promise<{encounter: number, date: string, last_billed_to: ?string, balance: string}[]>}
+     *          empty when the user may not reopen charges
+     */
+    getReopenCandidates(insurancePolicy) {
+        if (!this.__canReopenCharges || !insurancePolicy || !insurancePolicy.uuid) {
+            return Promise.resolve([]);
+        }
+        return this.apiRequest(this.#reopenChargesUrl(insurancePolicy.uuid))
+            .then(resultData => (resultData.data && resultData.data.encounters) || []);
+    }
+
+    /**
+     * Reopens the visits for billing to the policy's payer.
+     *
+     * @param {string} policyUuid
+     * @param {number[]} encounters
+     * @returns {Promise<number[]>} the encounters the server reopened
+     */
+    reopenCharges(policyUuid, encounters) {
+        window.top.restoreSession();
+        return window.fetch(this.#reopenChargesUrl(policyUuid),
+            {
+                method: 'POST'
+                ,redirect: 'manual'
+                ,headers: {
+                    'apicsrftoken': this.__apiCSRFToken
+                    ,'Content-Type': 'application/json'
+                }
+                ,body: JSON.stringify({encounters: encounters})
+            })
+            .then(result => {
+                if (!result.ok) {
+                    throw new Error("Failed to reopen charges, status " + result.status);
+                }
+                return result.json();
+            })
+            .then(resultData => (resultData.data && resultData.data.reopened) || []);
     }
 
     #removePolicyInMemory(policy) {

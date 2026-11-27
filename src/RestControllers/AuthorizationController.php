@@ -570,12 +570,12 @@ class AuthorizationController implements LoggerAwareInterface
             if (isset($params['require_auth_time'])) {
                 $params['require_auth_time'] = ($params['require_auth_time'] === 1);
             }
-            // send response
+            // RFC 7591 §3.2.1 — client registration returns 201 Created.
             $jsonBody = json_encode(array_merge($client_json, $params));
             $response = $response->withHeader("Cache-Control", "no-store")
                 ->withHeader("Pragma", "no-cache")
                 ->withHeader('Content-Type', 'application/json')
-                ->withStatus(Response::HTTP_OK)
+                ->withStatus(Response::HTTP_CREATED)
                 ->withBody(Stream::create($jsonBody));
             $this->session->invalidate();
             return $response;
@@ -1100,6 +1100,22 @@ class AuthorizationController implements LoggerAwareInterface
         }
         $continueLogin = false;
         if ($request->request->has('user_role')) {
+            // The login form is rendered server-side with user_role set to
+            // 'api' (staff) or 'portal-api' (patient). Only those two
+            // values reach a legitimate MFA-aware branch downstream; any
+            // other value falls through AuthUtils' otherAuth path with no
+            // MFA gate applied. Reject anything outside the allowlist up
+            // front so the downstream flow can keep its user_role === 'api'
+            // MFA check without having to re-validate at every step.
+            if (!in_array($request->request->get('user_role'), ['api', 'portal-api'], true)) {
+                $this->logger->error("AuthorizationController->userLogin() user_role outside allowlist", [
+                    'user_role' => $request->request->get('user_role'),
+                ]);
+                $request->request->replace();
+                $request->overrideGlobals();
+                $loginTwigVars['invalid'] = xl("Sorry, verify the information you have entered is correct");
+                return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
+            }
             if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $session, 'oauth2')) {
                 $this->logger->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfViolation(toScreen: false);
@@ -1186,7 +1202,7 @@ class AuthorizationController implements LoggerAwareInterface
                 $ip = collectIpAddresses();
                 AuthUtils::resetMfaChallengeCounters(
                     is_string($mfaUsername) ? $mfaUsername : null,
-                    $ip['ip_string']
+                    $ip['ip']
                 );
             }
         } catch (Throwable $error) {
@@ -1197,6 +1213,13 @@ class AuthorizationController implements LoggerAwareInterface
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
 
+        // Password and (if enrolled) MFA are both validated at this point.
+        // Bind the OAuth session to the authenticated user now — deferred
+        // from verifyLogin() so the identity is only established once the
+        // full authentication sequence has completed.
+        if ($request->request->get('user_role') === 'api' && $this->userId !== null) {
+            $session->set('user_id', $this->getUserUuid($this->userId, 'users'));
+        }
         $request->request->remove('username');
         $request->request->remove('password');
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
@@ -1476,13 +1499,18 @@ class AuthorizationController implements LoggerAwareInterface
         } else {
             $this->logger->debug("AuthorizationController->verifyLogin() login attempt passed", ['username' => $username, 'email' => $email, 'type' => $type]);
         }
-        // TODO: should user_id be set to be a uuid here?
         $userId = $auth->getUserId();
         $this->logger->debug("AuthorizationController->verifyLogin() getUserId", ['username' => $username, 'userId' => $userId, 'email' => $email, 'type' => $type]);
         if (isset($userId) && $this->userId = $userId) {
-            $this->session->set('user_id', $this->getUserUuid($this->userId, 'users'));
-            $this->logger->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
-                'username' => $username, 'email' => $email, 'type' => $type]);
+            // Hold the identity in the controller only. The OAuth session's
+            // user_id is set later in userLogin(), after any required MFA
+            // step has completed, so that an intermediate return (MFA form
+            // render, wrong MFA code, MFA exception) does not leave an
+            // authenticated identity on the session.
+            $this->logger->debug("AuthorizationController->verifyLogin() user login", [
+                'user_id_pending' => $this->userId,
+                'username' => $username, 'email' => $email, 'type' => $type,
+            ]);
             return true;
         }
         if ($id = $auth->getPatientId()) {

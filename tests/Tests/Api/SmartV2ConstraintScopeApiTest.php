@@ -704,7 +704,7 @@ class SmartV2ConstraintScopeApiTest extends TestCase
             ],
         ]);
         $this->assertSame(
-            200,
+            201,
             $reg->getStatusCode(),
             'DCR with a V2 constrained scope must succeed. Body: ' . (string) $reg->getBody()
         );

@@ -186,8 +186,10 @@ class FhirObservationPatientServiceTest extends TestCase
      */
     private function updatePatientData(array $fieldValues): bool
     {
-        $updateData = array_merge(['uuid' => $this->testPatientData['uuid']], $fieldValues);
-        $updateResult = $this->patientService->update($this->testPatientData['uuid'], $updateData);
+        $uuid = $this->testPatientData['uuid'];
+        $this->assertIsString($uuid);
+        $updateData = array_merge(['uuid' => $uuid], $fieldValues);
+        $updateResult = $this->patientService->update($uuid, $updateData);
 
         if (!$updateResult->isValid()) {
             $this->fail("Failed to update patient data: " . implode(", ", $updateResult->getInternalErrors()));
@@ -372,8 +374,10 @@ class FhirObservationPatientServiceTest extends TestCase
             $this->updatePatientData(['occupation' => 'test_occupation']);
 
             // Update second patient with sexual orientation data
-            $updateData = ['uuid' => $secondPatientResult['uuid'], 'sexual_orientation' => 'test_heterosexual'];
-            $updateResult = $this->patientService->update($secondPatientResult['uuid'], $updateData);
+            $secondUuid = $secondPatientResult['uuid'];
+            $this->assertIsString($secondUuid);
+            $updateData = ['uuid' => $secondUuid, 'sexual_orientation' => 'test_heterosexual'];
+            $updateResult = $this->patientService->update($secondUuid, $updateData);
             $this->assertTrue($updateResult->isValid(), "Should update second patient successfully");
 
             // Search for first patient's observations only

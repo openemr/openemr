@@ -70,7 +70,7 @@ jobs:
       # commit trailer -- checked per-version so `Test-PHP: 8.7` opts into 8.7
       # alone while `Test-Mode: full` opts into every pre-release.
       run: |
-        supported=( '8.3' '8.4' '8.5' '8.6' )
+        supported=( '8.4' '8.5' '8.6' )
         prerelease=( '8.7' )
 
         case "${EVENT_NAME}" in
@@ -126,7 +126,12 @@ jobs:
       uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php-version }}
-        coverage: xdebug
+        # pcov is much faster than xdebug for line coverage, and new PHP
+        # versions get a stable build sooner. pcov.directory must be pinned:
+        # left unset, pcov narrows collection to src/ and silently drops
+        # library/, interface/ and the rest of the tree.
+        coverage: pcov
+        ini-values: pcov.directory=${{ github.workspace }}
 
     - name: Run isolated tests with coverage
       run: |

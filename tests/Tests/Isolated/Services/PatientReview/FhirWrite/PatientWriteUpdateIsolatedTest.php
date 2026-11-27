@@ -228,6 +228,9 @@ class PatientWriteUpdateIsolatedTest extends TestCase
                 fn(): ReviewRequest => $this->hold()->replace($this->context(), PatientWritableType::VitalSignObservation, $request->uuid, $resource)
             );
         }
+        $this->assertCount(2, $this->trail->refusals, 'each refused update is audited');
+        $this->assertSame('IdMismatch (400)', $this->trail->refusals[0]['reason']);
+        $this->assertSame($request->uuid, $this->trail->refusals[0]['target'], 'naming the request it was sent to');
     }
 
     /**

@@ -160,7 +160,7 @@ class OAuth2AttackScenarioTest extends TestCase
             'redirect_uris' => ['com.openemr.attacktest:/oauth2redirect/example-provider'],
         ]);
         $this->assertSame(
-            200,
+            201,
             $resp['status'],
             'DCR must accept an RFC 8252 private-use scheme redirect_uri. Body: ' . $resp['body']
         );
@@ -1315,7 +1315,7 @@ class OAuth2AttackScenarioTest extends TestCase
             'client_name' => 'OAuth2AttackScenarioTest-' . $tag . '-' . bin2hex(random_bytes(3)),
             'scope' => 'openid api:oemr offline_access',
         ], $overrides));
-        $this->assertSame(200, $resp['status'], 'DCR for the attack-suite fixture must succeed. Body: ' . $resp['body']);
+        $this->assertSame(201, $resp['status'], 'DCR for the attack-suite fixture must succeed. Body: ' . $resp['body']);
         $data = json_decode($resp['body'], true);
         $this->assertIsArray($data);
         $this->assertIsString($data['client_id'] ?? null);

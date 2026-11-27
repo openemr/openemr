@@ -21,9 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         php:
-        - 8.3
         - 8.4
         - 8.5
+        - 8.6
         suite:
         - api
 
@@ -97,6 +97,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         report_type: test_results
+        flags: frontcontroller-${{ matrix.suite }}-php${{ matrix.php }}
 
   # Future jobs:
   # - apache (mod_php)

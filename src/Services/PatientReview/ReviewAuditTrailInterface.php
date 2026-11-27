@@ -22,10 +22,26 @@ interface ReviewAuditTrailInterface
     public function record(ReviewRequest $request, ?ReviewStatus $from, ReviewActor $actor, ?string $note): void;
 
     /**
-     * Records that open requests were shown outside staff review, such as a patient app reading
-     * back what it submitted.
+     * Records that open requests were shown: to a patient app reading back what it submitted,
+     * or to staff on a review screen.
      *
      * @param non-empty-list<ReviewRequest> $requests all for one patient
      */
     public function recordAccess(array $requests, ReviewActor $actor): void;
+
+    /**
+     * Records a submission, or a change to one, that was refused, so nothing was added or changed.
+     *
+     * @param string $reason why, as the caller names it (e.g. "TooLarge (413)")
+     * @param ?string $targetUuid the request uuid a change was sent to; null for a new submission
+     */
+    public function recordRefusal(
+        int $pid,
+        ReviewActor $actor,
+        ReviewType $type,
+        FhirResourceType $resourceType,
+        string $clientId,
+        string $reason,
+        ?string $targetUuid,
+    ): void;
 }

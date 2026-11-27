@@ -28,27 +28,33 @@ jobs:
         database:
         - name: MySQL 8.4 (LTS)
           image: mysql:8.4
+          flag: mysql-8.4
           health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
         - name: MySQL 9.7 (LTS)
           image: mysql:9.7
+          flag: mysql-9.7
           health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
         - name: MariaDB 10.11 (LTS)
           image: mariadb:10.11
+          flag: mariadb-10.11
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
         - name: MariaDB 11.4 (LTS)
           image: mariadb:11.4
+          flag: mariadb-11.4
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
         - name: MariaDB 11.8 (LTS)
           image: mariadb:11.8
+          flag: mariadb-11.8
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
         - name: MariaDB 12.3 (LTS)
           image: mariadb:12.3
+          flag: mariadb-12.3
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
           coverage: true
         php:
-        - version: '8.3'
         - version: '8.4'
         - version: '8.5'
+        - version: '8.6'
           coverage: true
     env:
       # Only collect coverage on one matrix arm to save time
@@ -78,7 +84,12 @@ jobs:
       uses: ./.github/actions/setup-php-composer
       with:
         # Action inputs are strings; map the env flag to a supported driver.
-        coverage: ${{ env.COLLECT_COVERAGE == 'true' && 'xdebug' || 'none' }}
+        # pcov is much faster than xdebug for line coverage, and new PHP
+        # versions get a stable build sooner. pcov.directory must be pinned:
+        # left unset, pcov narrows collection to src/ and silently drops
+        # library/, interface/ and the rest of the tree.
+        coverage: ${{ env.COLLECT_COVERAGE == 'true' && 'pcov' || 'none' }}
+        ini-values: pcov.directory=${{ github.workspace }}
         php-version: ${{ matrix.php.version }}
 
     - name: Run CLI installer
@@ -93,6 +104,9 @@ jobs:
     - name: Run PHPUnit
       run: vendor/bin/phpunit ${{ env.COLLECT_COVERAGE == 'true' && '--coverage-text --coverage-clover clover.xml' || '' }} --log-junit junit.xml --testsuite common,controllers,fixtures,validators,unit
 
+    # Upload under a flag so codecov.yml's carryforward applies. Unflagged
+    # coverage can't be carried forward: on a commit where Codecov doesn't
+    # end up with this upload, its coverage drops out of the project total.
     - name: Upload coverage
       if: ${{ !cancelled() && env.COLLECT_COVERAGE == 'true' }}
       uses: codecov/codecov-action@v7
@@ -100,6 +114,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
         disable_search: true
+        flags: integration-php${{ matrix.php.version }}-${{ matrix.database.flag }}
 
     - name: Upload test results
       if: ${{ !cancelled() }}
@@ -107,3 +122,4 @@ jobs:
       with:
         report_type: test_results
         token: ${{ secrets.CODECOV_TOKEN }}
+        flags: integration-php${{ matrix.php.version }}-${{ matrix.database.flag }}

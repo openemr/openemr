@@ -501,6 +501,39 @@ function closePatientChart()
     }
 }
 
+// Opens the current patient, and its open encounter, in another copy of OpenEMR, as the
+// Patient Finder's "new window" option does: main_screen.php gives it its own session.
+function openPatientElsewhere(target)
+{
+    const patient = app_view_model.application_data.patient();
+    if (!patient) {
+        return;
+    }
+    const form = $('<form method="post"></form>').attr({
+        target: target,
+        action: webroot_url + '/interface/main/main_screen.php?auth=login&site=' + encodeURIComponent(site_id_js),
+    });
+    const fields = {csrf_token_form: csrf_token_js, patientID: patient.pid(), encounterID: patient.selectedEncounterID() || ''};
+    for (const [name, value] of Object.entries(fields)) {
+        $('<input type="hidden">').attr('name', name).val(value).appendTo(form);
+    }
+    top.restoreSession();
+    form.appendTo('body').trigger('submit').remove();
+}
+
+function openPatientInNewWindow()
+{
+    // A size makes the browser open a window rather than a tab.
+    const name = 'openemr_patient_' + Date.now();
+    const opened = window.open('', name, 'popup,width=' + window.outerWidth + ',height=' + window.outerHeight);
+    openPatientElsewhere(opened ? name : '_blank');
+}
+
+function openPatientInNewTab()
+{
+    openPatientElsewhere('_blank');
+}
+
 function clearPatient(openFinder = true)
 {
     top.restoreSession();

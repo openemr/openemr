@@ -174,7 +174,7 @@ class MfaUtils
         // out by the password-verify-success reset that happens on
         // every login attempt.
         $ip = collectIpAddresses();
-        $callerIp = $ip['ip_string'];
+        $callerIp = $ip['ip'];
         // Resolve the username from the uid the constructor loaded MFA
         // rows for, not from $_POST. The web login form posts 'authUser'
         // but the OAuth2 password grant posts 'username' — pulling from
@@ -311,7 +311,7 @@ class MfaUtils
         // recordFailedMfaChallenge helpers so both second-factor
         // methods share one throttle across users and IPs.
         $ip = collectIpAddresses();
-        $callerIp = $ip['ip_string'];
+        $callerIp = $ip['ip'];
         $postAuthUser = $_POST['authUser'] ?? null;
         $userRow = QueryUtils::querySingleRow(
             "SELECT `username` FROM `users_secure` WHERE `id` = ?",
