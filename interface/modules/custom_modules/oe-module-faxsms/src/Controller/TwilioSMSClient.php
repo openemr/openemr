@@ -102,7 +102,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
             $message = $twilio->messages->create(
                 $toPhone,
                 [
-                    "body" => text($message),
+                    "body" => $message,
                     "from" => attr($from)
                 ]
             );
