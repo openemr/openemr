@@ -569,7 +569,7 @@ class PatientWriteApprovalDatabaseTest extends TestCase
      */
     public function testAnEncounterApprovalCannotUseIsRefusedAndNothingIsWritten(): void
     {
-        $other = $this->encounter('2026-11-22', 'Someone else', $this->pid + 1000000);
+        $other = $this->encounter('2026-11-22', 'Someone else', $this->otherPatient());
         $own = $this->encounter('2026-11-20', 'Annual visit');
         $plain = $this->heldResponse();
         $naming = $this->hold(

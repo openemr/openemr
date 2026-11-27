@@ -106,15 +106,16 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
      */
     public function testWhatCannotBeFiledIsRefusedAndNothingChanges(): void
     {
+        $otherPid = $this->otherPatient();
         $own = $this->encounter('2026-11-20', 'Annual visit');
-        $other = $this->encounter('2026-11-21', 'Someone else', $this->pid + 1000000);
+        $other = $this->encounter('2026-11-21', 'Someone else', $otherPid);
         $waiting = $this->portalForm('resp-waiting');
         $filed = $this->portalForm('resp-in-visit', $own);
 
         $attempts = [
             "another patient's encounter" => [$waiting, $this->pid, $other],
             'a form already in an encounter' => [$filed, $this->pid, $own],
-            "another patient's form" => [$waiting, $this->pid + 1000000, $other],
+            "another patient's form" => [$waiting, $otherPid, $other],
         ];
         foreach ($attempts as $label => [$formId, $pid, $encounter]) {
             try {
@@ -179,7 +180,8 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
     {
         $older = $this->encounter('2026-10-01', "Knee pain\nleft side");
         $newer = $this->encounter('2026-11-20', str_repeat('Long reason ', 10));
-        $this->encounter('2026-11-22', 'Someone else', $this->pid + 1000000);
+        $otherPid = $this->otherPatient();
+        $this->encounter('2026-11-22', 'Someone else', $otherPid);
 
         $choices = $this->filing->latestEncounters($this->pid);
 
@@ -188,7 +190,7 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         $this->assertSame('Knee pain', $choices[1]['reason'], 'the first line of the reason');
         $this->assertStringEndsWith('…', $choices[0]['reason'], 'a long reason is cut short');
         $this->assertTrue($this->filing->isPatientEncounter($this->pid, $older));
-        $this->assertFalse($this->filing->isPatientEncounter($this->pid + 1000000, $older));
+        $this->assertFalse($this->filing->isPatientEncounter($otherPid, $older));
     }
 
     private function encounter(string $date, string $reason, ?int $pid = null, ?string $sensitivity = null): int
@@ -249,6 +251,27 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         );
 
         return self::id($value);
+    }
+
+    /**
+     * Another patient, removed with the test patient (it shares the pubpid).
+     */
+    private function otherPatient(): int
+    {
+        $other = (new PatientService())->insert([
+            'DOB' => '1970-01-01',
+            'fname' => 'Other',
+            'lname' => 'Patient',
+            'sex' => 'Female',
+            'pubpid' => self::PUBPID,
+        ]);
+        $this->assertTrue($other->isValid(), 'other patient');
+        $ids = $other->getFirstDataResult();
+        $this->assertIsArray($ids);
+        $pid = self::id($ids['pid'] ?? null);
+        $this->assertNotNull($pid, 'other patient pid');
+
+        return $pid;
     }
 
     /**
