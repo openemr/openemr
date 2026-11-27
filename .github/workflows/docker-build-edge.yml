@@ -1,11 +1,15 @@
 name: Flex Edge Dockers Nightly Build
 
-# This workflow builds the OpenEMR Flex Docker images with Alpine Edge and PHP versions 8.4 and 8.5.
+# This workflow builds the OpenEMR Flex Docker images with Alpine Edge and PHP versions 8.3, 8.4, and 8.5.
 # And in this configuration will create following dockers (and tags):
+#    PHP 8.3: openemr/openemr:flex-edge-php-8.3
 #    PHP 8.4: openemr/openemr:flex-edge-php-8.4
 #    PHP 8.5: openemr/openemr:flex-edge-php-8.5, openemr/openemr:flex-edge
 #
 # php_versions is a JSON array of PHP versions to build.
+# php_versions follows the release branches, not master's composer.json: release
+# branches still pin these images, so keep a version here after master drops it
+# (see docs/maintainer-playbook/php-version-support.md).
 #
 # The php_default will determine the default PHP version (ie. above tag without a php version).
 #
@@ -22,7 +26,7 @@ jobs:
     with:
       is_default_flex: false
       alpine_version: "edge"
-      php_versions: '["8.4", "8.5"]'
+      php_versions: '["8.3", "8.4", "8.5"]'
       php_default: "8.5"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
