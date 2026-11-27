@@ -1318,8 +1318,8 @@ $GLOBALS_METADATA = [
         'void_checkout_reopen' => [
             xl('Void Checkout and Reopen in Fee Sheet'),
             'bool',                           // data type
-            '1',                              // default = true
-            xl('Void Checkout and Reopen in Fee Sheet')
+            '0',                              // default = false
+            xl('When on, re-opening a billed visit from the fee sheet also voids its checkout: every payment and adjustment posted to the visit is removed and has to be entered again. When off, re-opening only marks the charges as not billed.')
         ],
 
         'support_fee_sheet_line_item_provider' => [

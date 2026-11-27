@@ -1964,7 +1964,9 @@ class BillingUtilities
                 );
             }
 
-            self::reOpenEncounterForBilling($patient_id, $encounter_id);
+            // The product lines of the voided checkout are cleared above; the others keep
+            // their bill dates for a later void.
+            self::reOpenEncounterForBilling($patient_id, $encounter_id, false);
         } elseif ($usingirnpools) {
             // Non-purge means just assign a new invoice reference number.
             $new_invoice_refno = self::updateInvoiceRefNumber();
@@ -1977,20 +1979,36 @@ class BillingUtilities
         }
     }
 
-    // Common function for re-opening an encounter
-    public static function reOpenEncounterForBilling($patient_id, $encounter_id)
+    /**
+     * Re-opens an encounter for billing without voiding anything: its charges go back to
+     * unbilled and its billing levels and statement count restart. Payments and adjustments
+     * stay posted. The statements are written in one transaction, so a failure leaves the
+     * encounter as it was.
+     *
+     * @param bool $productLines also put the encounter's product lines (drug_sales) back to
+     *   unbilled: one left billed stays read-only on the fee sheet, and a visit with only
+     *   products would still read as billed. A void passes false: it has cleared the product
+     *   lines of the checkout it voids, and the bill dates of the encounter's other checkouts
+     *   are what a later void finds them by.
+     */
+    public static function reOpenEncounterForBilling($patient_id, $encounter_id, bool $productLines = true)
     {
-        sqlStatement(
-            "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
-            "pid = ? AND encounter = ? AND activity = 1",
-            [$patient_id, $encounter_id]
-        );
-
-        sqlStatement(
-            "UPDATE form_encounter SET last_level_billed = 0, " .
-            "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
-            "WHERE pid = ? AND encounter = ?",
-            [$patient_id, $encounter_id]
-        );
+        QueryUtils::inTransaction(static function () use ($patient_id, $encounter_id, $productLines): void {
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `billing` SET `billed` = 0, `bill_date` = NULL WHERE `pid` = ? AND `encounter` = ? AND `activity` = 1',
+                [$patient_id, $encounter_id]
+            );
+            if ($productLines) {
+                QueryUtils::sqlStatementThrowException(
+                    'UPDATE `drug_sales` SET `billed` = 0, `bill_date` = NULL WHERE `pid` = ? AND `encounter` = ?',
+                    [$patient_id, $encounter_id]
+                );
+            }
+            QueryUtils::sqlStatementThrowException(
+                'UPDATE `form_encounter` SET `last_level_billed` = 0, `last_level_closed` = 0, `stmt_count` = 0,'
+                . ' `last_stmt_date` = NULL WHERE `pid` = ? AND `encounter` = ?',
+                [$patient_id, $encounter_id]
+            );
+        });
     }
 }
