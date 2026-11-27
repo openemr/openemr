@@ -9,6 +9,9 @@ name: Flex 3.23 Dockers Build
 #  default flex image; this 3.23 build sets is_default_flex: false in the workflow_call.)
 #
 # php_versions is a JSON array of PHP versions to build.
+# php_versions follows the release branches, not master's composer.json: release
+# branches still pin these images, so keep a version here after master drops it
+# (see docs/maintainer-playbook/php-version-support.md).
 #
 # The php_default will determine the default PHP version (ie. above tag without a php version).
 #
