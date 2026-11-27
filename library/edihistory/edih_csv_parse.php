@@ -413,13 +413,11 @@ function edih_277_csv_data($obj277): array
     //
     $ret_ar = [];
     //
-    $seg_ar = $obj277->edih_segments();
     $env_ar = $obj277->edih_envelopes();
     $de = $obj277->edih_delimiters()['e'];
     $fn = $obj277->edih_filename();
     $tp = $obj277->edih_type();
-    // 'HN' 277 'HR' 276 )
-    $env_ar = $obj277->edih_envelopes();
+    // 'HN' 277 'HR' 276
     //
     if (!isset($env_ar['ST'])) {
         csv_edihist_log('edih_277_csv_data: envelope error');
@@ -446,14 +444,12 @@ function edih_277_csv_data($obj277): array
             }
         }
 
-        //$ret_ar[$icn]['type'] = csv_file_type($ft);
         //
         $fdx = count($ret_ar[$icn]['file']);
         //['f277']['file'] = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
         //'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
         $ret_ar[$icn]['file'][$fdx]['Date'] = $rspdate;
         $ret_ar[$icn]['file'][$fdx]['FileName'] = $fn;
-        // could be GS06 for 276 if it were unique
         $ret_ar[$icn]['file'][$fdx]['Control'] = (string)$icn;
         if ($tp == 'HN') {
             $ret_ar[$icn]['file'][$fdx]['Accept'] = 0;
@@ -469,7 +465,6 @@ function edih_277_csv_data($obj277): array
         $clmct = 0;
         //
         //['ST'][$stky]=>['start']['count']['stn']['gsn']['icn']['type']['trace']['acct']
-        //  ['ST'][$stky]['acct'][i]=>pid-enc
         //'f277': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Trace');
         foreach ($env_ar['ST'] as $st) {
             //
@@ -478,68 +473,60 @@ function edih_277_csv_data($obj277): array
             }
 
             //
-            $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
             $stacct = array_values(array_unique($st['bht03']));
             $clmct += count($stacct);
-            $st_icn = $st['icn'];  // same value as $obj277->envelopes['ISA']['icn']
-            $stn =  $st['stn'];
+            $st_icn = $st['icn'];
+            $stn = $st['stn'];
             //
             if ($tp == 'HR') {
                 $ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $clmct;
             }
 
+            // A 277 row is one claim, opened at its own TRN, not at the BHT: several claims
+            // under one patient each keep their reference, status and dates (#15530 step 2).
+            // The BHT03, the source and the patient are held until a claim's TRN opens a row.
+            $bht03 = '';
+            $saw_bht = false;
+            $payer = '';
+            $ptname = '';
+            $batch_status = '';
+            $cdx = -1;
+            $rows_before = count($ret_ar[$icn]['claim']);
             //
-            //for($i=0; $i<$clmct; $i++) {
             for ($i = 0; $i < count($stacct); $i++) {
                 //
                 $asegs = $obj277->edih_x12_transaction($stacct[$i]);
                 //
                 foreach ($asegs as $trans) {
                     //
-                    $cdx = 0;
                     $hl = '';
                     $sar = [];
                     foreach ($trans as $seg) {
                         //
                         if (strncmp((string) $seg, 'BHT' . $de, 4) === 0) {
-                            $cdx = count($ret_ar[$icn]['claim']);
                             //
                             $sar = explode($de, (string) $seg);
                             if ($sar[2] != '08') {
                                 csv_edihist_log('Claim Status BHT purpose code: ' . $sar[2] . ' in ST ' . $st['stn'] . ' in file ' . $fn);
                             }
 
-                            $trns_tp = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';
-                            if ($trns_tp == 'TH') {
-                                $bht_id = 'ack'; // 277CA
-                            } elseif ($trns_tp == 'DG') {
-                                $bht_id = 'rsp'; // 277
-                            } else {
-                                $bht_id = 'sub'; // 276
-                            }
-
-                            //
-                            $ret_ar[$icn]['claim'][$cdx]['PtName'] = '';
-                            $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
-                            $ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
-                            //
                             if ($tp == 'HN') {
-                                // 277
-                                $ret_ar[$icn]['claim'][$cdx]['Status'] = '';
-                                $ret_ar[$icn]['claim'][$cdx]['BHT03'] = $sar[3];
-                            } elseif ($tp == 'HR') {
-                                //276
+                                // 277: hold the BHT03 for the claim rows this transaction opens
+                                $bht03 = $sar[3];
+                                $saw_bht = true;
+                            } else {
+                                // 276: one row per request transaction, as before
+                                $cdx = count($ret_ar[$icn]['claim']);
+                                $ret_ar[$icn]['claim'][$cdx]['PtName'] = '';
+                                $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
+                                $ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
                                 $ret_ar[$icn]['claim'][$cdx]['ClaimID'] = '';
                                 $ret_ar[$icn]['claim'][$cdx]['BHT03'] = sprintf("%s%04d", $st_icn, $stn);
+                                $ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
+                                $ret_ar[$icn]['claim'][$cdx]['Payer'] = '';
+                                $ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
                             }
 
-                            //
-
-                            $ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
-                            //
-                            $ret_ar[$icn]['claim'][$cdx]['Payer'] = '';
-                            //$ret_ar[$icn]['claim'][$cdx]['Ins_ID'] = '';
-                            $ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
                             continue;
                         }
 
@@ -547,6 +534,12 @@ function edih_277_csv_data($obj277): array
                         if (strncmp((string) $seg, 'HL' . $de, 3) === 0) {
                             $sar = explode($de, (string) $seg);
                             $hl = $sar[3];
+                            if ($tp == 'HN') {
+                                // A new level starts a new patient: the NM1 that follows belongs
+                                // to the next claim's row, not to the one opened before it.
+                                $cdx = -1;
+                                $ptname = '';
+                            }
                         }
 
                         //
@@ -554,23 +547,24 @@ function edih_277_csv_data($obj277): array
                             // information source
                             if (strncmp((string) $seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Payer'] = ($sar[1] == 'PR' || $sar[1] == 'AY') ? $sar[3] : '';
-                                continue;
+                                $payer = ($sar[1] == 'PR' || $sar[1] == 'AY') ? $sar[3] : '';
+                                if ($tp == 'HR' && $cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Payer'] = $payer;
+                                }
                             }
+
+                            continue;
                         }
 
                         //
                         if ($hl == '21') {
-                            // information source or receiver level rejection
-                            // -- user should view the transaction
-                            // -- don't include in csv data so Trace only refers to 276
-                            //if ( strncmp($seg, 'TRN'.$de, 4) === 0) {
-                                //$sar = explode($de, $seg);
-                                //$ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
-                            //}
+                            // information receiver level: a status here is about the batch, not a claim
                             if (strncmp((string) $seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                $batch_status = $sar[1];
+                                if ($tp == 'HR' && $cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                }
                             }
 
                             if (strncmp((string) $seg, 'QTY' . $de, 4) === 0) {
@@ -600,16 +594,13 @@ function edih_277_csv_data($obj277): array
 
                         //
                         if ($hl == '19') {
-                            // provider level rejection
-                            // -- user should view the transaction
-                            // -- don't include in csv data so Trace only refers to 276
-                            //if ( strncmp($seg, 'TRN'.$de, 4) === 0) {
-                                //$sar = explode($de, $seg);
-                                //$ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
-                            //}
+                            // provider level: a status here is about the batch, not a claim
                             if (strncmp((string) $seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                $batch_status = $sar[1];
+                                if ($tp == 'HR' && $cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                }
                             }
 
                             continue;
@@ -621,11 +612,11 @@ function edih_277_csv_data($obj277): array
                             if (strncmp((string) $seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
                                 if ($sar[1] == 'IL' || $sar[1] == 'QC') {
-                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : "";
-                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
-                                    //if (isset($sar[8]) && $sar[8] == 'MI') {
-                                        //$ret_ar[$icn]['claim'][$cdx]['Ins_ID'] = (isset($sar[9])) ? $sar[9] : '';
-                                    //}
+                                    $midn = (isset($sar[5]) && strlen($sar[5])) ? ', ' . $sar[5] : "";
+                                    $ptname = $sar[3] . ', ' . $sar[4] . $midn;
+                                    if ($cdx >= 0) {
+                                        $ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
+                                    }
                                 }
 
                                 continue;
@@ -634,21 +625,36 @@ function edih_277_csv_data($obj277): array
                             // in response to 276, this is the reference given in TRN02
                             if (strncmp((string) $seg, 'TRN' . $de . '2' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
+                                if ($tp == 'HN') {
+                                    $cdx = count($ret_ar[$icn]['claim']);
+                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
+                                    $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
+                                    $ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
+                                    $ret_ar[$icn]['claim'][$cdx]['Status'] = '';
+                                    $ret_ar[$icn]['claim'][$cdx]['BHT03'] = $bht03;
+                                    $ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
+                                    $ret_ar[$icn]['claim'][$cdx]['Payer'] = $payer;
+                                    $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
+                                } elseif ($cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
+                                }
+
                                 continue;
                             }
 
                             // REF*EJ* will give the payer assigned claim number
-                            //  not used much in 277CA files
                             if (strncmp((string) $seg, 'REF' . $de . 'EJ' . $de, 7) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[2];
+                                if ($cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[2];
+                                }
+
                                 continue;
                             }
 
                             if (strncmp((string) $seg, 'REF' . $de . '1K' . $de, 7) === 0) {
                                 // hopefully OpenEMR will include the claim number in 276
-                                if ($tp == 'HR') {
+                                if ($tp == 'HR' && $cdx >= 0) {
                                     $sar = explode($de, (string) $seg);
                                     $ret_ar[$icn]['claim'][$cdx]['ClaimID'] = $sar[2];
                                 }
@@ -656,12 +662,13 @@ function edih_277_csv_data($obj277): array
                                 continue;
                             }
 
-                            // REF*D9*(Claim number)~
-
                             if (strncmp((string) $seg, 'STC' . $de, 4) === 0) {
                                 // STC is only present in 277
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                if ($cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                }
+
                                 continue;
                             }
 
@@ -673,9 +680,11 @@ function edih_277_csv_data($obj277): array
                             if (strncmp((string) $seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
                                 if ($sar[1] == 'IL' || $sar[1] == 'QC') {
-                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : "";
-                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
-                                    //$ret_ar[$icn]['claim'][$cdx]['Ins_ID'] = (isset($sar[9])) ? $sar[9] : '';
+                                    $midn = (isset($sar[5]) && strlen($sar[5])) ? ', ' . $sar[5] : "";
+                                    $ptname = $sar[3] . ', ' . $sar[4] . $midn;
+                                    if ($cdx >= 0) {
+                                        $ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
+                                    }
                                 }
 
                                 continue;
@@ -683,32 +692,55 @@ function edih_277_csv_data($obj277): array
 
                             if (strncmp((string) $seg, 'TRN' . $de . '2' . $de, 6) === 0) {
                                 $sar = explode($de, (string) $seg);
+                                $cdx = count($ret_ar[$icn]['claim']);
+                                $ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
+                                $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
                                 $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[2];
+                                $ret_ar[$icn]['claim'][$cdx]['Status'] = '';
+                                $ret_ar[$icn]['claim'][$cdx]['BHT03'] = $bht03;
+                                $ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
+                                $ret_ar[$icn]['claim'][$cdx]['Payer'] = $payer;
+                                $ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
                                 continue;
                             }
 
                             if (strncmp((string) $seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, (string) $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                if ($cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
+                                }
+
                                 continue;
                             }
 
-                            //if ( strncmp($seg, 'REF'.$de.'1K'.$de, 7) === 0) {
-                                //$sar = explode($de, $seg);
-                                //$ret_ar[$icn]['claim'][$cdx]['ClaimID'] = $sar[2];
-                                //continue;
-                            //}
                             if (strncmp((string) $seg, 'DTP' . $de . '472' . $de, 8) === 0) {
                                 $sar = explode($de, (string) $seg);
                                 // D8-CCYYMMDD  RD8-CCYYMMDD-CCYYMMDD  only take initial date
-                                $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = substr($sar[3], 0, 8);
+                                if ($cdx >= 0) {
+                                    $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = substr($sar[3], 0, 8);
+                                }
+
                                 continue;
                             }
                         }
                     } // end foreach($trans as $seg)
                 } // end foreach($asegs as $trans)
-            } // end for($i=0; $i<$clmct; $i++)
-        }// end foreach($obj277->envelopes['ST'] as $st)
+            } // end for($i=0; $i<count($stacct); $i++)
+
+            // A transaction whose only status is at the receiver or provider level (a batch
+            // turned away whole) still gets one row, as it did when the row was made at the BHT.
+            if ($tp == 'HN' && $saw_bht && count($ret_ar[$icn]['claim']) == $rows_before) {
+                $cdx = count($ret_ar[$icn]['claim']);
+                $ret_ar[$icn]['claim'][$cdx]['PtName'] = $ptname;
+                $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
+                $ret_ar[$icn]['claim'][$cdx]['CLM01'] = '';
+                $ret_ar[$icn]['claim'][$cdx]['Status'] = $batch_status;
+                $ret_ar[$icn]['claim'][$cdx]['BHT03'] = $bht03;
+                $ret_ar[$icn]['claim'][$cdx]['FileName'] = $fn;
+                $ret_ar[$icn]['claim'][$cdx]['Payer'] = $payer;
+                $ret_ar[$icn]['claim'][$cdx]['Trace'] = '';
+            }
+        } // end foreach($env_ar['ST'] as $st)
     } // end foreach($env_ar['ISA'] as $icn => $isa)
     //
     return $ret_ar;
