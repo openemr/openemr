@@ -453,6 +453,22 @@ final class VisitListDayColumnTest extends TestCase
         ], $places);
     }
 
+    public function testAReorderThatDrawsAnAppointmentOverTheBlockIsNotTaken(): void
+    {
+        // Block B 9:00-10:00, A 9:00-11:00, C 9:30-10:30, D 10:30-11:00. The day's order draws
+        // C and D over A; B moved last has one overlap, C over B. Fewer overlaps, but on the
+        // block, so the day's order is kept and B stays clear.
+        $places = self::places([
+            self::block(40, '09:00:00', 3600),
+            self::timed(42, '09:00:00', 7200),
+            self::timed(43, '09:30:00', 3600),
+            self::timed(44, '10:30:00', 1800),
+        ], self::twoBlockSchedule('09:00', '10:00', '13:00', '14:00'), 30);
+
+        $this->assertSame('left: 0%', $places[40][0]);
+        $this->assertSame('width: 33.333333333333%', $places[40][1]);
+    }
+
     /**
      * @return array<string, mixed>
      */

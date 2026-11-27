@@ -121,6 +121,26 @@ class VisitListBlockMoveTest extends TestCase
         $this->assertSame([], $plan->stranded);
     }
 
+    public function testAShortenedBlockTakesAPatientPastItsNewEndToItsStart(): void
+    {
+        // 9:00-17:00 shortened to 9:00-9:15: 9:05 is still inside, 9:30 isn't.
+        $list = self::list(7, '2026-03-09 09:00', [10]);
+        $inside = new VisitListEntry(11, 511, 7, new DateTimeImmutable('2026-03-09 09:05'), 2, null);
+        $outside = new VisitListEntry(12, 512, 7, new DateTimeImmutable('2026-03-09 09:30'), 3, null);
+        $start = new DateTimeImmutable('2026-03-09 09:00');
+        $plan = VisitListBlockMove::plan(
+            [new VisitList($list->block, [...$list->entries, $inside, $outside])],
+            [new VisitListBlock(1, 7, 3, $start, $start->modify('+15 minutes'))],
+            [7 => 7],
+            ['2026-03-09' => '2026-03-09'],
+            self::TODAY
+        );
+
+        $this->assertSame(['12 → 7 2026-03-09 09:00'], self::moves($plan));
+        $this->assertTrue($plan->moves[0]->unlessClaimed);
+        $this->assertSame([], $plan->stranded);
+    }
+
     public function testAMovedBlockTakesAPatientInsideItToItsNewStart(): void
     {
         $list = self::list(7, '2026-03-09 09:00', []);

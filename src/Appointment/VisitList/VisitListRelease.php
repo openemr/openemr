@@ -22,12 +22,14 @@ namespace OpenEMR\Appointment\VisitList;
 
 use DateInterval;
 use DateTimeImmutable;
+use DateTimeZone;
 use DomainException;
 
 final class VisitListRelease
 {
     /**
-     * Each patient's start time, by event ID, in list order.
+     * Each patient's start time, by event ID, in list order: the date and clock time to store
+     * (in UTC only so that no clock change applies to them).
      *
      * @return array<int, DateTimeImmutable>
      */
@@ -37,7 +39,9 @@ final class VisitListRelease
             throw new DomainException('Calendar interval must be positive');
         }
 
-        $start = $list->block->start;
+        // Clock times, not elapsed time: on a day the clocks change, an hour that repeats or is
+        // skipped would otherwise put patients out of list order once stored without an offset.
+        $start = new DateTimeImmutable($list->block->start->format('Y-m-d H:i:s'), new DateTimeZone('UTC'));
         $lastSlot = $start->setTime(0, 0)->modify('+1 day')->sub(new DateInterval('PT' . $intervalMinutes . 'M'));
         $starts = [];
         foreach ($list->entries as $index => $entry) {

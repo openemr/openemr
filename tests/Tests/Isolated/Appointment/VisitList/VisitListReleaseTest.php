@@ -82,6 +82,24 @@ class VisitListReleaseTest extends TestCase
         $this->assertSame([1 => '23:45', 2 => '23:45'], self::times($starts));
     }
 
+    public function testPatientsStayInListOrderWhenTheClocksGoBack(): void
+    {
+        // 2 November 2031: New York clocks go back from 2:00 to 1:00. Nine patients from
+        // midnight, 15 minutes apart, run 00:00 to 02:00 by the clock, not into a repeated hour.
+        $timezone = date_default_timezone_get();
+        date_default_timezone_set('America/New_York');
+        try {
+            $starts = VisitListRelease::starts(self::list('2031-11-02 00:00', range(1, 9)), 15);
+        } finally {
+            date_default_timezone_set($timezone);
+        }
+
+        $this->assertSame(
+            [1 => '00:00', 2 => '00:15', 3 => '00:30', 4 => '00:45', 5 => '01:00', 6 => '01:15', 7 => '01:30', 8 => '01:45', 9 => '02:00'],
+            self::times($starts)
+        );
+    }
+
     public function testAnEmptyListHasNoTimes(): void
     {
         $this->assertSame([], VisitListRelease::starts(self::list('2026-03-09 09:00', []), 15));

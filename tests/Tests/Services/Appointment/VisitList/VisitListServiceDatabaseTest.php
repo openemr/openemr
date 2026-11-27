@@ -25,6 +25,7 @@ use OpenEMR\Appointment\VisitList\VisitListBlockRelease;
 use OpenEMR\Appointment\VisitList\VisitListBlockSave;
 use OpenEMR\Appointment\VisitList\VisitListEditor;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
+use OpenEMR\Appointment\VisitList\VisitListMoveResult;
 use OpenEMR\Appointment\VisitList\VisitListPostedBlock;
 use OpenEMR\Appointment\VisitList\VisitListRepeatScope;
 use OpenEMR\Appointment\VisitList\VisitListService;
@@ -464,6 +465,11 @@ class VisitListServiceDatabaseTest extends TestCase
 
         $this->service->moveWithBlock($save, $this->posted('2031-03-10', '13:00:00'));
 
+        // Both moved, not only renumbered where they were.
+        $this->assertSame(
+            [$early => '2031-03-10 13:00:00 a', $late => '2031-03-10 13:00:00 a'],
+            $this->whereAre([$early, $late])
+        );
         $rows = QueryUtils::fetchRecords(
             'SELECT pc_eid, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid IN (?, ?) ORDER BY pc_visit_seq',
             [$early, $late]
@@ -475,6 +481,50 @@ class VisitListServiceDatabaseTest extends TestCase
             ],
             $rows
         ));
+    }
+
+    /**
+     * Saves every date of the weekly block as 9:00-9:15, its length the only change.
+     */
+    private function shortenWeekly(): VisitListMoveResult
+    {
+        $save = $this->blockSave(VisitListRepeatScope::AllDates, '2031-03-10');
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE openemr_postcalendar_events SET pc_duration = 900, pc_endTime = ? WHERE pc_eid = ?',
+            ['09:15:00', $this->eids['weekly']]
+        );
+        return $this->service->moveWithBlock($save, $this->posted('2031-03-10', '09:00:00'));
+    }
+
+    public function testAShortenedBlockTakesAPatientPastItsNewEndToItsStart(): void
+    {
+        $inside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:05:00', 0, ['visitList' => 1, 'seq' => 3]);
+        $outside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:30:00', 0, ['visitList' => 1, 'seq' => 4]);
+
+        $result = $this->shortenWeekly();
+
+        $this->assertSame(1, $result->moved);
+        $this->assertSame(
+            [
+                $this->eids['first'] => '2031-03-10 09:00:00 a',
+                $inside => '2031-03-10 09:05:00 a',
+                $outside => '2031-03-10 09:00:00 a',
+            ],
+            $this->whereAre([$this->eids['first'], $inside, $outside])
+        );
+    }
+
+    public function testAShortenedBlockLeavesAPatientAnotherBlockNowHas(): void
+    {
+        // An 8:00-10:00 block lost 9:30 to the later-starting weekly block; shortened, the
+        // weekly block no longer reaches it, so it is on the 8:00 block's list again.
+        $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-10', '08:00:00', 7200);
+        $outside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:30:00', 0, ['visitList' => 1, 'seq' => 4]);
+
+        $result = $this->shortenWeekly();
+
+        $this->assertSame(0, $result->moved);
+        $this->assertSame([$outside => '2031-03-10 09:30:00 a'], $this->whereAre([$outside]));
     }
 
     public function testAPatientMovedMeanwhileIsNotCountedAsMoved(): void

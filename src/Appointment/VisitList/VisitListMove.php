@@ -19,9 +19,15 @@ namespace OpenEMR\Appointment\VisitList;
 
 final readonly class VisitListMove
 {
+    /**
+     * @param bool $unlessClaimed only move the patient when no Visit List block claims it where
+     *                            it is now: a patient a shortened block no longer reaches may
+     *                            already be on another list
+     */
     public function __construct(
         public VisitListEntry $entry,
         public VisitListBlock $to,
+        public bool $unlessClaimed = false,
     ) {
     }
 }

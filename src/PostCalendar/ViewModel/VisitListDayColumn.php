@@ -207,10 +207,11 @@ final readonly class VisitListDayColumn
 
     /**
      * Where the overlap layout places each grid event: laid out in overlapOrder() only when
-     * that draws fewer events over each other than the day's own order. On a tie the day's
-     * order is kept, as on master. The layout keeps each event's
-     * rightmost place and narrowest width across its slots, so moving a block last can make an
-     * appointment that also runs past the block cover part of it.
+     * that draws fewer events over a block that shows a list than the day's own order, or as
+     * few over a block and fewer over each other. Otherwise, ties included, the day's order is
+     * kept, as on master. The layout keeps each event's rightmost place and narrowest width
+     * across its slots, so moving a block last can make an appointment that also runs past
+     * the block cover part of it; the reorder is only taken when it leaves the blocks clearer.
      *
      * @param callable(list<array<string, mixed>>): array<int|string, array{width: float, leftpos: float}> $layout
      * @param int $intervalMinutes the length of one time slot in the grid
@@ -224,38 +225,47 @@ final readonly class VisitListDayColumn
             return $positions;
         }
         $dayOrder = $layout($this->gridEvents);
-        return $this->collisions($dayOrder, $intervalMinutes) <= $this->collisions($positions, $intervalMinutes)
-            ? $dayOrder
-            : $positions;
+        [$dayOnBlocks, $dayAll] = $this->collisions($dayOrder, $intervalMinutes);
+        [$orderedOnBlocks, $orderedAll] = $this->collisions($positions, $intervalMinutes);
+        $reorderIsClearer = $orderedOnBlocks < $dayOnBlocks
+            || ($orderedOnBlocks === $dayOnBlocks && $orderedAll < $dayAll);
+        return $reorderIsClearer ? $positions : $dayOrder;
     }
 
     /**
-     * How many pairs of grid events these positions draw over each other: in the same time
-     * slot and sharing part of the column's width.
+     * How many pairs of grid events these positions draw over each other (in the same time
+     * slot and sharing part of the column's width): those with a block that shows a list in
+     * them, and all of them.
      *
      * @param array<int|string, array{width: float, leftpos: float}> $positions
+     * @return array{int, int}
      */
-    private function collisions(array $positions, int $intervalMinutes): int
+    private function collisions(array $positions, int $intervalMinutes): array
     {
         $placed = [];
         foreach ($this->gridEvents as $event) {
             $eid = $event['eid'] ?? null;
             if ((is_int($eid) || is_string($eid)) && isset($positions[$eid])) {
-                $placed[] = [self::slots($event, max(1, $intervalMinutes)), $positions[$eid]];
+                $isBlock = isset($this->lists[self::eventId($event) ?? 0]);
+                $placed[] = [self::slots($event, max(1, $intervalMinutes)), $positions[$eid], $isBlock];
             }
         }
-        $count = 0;
-        foreach ($placed as $index => [[$start, $end], $place]) {
-            foreach (array_slice($placed, $index + 1) as [[$otherStart, $otherEnd], $other]) {
+        $onBlocks = 0;
+        $all = 0;
+        foreach ($placed as $index => [[$start, $end], $place, $isBlock]) {
+            foreach (array_slice($placed, $index + 1) as [[$otherStart, $otherEnd], $other, $otherIsBlock]) {
                 $sameTime = $start < $otherEnd && $otherStart < $end;
                 $sameWidth = $place['leftpos'] < $other['leftpos'] + $other['width'] - 0.01
                     && $other['leftpos'] < $place['leftpos'] + $place['width'] - 0.01;
                 if ($sameTime && $sameWidth) {
-                    $count++;
+                    $all++;
+                    if ($isBlock || $otherIsBlock) {
+                        $onBlocks++;
+                    }
                 }
             }
         }
-        return $count;
+        return [$onBlocks, $all];
     }
 
     /**

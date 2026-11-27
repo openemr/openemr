@@ -16,8 +16,9 @@
  *
  * Patients whose date maps to nothing, or to a date the block is excluded from, stay where
  * they are, no longer on a list. Patients on dates before today stay where they are too: those
- * appointments are history (decided 2026-11-22). Patients already at their occurrence's start
- * and provider are left alone.
+ * appointments are history (decided 2026-11-22). When only a block's length changes, its
+ * patients stay where they are, except those past a shortened block's new end, which go to its
+ * start unless another block now has them.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -60,9 +61,20 @@ final class VisitListBlockMove
                 array_push($stranded, ...$list->entries);
                 continue;
             }
-            // Same provider and start (only the length changed): the patients are still on
-            // the block, including any that start inside it rather than at its start.
+            // Same provider and start (only the length changed): the patients still inside the
+            // block stay, including any that start inside it rather than at its start. Those a
+            // shorter block no longer reaches go to its start, unless another block has them.
             if ($to->providerId === $list->block->providerId && $to->start == $list->block->start) {
+                $outside = array_values(array_filter(
+                    $list->entries,
+                    static fn (VisitListEntry $entry): bool => !$to->contains($entry)
+                ));
+                foreach ($outside as $entry) {
+                    $moves[] = new VisitListMove($entry, $to, unlessClaimed: true);
+                }
+                if ($outside !== []) {
+                    $from[] = $list;
+                }
                 continue;
             }
             foreach ($list->entries as $entry) {
