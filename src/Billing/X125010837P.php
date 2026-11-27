@@ -20,7 +20,6 @@
 
 namespace OpenEMR\Billing;
 
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -842,16 +841,18 @@ class X125010837P
          * Hardcode OZ, support data for claim, PWK01 report type code
          * Hardcode EL, electronic, PWK02 report transmission code
          * Hardcode AC, attachment control number
-         * Billing claim batch control number 9 digits for PWK06
+         * The claim id of CLM01 for PWK06: the attachment is sent under a number
+         * the biller already has, the same one every time the claim is generated.
          */
         if ($claim->isRelatedEmployment()) {
-            $out .= "PWK" .
+            ++$edicount;
+            $out .= "PWK" .       // Claim Supplemental Information
                 "*" . "OZ" .
                 "*" . "EL" .
                 "*" . "*" .
                 "*" . "AC" .
-                "*" . BillingClaimBatchControlNumber::getIsa13() .
-                "~";
+                "*" . $claimId .
+                "~\n";
         }
 
         $patientpaid = $claim->patientPaidAmount();
