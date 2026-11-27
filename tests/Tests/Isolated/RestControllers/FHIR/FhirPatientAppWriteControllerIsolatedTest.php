@@ -136,6 +136,26 @@ class FhirPatientAppWriteControllerIsolatedTest extends TestCase
 
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame(0, $this->store->countOpenForClient(self::PID, ReviewType::FhirWrite, 'unknown-client'));
+        $this->assertSame([[
+            'pid' => self::PID,
+            'actor' => self::PORTAL_USERNAME,
+            'type' => ReviewType::FhirWrite,
+            'resourceType' => 'QuestionnaireResponse',
+            'clientId' => 'unknown-client',
+            'reason' => 'NotAllowed (403)',
+            'target' => null,
+        ]], $this->trail->refusals, 'the refusal is audited against the patient');
+    }
+
+    public function testATokenThatNamesNoPatientIsRefusedWithoutAnAuditEntry(): void
+    {
+        $request = $this->patientRequest();
+        $request->setRequestUser(self::PATIENT, ['fullname' => 'Ann Seven']);
+
+        $response = $this->controller()->update($request, 'not-a-uuid', $this->resourceOf(PatientWritableType::QuestionnaireResponse));
+
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame([], $this->trail->refusals);
     }
 
     public function testOnlyTheWritingAppReadsItBack(): void

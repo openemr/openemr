@@ -51,10 +51,12 @@ class PatientWriteHoldIsolatedTest extends TestCase
 
     private InMemoryReviewRequestStore $store;
     private ReviewQueueService $queue;
+    private RecordingReviewAuditTrail $trail;
 
     protected function setUp(): void
     {
         $this->store = new InMemoryReviewRequestStore();
+        $this->trail = new RecordingReviewAuditTrail();
         $clock = new class implements ClockInterface {
             public function now(): DateTimeImmutable
             {
@@ -63,7 +65,7 @@ class PatientWriteHoldIsolatedTest extends TestCase
         };
         $this->queue = new ReviewQueueService(
             $this->store,
-            new RecordingReviewAuditTrail(),
+            $this->trail,
             $clock,
             new UuidFactory(),
             $this->createStub(CryptoInterface::class),
@@ -343,6 +345,34 @@ class PatientWriteHoldIsolatedTest extends TestCase
             ReviewStatus::Pending,
             $hold->hold($this->context(), PatientWritableType::VitalSignObservation, $this->vitalSign())->status
         );
+    }
+
+    public function testARefusedWriteIsRecordedInTheAuditLog(): void
+    {
+        $hold = $this->hold(PatientWriteMode::Confidential);
+
+        $this->assertRefused(
+            PatientWriteRefusalReason::NotAllowed,
+            fn(): ReviewRequest => $hold->hold($this->context(PatientWriteClientType::Public), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse())
+        );
+
+        $this->assertSame([[
+            'pid' => self::PID,
+            'actor' => 'ann7',
+            'type' => ReviewType::FhirWrite,
+            'resourceType' => 'QuestionnaireResponse',
+            'clientId' => self::CLIENT,
+            'reason' => 'NotAllowed (403)',
+            'target' => null,
+        ]], $this->trail->refusals);
+    }
+
+    public function testAHeldWriteRecordsNoRefusal(): void
+    {
+        $this->hold()->hold($this->context(), PatientWritableType::QuestionnaireResponse, $this->questionnaireResponse());
+
+        $this->assertSame([], $this->trail->refusals);
+        $this->assertCount(1, $this->trail->entries, 'the submission itself is audited');
     }
 
     public function testATypeThePracticeHasNotEnabledIsRefused(): void

@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
+use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 
 interface PatientWriteApplierInterface
@@ -36,7 +37,11 @@ interface PatientWriteApplierInterface
      * Runs inside the transaction that approves the request. Throwing rolls the approval back
      * and leaves the request pending.
      *
-     * @throws \RuntimeException when the record cannot be written
+     * @param ReviewActor $reviewer the staff user approving it
+     * @param PatientWriteApprovalOptions $options what staff chose, such as an encounter
+     * @return ?string a note for the audit entry that completes the request, such as where in
+     *                 the chart it was filed; null for none
+     * @throws \RuntimeException when the record cannot be written, or not as staff chose
      */
-    public function apply(ReviewRequest $request): void;
+    public function apply(ReviewRequest $request, ReviewActor $reviewer, PatientWriteApprovalOptions $options): ?string;
 }

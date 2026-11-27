@@ -20,7 +20,9 @@ use OpenEMR\Services\PatientReview\FhirResourceType;
 use OpenEMR\Services\PatientReview\FhirWrite\FhirWriteReviewHandler;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWritableType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteApplierInterface;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteApprovalOptions;
 use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewApprovalOptions;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewSource;
@@ -41,9 +43,13 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
     /** @var \ArrayObject<int, string> uuid of each request an applier wrote */
     private \ArrayObject $applied;
 
+    /** @var \ArrayObject<int, array{reviewer: string, encounter: ?int}> what each applier was given */
+    private \ArrayObject $given;
+
     protected function setUp(): void
     {
         $this->applied = new \ArrayObject();
+        $this->given = new \ArrayObject();
     }
 
     /**
@@ -52,15 +58,17 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
      */
     private function applier(PatientWritableType $type, bool $fails = false, bool $writable = true): PatientWriteApplierInterface
     {
-        return new class ($type, $fails, $this->applied, $writable) implements PatientWriteApplierInterface {
+        return new class ($type, $fails, $this->applied, $writable, $this->given) implements PatientWriteApplierInterface {
             /**
              * @param \ArrayObject<int, string> $applied
+             * @param \ArrayObject<int, array{reviewer: string, encounter: ?int}> $given
              */
             public function __construct(
                 private readonly PatientWritableType $type,
                 private readonly bool $fails,
                 private readonly \ArrayObject $applied,
                 private readonly bool $writable,
+                private readonly \ArrayObject $given,
             ) {
             }
 
@@ -77,12 +85,15 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
             /**
              * Records the request, or throws to stand in for a failed chart write.
              */
-            public function apply(ReviewRequest $request): void
+            public function apply(ReviewRequest $request, ReviewActor $reviewer, PatientWriteApprovalOptions $options): ?string
             {
                 if ($this->fails) {
                     throw new \RuntimeException('could not write');
                 }
                 $this->applied[] = $request->uuid;
+                $this->given[] = ['reviewer' => $reviewer->name, 'encounter' => $options->encounter];
+
+                return $options->encounter === null ? null : 'Filed in encounter ' . $options->encounter;
             }
         };
     }
@@ -137,6 +148,46 @@ class FhirWriteReviewHandlerIsolatedTest extends TestCase
 
         $this->assertSame(ReviewStatus::Completed, $done->status);
         $this->assertSame([$vital->uuid], $this->applied->getArrayCopy(), 'written under the id the app was given');
+        $this->assertSame([['reviewer' => 'drsmith', 'encounter' => null]], $this->given->getArrayCopy(), 'no options: no encounter');
+    }
+
+    /**
+     * The encounter staff chose reaches the applier, and where it was filed is noted on the
+     * entry that completes the request.
+     */
+    public function testTheEncounterStaffChoseReachesTheApplier(): void
+    {
+        $queue = $this->queue(new FhirWriteReviewHandler([$this->applier(PatientWritableType::QuestionnaireResponse)]));
+        $response = $this->held($queue, 'QuestionnaireResponse');
+
+        $queue->approve($response->id, ReviewActor::user(3, 'drsmith'), null, null, new PatientWriteApprovalOptions(12));
+
+        $this->assertSame([['reviewer' => 'drsmith', 'encounter' => 12]], $this->given->getArrayCopy());
+        $history = $queue->history($response->id);
+        $last = end($history);
+        $this->assertNotFalse($last);
+        $this->assertSame('Filed in encounter 12', $last->note);
+    }
+
+    /**
+     * Options meant for another type of request are a programming error, and nothing is written.
+     */
+    public function testOptionsOfAnotherKindAreRefused(): void
+    {
+        $queue = $this->queue(new FhirWriteReviewHandler([$this->applier(PatientWritableType::QuestionnaireResponse)]));
+        $response = $this->held($queue, 'QuestionnaireResponse');
+        $other = new class implements ReviewApprovalOptions {
+        };
+
+        try {
+            $queue->approve($response->id, ReviewActor::user(3, 'drsmith'), null, null, $other);
+            $this->fail('Only PatientWriteApprovalOptions are taken');
+        } catch (\LogicException) {
+            // expected
+        }
+
+        $this->assertSame(ReviewStatus::Pending, $queue->get($response->id)->status);
+        $this->assertSame([], $this->applied->getArrayCopy());
     }
 
     /**
