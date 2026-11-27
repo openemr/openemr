@@ -22,16 +22,25 @@ use PHPUnit\Framework\TestCase;
 #[Group('postcalendar')]
 final class PnVarPrepHTMLDisplayTest extends TestCase
 {
+    private bool $pnconfigWasSet = false;
+    private mixed $originalPnconfig = null;
+
     protected function setUp(): void
     {
         require_once __DIR__ . '/../../../../interface/main/calendar/includes/pnAPI.php';
+        $this->pnconfigWasSet = array_key_exists('pnconfig', $GLOBALS);
+        $this->originalPnconfig = $GLOBALS['pnconfig'] ?? null;
         // Pre-seed the config cache so pnConfigGetVar() does not reach for a DB.
         $GLOBALS['pnconfig'] = ['htmlentities' => 0];
     }
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['pnconfig']);
+        if ($this->pnconfigWasSet) {
+            $GLOBALS['pnconfig'] = $this->originalPnconfig;
+        } else {
+            unset($GLOBALS['pnconfig']);
+        }
     }
 
     #[DataProvider('markerInputProvider')]
