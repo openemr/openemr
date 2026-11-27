@@ -1143,7 +1143,7 @@ var page = {
         return new Dropzone("#patientFileDrop", {
             paramName: 'file',
             clickable: true,
-            acceptedFiles: 'application/pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.tsv,.ppt,.pptx,.odt,.rtf',
+            acceptedFiles: '.pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.tsv,.ppt,.pptx,.odt,.rtf',
             dictDefaultMessage: "Drop file or Click here.",
             maxFiles: 2,
             enqueueForUpload: true,
