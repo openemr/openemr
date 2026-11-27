@@ -923,7 +923,16 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
 
         $data['DOB'] = (string)$fhirResource->getBirthDate();
-        $data['sex'] = (string)$fhirResource->getGender();
+        // FHIR administrative gender is lowercase; patient_data.sex stores the
+        // sex list option ids (Male/Female/UNK). 'other' has no list entry and
+        // is left unchanged pending a decision in #15440.
+        $gender = strtolower((string)$fhirResource->getGender());
+        $data['sex'] = match ($gender) {
+            'male' => 'Male',
+            'female' => 'Female',
+            'unknown', 'unk' => 'UNK',
+            default => $gender,
+        };
 
         foreach ($fhirResource->getExtension() as $extension) {
             $url = $extension->getUrl();
@@ -1240,9 +1249,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $mapping = [
             'M' => 'Male',
             'F' => 'Female',
-            'UNK' => 'Unknown',
+            'UNK' => 'UNK',
         ];
-        return $mapping[$value] ?? 'Unknown';
+        return $mapping[$value] ?? 'UNK';
     }
     private function extractSex(FHIRExtension $extension): ?string
     {
