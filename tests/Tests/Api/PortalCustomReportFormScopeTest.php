@@ -74,17 +74,25 @@ class PortalCustomReportFormScopeTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach ($this->formRowIds as $id) {
-            QueryUtils::sqlStatementThrowException("DELETE FROM `forms` WHERE `id` = ?", [$id]);
+        try {
+            foreach ($this->formRowIds as $id) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM `forms` WHERE `id` = ?", [$id]);
+            }
+            foreach ($this->encounterRowIds as $id) {
+                QueryUtils::sqlStatementThrowException("DELETE FROM `form_encounter` WHERE `id` = ?", [$id]);
+            }
+            if (isset($this->fixtures)) {
+                $this->fixtures->removePortalPatientFixtures();
+            }
+        } finally {
+            $this->formRowIds = [];
+            $this->encounterRowIds = [];
+            $this->restoreGlobals();
         }
-        foreach ($this->encounterRowIds as $id) {
-            QueryUtils::sqlStatementThrowException("DELETE FROM `form_encounter` WHERE `id` = ?", [$id]);
-        }
-        $this->formRowIds = [];
-        $this->encounterRowIds = [];
-        if (isset($this->fixtures)) {
-            $this->fixtures->removePortalPatientFixtures();
-        }
+    }
+
+    private function restoreGlobals(): void
+    {
         foreach ($this->globalsSnapshot as $name => $original) {
             if ($original === null) {
                 QueryUtils::sqlStatementThrowException(
