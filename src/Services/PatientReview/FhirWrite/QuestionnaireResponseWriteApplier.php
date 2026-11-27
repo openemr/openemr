@@ -27,6 +27,7 @@ use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewRequest;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 
 final readonly class QuestionnaireResponseWriteApplier implements PatientWriteApplierInterface
 {
@@ -34,6 +35,7 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
         private FhirQuestionnaireResponseFormService $service,
         private FhirRelatedPersonService $relatedPersons,
         private QuestionnaireResponseEncounterForm $encounterForm,
+        private QuestionnaireEncounterFiling $encounters = new QuestionnaireEncounterFiling(),
     ) {
     }
 
@@ -74,6 +76,10 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
             throw new \RuntimeException('The held request is not a QuestionnaireResponse');
         }
         unset($json['resourceType']);
+        // An encounter staff chose is one they can add forms to, as on the encounter screens.
+        if ($options->encounter !== null && !$this->encounters->canFileIn($request->pid, $options->encounter)) {
+            throw new \RuntimeException('The chosen encounter is not one this user can file the response in');
+        }
 
         try {
             $parsed = $this->service->parseFhirResource(new FHIRQuestionnaireResponse($json));
@@ -100,6 +106,11 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
         $encounter = is_array($saved) ? ($saved['encounter'] ?? null) : null;
         if (!is_int($encounter) || $encounter <= 0) {
             return null;
+        }
+        // The same holds for the encounter the response names; refusing here rolls the approval
+        // back with nothing written.
+        if (!$this->encounters->canFileIn($request->pid, $encounter)) {
+            throw new \RuntimeException('The encounter the response names is not one this user can file it in');
         }
         $this->encounterForm->add($request->uuid, $request->pid, $encounter, $reviewer);
 

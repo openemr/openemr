@@ -43,6 +43,7 @@ use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
@@ -623,17 +624,18 @@ class PatientWriteApprovalDatabaseTest extends TestCase
     }
 
     /**
-     * Creates an encounter, for the test patient unless another pid is given.
+     * Creates an encounter, for the test patient unless another pid is given, with a
+     * sensitivity when one is given.
      *
      * @return array{encounter: int, uuid: string}
      */
-    private function encounter(string $date, string $reason, ?int $pid = null): array
+    private function encounter(string $date, string $reason, ?int $pid = null, ?string $sensitivity = null): array
     {
         $encounter = QueryUtils::generateId();
         $uuid = (new UuidRegistry(['table_name' => 'form_encounter']))->createUuid();
         QueryUtils::sqlInsert(
-            'INSERT INTO `form_encounter` (`uuid`, `date`, `reason`, `pid`, `encounter`) VALUES (?, ?, ?, ?, ?)',
-            [$uuid, $date . ' 09:00:00', $reason, $pid ?? $this->pid, $encounter]
+            'INSERT INTO `form_encounter` (`uuid`, `date`, `reason`, `pid`, `encounter`, `sensitivity`) VALUES (?, ?, ?, ?, ?, ?)',
+            [$uuid, $date . ' 09:00:00', $reason, $pid ?? $this->pid, $encounter, $sensitivity]
         );
         $this->encounters[] = $encounter;
 
@@ -691,5 +693,120 @@ class PatientWriteApprovalDatabaseTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $registry->registerIssuedUuid($used);
+    }
+
+    /**
+     * A response naming an encounter that exists but is another patient's is
+     * refused when held, the same as an unknown one.
+     */
+    public function testAResponseNamingAnotherPatientsEncounterIsRefusedWhenHeld(): void
+    {
+        $other = $this->encounter('2026-11-22', 'Someone else', $this->otherPatient());
+        try {
+            $this->hold(
+                PatientWritableType::QuestionnaireResponse,
+                ['encounter' => ['reference' => 'Encounter/' . $other['uuid']]] + $this->response('Better')
+            );
+            $this->fail("Expected a refusal: another patient's encounter");
+        } catch (PatientWriteRefusal $refusal) {
+            $this->assertSame(PatientWriteRefusalReason::NotWritable, $refusal->reason);
+        }
+        $this->assertSame([], $this->queue->allOpenFor($this->pid, ReviewType::FhirWrite, PatientWritableType::QuestionnaireResponse->fhirResourceType()));
+    }
+
+    /**
+     * Approval re-checks the named encounter. One that is no longer the
+     * patient's when approved is neither shown on the card nor written to.
+     */
+    public function testAnEncounterThatIsNoLongerThePatientsIsRefusedOnApproval(): void
+    {
+        $visit = $this->encounter('2026-11-20', 'Annual visit');
+        $held = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['encounter' => ['reference' => 'Encounter/' . $visit['uuid']]] + $this->response('Better')
+        );
+        QueryUtils::sqlStatementThrowException('UPDATE `form_encounter` SET `pid` = ? WHERE `encounter` = ?', [$this->otherPatient(), $visit['encounter']]);
+
+        $items = [];
+        foreach ((new PatientWriteReviewQuery(new ReviewRequestMapper(), ReviewQueueFactory::fhirWriteHandler()))->pending()['items'] as $item) {
+            $items[$item->request->id] = $item;
+        }
+        $this->assertNull($items[$held->id]->encounterNamed, "the card does not show another patient's encounter");
+        $this->assertSame([], $items[$held->id]->encounterChoices);
+
+        try {
+            $this->queue->approve($held->id, ReviewActor::user(1, 'admin'));
+            $this->fail('Expected the approval to fail');
+        } catch (\RuntimeException) {
+            $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status);
+        }
+        $this->assertSame(0, $this->storedResponseCount());
+        $foreignForms = QueryUtils::fetchSingleValue('SELECT COUNT(*) AS c FROM `forms` WHERE `encounter` = ?', 'c', [$visit['encounter']]);
+        $this->assertContains($foreignForms, [0, '0'], "nothing is filed in the other patient's encounter");
+    }
+
+    /**
+     * Approval files only in encounters the approver can open, as the encounter screens allow:
+     * one with a sensitivity the approver's access doesn't include is refused, whether chosen
+     * or named by the response, and nothing is written. The review list leaves it out too.
+     */
+    public function testApprovalFilesOnlyInEncountersTheApproverCanOpen(): void
+    {
+        $open = $this->encounter('2026-11-19', 'Open visit');
+        $restricted = $this->encounter('2026-11-20', 'Restricted visit', null, 'high');
+        $plain = $this->heldResponse();
+        $naming = $this->hold(
+            PatientWritableType::QuestionnaireResponse,
+            ['encounter' => ['reference' => 'Encounter/' . $restricted['uuid']]] + $this->response('Worse')
+        );
+        $withoutHigh = new QuestionnaireEncounterFiling(static fn(string $sensitivity): bool => $sensitivity !== 'high');
+
+        $items = [];
+        foreach ((new PatientWriteReviewQuery(new ReviewRequestMapper(), ReviewQueueFactory::fhirWriteHandler($withoutHigh), $withoutHigh))->pending()['items'] as $item) {
+            $items[$item->request->id] = $item;
+        }
+        $this->assertSame([$open['encounter']], array_column($items[$plain->id]->encounterChoices, 'encounter'), 'only the encounter the reviewer can open is offered');
+        $this->assertNull($items[$naming->id]->encounterNamed, 'the encounter the reviewer cannot open is not shown');
+
+        $queue = ReviewQueueFactory::withFhirWriteHandler($withoutHigh);
+        $attempts = [
+            'chosen' => [$plain, new PatientWriteApprovalOptions($restricted['encounter'])],
+            'named by the response' => [$naming, new PatientWriteApprovalOptions()],
+        ];
+        foreach ($attempts as $label => [$held, $options]) {
+            try {
+                $queue->approve($held->id, ReviewActor::user(1, 'admin'), null, null, $options);
+                $this->fail('Expected the approval to fail: ' . $label);
+            } catch (\RuntimeException) {
+                $this->assertSame(ReviewStatus::Pending, $this->queue->get($held->id)->status, $label);
+            }
+        }
+        $this->assertSame(0, $this->storedResponseCount());
+        $this->assertSame(0, $this->encounterFormCount());
+
+        // An approver who can open it files the response there.
+        $withHigh = new QuestionnaireEncounterFiling(static fn(string $sensitivity): bool => true);
+        ReviewQueueFactory::withFhirWriteHandler($withHigh)->approve($naming->id, ReviewActor::user(1, 'admin'));
+        $this->assertFiledIn($naming, $restricted);
+    }
+
+    /**
+     * Another patient, removed with the test patient (it shares the pubpid).
+     */
+    private function otherPatient(): int
+    {
+        $other = (new PatientService())->insert([
+            'DOB' => '1970-01-01',
+            'fname' => 'Other',
+            'lname' => 'Patient',
+            'sex' => 'Male',
+            'pubpid' => self::PUBPID,
+        ]);
+        $this->assertTrue($other->isValid(), 'other patient');
+        $ids = $other->getFirstDataResult();
+        $this->assertIsArray($ids);
+        $this->assertIsNumeric($ids['pid']);
+
+        return (int) $ids['pid'];
     }
 }
