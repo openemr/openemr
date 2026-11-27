@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Background;
 
 use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Process\Exception\ProcessSignaledException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -218,6 +219,29 @@ final readonly class SymfonyBackgroundServiceSpawner implements BackgroundServic
                 ],
             );
             return ['name' => $name, 'status' => 'error'];
+        } catch (ProcessSignaledException $e) {
+            // wait() throws when the signal that actually terminated the
+            // child differs from the last signal Symfony recorded sending.
+            // stop(0) sends SIGTERM, waits ~1ms, then sends SIGKILL if the
+            // child still looks running; a child that dies from SIGTERM
+            // just after that re-check leaves termsig=15 vs latestSignal=9
+            // and wait() throws (GH #15402). When the overflow callback
+            // triggered the kill, fall through to the overflow handler
+            // below so the buffer-cap warning is logged as usual.
+            if (!$overflowed) {
+                // A signal we did not send (OOM killer, operator kill)
+                // terminated the child. Coerce to error instead of letting
+                // the exception escape and abort the orchestrator run.
+                $this->logger->warning(
+                    'Background service subprocess terminated by signal.',
+                    [
+                        'service' => $this->safeServiceName($name),
+                        'signal' => $e->getSignal(),
+                        'stderr' => $this->safeLogSnippet($stderr),
+                    ],
+                );
+                return ['name' => $name, 'status' => 'error'];
+            }
         }
 
         if ($overflowed) {
