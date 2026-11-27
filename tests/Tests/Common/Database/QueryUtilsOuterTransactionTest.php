@@ -62,7 +62,7 @@ final class QueryUtilsOuterTransactionTest extends TestCase
             $caught = $e;
         }
 
-        $this->assertSame('callback failed', $caught?->getMessage());
+        $this->assertSame('callback failed', $caught->getMessage());
         $this->assertSame([], $this->values());
     }
 
@@ -81,7 +81,7 @@ final class QueryUtilsOuterTransactionTest extends TestCase
             $caught = $e;
         }
 
-        $this->assertSame('callback failed', $caught?->getMessage());
+        $this->assertSame('callback failed', $caught->getMessage());
         $this->assertSame([], $this->values());
     }
 
