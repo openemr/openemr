@@ -452,26 +452,13 @@ function convUnit(system, unit, value)
 }
 
 function convLbtoKg(value) {
-    var lb = value;
-    var hash_loc=lb.indexOf("#");
-    if(hash_loc>=0)
-    {
-        var pounds=lb.substr(0,hash_loc);
-        var ounces=lb.substr(hash_loc+1);
-        var num=parseInt(pounds)+parseInt(ounces)/16;
-        lb=num;
-        return lb;
-    }
-    if (lb == "0") {
+    // Reuse the shared US weight parser so pounds#ounces keeps fractional
+    // pounds and malformed input is rejected, then convert to kg (#14700).
+    const lb = parseUsWeightValue(value);
+    if (isNaN(lb)) {
         return 0;
     }
-    else if (lb == parseFloat(lb)) {
-        kg = lb*0.45359237;
-        return kg;
-    }
-    else {
-        return 0;
-    }
+    return lb * 0.45359237;
 }
 
 function convKgtoLb(value) {
