@@ -1103,7 +1103,7 @@ class X125010837I
 
             $out .= "~\n";
 
-            if (!$claim->cptCharges($prockey)) {
+            if ($claim->cptLacksCharge($prockey)) {
                 $log .= "*** Procedure '" . $claim->cptKey($prockey) . "' has no charges!\n";
             }
 

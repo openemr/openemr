@@ -1681,6 +1681,40 @@ class Claim
     }
 
     /**
+     * Whether the claim log should warn that the procedure line has no charge: its fee is
+     * 0.00 or empty, and its code is not in the Quality Measures service category, where a
+     * code billed for reporting only belongs.
+     */
+    public function cptLacksCharge(int $prockey): bool
+    {
+        return NoChargeLine::hasNoCharge($this->cptCharges($prockey)) && !$this->cptIsQualityMeasure($prockey);
+    }
+
+    /**
+     * Whether the procedure line's code is in the Quality Measures service category. A code
+     * can have a row per modifier: any of them in the category counts.
+     */
+    private function cptIsQualityMeasure(int $prockey): bool
+    {
+        $procs = is_array($this->procs) ? $this->procs : [];
+        $proc = $procs[$prockey] ?? null;
+        if (!is_array($proc)) {
+            return false;
+        }
+        $codeType = $proc['code_type'] ?? null;
+        $code = $proc['code'] ?? null;
+        if (!is_string($codeType) || !is_string($code)) {
+            return false;
+        }
+
+        return QueryUtils::fetchRecords(
+            'SELECT 1 FROM `codes` AS c JOIN `code_types` AS t ON t.`ct_id` = c.`code_type`'
+            . ' WHERE t.`ct_key` = ? AND c.`code` = ? AND c.`superbill` = ? LIMIT 1',
+            [$codeType, $code, NoChargeLine::QUALITY_MEASURES_CATEGORY]
+        ) !== [];
+    }
+
+    /**
      * @return string
      */
     public function cptUnits($prockey)

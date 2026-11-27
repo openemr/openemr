@@ -631,3 +631,9 @@ CREATE TABLE `era_auto_post_claim` (
 #IfMissingColumn facility mammography_cert_number
 ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL COMMENT 'FDA (MQSA) mammography certification number, sent as REF*EW on the 837P';
 #EndIf
+
+-- v_database 584: the Service Category for codes billed for reporting only, at no charge. A claim
+-- line whose code is in it is not warned about for having no charge.
+#IfNotRow2D list_options list_id superbill option_id quality_measures
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('superbill', 'quality_measures', 'Quality Measures', 10);
+#EndIf

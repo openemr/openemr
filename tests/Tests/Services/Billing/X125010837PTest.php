@@ -31,6 +31,8 @@ class X125010837PTest extends TestCase
     private const ADDRESS_PRIMARY = 99990581;
     private const ADDRESS_SECONDARY = 99990582;
     private const SESSION = 99990681;
+    /** A HCPCS code no code set has, for a reporting-only line. */
+    private const MEASURE_CODE = 'G9T81';
     private const MSP_TYPE_LOG = '*** Medicare is not the primary payer and its Secondary Medicare Type is empty.';
 
     /** What the last generate() call wrote to the billing log. */
@@ -339,6 +341,39 @@ class X125010837PTest extends TestCase
         $this->assertSame([], array_values(array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'PWK*'))));
     }
 
+    public function testALineWithNoChargeIsLoggedUnlessItsCodeIsAQualityMeasure(): void
+    {
+        $this->generate();
+        $this->assertStringNotContainsString('has no charges!', $this->log, 'a line with a fee is not logged');
+
+        // A reporting-only code at 0.00: the fee as the billing table returns it.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO billing (date, code_type, code, pid, encounter, provider_id, user, groupname, authorized, "
+            . "activity, billed, units, fee, code_text, justify, payer_id) "
+            . "VALUES (NOW(), 'HCPCS', ?, ?, ?, 1, 1, 'Default', 1, 1, 0, 1, 0.00, 'Test measure', 'ICD10|I10:', ?)",
+            [self::MEASURE_CODE, self::PID, self::ENC, self::PRIMARY]
+        );
+
+        [$segments, $edicount] = $this->generate();
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertContains(['SV1', 'HC:' . self::MEASURE_CODE, '0.00', 'UN', '1'], array_map(
+            static fn(array $sv1): array => array_slice($sv1, 0, 5),
+            $this->elements($segments, 'SV1')
+        ));
+        $this->assertStringContainsString("*** Procedure '" . self::MEASURE_CODE . "' has no charges!", $this->log);
+        $this->assertStringNotContainsString("'99213' has no charges!", $this->log);
+
+        // In the Quality Measures service category the same line is expected to carry no charge.
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO codes (code_text, code, code_type, superbill, active) "
+            . "SELECT 'Test measure', ?, ct_id, 'quality_measures', 1 FROM code_types WHERE ct_key = 'HCPCS'",
+            [self::MEASURE_CODE]
+        );
+
+        $this->generate();
+        $this->assertStringNotContainsString('has no charges!', $this->log);
+    }
+
     private function markTheEncounterEmploymentRelated(): void
     {
         $formId = QueryUtils::sqlInsert(
@@ -483,6 +518,7 @@ class X125010837PTest extends TestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM ar_activity WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE session_id = ?', [self::SESSION]);
         QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM codes WHERE code = ?', [self::MEASURE_CODE]);
         QueryUtils::sqlStatementThrowException('DELETE FROM form_misc_billing_options WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM forms WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE pid = ?', [self::PID]);

@@ -531,7 +531,7 @@ class Hcfa1500
         for ($svccount = 0; $svccount < 6 && $this->hcfa_proc_index < $proccount; ++$this->hcfa_proc_index) {
             $dia = $claim->diagIndexArray($this->hcfa_proc_index);
 
-            if (!$claim->cptCharges($this->hcfa_proc_index)) {
+            if (is_int($this->hcfa_proc_index) && $claim->cptLacksCharge($this->hcfa_proc_index)) {
                 $log .= "*** Procedure '" . $claim->cptKey($this->hcfa_proc_index) .
                     "' has no charges!\n";
             }
