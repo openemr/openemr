@@ -147,6 +147,19 @@ class SymfonyBackgroundServiceSpawnerPhpChildTest extends TestCase
                 $emit($name, 'executed');
                 exit(0);
 
+            case 'signals_self_sigterm':
+                // Deterministic GH #15402 reproducer: the child dies from
+                // a signal the parent never sent, so Symfony's wait()
+                // sees termsig (15) !== latestSignal (null) and throws
+                // ProcessSignaledException. The spawner must coerce that
+                // to error + warning rather than let it escape. 15 is
+                // SIGTERM; the literal avoids needing ext-pcntl for the
+                // constant.
+                posix_kill(posix_getpid(), 15);
+                // Unreachable: default SIGTERM disposition terminates the
+                // child inside the kill syscall.
+                exit(0);
+
             case 'json_throws_from_non_utf8':
                 // Simulates the CWE-20 case the production command
                 // now guards against: a status value containing
@@ -289,6 +302,31 @@ class SymfonyBackgroundServiceSpawnerPhpChildTest extends TestCase
         $this->assertSame(
             65536,
             $this->logger->warnings[0]['context']['buffer_max_bytes'] ?? null,
+        );
+    }
+
+    public function testChildKilledByExternalSignalIsReportedAsError(): void
+    {
+        // GH #15402: ProcessSignaledException must not escape spawn().
+        // The overflow-kill race is timing-dependent, but a child that
+        // signals itself produces the same exception deterministically:
+        // the parent never sent a signal, so latestSignal (null) cannot
+        // match the child's termsig (15) and wait() throws.
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('POSIX signals are not available on Windows.');
+        }
+        if (!function_exists('posix_kill') || !function_exists('posix_getpid')) {
+            $this->markTestSkipped('ext-posix is required for the self-signaling child fixture.');
+        }
+
+        $result = $this->makeSpawner()->spawn('signals_self_sigterm', false, 60);
+
+        $this->assertSame(['name' => 'signals_self_sigterm', 'status' => 'error'], $result);
+        $this->assertNotEmpty($this->logger->warnings);
+        $this->assertSame(
+            15,
+            $this->logger->warnings[0]['context']['signal'] ?? null,
+            'Warning must record the signal that actually terminated the child',
         );
     }
 
