@@ -14788,16 +14788,16 @@
         },
         {
             "name": "phpmyadmin/sql-parser",
-            "version": "6.0.1",
+            "version": "6.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpmyadmin/sql-parser.git",
-                "reference": "ae022ff35c8107110fb73baf96c16c3ae71b9b95"
+                "reference": "68b4c7604689ef491afc39df8a2ec6939dc0802f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpmyadmin/sql-parser/zipball/ae022ff35c8107110fb73baf96c16c3ae71b9b95",
-                "reference": "ae022ff35c8107110fb73baf96c16c3ae71b9b95",
+                "url": "https://api.github.com/repos/phpmyadmin/sql-parser/zipball/68b4c7604689ef491afc39df8a2ec6939dc0802f",
+                "reference": "68b4c7604689ef491afc39df8a2ec6939dc0802f",
                 "shasum": ""
             },
             "require": {
@@ -14819,7 +14819,7 @@
                 "phpunit/phpunit": "^11.5",
                 "psalm/plugin-phpunit": "^0.19.2",
                 "vimeo/psalm": "^6.0",
-                "zumba/json-serializer": "^3.2"
+                "zumba/json-serializer": "~3.2.4"
             },
             "suggest": {
                 "ext-mbstring": "For best performance",
@@ -14874,7 +14874,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-10-07T15:34:04+00:00"
+            "time": "2026-11-18T20:06:03+00:00"
         },
         {
             "name": "phpstan/extension-installer",
