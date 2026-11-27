@@ -269,6 +269,13 @@ function edih_disp_file_process(): string
         }
     }
 
+    // Keep every claim status of the 277s on file indexed, not just the ones processed
+    // above: a site's already-processed 277s are indexed here too (#15530 step 2).
+    $idx = (new \OpenEMR\Billing\EdiHistory\ClaimStatusIndexer(
+        new \OpenEMR\Billing\EdiHistory\ClaimStatusIndexRepository()
+    ))->indexDirectory($p['f277']['directory']);
+    csv_edihist_log('edih_disp_file_process: 277 index ' . json_encode($idx));
+
     $capt_html = "<p>Process new files (" . text($fct) . " files)</p>" . PHP_EOL;
     return $capt_html . $str_html;
 }

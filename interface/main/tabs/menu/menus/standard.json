@@ -1696,6 +1696,18 @@
                         ]
                     },
                     {
+                        "label": "Claim Filing History",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/claim_filing_history_report.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
+                    },
+                    {
                         "label": "Pat Ledger",
                         "menu_id": "rep0",
                         "target": "rep",
