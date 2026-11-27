@@ -39,6 +39,13 @@ class PortalCustomReportFormScopeTest extends TestCase
     private array $encounterRowIds = [];
     /** @var list<int> */
     private array $formRowIds = [];
+    /**
+     * Pre-test `gl_value` of each global this test sets, or null when the
+     * row was absent (tearDown then deletes the row it inserted).
+     *
+     * @var array<string, ?string>
+     */
+    private array $globalsSnapshot = [];
 
     protected function setUp(): void
     {
@@ -61,6 +68,8 @@ class PortalCustomReportFormScopeTest extends TestCase
             $this->markTestSkipped($message);
         }
         $this->fixtures = new PortalPatientFixtureManager();
+        // The portal is off by default on a fresh install.
+        $this->setGlobal('portal_onsite_two_enable', '1');
     }
 
     protected function tearDown(): void
@@ -76,6 +85,37 @@ class PortalCustomReportFormScopeTest extends TestCase
         if (isset($this->fixtures)) {
             $this->fixtures->removePortalPatientFixtures();
         }
+        foreach ($this->globalsSnapshot as $name => $original) {
+            if ($original === null) {
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM `globals` WHERE `gl_name` = ? AND `gl_index` = 0",
+                    [$name]
+                );
+            } else {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ? AND `gl_index` = 0",
+                    [$original, $name]
+                );
+            }
+        }
+        $this->globalsSnapshot = [];
+    }
+
+    private function setGlobal(string $name, string $value): void
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT `gl_value` FROM `globals` WHERE `gl_name` = ? AND `gl_index` = 0",
+            [$name]
+        );
+        $original = is_array($row) ? ($row['gl_value'] ?? null) : null;
+        if (!array_key_exists($name, $this->globalsSnapshot)) {
+            $this->globalsSnapshot[$name] = is_string($original) ? $original : null;
+        }
+        QueryUtils::sqlStatementThrowException(
+            "INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES (?, 0, ?)"
+                . " ON DUPLICATE KEY UPDATE `gl_value` = VALUES(`gl_value`)",
+            [$name, $value]
+        );
     }
 
     #[Test]
@@ -171,8 +211,10 @@ class PortalCustomReportFormScopeTest extends TestCase
         ]);
         $this->assertSame(200, $response->getStatusCode(), 'portal login request failed');
         $home = (string) $this->http->get($this->baseUrl . '/portal/home.php')->getBody();
-        $this->assertStringNotContainsString(
-            'get_patient_info.php',
+        // Only the signed-in portal home offers logout; the login form and
+        // the session-timeout page do not.
+        $this->assertStringContainsString(
+            'logout.php',
             $home,
             'portal login did not establish a session'
         );
