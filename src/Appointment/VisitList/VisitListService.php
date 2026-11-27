@@ -490,7 +490,8 @@ final readonly class VisitListService
      * Carry out a move plan: number each list being moved in its order, give each patient its
      * block occurrence's date, start and provider, then renumber each list patients landed on.
      * A patient stays where it is when:
-     * - a shortened block no longer reaches it and another block claims it where it is;
+     * - a shortened block no longer reaches it and another block claims it where it is (both
+     *   lists are then renumbered);
      * - it is a multi-provider copy whose new provider already has a copy of that appointment
      *   on that date;
      * - another Visit List block of the provider would claim it at the new time (the calendar
@@ -514,8 +515,14 @@ final readonly class VisitListService
         foreach ($plan->moves as $move) {
             $entry = $move->entry;
             $to = $move->to;
-            if ($move->unlessClaimed && $this->claimedWhereItIs($entry)) {
-                continue;
+            if ($move->unlessClaimed) {
+                $claimer = $this->claimerWhereItIs($entry);
+                if ($claimer !== null) {
+                    // It stays, on another list now: number both lists without it / with it.
+                    $targets[self::blockKey($to)] = $to;
+                    $targets[self::blockKey($claimer)] = $claimer;
+                    continue;
+                }
             }
             $movesAway = $entry->providerId !== $to->providerId || $entry->start->format('Y-m-d') !== $to->date();
             if ($movesAway && $this->groupHasCopy($entry->eventId, $to->providerId, $to->date())) {
@@ -555,15 +562,16 @@ final readonly class VisitListService
     }
 
     /**
-     * Whether a Visit List block of the patient's provider claims the patient where it is now.
+     * The Visit List block of the patient's provider that claims the patient where it is now,
+     * or null when none does.
      */
-    private function claimedWhereItIs(VisitListEntry $entry): bool
+    private function claimerWhereItIs(VisitListEntry $entry): ?VisitListBlock
     {
         $blocks = array_map(
             static fn (VisitList $list): VisitListBlock => $list->block,
             $this->forDates($entry->start, $entry->start, [$entry->providerId])->lists
         );
-        return $this->matcher->blockFor($blocks, $entry) !== null;
+        return $this->matcher->blockFor($blocks, $entry);
     }
 
     /**

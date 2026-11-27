@@ -517,14 +517,28 @@ class VisitListServiceDatabaseTest extends TestCase
     public function testAShortenedBlockLeavesAPatientAnotherBlockNowHas(): void
     {
         // An 8:00-10:00 block lost 9:30 to the later-starting weekly block; shortened, the
-        // weekly block no longer reaches it, so it is on the 8:00 block's list again.
+        // weekly block no longer reaches it, so it is on the 8:00 block's list again. Both
+        // lists are renumbered: the weekly list closes the gap it leaves.
         $this->insertEvent($this->providerId, $this->categoryId, '', '2031-03-10', '08:00:00', 7200);
-        $outside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:30:00', 0, ['visitList' => 1, 'seq' => 4]);
+        $outside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:30:00', 0, ['visitList' => 1, 'seq' => 3]);
+        $inside = $this->insertEvent($this->providerId, 5, '1', '2031-03-10', '09:05:00', 0, ['visitList' => 1, 'seq' => 4]);
 
         $result = $this->shortenWeekly();
 
         $this->assertSame(0, $result->moved);
         $this->assertSame([$outside => '2031-03-10 09:30:00 a'], $this->whereAre([$outside]));
+        $rows = QueryUtils::fetchRecords(
+            'SELECT pc_eid, pc_visit_seq FROM openemr_postcalendar_events WHERE pc_eid IN (?, ?, ?, ?) ORDER BY pc_eid',
+            [$this->eids['second'], $this->eids['first'], $outside, $inside]
+        );
+        $sequences = [];
+        foreach ($rows as $row) {
+            $sequences[filter_var($row['pc_eid'], FILTER_VALIDATE_INT)] = filter_var($row['pc_visit_seq'], FILTER_VALIDATE_INT);
+        }
+        $this->assertSame(
+            [$this->eids['second'] => 2, $this->eids['first'] => 1, $outside => 1, $inside => 3],
+            $sequences
+        );
     }
 
     public function testAPatientMovedMeanwhileIsNotCountedAsMoved(): void
