@@ -17,6 +17,7 @@
 use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Lists\IssueTypeRegistry;
@@ -659,7 +660,9 @@ foreach ($ar as $key => $val) {
                 echo "<h1>" . xlt("Issues") . "</h1>";
             }
 
-            preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
+            if (preg_match('/^(.*)_(\d+)$/', (string) $key, $res) !== 1) {
+                continue;
+            }
             $rowid = $res[2];
             // Bind the lookup to the session patient so a supplied rowid
             // can only surface issues belonging to this chart.
@@ -716,8 +719,20 @@ foreach ($ar as $key => $val) {
 
             if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
                 $form_encounter = $val;
-                preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
+                if (preg_match('/^(.*)_(\d+)$/', (string) $key, $res) !== 1) {
+                    continue;
+                }
                 $form_id = $res[2];
+                // Render only forms registered to the session patient's own
+                // encounter; the encounter header and the form report below
+                // both read by the ids taken from the request.
+                $ownedForm = QueryUtils::querySingleRow(
+                    "SELECT 1 AS owned FROM `forms` WHERE `form_id` = ? AND `formdir` = ? AND `encounter` = ? AND `pid` = ? AND `deleted` = 0",
+                    [$form_id, $res[1], $form_encounter, $pid]
+                );
+                if (!is_array($ownedForm)) {
+                    continue;
+                }
                 $formres = getFormNameByFormdirAndFormid($res[1], $form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
                 $formId = getFormIdByFormdirAndFormid($res[1], $form_id);

@@ -20,6 +20,34 @@
         "requirement": 0
     },
     {
+        "label": "Assessments",
+        "menu_id": "sdoc",
+        "target": "main",
+        "children": [
+            {
+                "label": "SDOH Assessment",
+                "menu_id": "sdoc1",
+                "target": "main",
+                "on_click": "top.restoreSession()",
+                "url": "interface/patient_file/history/history_sdoh_widget.php?pid=",
+                "pid": "true",
+                "children": [],
+                "requirement": 0
+            },
+            {
+                "label": "Questionnaire Assessments",
+                "menu_id": "fhir_assessments",
+                "target": "main",
+                "on_click": "top.restoreSession()",
+                "url": "interface/patient_file/assessment/fhir_assessments.php?pid=",
+                "pid": "true",
+                "children": [],
+                "requirement": 0
+            }
+        ],
+        "requirement": 0
+    },
+    {
         "label": "Report",
         "menu_id": "report",
         "target": "main",
@@ -100,7 +128,7 @@
         "pid": "false",
         "children": [],
         "requirement": 0,
-        "global_req": [
+        "global_req_strict": [
             "easipro_enable",
             "easipro_server",
             "easipro_name"

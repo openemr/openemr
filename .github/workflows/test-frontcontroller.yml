@@ -97,6 +97,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         report_type: test_results
+        flags: frontcontroller-${{ matrix.suite }}-php${{ matrix.php }}
 
   # Future jobs:
   # - apache (mod_php)

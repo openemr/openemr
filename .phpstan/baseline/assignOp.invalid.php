@@ -1497,11 +1497,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'UPDATE x12_remote…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/X12RemoteTracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between \\(array\\|float\\|int\\) and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -1757,11 +1752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE lists SET \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
@@ -1778,11 +1768,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO lists…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE lists SET \' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
@@ -1832,11 +1817,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE form…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
@@ -1858,11 +1838,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE facility…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
@@ -1892,22 +1867,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE patient…\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and 1 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientTrackerService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO users…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \' UPDATE users SET \' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];

@@ -26,6 +26,10 @@ interface ReviewHandlerInterface
     /**
      * Runs inside the transaction that approves the request. Throwing rolls the approval back
      * and leaves the request pending.
+     *
+     * @param ?ReviewApprovalOptions $options what the reviewer chose beyond approving, if anything
+     * @return ?string a note for the entry that completes the request, such as where in the
+     *                 chart it was filed; null for none
      */
-    public function apply(ReviewRequest $request, ReviewActor $reviewer): void;
+    public function apply(ReviewRequest $request, ReviewActor $reviewer, ?ReviewApprovalOptions $options = null): ?string;
 }

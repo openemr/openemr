@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services\PatientReview\FhirWrite;
 
 use OpenEMR\Services\PatientReview\ReviewActor;
+use OpenEMR\Services\PatientReview\ReviewApprovalOptions;
 use OpenEMR\Services\PatientReview\ReviewHandlerInterface;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewType;
@@ -68,12 +69,18 @@ final class FhirWriteReviewHandler implements ReviewHandlerInterface
 
     /**
      * Writes the approved request through its type's applier; a type without one is refused.
+     *
+     * @return ?string the applier's note, such as the encounter it was filed under
      */
-    public function apply(ReviewRequest $request, ReviewActor $reviewer): void
+    public function apply(ReviewRequest $request, ReviewActor $reviewer, ?ReviewApprovalOptions $options = null): ?string
     {
         $applier = $this->applierFor($request)
             ?? throw new \LogicException('Patient app writes of this resource type cannot be approved yet');
-        $applier->apply($request);
+        if ($options !== null && !$options instanceof PatientWriteApprovalOptions) {
+            throw new \LogicException('Patient app writes take PatientWriteApprovalOptions');
+        }
+
+        return $applier->apply($request, $reviewer, $options ?? new PatientWriteApprovalOptions());
     }
 
     /**

@@ -126,8 +126,9 @@ class ImmunizationService extends BaseService
                     ,pid
                     FROM patient_data
                 ) patient ON immunizations.patient_id = patient.pid
-                LEFT JOIN codes as cvx ON cvx.code = immunizations.cvx_code
-                LEFT JOIN list_options as site ON site.option_id = immunizations.administration_site
+                LEFT JOIN code_types as cvx_type ON cvx_type.ct_key = 'CVX'
+                LEFT JOIN codes as cvx ON cvx.code = immunizations.cvx_code AND cvx.code_type = cvx_type.ct_id
+                LEFT JOIN list_options as site ON site.list_id = 'immunization_administered_site' AND site.option_id = immunizations.administration_site
                 LEFT JOIN list_options as dose_unit ON dose_unit.list_id = 'drug_units' AND dose_unit.option_id = immunizations.amount_administered_unit
                 LEFT JOIN (
                     select

@@ -19,6 +19,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 use JsonException;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
@@ -30,7 +31,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuestionnaireResponseStatus;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -43,6 +43,7 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
@@ -441,10 +442,20 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
      * @param array<array-key, mixed> $openEmrRecord from parseFhirResource()
      * @param string $issuedUuid the id the response is created under
      * @param bool $writtenByPatient the patient wrote it, so no staff user is recorded as its creator
+     * @param ?int $encounter one of the patient's encounters (form_encounter.encounter) to file
+     *        the response under, chosen by staff for a response that names none
+     * @return ProcessingResult on success its data holds the new record's id, uuid and the
+     *         encounter it was filed under (null for none)
+     * @throws InvalidArgumentException when what it refers to is missing, the encounter is not
+     *         the patient's, or the response already names an encounter
      */
-    public function insertOpenEMRRecordWithIssuedId(array $openEmrRecord, string $issuedUuid, bool $writtenByPatient): ProcessingResult
-    {
-        return $this->insertParsedRecord($openEmrRecord, $issuedUuid, $writtenByPatient);
+    public function insertOpenEMRRecordWithIssuedId(
+        array $openEmrRecord,
+        string $issuedUuid,
+        bool $writtenByPatient,
+        ?int $encounter = null,
+    ): ProcessingResult {
+        return $this->insertParsedRecord($openEmrRecord, $issuedUuid, $writtenByPatient, $encounter);
     }
 
     /**
@@ -480,10 +491,20 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     /**
      * @param mixed $openEmrRecord from parseFhirResource(); anything else is treated as empty
      */
-    private function insertParsedRecord(mixed $openEmrRecord, ?string $issuedUuid, bool $writtenByPatient = false): ProcessingResult
-    {
+    private function insertParsedRecord(
+        mixed $openEmrRecord,
+        ?string $issuedUuid,
+        bool $writtenByPatient = false,
+        ?int $chosenEncounter = null,
+    ): ProcessingResult {
         $record = is_array($openEmrRecord) ? $openEmrRecord : [];
         [$patientId, $encounterId, $questionnaire] = $this->resolveForInsert($record);
+        if ($chosenEncounter !== null) {
+            if ($encounterId !== null) {
+                throw new InvalidArgumentException('QuestionnaireResponse.encounter is already set; another encounter cannot be chosen.');
+            }
+            $encounterId = self::patientEncounter($chosenEncounter, $patientId);
+        }
 
         // note https://build.fhir.org/http.html#create specification states that an id SHALL be
         // ignored for our create operation, so the client's id is dropped from the payload as
@@ -637,6 +658,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
             $processingResult->addData([
                 'id' => $saved['id'] ?? null,
                 'uuid' => $savedResponseId,
+                'encounter' => $encounter,
             ]);
             return $processingResult;
         }
@@ -697,12 +719,37 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
     }
 
     /**
+     * The encounter number, when it is one of the patient's encounters, which then has a uuid.
+     *
+     * @throws InvalidArgumentException when it is not; reported as an unknown encounter is
+     */
+    private static function patientEncounter(int $encounter, int $patientId): int
+    {
+        $found = QueryUtils::fetchSingleValue(
+            'SELECT `encounter` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+            'encounter',
+            [$encounter, $patientId]
+        );
+        if (self::toInt($found) !== $encounter) {
+            throw new InvalidArgumentException("Encounter does not exist");
+        }
+        // The response refers to its encounter by uuid, and is saved in no encounter when the
+        // encounter has none; give it one so the response and the filed form agree.
+        (new QuestionnaireEncounterFiling())->giveUuidIfMissing($patientId, $encounter);
+
+        return $encounter;
+    }
+
+    /**
      * Resolves the encounter the answers were captured at.
      *
      * Bound to the subject's compartment: the encounter reference and the subject reference are
      * resolved independently from the payload, so without the bind a caller could file a
      * response against another patient's visit -- and the response then reads back under it.
-     * EncounterService::getEncounter() already takes the bind; it simply was not being passed.
+     *
+     * A plain query rather than EncounterService: constructing that service backfills missing
+     * uuids in a transaction of its own, and its BEGIN and COMMIT would commit the transaction
+     * a patient app write's approval runs in, so a later failure could no longer roll it back.
      */
     private function resolveEncounterId(mixed $encounterUuid, mixed $puuid): ?int
     {
@@ -712,15 +759,19 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements
         if (!is_string($puuid) || $puuid === '') {
             throw new InvalidArgumentException("QuestionnaireResponse.subject must reference a Patient on this server.");
         }
-        $encounterRecords = ProcessingResult::extractDataArray(
-            (new EncounterService())->getEncounter($encounterUuid, $puuid)
-        );
-        if ($encounterRecords === []) {
-            // Reported the same way an unknown encounter is: an encounter outside the subject's
-            // compartment must not be distinguishable from one that does not exist.
+        if (!UuidRegistry::isValidStringUUID($encounterUuid) || !UuidRegistry::isValidStringUUID($puuid)) {
             throw new InvalidArgumentException("Encounter does not exist");
         }
-        $eid = self::toInt($encounterRecords[0]['eid'] ?? null);
+        $found = QueryUtils::fetchSingleValue(
+            'SELECT fe.`encounter` FROM `form_encounter` AS fe'
+            . ' JOIN `patient_data` AS pd ON pd.`pid` = fe.`pid`'
+            . ' WHERE fe.`uuid` = ? AND pd.`uuid` = ?',
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid), UuidRegistry::uuidToBytes($puuid)]
+        );
+        // An encounter outside the subject's compartment is reported the same way an unknown
+        // encounter is: it must not be distinguishable from one that does not exist.
+        $eid = self::toInt($found);
         if ($eid === null) {
             throw new InvalidArgumentException("Encounter does not exist");
         }

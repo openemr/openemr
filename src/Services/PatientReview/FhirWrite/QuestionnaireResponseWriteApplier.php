@@ -7,6 +7,9 @@
  * It goes through the same parse and save as a staff FHIR create, except that the response is
  * created under the issued id and with the patient, not the approver, as the one who answered.
  *
+ * A response that names one of the patient's encounters, or that staff file under one when
+ * approving, is also added to that encounter as a Questionnaire Assessment form.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -22,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewRequest;
 
 final readonly class QuestionnaireResponseWriteApplier implements PatientWriteApplierInterface
@@ -29,6 +33,7 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
     public function __construct(
         private FhirQuestionnaireResponseFormService $service,
         private FhirRelatedPersonService $relatedPersons,
+        private QuestionnaireResponseEncounterForm $encounterForm,
     ) {
     }
 
@@ -57,9 +62,12 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
     }
 
     /**
-     * Parses the held response and saves it under the request uuid; any failure throws.
+     * Parses the held response and saves it under the request uuid, then adds it to its
+     * encounter, if it has one; any failure throws and nothing is written.
+     *
+     * @return ?string "Filed in encounter <n>" when it was added to an encounter
      */
-    public function apply(ReviewRequest $request): void
+    public function apply(ReviewRequest $request, ReviewActor $reviewer, PatientWriteApprovalOptions $options): ?string
     {
         $json = $request->payload;
         if (($json['resourceType'] ?? null) !== 'QuestionnaireResponse') {
@@ -74,14 +82,28 @@ final readonly class QuestionnaireResponseWriteApplier implements PatientWriteAp
             if (!$this->sourceIsOnFile($json, $parsed)) {
                 throw new \RuntimeException('The caregiver the response names is no longer one of the patient\'s related persons');
             }
-            $result = $this->service->insertOpenEMRRecordWithIssuedId($parsed, $request->uuid, writtenByPatient: true);
+            $result = $this->service->insertOpenEMRRecordWithIssuedId(
+                $parsed,
+                $request->uuid,
+                writtenByPatient: true,
+                encounter: $options->encounter,
+            );
         } catch (\InvalidArgumentException $e) {
-            // e.g. the Questionnaire it answers has been removed since the write was held
+            // e.g. the Questionnaire it answers has been removed since the write was held, or the
+            // encounter staff chose is not the patient's
             throw new \RuntimeException('The held QuestionnaireResponse cannot be saved', 0, $e);
         }
         if ($result->hasErrors()) {
             throw new \RuntimeException('The held QuestionnaireResponse could not be written to the chart');
         }
+        $saved = $result->getFirstDataResult();
+        $encounter = is_array($saved) ? ($saved['encounter'] ?? null) : null;
+        if (!is_int($encounter) || $encounter <= 0) {
+            return null;
+        }
+        $this->encounterForm->add($request->uuid, $request->pid, $encounter, $reviewer);
+
+        return 'Filed in encounter ' . $encounter;
     }
 
     /**

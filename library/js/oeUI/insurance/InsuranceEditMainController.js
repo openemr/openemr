@@ -37,8 +37,8 @@ export class InsuranceEditMainController {
 
     __csrfToken = null;
 
-    constructor(csrfToken, apiURL, insuranceProviderList, types, puuid) {
-        this.__insurancePolicyService = new InsurancePolicyService(csrfToken, apiURL, insuranceProviderList, types, puuid);
+    constructor(csrfToken, apiURL, insuranceProviderList, types, puuid, canReopenCharges = false) {
+        this.__insurancePolicyService = new InsurancePolicyService(csrfToken, apiURL, insuranceProviderList, types, puuid, canReopenCharges);
         this.__csrfToken = csrfToken;
     }
 

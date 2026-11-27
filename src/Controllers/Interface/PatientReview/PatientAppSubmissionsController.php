@@ -29,11 +29,13 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\PatientReview\Exception\InvalidReviewTransitionException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestChangedException;
 use OpenEMR\Services\PatientReview\Exception\ReviewRequestNotFoundException;
+use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteApprovalOptions;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteClientType;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewItem;
 use OpenEMR\Services\PatientReview\FhirWrite\PatientWriteReviewQuery;
 use OpenEMR\Services\PatientReview\ReviewActor;
 use OpenEMR\Services\PatientReview\ReviewQueueService;
+use OpenEMR\Services\PatientReview\ReviewRequest;
 use OpenEMR\Services\PatientReview\ReviewType;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -94,6 +96,7 @@ final readonly class PatientAppSubmissionsController
         [$notice, $error] = $this->takeOutcome();
 
         $pending = $this->query->pending();
+        $this->recordShown($pending['items']);
 
         return new Response(
             $this->twig->render(self::TEMPLATE, [
@@ -138,6 +141,13 @@ final readonly class PatientAppSubmissionsController
         if ($action === 'deny' && $note === '') {
             return [null, xl('Give a reason for denying the submission.')];
         }
+        // The encounter staff chose to add a questionnaire response to; empty for none. Whether
+        // it is the patient's is checked when the response is written.
+        $encounterInput = $post->getString('encounter');
+        $encounter = $encounterInput === '' ? null : filter_var($encounterInput, FILTER_VALIDATE_INT);
+        if ($encounter === false || (is_int($encounter) && $encounter <= 0)) {
+            return [null, xl('That encounter could not be found.')];
+        }
 
         $reviewer = $this->reviewer();
         if ($reviewer === null) {
@@ -153,7 +163,7 @@ final readonly class PatientAppSubmissionsController
                 return [null, xl('That submission could not be found.')];
             }
             if ($action === 'approve') {
-                $this->queue->approve($id, $reviewer, $note === '' ? null : $note, $revision);
+                $this->queue->approve($id, $reviewer, $note === '' ? null : $note, $revision, new PatientWriteApprovalOptions($encounter));
                 return [xl('The submission was approved and added to the chart.'), null];
             }
             $this->queue->deny($id, $reviewer, $note, $revision);
@@ -182,6 +192,28 @@ final readonly class PatientAppSubmissionsController
                 'exception' => $e,
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * Records in the audit log that the signed-in user was shown these submissions: one entry for
+     * each patient, naming every request shown with its resource type and app.
+     *
+     * @param list<PatientWriteReviewItem> $items
+     */
+    private function recordShown(array $items): void
+    {
+        $viewer = $this->reviewer();
+        if ($viewer === null) {
+            return;
+        }
+        /** @var array<int, non-empty-list<ReviewRequest>> $groups keyed by pid */
+        $groups = [];
+        foreach ($items as $item) {
+            $groups[$item->request->pid][] = $item->request;
+        }
+        foreach ($groups as $requests) {
+            $this->queue->recordAccess($requests, $viewer);
         }
     }
 
@@ -249,6 +281,8 @@ final readonly class PatientAppSubmissionsController
             'resourceJson' => $item->resourceJson,
             'canApprove' => $item->canApprove,
             'questionnaireName' => $item->questionnaireName,
+            'encounterNamed' => $item->encounterNamed,
+            'encounterChoices' => $item->encounterChoices,
         ];
     }
 }

@@ -20,6 +20,7 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
+use OpenEMR\Billing\PatientBalance\PatientBalanceLoader;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -1167,8 +1168,12 @@ function updatePatientData($pid, $new, $create = false)
             updateDupScore($result['pid']);
         }
     } else {
+        if (!is_array($new)) {
+            throw new \InvalidArgumentException('updatePatientData() needs an array of patient fields');
+        }
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
+        return $result['pid'];
     }
 
     // From the returned patient data array
@@ -1560,80 +1565,36 @@ function getAllinsurances($pid): array
  * to insurance.  If you want to include what insurance owes, set the second
  * parameter to true.
  *
- * @param int $pid The PID of the patient.
+ * To read more than one of these balances for a patient, load a
+ * PatientBalanceLedger once with PatientBalanceLoader and ask it for each:
+ * every call here loads the patient's billing again.
+ *
+ * An encounter id of false, null, 0, '0' or '' means every encounter, as it always
+ * has. Any other patient or encounter id that isn't a whole number above 0
+ * gives 0.00.
+ *
+ * @param mixed $pid The PID of the patient: an int or a digit string.
  * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.
- * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
+ * @param mixed $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
+ * @param bool $in_collection Only count encounters marked in collection.
  * @return numeric-string The balance.
  */
 function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false): string
 {
-    $balance = 0;
-    $bindarray = [$pid];
-    $sqlstatement = "SELECT date, encounter, last_level_billed, " .
-      "last_level_closed " .
-      "FROM form_encounter WHERE pid = ?";
-    if ($eid) {
-        $sqlstatement .= " AND encounter = ?";
-        array_push($bindarray, $eid);
-    }
-
-    if ($in_collection) {
-        $sqlstatement .= " AND in_collection = ?";
-        array_push($bindarray, 1);
-    }
-    $feres = sqlStatement($sqlstatement, $bindarray);
-    while ($ferow = sqlFetchArray($feres)) {
-        $encounter = $ferow['encounter'];
-        $dos = substr((string) $ferow['date'], 0, 10);
-        $insarr = getEffectiveInsurances($pid, $dos);
-        $inscount = count($insarr);
-        if (!$with_insurance && $ferow['last_level_closed'] < $inscount) {
-            // It's out to insurance so only the co-pay might be due.
-            $brow = sqlQuery(
-                "SELECT SUM(fee) AS amount FROM billing WHERE " .
-                "pid = ? AND encounter = ? AND " .
-                "code_type = 'copay' AND activity = 1",
-                [$pid, $encounter]
-            );
-            $drow = sqlQuery(
-                "SELECT SUM(pay_amount) AS payments " .
-                "FROM ar_activity WHERE " .
-                "deleted IS NULL AND pid = ? AND encounter = ? AND payer_type = 0",
-                [$pid, $encounter]
-            );
-            // going to comment this out for now since computing future copays doesn't
-            // equate to cash in hand, which shows in the Billing widget in dashboard 4-23-21
-            // $copay = !empty($insarr[0]['copay']) ? $insarr[0]['copay'] * 1 : 0;
-            $copay = 0;
-
-            $amt = !empty($brow['amount']) ? $brow['amount'] * 1 : 0;
-            $pay = !empty($drow['payments']) ? $drow['payments'] * 1 : 0;
-            $ptbal = $copay + $amt - $pay;
-            if ($ptbal) { // @TODO check if we want to show patient payment credits.
-                $balance += $ptbal;
-            }
-        } else {
-            if (!$with_insurance && $ferow['last_level_closed'] >= $inscount && $in_collection) {
-                $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-                    "pid = ? AND encounter = ? AND " .
-                    "activity = 1", [$pid, $encounter]);
-            } else {
-                // Including insurance or not out to insurance, everything is due.
-                $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-                    "pid = ? AND encounter = ? AND " .
-                    "activity = 1", [$pid, $encounter]);
-            }
-            $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
-              "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-              "deleted IS NULL AND pid = ? AND encounter = ?", [$pid, $encounter]);
-            $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-              "pid = ? AND encounter = ?", [$pid, $encounter]);
-            $balance += $brow['amount'] + $srow['amount']
-              - $drow['payments'] - $drow['adjustments'];
+    $patientId = EffectiveInsuranceRule::storedId($pid);
+    $encounterId = null;
+    if (!in_array($eid, [false, null, 0, '0', ''], true)) {
+        $encounterId = EffectiveInsuranceRule::storedId($eid);
+        if ($encounterId === null) {
+            return '0.00';
         }
     }
-
-    return sprintf('%01.2f', $balance);
+    if ($patientId === null) {
+        return '0.00';
+    }
+    return (new PatientBalanceLoader())
+        ->load($patientId, $encounterId)
+        ->balance((bool) $with_insurance, (bool) $in_collection);
 }
 
 function get_patient_balance_excluding($pid, $excluded = -1): string

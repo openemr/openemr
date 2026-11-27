@@ -230,8 +230,8 @@ class PatientRestController
 
     /**
      * Processes a HTTP PUT request used to update an existing patient record.
-     * @param $puuidString - The patient uuid identifier in string format.
-     * @param $data - array of patient fields (full resource).
+     * @param string $puuidString The patient uuid identifier in string format.
+     * @param array<mixed> $data array of patient fields (full resource).
      * @return ResponseInterface 200/Ok status code and the patient resource.
      */
     #[OA\Put(
@@ -267,7 +267,7 @@ class PatientRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($puuidString, $data, HttpRestRequest $request)
+    public function put(string $puuidString, array $data, HttpRestRequest $request)
     {
         $processingResult = $this->patientService->update($puuidString, $data);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);

@@ -105,6 +105,13 @@
                                     {{ item.questionnaireName|text }}
                                 {% endif %}
                             </dd>
+                            {% if item.encounterNamed is not null %}
+                                <dt class="col-sm-2">{{ 'Encounter'|xlt }}</dt>
+                                <dd class="col-sm-10">
+                                    {{ item.encounterNamed.date|text }}{% if item.encounterNamed.reason != '' %}: {{ item.encounterNamed.reason|text }}{% endif %}
+                                    <span class="text-muted">({{ 'approving adds it to this encounter'|xlt }})</span>
+                                </dd>
+                            {% endif %}
                         {% endif %}
                     </dl>
 
@@ -155,10 +162,19 @@
                         {# Two forms, so pressing Enter in the reason can only deny. #}
                         <div class="d-flex flex-wrap align-items-start">
                             {% if item.canApprove %}
-                                <form method="post" action="patient_app_submissions.php" class="mr-3" onsubmit="return top.restoreSession()">
+                                <form method="post" action="patient_app_submissions.php" class="form-inline mr-3" onsubmit="return top.restoreSession()">
                                     <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
                                     <input type="hidden" name="request_id" value="{{ item.id|attr }}" />
                                     <input type="hidden" name="revision" value="{{ item.revision|attr }}" />
+                                    {% if item.encounterChoices is not empty %}
+                                        <label class="mr-2 mb-2" for="encounter-{{ item.id|attr }}">{{ 'Add to encounter'|xlt }}</label>
+                                        <select class="form-control form-control-sm mr-2 mb-2" id="encounter-{{ item.id|attr }}" name="encounter">
+                                            <option value="">{{ 'None (assessments only)'|xlt }}</option>
+                                            {% for choice in item.encounterChoices %}
+                                                <option value="{{ choice.encounter|attr }}">{{ choice.date|text }}{% if choice.reason != '' %}: {{ choice.reason|text }}{% endif %}</option>
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
                                     <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary mb-2">{{ 'Approve'|xlt }}</button>
                                 </form>
                             {% else %}

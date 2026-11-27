@@ -60,7 +60,7 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
 
     /**
      * Approving the held response files it in the chart, lists it in Assessment History, and
-     * audits the write and read as the patient and the decision as the staff user.
+     * audits the write and read as the patient, and the view and decision as the staff user.
      */
     #[Test]
     #[Depends('testLoginAuthorized')]
@@ -103,12 +103,14 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
                 [
                     [self::PORTAL_USERNAME, 'submitted as pending', ''],
                     [self::PORTAL_USERNAME, 'read', ''],
+                    // Shown on Patient App Submissions.
+                    [LoginTestData::username, 'read', ''],
                     // Approved, then completed once it is in the chart.
                     [LoginTestData::username, 'pending to approved', ''],
-                    [LoginTestData::username, 'approved to completed', ''],
+                    [LoginTestData::username, 'approved to completed; written to the chart as QuestionnaireResponse/' . $this->requestUuid, ''],
                 ],
                 $this->auditTrail(),
-                'The write and the read must be audited as the patient, the approval as the staff user'
+                'The write and the read must be audited as the patient, the view and approval as the staff user'
             );
 
             // The chart: the patient's Assessment History lists the response.
@@ -190,6 +192,9 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
                 [
                     [self::PORTAL_USERNAME, 'submitted as pending', ''],
                     [self::PORTAL_USERNAME, 'read', ''],
+                    // Shown on the page, and again after the denial with no reason was refused.
+                    [LoginTestData::username, 'read', ''],
+                    [LoginTestData::username, 'read', ''],
                     [LoginTestData::username, 'pending to denied', 'Answered for the wrong visit'],
                 ],
                 $this->auditTrail(),
@@ -251,7 +256,7 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
 
     /**
      * The patient-review audit entries for the fixture's request, oldest first, as
-     * [user, what happened, note]. Matched on the request id, which is never reused.
+     * [user, what happened, note], where what happened leaves out the resource type and app. Matched on the request id, which is never reused.
      *
      * @return list<array{string, string, string}>
      */
@@ -269,10 +274,13 @@ class PatientAppSubmissionReviewTest extends PantherTestCase
             if ($comment === false || !str_starts_with($comment, $prefix)) {
                 continue;
             }
-            $this->assertStringEndsWith($suffix, $comment, 'The entry must name the resource type and the app');
+            // An approval's completed entry goes on to name the chart record written.
+            $written = (int) strpos($comment, '; written to the chart as ');
+            $named = $written > 0 ? substr($comment, 0, $written) : $comment;
+            $this->assertStringEndsWith($suffix, $named, 'The entry must name the resource type and the app');
             $trail[] = [
                 is_string($row['user']) ? $row['user'] : '',
-                substr($comment, strlen($prefix), -strlen($suffix)),
+                substr($named, strlen($prefix), -strlen($suffix)) . substr($comment, strlen($named)),
                 is_string($row['user_notes']) ? $row['user_notes'] : '',
             ];
         }
