@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 583
+-- v_database: 584
 --
 
 --
@@ -5201,6 +5201,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_valu
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'last_appointment', 'Last Appt', 130, 3, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_provider_name', 'Primary Insurance', 140, 3, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `option_value`, `activity`) VALUES ('ptlistcols', 'insurance_primary_policy', 'Primary Policy Number', 150, 3, 0);
+
+-- Service Category for the codes billed for reporting only, at no charge (quality measure
+-- G-codes, CPT II). A claim line with one of them is not warned about for having no charge.
+INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('superbill','quality_measures','Quality Measures',10);
 
 -- Medical Problem Issue List
 INSERT INTO list_options(list_id,option_id,title) VALUES ('lists','medical_problem_issue_list','Medical Problem Issue List');

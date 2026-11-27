@@ -349,7 +349,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $pcnt = 0;
     for ($svccount = 0; $svccount < 22 && $ub04_proc_index < $proccount; ++$ub04_proc_index) {
         $dia = $claim->diagIndexArray($ub04_proc_index);
-        if (! $claim->cptCharges($ub04_proc_index)) {
+        if ($claim->cptLacksCharge($ub04_proc_index)) {
             $log .= "*** Procedure '" . $claim->cptKey($ub04_proc_index) . "' has no charges!\n";
         }
         if (empty($dia)) {
