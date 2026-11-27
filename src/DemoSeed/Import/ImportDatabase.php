@@ -42,13 +42,17 @@ class ImportDatabase
     }
 
     /**
+     * The pids of the patients whose referrerID is this id. The CCDA import
+     * sets referrerID from the document's patient id (Synthea's patient id),
+     * and uses it to find a patient to merge the document into.
+     *
      * @return list<int>
      */
-    public function pidsAbove(int $pid): array
+    public function pidsWithReferrerId(string $referrerId): array
     {
         $rows = QueryUtils::fetchRecordsNoLog(
-            'SELECT `pid` FROM `patient_data` WHERE `pid` > ? ORDER BY `pid`',
-            [$pid],
+            'SELECT `pid` FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid`',
+            [$referrerId],
         );
         return array_map(fn (array $row): int => $this->toInt($row['pid'] ?? null), $rows);
     }

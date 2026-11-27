@@ -107,15 +107,17 @@ final readonly class WorkDirectory
         if (is_link($path) || !is_dir($path)) {
             throw new WorkDirectoryException($path . ' is not a directory');
         }
-        $permissions = fileperms($path);
+        // Every check below is on the resolved path, so they all describe
+        // the directory that is returned even if a symlink above it changes.
+        $resolved = realpath($path);
+        if ($resolved === false || !is_dir($resolved)) {
+            throw new WorkDirectoryException($path . ' is not a directory');
+        }
+        $permissions = fileperms($resolved);
         if ($permissions === false || ($permissions & 0o022) !== 0) {
             throw new WorkDirectoryException(
                 $path . ' can be written by other users; use --work-dir with a directory only you can write to',
             );
-        }
-        $resolved = realpath($path);
-        if ($resolved === false) {
-            throw new WorkDirectoryException($path . ' is not a directory');
         }
         $user = self::userWritingIn($resolved, $path);
         if (fileowner($resolved) !== $user) {

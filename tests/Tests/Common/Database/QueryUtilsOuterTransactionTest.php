@@ -41,32 +41,34 @@ final class QueryUtilsOuterTransactionTest extends TestCase
 
     public function testCommitsAndReturnsTheCallbacksValue(): void
     {
-        $result = QueryUtils::inOuterTransaction(function (): string {
+        $valuesInside = QueryUtils::inOuterTransaction(function (): array {
             $this->insert('outer');
-            return 'done';
+            return $this->values();
         });
 
-        $this->assertSame('done', $result);
+        $this->assertSame(['outer'], $valuesInside);
         $this->assertSame(['outer'], $this->values());
     }
 
     public function testRollsBackWhenTheCallbackThrows(): void
     {
+        $caught = null;
         try {
             QueryUtils::inOuterTransaction(function (): never {
                 $this->insert('outer');
                 throw new \RuntimeException('callback failed');
             });
-            $this->fail('The exception should propagate');
         } catch (\RuntimeException $e) {
-            $this->assertSame('callback failed', $e->getMessage());
+            $caught = $e;
         }
 
+        $this->assertSame('callback failed', $caught?->getMessage());
         $this->assertSame([], $this->values());
     }
 
     public function testRollsBackAnInnerTransactionThatCommittedWithTheOuterOne(): void
     {
+        $caught = null;
         try {
             QueryUtils::inOuterTransaction(function (): never {
                 QueryUtils::inTransaction(function (): void {
@@ -75,10 +77,11 @@ final class QueryUtilsOuterTransactionTest extends TestCase
                 $this->insert('outer');
                 throw new \RuntimeException('callback failed');
             });
-            $this->fail('The exception should propagate');
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $e) {
+            $caught = $e;
         }
 
+        $this->assertSame('callback failed', $caught?->getMessage());
         $this->assertSame([], $this->values());
     }
 
@@ -110,6 +113,6 @@ final class QueryUtilsOuterTransactionTest extends TestCase
     private function values(): array
     {
         $rows = QueryUtils::fetchRecordsNoLog('SELECT `value` FROM `' . self::TABLE . '` ORDER BY `value`', []);
-        return array_values(array_map(static fn (array $row): string => is_string($row['value'] ?? null) ? $row['value'] : '', $rows));
+        return array_map(static fn (array $row): string => is_string($row['value'] ?? null) ? $row['value'] : '', $rows);
     }
 }

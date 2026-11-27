@@ -17,7 +17,9 @@ namespace OpenEMR\Tests\Isolated\DemoSeed;
 use OpenEMR\DemoSeed\Import\CcdaPatientImporter;
 use OpenEMR\DemoSeed\Import\ImportDatabase;
 use OpenEMR\DemoSeed\Import\ImportException;
+use OpenEMR\DemoSeed\Synthea\SyntheaPatient;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\ExecutableFinder;
 
 final class CcdaPatientImporterTest extends TestCase
 {
@@ -55,6 +57,65 @@ final class CcdaPatientImporterTest extends TestCase
         }
         $this->assertSame(['lock', 'disable', 'restore', 'uuids', 'unlock'], $database->calls);
     }
+
+    public function testTakesTheNewPatientWithTheSyntheaIdAndIgnoresOneAddedMeanwhile(): void
+    {
+        // pid 6 was registered by someone else while the import ran.
+        $database = new RecordingImportDatabase(maxPid: 4, pidsByReferrerId: ['synthea-1' => [5]]);
+
+        $imported = $this->importer($database)->importAll([$this->patient('synthea-1')]);
+
+        $this->assertSame(5, $imported[0]->pid);
+        $this->assertSame('00000000-0000-4000-8000-000000000005', $imported[0]->uuid);
+    }
+
+    public function testStopsWhenTheImportMergedIntoAnExistingPatient(): void
+    {
+        $database = new RecordingImportDatabase(maxPid: 4, pidsByReferrerId: ['synthea-1' => [2]]);
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('merged Synthea patient synthea-1 into existing patient pid 2');
+
+        $this->importer($database)->importAll([$this->patient('synthea-1')]);
+    }
+
+    public function testStopsWhenTheImportAddedNoPatient(): void
+    {
+        $database = new RecordingImportDatabase(maxPid: 4);
+
+        $this->expectException(ImportException::class);
+        $this->expectExceptionMessage('to add one patient with that id, found 0');
+
+        $this->importer($database)->importAll([$this->patient('synthea-1')]);
+    }
+
+    /**
+     * An importer whose child process is `true`, which succeeds without
+     * importing anything; the recording database plays the import's part.
+     */
+    private function importer(RecordingImportDatabase $database): CcdaPatientImporter
+    {
+        $true = (new ExecutableFinder())->find('true');
+        if ($true === null) {
+            $this->markTestSkipped('No `true` executable to stand in for the import');
+        }
+        return new CcdaPatientImporter($database, sys_get_temp_dir(), 'default', $true);
+    }
+
+    private function patient(string $syntheaId): SyntheaPatient
+    {
+        return new SyntheaPatient(
+            $syntheaId,
+            $syntheaId . '.xml',
+            $syntheaId . '.json',
+            'Al',
+            'Able',
+            new \DateTimeImmutable('1960-01-10'),
+            'male',
+            'M',
+            null,
+        );
+    }
 }
 
 /**
@@ -65,8 +126,31 @@ final class RecordingImportDatabase extends ImportDatabase
     /** @var list<string> */
     public array $calls = [];
 
-    public function __construct(private readonly bool $locked = false, private readonly bool $failRestore = false)
+    /**
+     * @param array<string, list<int>> $pidsByReferrerId what the database
+     *        holds after the import
+     */
+    public function __construct(
+        private readonly bool $locked = false,
+        private readonly bool $failRestore = false,
+        private readonly int $maxPid = 0,
+        private readonly array $pidsByReferrerId = [],
+    ) {
+    }
+
+    public function maxPid(): int
     {
+        return $this->maxPid;
+    }
+
+    public function pidsWithReferrerId(string $referrerId): array
+    {
+        return $this->pidsByReferrerId[$referrerId] ?? [];
+    }
+
+    public function assignPatientUuid(int $pid): string
+    {
+        return sprintf('00000000-0000-4000-8000-%012d', $pid);
     }
 
     public function lockImports(): void

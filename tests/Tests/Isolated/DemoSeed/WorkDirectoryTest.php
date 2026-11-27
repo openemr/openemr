@@ -57,6 +57,18 @@ final class WorkDirectoryTest extends TestCase
         WorkDirectory::open($this->base . '/shared', '/', $this->filesystem);
     }
 
+    public function testRefusesADirectoryOthersCanWriteToReachedThroughASymlink(): void
+    {
+        $this->filesystem->mkdir($this->base . '/real/shared');
+        $this->filesystem->chmod($this->base . '/real/shared', 0o777);
+        $this->filesystem->symlink($this->base . '/real', $this->base . '/link');
+
+        $this->expectException(WorkDirectoryException::class);
+        $this->expectExceptionMessage('can be written by other users');
+
+        WorkDirectory::open($this->base . '/link/shared', '/', $this->filesystem);
+    }
+
     public function testRefusesASymlink(): void
     {
         $this->filesystem->mkdir($this->base . '/real', 0700);

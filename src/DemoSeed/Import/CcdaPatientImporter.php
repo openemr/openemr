@@ -109,28 +109,47 @@ final readonly class CcdaPatientImporter
             ));
         }
 
-        // The command doesn't report the pid, so look for it. The import lock
-        // keeps other runs of the loader out; a patient someone adds by hand
-        // meanwhile makes this stop rather than guess.
-        $newPids = $this->database->pidsAbove($maxPidBefore);
-        if (count($newPids) !== 1) {
-            throw new ImportException(sprintf(
-                'Expected the CCDA import of Synthea patient %s to create one patient, found %d',
-                $patient->syntheaId,
-                count($newPids),
-            ));
-        }
+        $pid = $this->importedPid($patient, $maxPidBefore);
         try {
-            $uuid = $this->database->assignPatientUuid($newPids[0]);
+            $uuid = $this->database->assignPatientUuid($pid);
         } catch (\Throwable $e) {
             // The patient is in the database but can't go in the manifest.
             throw new ImportException(sprintf(
                 'Synthea patient %s was imported as pid %d, but could not be given a UUID, so it is not in the'
                 . ' patient manifest and --reuse-import will leave it out; remove it or reset the database',
                 $patient->syntheaId,
-                $newPids[0],
+                $pid,
             ), 0, $e);
         }
-        return new ImportedPatient($newPids[0], $uuid, $patient);
+        return new ImportedPatient($pid, $uuid, $patient);
+    }
+
+    /**
+     * The command doesn't report the pid, so find the new patient by the
+     * referrerID the import gives it: Synthea's patient id. A patient someone
+     * else adds meanwhile has another one.
+     */
+    private function importedPid(SyntheaPatient $patient, int $maxPidBefore): int
+    {
+        $pids = $this->database->pidsWithReferrerId($patient->syntheaId);
+        $newPids = array_values(array_filter($pids, static fn (int $pid): bool => $pid > $maxPidBefore));
+        if (count($newPids) === 1) {
+            return $newPids[0];
+        }
+        if ($newPids === [] && $pids !== []) {
+            // The import merges a document into an existing patient with the
+            // same referrerID and no encounters, instead of adding one.
+            throw new ImportException(sprintf(
+                'The CCDA import merged Synthea patient %s into existing patient pid %d instead of adding a'
+                . ' patient; remove that patient or reset the database',
+                $patient->syntheaId,
+                $pids[count($pids) - 1],
+            ));
+        }
+        throw new ImportException(sprintf(
+            'Expected the CCDA import of Synthea patient %s to add one patient with that id, found %d',
+            $patient->syntheaId,
+            count($newPids),
+        ));
     }
 }
