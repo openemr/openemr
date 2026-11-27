@@ -363,17 +363,23 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
 
     // Re-fetch payment info.
-    $payrow = sqlQuery("SELECT " .
-    "SUM(amount1) AS amount1, " .
-    "SUM(amount2) AS amount2, " .
-    "MAX(method) AS method, " .
-    "MAX(source) AS source, " .
-    "MAX(dtime) AS dtime, " .
-    // "MAX(user) AS user " .
-    "MAX(user) AS user, " .
-    "MAX(encounter) as encounter " .
-    "FROM payments WHERE " .
-    "pid = ? AND dtime = ?", [$form_pid, $timestamp]);
+    $payrow = sqlQuery(
+        "SELECT " .
+        "SUM(p.amount1) AS amount1, " .
+        "SUM(p.amount2) AS amount2, " .
+        "MAX(p.method) AS method, " .
+        "MAX(p.source) AS source, " .
+        "MAX(p.dtime) AS dtime, " .
+        "MAX(p.user) AS user, " .
+        "MAX(p.encounter) AS encounter, " .
+        "(SELECT TRIM(CONCAT_WS(' ', u.fname, u.lname)) " .
+        " FROM users u " .
+        " WHERE u.username = MAX(p.user) " .
+        " LIMIT 1) AS staff_fullname " .
+        "FROM payments p " .
+        "WHERE p.pid = ? AND p.dtime = ?",
+        [$form_pid, $timestamp]
+    );
 
     // Create key for deleting, just in case.
     $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
@@ -583,7 +589,7 @@ function toencounter(enc, datestr, topframe) {
 
                             <br />
                             <?php echo xlt('Received By'); ?>:
-                            <?php echo text($payrow['user']); ?>
+                            <?php echo text($payrow['staff_fullname'] ?: $payrow['user']); ?>
                         </p>
 
                     </div>
