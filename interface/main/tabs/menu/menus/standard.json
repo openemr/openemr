@@ -455,6 +455,20 @@
                 ]
             },
             {
+                "label": "ERA Worklist",
+                "menu_id": "erawl",
+                "target": "erawl",
+                "url": "/interface/billing/era_worklist.php",
+                "children": [],
+                "requirement": 0,
+                "global_req": "enable_posting",
+                "acl_req": [
+                    "acct",
+                    "eob",
+                    "write"
+                ]
+            },
+            {
                 "label": "Patient Statements",
                 "menu_id": "stmt",
                 "target": "stm",

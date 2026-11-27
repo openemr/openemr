@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- setupHeader stub -->
+
+    <title>ERA Worklist</title>
+</head>
+<body>
+        <div id="container_div" class="container-fluid">
+                <h2 class="mt-3">ERA Worklist</h2>
+<p class="text-muted d-print-none">
+    Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            Needs review        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=posted" onclick="top.restoreSession()">Auto-posted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            Received files        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="files" />
+    <div class="form-row align-items-end">
+                <div class="form-group col-lg">
+            <label for="filter-from">Received From:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">To:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="" />
+        </div>
+                            <div class="form-group col-lg-auto">
+                <div class="form-check">
+                    <input type="checkbox" name="worked" id="filter-worked" class="form-check-input" value="1" />
+                    <label class="form-check-label" for="filter-worked">Show Worked</label>
+                </div>
+            </div>
+                <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</form>
+
+
+            <div class="alert alert-info" id="worklist-empty">No received remittance files are waiting to be posted.</div>
+                            <script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: "test-csrf-token",
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: "2026-11-27"
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+    </div>
+</body>
+</html>

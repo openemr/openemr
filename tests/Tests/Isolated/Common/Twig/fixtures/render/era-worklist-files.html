@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- setupHeader stub -->
+
+    <title>ERA Worklist</title>
+</head>
+<body>
+        <div id="container_div" class="container-fluid">
+                <h2 class="mt-3">ERA Worklist</h2>
+<p class="text-muted d-print-none">
+    Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            Needs review        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=posted" onclick="top.restoreSession()">Auto-posted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            Received files <span class="badge badge-danger" id="count-files">6</span>        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="files" />
+    <div class="form-row align-items-end">
+                <div class="form-group col-lg">
+            <label for="filter-from">Received From:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">To:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="" />
+        </div>
+                            <div class="form-group col-lg-auto">
+                <div class="form-check">
+                    <input type="checkbox" name="worked" id="filter-worked" class="form-check-input" value="1" checked />
+                    <label class="form-check-label" for="filter-worked">Show Worked</label>
+                </div>
+            </div>
+                <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</form>
+
+
+            <div class="table-responsive">
+            <table class="table table-striped table-sm" id="file-list">
+                <thead>
+                <tr>
+                    <th>Received</th>
+                    <th>Partner</th>
+                    <th>File</th>
+                    <th>Why It Was Not Posted</th>
+                    <th class="d-print-none">Post</th>
+                    <th>Worked</th>
+                </tr>
+                </thead>
+                <tbody>
+                                    <tr id="file-41">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;41&gt;.RMT<br /><span class="text-muted">20261020_41_60054.edi</span></td>
+                        <td>
+                                                            Unattended posting was off for this partner when the file arrived.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="41" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-42">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;42&gt;.RMT<br /><span class="text-muted">20261020_42_60054.edi</span></td>
+                        <td>
+                                                            Waiting for the next unattended posting run.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_42_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_42_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="42" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-43">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;43&gt;.RMT<br /><span class="text-muted">20261020_43_60054.edi</span></td>
+                        <td>
+                                                            A posting run took this file and has not finished it.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_43_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_43_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="43" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-44">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;44&gt;.RMT<br /><span class="text-muted">20261020_44_60054.edi</span></td>
+                        <td>
+                                                            The file could not be read as an 835. Nothing was posted from it.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="44" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-45">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;45&gt;.RMT<br /><span class="text-muted">20261020_45_60054.edi</span></td>
+                        <td>
+                                                            An error stopped the posting run part way through this file. See the Auto-posted list for what it posted.
+                                                                                        <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt;,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            None of its claims could be matched to an insurance company to post the check for.
+                                                                    </div>
+                                                    </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="45" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-46">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;46&gt;.RMT<br /><span class="text-muted">20261020_46_60054.edi</span></td>
+                        <td>
+                                                                                        <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            Out of balance: the claim payments (150.00) less the provider adjustments (10.00) do not add up to the check amount.
+                                                                    </div>
+                                                            <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            A payment session for this check exists under a different insurance company.
+                                                                    </div>
+                                                            <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                                                        </div>
+                                                    </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="46" />
+                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-47">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;47&gt;.RMT<br /><span class="text-muted">20261020_47_60054.edi</span></td>
+                        <td>
+                                                            Unattended posting was off for this partner when the file arrived.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, false)">Open in Posting Window</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, true)">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="47" />
+                    Billie &lt;Biller&gt;<br />
+            <span class="text-muted">2026-11-27 09:30</span>
+            <button type="submit" name="action" value="clear" class="btn btn-sm btn-link p-0 d-print-none">Undo</button>
+            </form>
+</td>
+                    </tr>
+                                </tbody>
+            </table>
+        </div>
+                            <script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: "test-csrf-token",
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: "2026-11-27"
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+    </div>
+</body>
+</html>

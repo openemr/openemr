@@ -637,3 +637,21 @@ ALTER TABLE `facility` ADD `mammography_cert_number` varchar(30) DEFAULT NULL CO
 #IfNotRow2D list_options list_id superbill option_id quality_measures
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('superbill', 'quality_measures', 'Quality Measures', 10);
 #EndIf
+
+-- v_database 585: the ERA worklist's "worked" mark, with who set it and when, on a claim payment
+-- left for review and on a received 835 that was not posted unattended.
+#IfMissingColumn era_auto_post_claim worked_by
+ALTER TABLE `era_auto_post_claim` ADD `worked_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'users.id of who marked the claim payment worked on the ERA worklist; 0 when not marked';
+#EndIf
+
+#IfMissingColumn era_auto_post_claim worked_at
+ALTER TABLE `era_auto_post_claim` ADD `worked_at` datetime DEFAULT NULL COMMENT 'when the claim payment was marked worked; NULL when not marked';
+#EndIf
+
+#IfMissingColumn x12_remote_received worked_by
+ALTER TABLE `x12_remote_received` ADD `worked_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'users.id of who marked the file worked on the ERA worklist; 0 when not marked';
+#EndIf
+
+#IfMissingColumn x12_remote_received worked_at
+ALTER TABLE `x12_remote_received` ADD `worked_at` datetime DEFAULT NULL COMMENT 'when the file was marked worked; NULL when not marked';
+#EndIf

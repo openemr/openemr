@@ -23,6 +23,7 @@ use OpenEMR\Common\DirectMessaging\DirectMessageLogRecord;
 use OpenEMR\Common\DirectMessaging\DirectMessageLogStatus;
 use OpenEMR\Common\DirectMessaging\DirectMessageType;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Billing\EraWorklistController;
 use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardController;
 use OpenEMR\Controllers\Interface\PatientFile\Assessment\AssessmentWorkspaceController;
 use OpenEMR\Controllers\Interface\Reports\DirectMessageLogController;
@@ -37,6 +38,7 @@ use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
 use OpenEMR\Tabs\PatientNameDisplay;
+use OpenEMR\Tests\Isolated\Controllers\Interface\Billing\EraWorklistRows;
 use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\AssessmentDashboardControllerTest;
 use OpenEMR\Tests\Isolated\Controllers\Interface\PatientFile\Assessment\FakeAssessmentStore;
 use OpenEMR\Tests\Isolated\Controllers\Interface\Super\FakeAvailabilityLookups;
@@ -1082,6 +1084,53 @@ class TwigTemplateRenderTest extends TestCase
                 'logstart' => 208,
             ],
             $fixtureDir . '/direct-message-log-populated.html',
+        ];
+
+        yield 'billing/era_worklist review empty' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page('review', []),
+            $fixtureDir . '/era-worklist-review-empty.html',
+        ];
+
+        // A claim payment for each reason and claim status, one not found, one marked worked;
+        // more match than are listed.
+        yield 'billing/era_worklist review' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page(
+                'review',
+                EraWorklistRows::reviewClaims(),
+                total: 612,
+                shown: ['payer' => 'PLAN <B>', 'check' => 'EFT"5', 'from' => '2026-11-01', 'to' => '2026-11-30', 'reason' => 'denied', 'worked' => '1'],
+                review: 9,
+                files: 6,
+            ),
+            $fixtureDir . '/era-worklist-review.html',
+        ];
+
+        yield 'billing/era_worklist posted empty' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page('posted', []),
+            $fixtureDir . '/era-worklist-posted-empty.html',
+        ];
+
+        yield 'billing/era_worklist posted' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page('posted', EraWorklistRows::postedChecks(), shown: ['check' => 'EFT'], review: 9),
+            $fixtureDir . '/era-worklist-posted.html',
+        ];
+
+        yield 'billing/era_worklist files empty' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page('files', []),
+            $fixtureDir . '/era-worklist-files-empty.html',
+        ];
+
+        // A file in each state unattended posting can leave it in, a held check for each hold
+        // reason, and a file marked worked.
+        yield 'billing/era_worklist files' => [
+            EraWorklistController::TEMPLATE,
+            EraWorklistRows::page('files', EraWorklistRows::receivedFiles(), shown: ['worked' => '1'], files: 6),
+            $fixtureDir . '/era-worklist-files.html',
         ];
 
         yield 'forms/care_plan report' => [
