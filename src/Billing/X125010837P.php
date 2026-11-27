@@ -895,8 +895,9 @@ class X125010837P
                 "~\n";
         }
 
-        if ($claim->cliaCode() && ($claim->claimType() === 'MB')) {
-            // Required by Medicare when in-house labs are done.
+        if ($claim->cliaCode()) {
+            // The billing facility's CLIA certificate number. Required by Medicare when in-house labs are done, and
+            // asked for by other payers for laboratory services too, so it is sent whatever the payer's type.
             ++$edicount;
             $out .= "REF" .     // Clinical Laboratory Improvement Amendment Number
                 "*" . "X4" .
