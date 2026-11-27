@@ -27,10 +27,8 @@ use Throwable;
  */
 final class QueryAuditor implements DbalLogger
 {
-    private ?string $currentSql = null;
-
-    /** @var array<int|string, mixed>|null */
-    private ?array $currentParams = null;
+    /** @var list<array{sql: string, params: ?array<int|string, mixed>}> */
+    private array $queryStack = [];
 
     public function __construct(
         private readonly AuditLoggerInterface $auditLogger,
@@ -43,27 +41,24 @@ final class QueryAuditor implements DbalLogger
      */
     public function startQuery(string $sql, ?array $params = null, ?array $types = null): void
     {
-        $this->currentSql = $sql;
-        $this->currentParams = $params;
+        $this->queryStack[] = ['sql' => $sql, 'params' => $params];
     }
 
     public function stopQuery(?Throwable $exception): void
     {
-        if ($this->currentSql === null) {
+        if ($this->queryStack === []) {
             return;
         }
 
+        $query = array_pop($this->queryStack);
         $outcome = $exception === null;
 
         // Delegate to the existing EventAuditLogger infrastructure.
         $this->auditLogger->auditSQLEvent(
-            $this->currentSql,
+            $query['sql'],
             $outcome,
-            $this->currentParams,
+            $query['params'],
         );
-
-        $this->currentSql = null;
-        $this->currentParams = null;
     }
 
     public function connect(): void
