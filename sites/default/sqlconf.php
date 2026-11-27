@@ -1,12 +1,13 @@
 <?php
+
 //  OpenEMR
 //  MySQL Config
 
-$host	= 'localhost';
-$port	= '3306';
-$login	= 'openemr';
-$pass	= 'openemrpass';
-$dbase	= 'openemr';
+$host   = 'localhost';
+$port   = '3306';
+$login  = 'openemr';
+$pass   = 'openemr';
+$dbase  = 'openemr';
 
 $sqlconf = [];
 global $sqlconf;
@@ -20,8 +21,7 @@ $sqlconf["dbase"] = $dbase;
 //////////////////////////
 //////////////////////////
 //////DO NOT TOUCH THIS///
-$config = 1; /////////////
+$config = 0; /////////////
 //////////////////////////
 //////////////////////////
 //////////////////////////
-?>

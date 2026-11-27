@@ -3,6 +3,7 @@
 namespace OpenEMR\Validators;
 
 use Particle\Validator\Chain;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
 /**
@@ -32,13 +33,7 @@ class FacilityValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
-                $context->required('name')->callback(static function ($value): bool {
-                    if (!is_scalar($value)) {
-                        return false;
-                    }
-                    $length = mb_strlen((string) $value);
-                    return $length >= 2 && $length <= 255;
-                });
+                $context->required('name')->lengthBetween(2, 255);
                 $context->required('facility_npi')->numeric()->lengthBetween(10, 15);
                 $context->optional('domain_identifier')->numeric();
                 $context->optional('phone')->lengthBetween(3, 30);
@@ -55,7 +50,7 @@ class FacilityValidator extends BaseValidator
                 $context->optional('service_location')->numeric();
                 $context->optional('billing_location')->numeric();
                 $context->optional('accepts_assignment')->numeric();
-                $context->optional('pos_code')->integer()->between(-128, 127);
+                $context->optional('pos_code')->numeric();
                 $context->optional('domain_identifier')->lengthBetween(2, 60);
                 $context->optional('attn')->lengthBetween(2, 65);
                 $context->optional('tax_id_type')->lengthBetween(2, 31);
@@ -94,10 +89,13 @@ class FacilityValidator extends BaseValidator
             function (Validator $context): void {
                 $context->required('name')->callback(static function ($value): bool {
                     if (!is_scalar($value)) {
-                        return false;
+                        throw new InvalidValueException('name must be a scalar value', 'NAME_NOT_SCALAR');
                     }
                     $length = mb_strlen((string) $value);
-                    return $length >= 1 && $length <= 255;
+                    if ($length < 1 || $length > 255) {
+                        throw new InvalidValueException('name must be between 1 and 255 characters', 'NAME_LENGTH');
+                    }
+                    return true;
                 });
                 $context->optional('phone')->lengthBetween(1, 30);
                 $context->optional('fax')->lengthBetween(1, 30);

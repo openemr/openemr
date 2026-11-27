@@ -233,7 +233,7 @@ class FacilityService extends BaseService
         $validator->optional('service_location')->numeric();
         $validator->optional('billing_location')->numeric();
         $validator->optional('accepts_assignment')->numeric();
-        $validator->optional('pos_code')->integer()->between(-128, 127);
+        $validator->optional('pos_code')->numeric();
         $validator->optional('domain_identifier')->lengthBetween(2, 60);
         $validator->optional('mammography_cert_number')->lengthBetween(2, 30);
         $validator->optional('attn')->lengthBetween(2, 65);

@@ -132,9 +132,9 @@ function submitform() {
                         $(`button.nav-link[data-toggle="tab"][data-target="#${tabId}"]`).tab('show');
                     }
                     firstInvalid.focus();
+                    return;
                 }
             }
-            return;
         }
         if (status !== 'saved' && message === '') {
             message = {{ 'The facility save did not finish.'|xlj }};

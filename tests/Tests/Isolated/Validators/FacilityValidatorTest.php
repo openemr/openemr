@@ -465,6 +465,28 @@ class FacilityValidatorTest extends TestCase
         $result31 = $this->validator->validate(array_merge($base, ['mammography_cert_number' => str_repeat('9', 31)]), FacilityValidator::FORM_SAVE_CONTEXT);
         $this->assertFalse($result31->isValid(), 'Mammography cert number of 31 characters should fail');
     }
+
+    public function testFormSaveNameTooLongMessageIsSpecific(): void
+    {
+        $result = $this->validator->validate(
+            ['name' => str_repeat('A', 256)],
+            FacilityValidator::FORM_SAVE_CONTEXT
+        );
+        $this->assertFalse($result->isValid(), 'Name of 256 characters should fail');
+        $messages = json_encode($result->getValidationMessages());
+        $this->assertStringContainsString('255 characters', $messages, 'Name length error should state the character limit');
+    }
+
+    public function testFormSaveNameNonScalarMessageIsSpecific(): void
+    {
+        $result = $this->validator->validate(
+            ['name' => ['not', 'a', 'string']],
+            FacilityValidator::FORM_SAVE_CONTEXT
+        );
+        $this->assertFalse($result->isValid(), 'Non-scalar name should fail');
+        $messages = json_encode($result->getValidationMessages());
+        $this->assertStringContainsString('scalar', $messages, 'Non-scalar name error should explain the problem');
+    }
 }
 
 /**

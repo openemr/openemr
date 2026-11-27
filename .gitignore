@@ -54,4 +54,3 @@ tmp/
 # ci/api-explorer/run.sh clones openemr/oe-module-api-explorer here on every
 # run; it's a transient CI/dev-time artifact, never a committed module.
 /devtools/oe-module-api-explorer/
-.aider*
