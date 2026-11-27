@@ -1986,6 +1986,13 @@ class BillingUtilities
             [$patient_id, $encounter_id]
         );
 
+        // Product lines too: one left billed stays read-only on the fee sheet, and a visit
+        // with only products would still read as billed.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `drug_sales` SET `billed` = 0, `bill_date` = NULL WHERE `pid` = ? AND `encounter` = ?',
+            [$patient_id, $encounter_id]
+        );
+
         sqlStatement(
             "UPDATE form_encounter SET last_level_billed = 0, " .
             "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
