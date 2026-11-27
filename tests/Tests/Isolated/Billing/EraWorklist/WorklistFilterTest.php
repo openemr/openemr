@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Billing\EraWorklist;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Billing\EraPosting\ClaimIssue;
 use OpenEMR\Billing\EraWorklist\ReceivedFile;
 use OpenEMR\Billing\EraWorklist\WorklistFilter;
@@ -158,5 +159,19 @@ final class WorklistFilterTest extends TestCase
             'no extension' => ['20261020_1234_87726', '20261020_1234_87726'],
             'only the last extension goes' => ['a.edi.edi', 'a.edi'],
         ];
+    }
+
+    #[Test]
+    public function aFileAPostingRunIsStillToFinishAwaitsTheRun(): void
+    {
+        $awaiting = [];
+        foreach ([null, ...AutoPostFileStatus::cases()] as $status) {
+            $file = new ReceivedFile(1, 'Partner', 'remote.RMT', 'a.edi', new \DateTimeImmutable('2026-11-19 10:00:00'), $status, [], null);
+            if ($file->awaitsRun()) {
+                $awaiting[] = $status;
+            }
+        }
+
+        self::assertSame([AutoPostFileStatus::Pending, AutoPostFileStatus::Running], $awaiting);
     }
 }

@@ -69,11 +69,11 @@
                         <td>Demo &lt;Clearinghouse&gt;</td>
                         <td>REMIT&lt;41&gt;.RMT<br /><span class="text-muted">20261020_41_60054.edi</span></td>
                         <td>
-                                                            Unattended posting was off for this partner when the file arrived.
+                                                            Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, true)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, false)">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_41_60054&quot;, true)">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -91,16 +91,16 @@
                                                             Waiting for the next unattended posting run.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_42_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_42_60054&quot;, true)">Preview</button>
+                                                                                            <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="d-inline mb-0" onsubmit="return takeFromRun(&quot;pending&quot;)">
+                                    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="42" />
+                                    <input type="hidden" name="state" value="pending" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
+                                </form>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_42_60054&quot;, true)">Preview</button>
                         </td>
-                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
-        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
-        <input type="hidden" name="kind" value="file" />
-        <input type="hidden" name="id" value="42" />
-                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
-            </form>
-</td>
+                        <td class="text-nowrap"></td>
                     </tr>
                                     <tr id="file-43">
                         <td class="text-nowrap">2026-11-26 03:00</td>
@@ -110,16 +110,16 @@
                                                             A posting run took this file and has not finished it.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_43_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_43_60054&quot;, true)">Preview</button>
+                                                                                            <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="d-inline mb-0" onsubmit="return takeFromRun(&quot;running&quot;)">
+                                    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="43" />
+                                    <input type="hidden" name="state" value="running" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
+                                </form>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_43_60054&quot;, true)">Preview</button>
                         </td>
-                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
-        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
-        <input type="hidden" name="kind" value="file" />
-        <input type="hidden" name="id" value="43" />
-                    <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
-            </form>
-</td>
+                        <td class="text-nowrap"></td>
                     </tr>
                                     <tr id="file-44">
                         <td class="text-nowrap">2026-11-26 03:00</td>
@@ -129,8 +129,8 @@
                                                             The file could not be read as an 835. Nothing was posted from it.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, true)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, false)">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_44_60054&quot;, true)">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -145,7 +145,7 @@
                         <td>Demo &lt;Clearinghouse&gt;</td>
                         <td>REMIT&lt;45&gt;.RMT<br /><span class="text-muted">20261020_45_60054.edi</span></td>
                         <td>
-                                                            An error stopped the posting run part way through this file. See the Auto-posted list for what it posted.
+                                                            The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.
                                                                                         <div class="held-check">
                                     <strong>Check held:</strong> EFT&lt;9&gt;,
                                     PLAN &lt;B&gt;, 200.00, 2 claim payments.
@@ -153,8 +153,8 @@
                                                                     </div>
                                                     </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, true)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, false)">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_45_60054&quot;, true)">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -185,8 +185,8 @@
                                                                                                         </div>
                                                     </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, true)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, false)">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_46_60054&quot;, true)">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -201,11 +201,11 @@
                         <td>Demo &lt;Clearinghouse&gt;</td>
                         <td>REMIT&lt;47&gt;.RMT<br /><span class="text-muted">20261020_47_60054.edi</span></td>
                         <td>
-                                                            Unattended posting was off for this partner when the file arrived.
+                                                            Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, false)">Open in Posting Window</button>
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, true)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, false)">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow(&quot;20261020_47_60054&quot;, true)">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -241,6 +241,19 @@
             paydate: "2026-11-27"
         });
         window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? "A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?"
+            : "Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?";
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
     }
 
     $(function () {

@@ -375,6 +375,19 @@
         window.open('sl_eob_process.php?' + params, '_blank');
     }
 
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? "A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?"
+            : "Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?";
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
+    }
+
     $(function () {
         datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
     });

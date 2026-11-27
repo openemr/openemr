@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Controllers\Interface\Billing;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Billing\EraPosting\ClaimIssue;
 use OpenEMR\Billing\EraWorklist\OpenCounts;
 use OpenEMR\Billing\EraWorklist\ReceivedFile;
@@ -196,6 +197,26 @@ final class EraWorklistControllerTest extends TestCase
     }
 
     #[Test]
+    public function takesAFileFromUnattendedPostingInTheStateItWasShownIn(): void
+    {
+        $this->worklist->expects(self::once())
+            ->method('takeFromUnattended')
+            ->with(9, AutoPostFileStatus::Running)
+            ->willReturn(true);
+
+        self::assertTrue($this->controller->mark(self::post('file', 'take', '9', 'running')));
+    }
+
+    #[Test]
+    public function takesNoFileWhenTheFormNamesNoState(): void
+    {
+        $this->expectNoMark();
+
+        self::assertFalse($this->controller->mark(self::post('file', 'take', '9')));
+        self::assertFalse($this->controller->mark(self::post('file', 'take', '9', 'stuck')));
+    }
+
+    #[Test]
     #[DataProvider('nothingToMarkProvider')]
     public function marksNothingWhenTheFormNamesNoRow(string $kind, string $action, string $id): void
     {
@@ -217,6 +238,7 @@ final class EraWorklistControllerTest extends TestCase
             'id not a number' => ['file', 'worked', '9 or 1=1'],
             'unknown kind' => ['check', 'worked', '9'],
             'unknown action' => ['claim', 'delete', '31'],
+            'a claim payment is not taken' => ['claim', 'take', '31'],
         ];
     }
 
@@ -231,13 +253,17 @@ final class EraWorklistControllerTest extends TestCase
 
     private function expectNoMark(): void
     {
-        foreach (['markClaimWorked', 'clearClaimWorked', 'markFileWorked', 'clearFileWorked'] as $method) {
+        foreach (['markClaimWorked', 'clearClaimWorked', 'markFileWorked', 'clearFileWorked', 'takeFromUnattended'] as $method) {
             $this->worklist->expects(self::never())->method($method);
         }
     }
 
-    private static function post(string $kind, string $action, string $id): Request
+    private static function post(string $kind, string $action, string $id, string $state = ''): Request
     {
-        return Request::create('/interface/billing/era_worklist.php?view=review', 'POST', ['kind' => $kind, 'action' => $action, 'id' => $id]);
+        return Request::create(
+            '/interface/billing/era_worklist.php?view=review',
+            'POST',
+            ['kind' => $kind, 'action' => $action, 'id' => $id, 'state' => $state]
+        );
     }
 }

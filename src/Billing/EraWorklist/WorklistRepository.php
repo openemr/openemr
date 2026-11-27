@@ -205,12 +205,41 @@ final class WorklistRepository implements Worklist
         return self::changedOne();
     }
 
+    public function takeFromUnattended(int $receivedId, AutoPostFileStatus $seen): bool
+    {
+        $becomes = match ($seen) {
+            AutoPostFileStatus::Pending => '',
+            AutoPostFileStatus::Running => AutoPostFileStatus::Interrupted->value,
+            AutoPostFileStatus::Done, AutoPostFileStatus::Unreadable, AutoPostFileStatus::Interrupted => null,
+        };
+        if ($becomes === null) {
+            return false;
+        }
+        // The state is checked in the statement that changes it, as the run's own take is:
+        // of a run and a person reaching for a waiting file, only one gets it.
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE `x12_remote_received` SET `auto_post_status` = ?'
+            . ' WHERE `id` = ? AND `file_type` = ? AND `status` = ? AND `auto_post_status` = ?',
+            [$becomes, $receivedId, X12FileType::Remittance835->value, ReceivedStatus::Stored->value, $seen->value]
+        );
+        return self::changedOne();
+    }
+
     public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at): bool
     {
+        // Not while a posting run is still to take the file or has it: what the run finds
+        // (a check it holds, an error) is for a person to see, and a mark would hide it.
         QueryUtils::sqlStatementThrowException(
             'UPDATE `x12_remote_received` AS r SET r.`worked_by` = ?, r.`worked_at` = ?'
-            . ' WHERE r.`id` = ? AND r.`worked_by` = 0 AND ' . self::FILE_ON_WORKLIST,
-            [$by->id, $at->format('Y-m-d H:i:s'), $receivedId, ...self::fileBinds()]
+            . ' WHERE r.`id` = ? AND r.`worked_by` = 0 AND r.`auto_post_status` NOT IN (?, ?) AND ' . self::FILE_ON_WORKLIST,
+            [
+                $by->id,
+                $at->format('Y-m-d H:i:s'),
+                $receivedId,
+                AutoPostFileStatus::Pending->value,
+                AutoPostFileStatus::Running->value,
+                ...self::fileBinds(),
+            ]
         );
         return self::changedOne();
     }

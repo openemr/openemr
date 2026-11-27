@@ -320,7 +320,7 @@
                         <td>{{ file.remoteName|text }}<br /><span class="text-muted">{{ file.storedName|text }}</span></td>
                         <td>
                             {% if file.autoPostStatus is null %}
-                                {{ 'Unattended posting was off for this partner when the file arrived.'|xlt }}
+                                {{ 'Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.'|xlt }}
                             {% elseif file.autoPostStatus.value == 'pending' %}
                                 {{ 'Waiting for the next unattended posting run.'|xlt }}
                             {% elseif file.autoPostStatus.value == 'running' %}
@@ -328,7 +328,7 @@
                             {% elseif file.autoPostStatus.value == 'unreadable' %}
                                 {{ 'The file could not be read as an 835. Nothing was posted from it.'|xlt }}
                             {% elseif file.autoPostStatus.value == 'interrupted' %}
-                                {{ 'An error stopped the posting run part way through this file. See the Auto-posted list for what it posted.'|xlt }}
+                                {{ 'The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.'|xlt }}
                             {% endif %}
                             {% for held in file.heldChecks %}
                                 <div class="held-check">
@@ -346,10 +346,21 @@
                             {% endfor %}
                         </td>
                         <td class="d-print-none text-nowrap">
-                            <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow({{ file.eraName()|attr_js }}, false)">{{ 'Open in Posting Window'|xlt }}</button>
+                            {% if file.awaitsRun() %}
+                                {# A posting run may still post this file, so it is taken from the run before a person posts it. #}
+                                <form method="post" action="era_worklist.php?{{ selfQuery|attr }}" class="d-inline mb-0" onsubmit="return takeFromRun({{ file.autoPostStatus.value|attr_js }})">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="{{ file.id|attr }}" />
+                                    <input type="hidden" name="state" value="{{ file.autoPostStatus.value|attr }}" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">{{ 'Post by Hand'|xlt }}</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow({{ file.eraName()|attr_js }}, false)">{{ 'Open in Posting Window'|xlt }}</button>
+                            {% endif %}
                             <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow({{ file.eraName()|attr_js }}, true)">{{ 'Preview'|xlt }}</button>
                         </td>
-                        <td class="text-nowrap">{{ _self.worked('file', file, selfQuery, csrfToken) }}</td>
+                        <td class="text-nowrap">{% if not file.awaitsRun() or file.worked is not null %}{{ _self.worked('file', file, selfQuery, csrfToken) }}{% endif %}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -381,6 +392,19 @@
             paydate: {{ today|js_escape }}
         });
         window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? {{ 'A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?'|xlj }}
+            : {{ 'Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?'|xlj }};
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
     }
 
     $(function () {

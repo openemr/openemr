@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Billing\EraWorklist;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
+
 interface Worklist
 {
     /**
@@ -60,7 +62,17 @@ interface Worklist
     public function clearClaimWorked(int $claimId): bool;
 
     /**
-     * @return bool false when the file is not on the worklist, or is already marked
+     * Take a file from unattended posting so that a person can post it: one waiting for a
+     * posting run is no longer for unattended posting, and one a run took and did not
+     * finish is recorded as interrupted. Only a person can say that the run has stopped.
+     *
+     * @param AutoPostFileStatus $seen the state the person saw the file in
+     * @return bool false when the file is no longer in that state, or the state is not one a file is taken from
+     */
+    public function takeFromUnattended(int $receivedId, AutoPostFileStatus $seen): bool;
+
+    /**
+     * @return bool false when the file is not on the worklist, is waiting for or held by a posting run, or is already marked
      */
     public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at): bool;
 

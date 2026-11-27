@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Controllers\Interface\Billing;
 
+use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Billing\EraWorklist\Worklist;
 use OpenEMR\Billing\EraWorklist\WorklistFilter;
 use OpenEMR\Billing\EraWorklist\WorklistUser;
@@ -71,8 +72,8 @@ final readonly class EraWorklistController
     }
 
     /**
-     * Set or clear the "worked" mark the posted form names. Access and the CSRF token are
-     * already checked.
+     * Set or clear the "worked" mark the posted form names, or take the file it names from
+     * unattended posting. Access and the CSRF token are already checked.
      *
      * @return bool false when nothing was changed: the form named no row, the row is not on
      *              the worklist, or it was already as asked
@@ -93,8 +94,19 @@ final readonly class EraWorklistController
             ['claim', 'clear'] => $this->worklist->clearClaimWorked($id),
             ['file', 'worked'] => $this->worklist->markFileWorked($id, $by, $this->clock->now()),
             ['file', 'clear'] => $this->worklist->clearFileWorked($id),
+            ['file', 'take'] => $this->takeFile($id, $post->getString('state')),
             default => false,
         };
+    }
+
+    /**
+     * @param string $state the unattended posting state the file was shown in
+     */
+    private function takeFile(int $id, string $state): bool
+    {
+        $seen = AutoPostFileStatus::tryFrom($state);
+
+        return $seen !== null && $this->worklist->takeFromUnattended($id, $seen);
     }
 
     /**

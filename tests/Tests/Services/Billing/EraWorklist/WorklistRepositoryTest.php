@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Billing\EraWorklist;
 
 use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
+use OpenEMR\Billing\EraAutoPost\AutoPostRepository;
 use OpenEMR\Billing\EraAutoPost\ClaimOutcome;
 use OpenEMR\Billing\EraAutoPost\HoldReason;
 use OpenEMR\Billing\EraPosting\ClaimIssue;
@@ -298,6 +299,62 @@ class WorklistRepositoryTest extends TestCase
         $this->assertTrue($this->worklist->clearFileWorked($off));
         $this->assertFalse($this->worklist->clearFileWorked($off));
         $this->assertSame($open, $this->worklist->openCounts()->files);
+    }
+
+    public function testAFileAPostingRunHasNotFinishedIsTakenFromTheRunBeforeItIsWorked(): void
+    {
+        $pending = $this->received('pending.edi', autoPostStatus: 'pending');
+        $running = $this->received('running.edi', autoPostStatus: 'running', receivedAt: '2026-11-19 11:00:00');
+        $off = $this->received('off.edi', autoPostStatus: '', receivedAt: '2026-11-19 12:00:00');
+        $status = $this->received('status.277', type: 'f277', autoPostStatus: 'pending');
+        $by = new WorklistUser(self::USER);
+        $at = new \DateTimeImmutable('2026-11-27 09:30:00');
+
+        // What the run finds is still to come: a mark now would hide it.
+        $this->assertFalse($this->worklist->markFileWorked($pending, $by, $at));
+        $this->assertFalse($this->worklist->markFileWorked($running, $by, $at));
+
+        // Only from the state the person saw: a run that took the file in between keeps it.
+        $this->assertFalse($this->worklist->takeFromUnattended($pending, AutoPostFileStatus::Running));
+        $this->assertFalse($this->worklist->takeFromUnattended($running, AutoPostFileStatus::Pending));
+        $this->assertFalse($this->worklist->takeFromUnattended($off, AutoPostFileStatus::Pending));
+        $this->assertFalse($this->worklist->takeFromUnattended($status, AutoPostFileStatus::Pending));
+        foreach ([AutoPostFileStatus::Done, AutoPostFileStatus::Unreadable, AutoPostFileStatus::Interrupted] as $notTaken) {
+            $this->assertFalse($this->worklist->takeFromUnattended($running, $notTaken));
+        }
+
+        $this->assertTrue($this->worklist->takeFromUnattended($pending, AutoPostFileStatus::Pending));
+        $this->assertFalse($this->worklist->takeFromUnattended($pending, AutoPostFileStatus::Pending));
+        $this->assertTrue($this->worklist->takeFromUnattended($running, AutoPostFileStatus::Running));
+
+        [$runningFile, $pendingFile] = $this->files(new WorklistFilter(), [$pending, $running]);
+        // No longer for unattended posting, so no run takes it.
+        $this->assertNull($pendingFile->autoPostStatus);
+        $this->assertFalse($pendingFile->awaitsRun());
+        $this->assertSame(AutoPostFileStatus::Interrupted, $runningFile->autoPostStatus);
+        $this->assertFalse($runningFile->awaitsRun());
+        $this->assertTrue($this->worklist->markFileWorked($pending, $by, $at));
+        $this->assertTrue($this->worklist->markFileWorked($running, $by, $at));
+    }
+
+    public function testAMarkDoesNotOutlastAPostingRunThatWasStillGoing(): void
+    {
+        // The file was taken from a run that had not stopped after all, and marked worked.
+        $file = $this->received('running.edi', autoPostStatus: 'running');
+        $this->assertTrue($this->worklist->takeFromUnattended($file, AutoPostFileStatus::Running));
+        $this->assertTrue($this->worklist->markFileWorked($file, new WorklistUser(self::USER), new \DateTimeImmutable('2026-11-27 09:30:00')));
+        $open = $this->worklist->openCounts()->files;
+
+        // The run then holds a check of the file and finishes it.
+        $this->check($file, 'CHK-HELD', status: 'held', holdReason: 'out_of_balance');
+        (new AutoPostRepository())->finish($file, AutoPostFileStatus::Done);
+
+        $files = $this->files(new WorklistFilter(), [$file]);
+        $this->assertCount(1, $files);
+        $this->assertNull($files[0]->worked);
+        $this->assertSame(AutoPostFileStatus::Done, $files[0]->autoPostStatus);
+        $this->assertCount(1, $files[0]->heldChecks);
+        $this->assertSame($open + 1, $this->worklist->openCounts()->files);
     }
 
     public function testThePayersOfTheChecksAreListedOnceEachInOrder(): void

@@ -38,6 +38,15 @@ final readonly class ReceivedFile
     }
 
     /**
+     * Whether a posting run is still to take the file, or took it and has not finished it.
+     * Such a file is not posted by hand, or marked worked, until it is taken from the run.
+     */
+    public function awaitsRun(): bool
+    {
+        return $this->autoPostStatus === AutoPostFileStatus::Pending || $this->autoPostStatus === AutoPostFileStatus::Running;
+    }
+
+    /**
      * The name the posting window opens the file by: the stored name without its extension.
      */
     public function eraName(): string
