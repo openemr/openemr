@@ -313,6 +313,46 @@ class X125010837PTest extends TestCase
         $this->assertSame([], array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'REF*EW')));
     }
 
+    public function testAnEmploymentRelatedClaimNamesItsAttachmentByTheClaimId(): void
+    {
+        $this->markTheEncounterEmploymentRelated();
+
+        [$segments, $edicount] = $this->generate();
+
+        // The attachment segment is counted like every other: SE01 is checked here.
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        $this->assertSame(['*P*EM'], [substr($segments[$this->position($segments, 'CLM*')], -5)]);
+        // Loop 2300: the attachment control number is the claim id of CLM01, so the report can be
+        // sent under a number the biller already has.
+        $this->assertSame(
+            ['PWK', 'OZ', 'EL', '', '', 'AC', self::PID . '-' . self::ENC],
+            $this->elements($segments, 'PWK')[0]
+        );
+        $this->assertGreaterThan($this->position($segments, 'CLM*'), $this->position($segments, 'PWK*'));
+        $this->assertLessThan($this->position($segments, 'HI*'), $this->position($segments, 'PWK*'));
+    }
+
+    public function testAClaimThatIsNotEmploymentRelatedSendsNoAttachmentSegment(): void
+    {
+        [$segments] = $this->generate();
+
+        $this->assertSame([], array_values(array_filter($segments, static fn(string $s): bool => str_starts_with($s, 'PWK*'))));
+    }
+
+    private function markTheEncounterEmploymentRelated(): void
+    {
+        $formId = QueryUtils::sqlInsert(
+            'INSERT INTO form_misc_billing_options (date, pid, user, groupname, authorized, activity, employment_related) '
+            . "VALUES (NOW(), ?, 'admin', 'Default', 1, 1, 1)",
+            [self::PID]
+        );
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO forms (date, encounter, form_name, form_id, pid, user, groupname, authorized, deleted, formdir) '
+            . "VALUES (NOW(), ?, 'Misc Billing Options', ?, ?, 'admin', 'Default', 1, 0, 'misc_billing_options')",
+            [self::ENC, $formId, self::PID]
+        );
+    }
+
     private function setTheFacilitysMammographyNumber(string $number): void
     {
         QueryUtils::sqlStatementThrowException(
@@ -443,6 +483,8 @@ class X125010837PTest extends TestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM ar_activity WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM ar_session WHERE session_id = ?', [self::SESSION]);
         QueryUtils::sqlStatementThrowException('DELETE FROM billing WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM form_misc_billing_options WHERE pid = ?', [self::PID]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM forms WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM form_encounter WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM insurance_data WHERE pid = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM patient_data WHERE pid = ?', [self::PID]);

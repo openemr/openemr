@@ -195,7 +195,7 @@ function checkAll(bx) {
                                         // Select which items to view...
                                         $i = 0;
                                         while ($myrow = sqlFetchArray($query)) {
-                                            echo "<input type='checkbox' name='value_code[]' value=" . attr($myrow['value_code']) . " ";
+                                            echo "<input type='checkbox' name='value_code[]' value='" . attr($myrow['value_code']) . "' ";
                                             if ($value_select) {
                                                 if (in_array($myrow['value_code'], $value_select)) {
                                                     echo "checked='checked' ";
