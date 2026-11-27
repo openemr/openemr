@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -74,20 +73,11 @@ final readonly class FhirPatientAppWriteController
     public static function forType(PatientWritableType $type, ParameterBag $globals): self
     {
         $queue = ReviewQueueFactory::create();
-        $clients = new ClientRepository();
         return new self(
             $type,
             new PatientWriteHold($queue, PatientWritePolicy::fromGlobals($globals), ReviewQueueFactory::fhirWriteHandler()),
             new PatientWriteReadBack($queue),
-            static function (string $clientId) use ($clients): ?PatientWriteClientType {
-                $client = $clients->getClientEntity($clientId);
-                if ($client === false) {
-                    return null;
-                }
-                return in_array($client->isConfidential(), [true, 1, '1'], true)
-                    ? PatientWriteClientType::Confidential
-                    : PatientWriteClientType::Public;
-            },
+            ReviewQueueFactory::clientType(),
             (new ServerConfig())->getFhirUrl(),
             static function (int $pid): ?string {
                 $username = QueryUtils::fetchSingleValue(
@@ -108,7 +98,7 @@ final readonly class FhirPatientAppWriteController
     public function create(HttpRestRequest $request, array $resource): Response
     {
         try {
-            $held = $this->hold->hold($this->context($request), $this->type, $resource);
+            $held = $this->hold->hold($this->context($request, null), $this->type, $resource);
         } catch (PatientWriteRefusal $refusal) {
             return self::refused($refusal->reason);
         }
@@ -126,7 +116,7 @@ final readonly class FhirPatientAppWriteController
     public function update(HttpRestRequest $request, string $id, array $resource): Response
     {
         try {
-            $changed = $this->hold->replace($this->context($request), $this->type, $id, $resource);
+            $changed = $this->hold->replace($this->context($request, $id), $this->type, $id, $resource);
         } catch (PatientWriteRefusal $refusal) {
             return self::refused($refusal->reason);
         }
@@ -195,17 +185,43 @@ final readonly class FhirPatientAppWriteController
     }
 
     /**
+     * The context of a write. A patient's token from an app that is not a registered client is
+     * refused, and the refusal is audited against the patient.
+     *
+     * @param ?string $id the id an update was sent to; null for a create
      * @throws PatientWriteRefusal 403 when the token doesn't name a patient and a registered client
      */
-    private function context(HttpRestRequest $request): PatientWriteContext
+    private function context(HttpRestRequest $request, ?string $id): PatientWriteContext
     {
-        return $this->readerContext($request) ?? throw new PatientWriteRefusal(PatientWriteRefusalReason::NotAllowed);
+        $token = $this->tokenPatient($request);
+        if ($token === null) {
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::NotAllowed);
+        }
+        $context = $this->contextFor($token);
+        if ($context === null) {
+            $this->hold->recordUnregisteredClient($token['pid'], $token['actor'], $token['clientId'], $this->type, $id);
+            throw new PatientWriteRefusal(PatientWriteRefusalReason::NotAllowed);
+        }
+
+        return $context;
     }
 
     /**
      * Who the token is for, or null when it doesn't name a patient and a registered client.
      */
     private function readerContext(HttpRestRequest $request): ?PatientWriteContext
+    {
+        $token = $this->tokenPatient($request);
+
+        return $token === null ? null : $this->contextFor($token);
+    }
+
+    /**
+     * The patient and app a patient's token names, or null when it names no patient.
+     *
+     * @return ?array{pid: int, patientUuid: string, clientId: string, actor: ReviewActor}
+     */
+    private function tokenPatient(HttpRestRequest $request): ?array
     {
         // Only the bearer-token check of a patient's token sets the patient and the request user.
         if (!$request->isPatientRequest()) {
@@ -219,20 +235,31 @@ final readonly class FhirPatientAppWriteController
         if ($patientUuid === null || $clientId === null || $clientId === '' || $pid <= 0) {
             return null;
         }
-        $clientType = ($this->clientType)($clientId);
+        $patientUuid = strtolower($patientUuid);
+
+        return [
+            'pid' => $pid,
+            'patientUuid' => $patientUuid,
+            'clientId' => $clientId,
+            // The audit log names a patient by portal login, as the portal does; a patient
+            // without one by the uuid the token was issued for.
+            'actor' => ReviewActor::patient($pid, ($this->portalUsername)($pid) ?? $patientUuid),
+        ];
+    }
+
+    /**
+     * The token's context, or null when its app is not a registered client.
+     *
+     * @param array{pid: int, patientUuid: string, clientId: string, actor: ReviewActor} $token
+     */
+    private function contextFor(array $token): ?PatientWriteContext
+    {
+        $clientType = ($this->clientType)($token['clientId']);
         if ($clientType === null) {
             return null;
         }
-        $patientUuid = strtolower($patientUuid);
         try {
-            return new PatientWriteContext(
-                $patientUuid,
-                $clientId,
-                $clientType,
-                // The audit log names a patient by portal login, as the portal does; a patient
-                // without one by the uuid the token was issued for.
-                ReviewActor::patient($pid, ($this->portalUsername)($pid) ?? $patientUuid),
-            );
+            return new PatientWriteContext($token['patientUuid'], $token['clientId'], $clientType, $token['actor']);
         } catch (\DomainException) {
             return null;
         }

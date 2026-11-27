@@ -33,6 +33,7 @@ use OpenEMR\RestControllers\EncounterRestController;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceCompanyRestController;
+use OpenEMR\RestControllers\InsuranceReopenChargesRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\ListRestController;
 use OpenEMR\RestControllers\MessageRestController;
@@ -89,7 +90,7 @@ return [
         return $return;
     },
 
-    "PUT /api/patient/:puuid" => function ($puuid, HttpRestRequest $request) {
+    "PUT /api/patient/:puuid" => function (string $puuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new PatientRestController())->put($puuid, $data, $request);
@@ -567,6 +568,20 @@ return [
         return $return;
     },
 
+    // Reopening charges is a billing action, so both methods need acct/bill/write
+    // on top of the demographics ACL the other insurance routes check.
+    'GET /api/patient/:puuid/insurance/:insuranceUuid/$reopen-charges' => function (string $puuid, string $insuranceUuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
+
+        return (new InsuranceReopenChargesRestController())->getCandidates($request, $puuid, $insuranceUuid);
+    },
+    'POST /api/patient/:puuid/insurance/:insuranceUuid/$reopen-charges' => function (string $puuid, string $insuranceUuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
+
+        return (new InsuranceReopenChargesRestController())->reopen($request, $puuid, $insuranceUuid);
+    },
     "PUT /api/patient/:puuid/insurance/:insuranceUuid" => function ($puuid, $insuranceUuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "demo", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));

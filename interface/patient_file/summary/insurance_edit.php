@@ -59,10 +59,8 @@ if ($pid) {
     $updateEvent = new UpdateEvent($pid);
     $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
-    if (
-        !$updateEvent->authorized() ||
-        !AclMain::aclCheckCore('patients', 'demo', '', 'write')
-    ) {
+    // The patients/demo write ACL was checked at the top of the script.
+    if (!$updateEvent->authorized()) {
         AccessDeniedHelper::deny('Updating insurance is not authorized');
     }
 } else {
@@ -109,6 +107,8 @@ echo $twig->render(
         ,'policy_types' => InsurancePolicyTypes::getTranslatedPolicyTypes()
         ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')
         ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
+        // Reopening charges after a policy change is a billing action: only billers are prompted.
+        ,'canReopenCharges' => AclMain::aclCheckCore('acct', 'bill', '', 'write')
         ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics')
     ]
 );

@@ -376,6 +376,37 @@ files for editing and adding new insurance policies for a patient.
                 <hr />
             </div>
         </div>
+        {% if canReopenCharges %}
+            {# Filled in and shown by ReopenChargesPanel.js after a policy is saved. #}
+            <div id="reopen-charges-panel" class="alert alert-warning d-none" role="region" aria-live="polite"
+                aria-labelledby="reopen-charges-title"
+                data-no-payer="{{ 'None'|xla }}" data-select-label="{{ 'Reopen encounter'|xla }}">
+                <h4 id="reopen-charges-title">{{ "Charges billed before this policy was on file"|xlt }}</h4>
+                <div class="reopen-charges-offer">
+                    <p>{{ "These visits fall within the dates of the saved policy and still have a balance, but they have not been billed to its insurance company. Reopen the ones that should be billed again; they will be listed in the Billing Manager as unbilled."|xlt }}</p>
+                    <table class="table table-sm table-light">
+                        <thead>
+                            <tr>
+                                <th scope="col"><input type="checkbox" class="reopen-charges-all" checked aria-label="{{ 'Select all visits'|xla }}" /></th>
+                                <th scope="col">{{ "Date of Service"|xlt }}</th>
+                                <th scope="col">{{ "Encounter"|xlt }}</th>
+                                <th scope="col">{{ "Last Billed To"|xlt }}</th>
+                                <th scope="col" class="text-right">{{ "Balance"|xlt }}</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <p class="reopen-charges-failed text-danger d-none">{{ "The charges could not be reopened. Please try again or contact your system administrator."|xlt }}</p>
+                    <button type="button" class="btn btn-primary btn-reopen-charges">{{ "Reopen Selected"|xlt }}</button>
+                    <button type="button" class="btn btn-secondary btn-reopen-charges-dismiss">{{ "Not Now"|xlt }}</button>
+                </div>
+                <div class="reopen-charges-done d-none">
+                    <p class="reopen-charges-done-all">{{ "The selected charges were reopened. They are now listed in the Billing Manager as unbilled."|xlt }}</p>
+                    <p class="reopen-charges-done-some d-none">{{ "Some of the selected visits were not reopened because their billing changed after they were listed. Check them in the Billing Manager."|xlt }}</p>
+                    <button type="button" class="btn btn-secondary btn-reopen-charges-dismiss">{{ "Close"|xlt }}</button>
+                </div>
+            </div>
+        {% endif %}
         {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
         <form id="DEM">
             <div class="section-header">
@@ -394,6 +425,7 @@ files for editing and adding new insurance policies for a patient.
         let url = {{ webroot|js_escape() }} + '/apis/' + {{ session.site_id|js_escape() }} + '/api/';
         let types = {{ insuranceTypes|js_escape() }};
         let insuranceProviderList = {{ insuranceProviderList|js_escape() }};
+        let canReopenCharges = {{ canReopenCharges|js_escape() }};
 
         window.addEventListener("DOMContentLoaded", function() {
             // due to our dynamic nature we need to do a dynamic import of the controller
@@ -412,7 +444,7 @@ files for editing and adding new insurance policies for a patient.
                      * @type {InsuranceEditMainControllerModule}
                      */
                     let moduleResult = result;
-                    let insuranceEditController = new result.InsuranceEditMainController(csrfToken, url, insuranceProviderList, types, puuid);
+                    let insuranceEditController = new result.InsuranceEditMainController(csrfToken, url, insuranceProviderList, types, puuid, canReopenCharges);
                     insuranceEditController.init();
                 })
                 .catch(err => {

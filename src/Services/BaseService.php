@@ -246,6 +246,7 @@ class BaseService implements BaseServiceInterface
      * @param array $passed_in
      * @param array $options configuration options for building.
      *                       null_value defines what NULL should be stored as in the table, default is empty string ''
+     * @return array{set: string, bind: list<mixed>}
      */
     protected function buildUpdateColumns($passed_in = [], $options = []): array
     {

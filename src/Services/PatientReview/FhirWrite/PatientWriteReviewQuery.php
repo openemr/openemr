@@ -20,10 +20,12 @@ namespace OpenEMR\Services\PatientReview\FhirWrite;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\FHIR\FhirPayloadReader;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\PatientReview\ReviewRequestMapper;
 use OpenEMR\Services\PatientReview\ReviewStatus;
 use OpenEMR\Services\PatientReview\ReviewType;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 
 final readonly class PatientWriteReviewQuery
 {
@@ -32,6 +34,7 @@ final readonly class PatientWriteReviewQuery
     public function __construct(
         private ReviewRequestMapper $mapper,
         private FhirWriteReviewHandler $handler,
+        private QuestionnaireEncounterFiling $encounters = new QuestionnaireEncounterFiling(),
     ) {
     }
 
@@ -57,6 +60,8 @@ final readonly class PatientWriteReviewQuery
         $firstWithContent = [];
         /** @var array<string, ?string> $names questionnaire name keyed by uuid, so each is looked up once */
         $names = [];
+        /** @var array<int, list<array{encounter: int, date: string, reason: string}>> $choices keyed by pid */
+        $choices = [];
         foreach ($records as $record) {
             $request = $this->mapper->toRequest($record);
             $json = json_encode($request->payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -67,6 +72,17 @@ final readonly class PatientWriteReviewQuery
 
             $isResponse = $request->resourceType?->value === 'QuestionnaireResponse';
             $answers = $isResponse ? QuestionnaireResponseAnswers::of($request->payload) : ['rows' => [], 'tooDeep' => 0];
+            $canApprove = $this->handler->canApply($request);
+            $encounterNamed = null;
+            $encounterChoices = [];
+            if ($isResponse && $canApprove) {
+                $encounterUuid = self::encounterUuid($request->payload['encounter'] ?? null);
+                if ($encounterUuid !== null) {
+                    $encounterNamed = $this->encounters->encounterByUuid($request->pid, $encounterUuid);
+                } else {
+                    $encounterChoices = $choices[$request->pid] ??= $this->encounters->latestEncounters($request->pid);
+                }
+            }
             $items[] = new PatientWriteReviewItem(
                 $request,
                 trim(self::text($record['patient_fname'] ?? null) . ' ' . self::text($record['patient_lname'] ?? null)),
@@ -76,9 +92,11 @@ final readonly class PatientWriteReviewQuery
                 $duplicateOf,
                 $answers['rows'],
                 $json,
-                $this->handler->canApply($request),
+                $canApprove,
                 $isResponse ? self::questionnaireName($request->payload['questionnaire'] ?? null, $names) : null,
                 $answers['tooDeep'],
+                $encounterNamed,
+                $encounterChoices,
             );
         }
 
@@ -129,6 +147,20 @@ final readonly class PatientWriteReviewQuery
         }
 
         return $names[$key];
+    }
+
+    /**
+     * The uuid of the encounter a response names, as approval resolves it; null when it names none.
+     */
+    private static function encounterUuid(mixed $reference): ?string
+    {
+        $reference = FhirPayloadReader::reference($reference);
+        if ($reference === null) {
+            return null;
+        }
+        $uuid = UtilsService::parseReferenceString($reference, 'Encounter')['uuid'];
+
+        return is_string($uuid) && UuidRegistry::isValidStringUUID($uuid) ? $uuid : null;
     }
 
     /**

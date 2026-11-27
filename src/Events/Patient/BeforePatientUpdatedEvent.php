@@ -27,23 +27,22 @@ class BeforePatientUpdatedEvent extends Event
     const EVENT_HANDLE = 'patient.before-updated';
 
     /**
-     * BeforePatientUpdatedEvent constructor.
-     * @param $patientData
+     * @param array<mixed> $patientData
      */
-    public function __construct(private $patientData)
+    public function __construct(private array $patientData)
     {
     }
 
     /**
-     * @return mixed
+     * @return array<mixed>
      */
-    public function getPatientData()
+    public function getPatientData(): array
     {
         return $this->patientData;
     }
 
     /**
-     * @param mixed $patientData
+     * @param array<mixed> $patientData
      */
     public function setPatientData(array $patientData): void
     {
