@@ -167,16 +167,18 @@ dwvOemr.zipImages = (function () {
                 if (mine !== request) {
                     return;
                 }
-                current = index;
-                ui.count.textContent = (index + 1) + " / " + entries.length;
                 loading = true;
                 try {
                     loadFile(buffer, dicomFileName(entries[index].name), !started);
                 } catch (error) {
+                    // the viewer refused the image: the selection and the counter stay on the image that is shown
                     fail(error);
                     return;
                 }
+                current = index;
+                ui.count.textContent = (index + 1) + " / " + entries.length;
                 started = true;
+                updateNav();
             }, function (error) {
                 if (mine !== request) {
                     return;

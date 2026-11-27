@@ -321,7 +321,23 @@ describe('createNavigator when the viewer refuses an image', () => {
         ui.next.onclick();
         await flush();
         expect(errors).toEqual(['Error: No loader found for file']);
+        // image 2 was refused: the selection, the counter and the buttons stay on image 1
+        expect(nav.current()).toBe(0);
+        expect(ui.count.textContent).toBe('1 / 3');
+        expect(ui.prev.disabled).toBe(true);
         expect(ui.next.disabled).toBe(false);
+    });
+
+    test('an image that the viewer accepts moves the selection, the counter and the buttons', async () => {
+        const {ui, nav} = build(() => {});
+        await nav.show(0);
+        nav.loadEnded();
+        ui.next.onclick();
+        await flush();
+        nav.loadEnded();
+        expect(nav.current()).toBe(1);
+        expect(ui.count.textContent).toBe('2 / 3');
         expect(ui.prev.disabled).toBe(false);
+        expect(ui.next.disabled).toBe(false);
     });
 });
