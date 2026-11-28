@@ -1,0 +1,30 @@
+{# A Flow Board row's first cells: Appt Date, Appt Time and Order (headings in
+   table_head.html.twig).
+   Clicking one opens the appointment dialog (library/js/flowBoard.js). A date or time the row
+   above already shows is hidden by the script, so each appears once; data-flb-repeat is what
+   it compares. A Visit List patient shows its block's start time, and its Order # with the
+   block's times as a tooltip. The date and time are left-aligned.
+
+   Input: showOrder (bool), eventId, dateSquash
+   (Ymd), date and time (formatted), dateKey (Y-m-d), and visitList (null, or {sequenceLabel,
+   start, timeRange} from OpenEMR\Appointment\VisitList\VisitListFlowBoard)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+{% set shownTime = visitList ? visitList.start : time %}
+<td class="detail text-left flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" data-flb-repeat="{{ dateKey|attr }}">
+    <span class="flb-when">{{ date|text }}</span>
+</td>
+<td class="detail text-left flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" data-flb-repeat="{{ (dateKey ~ ' ' ~ shownTime)|attr }}">
+    <span class="flb-when">{{ shownTime|text }}</span>
+</td>
+{% if showOrder %}
+{% if visitList %}
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" title="{{ 'Visit List'|xla }} {{ visitList.timeRange|attr }}">{{ visitList.sequenceLabel|text }}</td>
+{% else %}
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}"></td>
+{% endif %}
+{% endif %}

@@ -1,0 +1,171 @@
+/**
+ * Flow Board (interface/patient_tracker/patient_tracker.php)
+ *
+ * Short rows, one line tall where the content allows, names left-aligned, and the status
+ * and room badges with their menus (library/js/flowBoard.js).
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// The filter rows: groups and menus side by side, each as wide as its content.
+#flb_selectors {
+  .flb-filters,
+  .flb-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .flb-filters {
+    column-gap: 2rem;
+    text-align: left;
+
+    // A long choice shows in full in the open menu, and ends in "…" in the closed one.
+    select {
+      max-width: 20rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+
+      // For one frame after a change (flowBoardRedrawChoice in library/js/flowBoard.js).
+      &.flb-redraw {
+        text-overflow: clip;
+      }
+    }
+  }
+
+  // From, To and Filter, set apart from the patient boxes.
+  .flb-dates {
+    margin-right: 1.5rem;
+  }
+
+  // Filter: a little apart from the date, and as tall as the boxes beside it.
+  #filter_submit {
+    display: inline-flex;
+    align-items: center;
+    height: calc(1.5em + 0.5rem + 2px);
+    margin-left: 0.5rem;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  #form_apptcat {
+    width: 13rem;
+  }
+
+  #form_provider {
+    width: 15.5rem;
+  }
+}
+
+#flb_table {
+  .table {
+    // The line under "Appointment" and under "Time", across the columns each heads.
+    thead td.flb-group {
+      border-bottom: 2px solid var(--dark);
+    }
+
+    td {
+      vertical-align: middle;
+      padding-top: 0.1rem;
+      padding-bottom: 0.1rem;
+    }
+
+    // Headings that span both header rows sit at the top, level with "Appointment" and "Time".
+    thead td {
+      vertical-align: top;
+    }
+
+    // Row text at the size of the status and room badges.
+    tbody td {
+      font-size: 85%;
+    }
+
+    // Header cells may wrap, so columns that are often empty stay narrow.
+    td.detail {
+      white-space: nowrap;
+    }
+
+    td.flb-comment {
+      min-width: 12rem;
+      white-space: normal;
+    }
+
+    .flb-name {
+      text-align: left;
+    }
+
+    .flb-provider {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+
+  // Appt Date, Appt Time and Order open the appointment dialog.
+  .flb-appt {
+    cursor: pointer;
+  }
+
+  // A date or time the row above already shows.
+  .flb-repeat .flb-when {
+    visibility: hidden;
+  }
+
+  .flb-badge {
+    padding: 0.15em 0.65em;
+    font-size: 100%;
+    border-width: 0;
+    cursor: pointer;
+  }
+
+  // The title above the table: print only.
+  .flb-print-title {
+    display: none;
+  }
+}
+
+.flb-menu {
+  max-height: 50vh;
+  overflow-y: auto;
+  z-index: 1060;
+}
+
+@media print {
+  // The table without the filters and buttons, narrow enough for the page.
+  #flb_selectors .jumbotron,
+  #pull_kiosk_right {
+    display: none;
+  }
+
+  #flb_table {
+    .flb-print-title {
+      display: table-caption;
+      caption-side: top;
+      font-weight: bold;
+      color: var(--dark);
+    }
+
+    .table-responsive {
+      overflow: visible;
+    }
+
+    .table {
+      font-size: 0.8rem;
+
+      td.detail {
+        white-space: normal;
+      }
+    }
+
+    // Backgrounds don't print, so a badge's white text would vanish.
+    .flb-badge {
+      color: var(--dark);
+      border: 1px solid var(--dark);
+    }
+  }
+}
