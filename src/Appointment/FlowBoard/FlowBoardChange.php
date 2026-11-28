@@ -72,8 +72,10 @@ final readonly class FlowBoardChange
             $encounter = $this->store->createArrivalEncounter($appointment);
         }
 
-        $this->store->save($appointment, $user, $status, $room, $encounter);
-        return FlowBoardChangeResult::Saved;
+        // The save is refused when the appointment was made repeating after it was read.
+        return $this->store->save($appointment, $user, $status, $room, $encounter)
+            ? FlowBoardChangeResult::Saved
+            : FlowBoardChangeResult::Repeating;
     }
 
     private function isActive(string $listId, string $optionId): bool

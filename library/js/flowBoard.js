@@ -1,7 +1,7 @@
 /**
  * Flow Board (interface/patient_tracker/patient_tracker.php):
  * - the Status and Room badges open a menu of the values they can change to, and a choice
- *   is saved through flow_board_change.php, then the board is redrawn;
+ *   is saved through patient_tracker.php (flb_change), then the board is redrawn;
  * - clicking an Appt Date, Appt Time or Order cell (or a repeating appointment's badge)
  *   opens the appointment dialog;
  * - a date or time the row above already shows is hidden, so each appears once;
@@ -112,25 +112,31 @@ function flowBoardRedrawChoice(select) {
         }
     }
 
+    // The badge is disabled until its save is done, so a second choice can't race the first.
     function save(badge, kind, value) {
         var settings = config();
         var body = new URLSearchParams();
+        body.set('flb_change', '1');
         body.set('csrf_token_form', settings.csrfToken);
         body.set('eid', badge.getAttribute('data-flb-eid'));
         body.set(kind, value);
         if (window.top && typeof window.top.restoreSession === 'function') {
             window.top.restoreSession();
         }
+        badge.disabled = true;
         return fetch(settings.url, { method: 'POST', body: body, credentials: 'same-origin' })
             .then(function (response) {
                 if (!response.ok) {
                     throw new Error('Flow Board change failed: ' + response.status);
                 }
+                badge.setAttribute('data-flb-value', value);
+                badge.disabled = false;
                 if (typeof window.refreshMe === 'function') {
                     window.refreshMe();
                 }
             })
             .catch(function () {
+                badge.disabled = false;
                 window.alert(settings.text.failed);
             });
     }
@@ -160,11 +166,14 @@ function flowBoardRedrawChoice(select) {
             menu.appendChild(item);
         });
 
-        document.body.appendChild(menu);
+        // In kiosk mode the table is fullscreen, and only what is inside it shows.
+        var host = document.fullscreenElement || document.body;
+        var fixed = host !== document.body;
+        host.appendChild(menu);
         var rect = badge.getBoundingClientRect();
-        menu.style.position = 'absolute';
-        menu.style.top = (rect.bottom + window.scrollY) + 'px';
-        menu.style.left = (rect.left + window.scrollX) + 'px';
+        menu.style.position = fixed ? 'fixed' : 'absolute';
+        menu.style.top = (rect.bottom + (fixed ? 0 : window.scrollY)) + 'px';
+        menu.style.left = (rect.left + (fixed ? 0 : window.scrollX)) + 'px';
         badge.setAttribute('aria-expanded', 'true');
         openMenu = { element: menu, badge: badge };
         var first = menu.querySelector('.active') || menu.querySelector('.dropdown-item');
@@ -202,7 +211,8 @@ function flowBoardRedrawChoice(select) {
         if (event.key === 'Escape') {
             event.preventDefault();
             closeMenu(true);
-        } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        } else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && index !== -1) {
+            // Only while focus is in the menu; elsewhere the keys keep their own meaning.
             event.preventDefault();
             var step = event.key === 'ArrowDown' ? 1 : -1;
             var next = items[(index + step + items.length) % items.length];

@@ -23,7 +23,13 @@ use OpenEMR\Services\PatientTrackerService;
 
 final readonly class LegacyFlowBoardStore implements FlowBoardStore
 {
+    /**
+     * @param ?\Closure $encounterCheck the calendar's todaysEncounterCheck()
+     *        (library/encounter_events.inc.php), which the entry point loads; needed only to
+     *        create the arrival encounter
+     */
     public function __construct(
+        private ?\Closure $encounterCheck = null,
         private PatientTrackerService $tracker = new PatientTrackerService(),
     ) {
     }
@@ -72,7 +78,10 @@ final readonly class LegacyFlowBoardStore implements FlowBoardStore
 
     public function createArrivalEncounter(FlowBoardAppointment $appointment): int
     {
-        $encounter = \todaysEncounterCheck(
+        if ($this->encounterCheck === null) {
+            throw new \LogicException('Creating the arrival encounter needs the calendar\'s encounter check');
+        }
+        $encounter = ($this->encounterCheck)(
             $appointment->patientId,
             $appointment->date,
             $appointment->reason,
@@ -85,9 +94,10 @@ final readonly class LegacyFlowBoardStore implements FlowBoardStore
         return is_numeric($encounter) ? (int) $encounter : 0;
     }
 
-    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): void
+    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): bool
     {
-        $this->tracker->manage_tracker_status(
+        // It refuses, returning false, when the appointment repeats.
+        return $this->tracker->manage_tracker_status(
             $appointment->date,
             $appointment->startTime,
             $appointment->eventId,
@@ -96,6 +106,6 @@ final readonly class LegacyFlowBoardStore implements FlowBoardStore
             $status,
             $room,
             $encounter === 0 ? '' : (string) $encounter
-        );
+        ) !== false;
     }
 }

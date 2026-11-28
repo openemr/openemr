@@ -36,6 +36,7 @@ final class FakeFlowBoardStore implements FlowBoardStore
         ],
         private readonly int $trackerEncounter = 0,
         private readonly int $newEncounter = 900,
+        private readonly bool $refuseSave = false,
     ) {
     }
 
@@ -65,8 +66,11 @@ final class FakeFlowBoardStore implements FlowBoardStore
         return $this->newEncounter;
     }
 
-    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): void
+    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): bool
     {
+        if ($this->refuseSave) {
+            return false;
+        }
         $this->saved[] = [
             'eventId' => $appointment->eventId,
             'user' => $user,
@@ -74,6 +78,7 @@ final class FakeFlowBoardStore implements FlowBoardStore
             'room' => $room,
             'encounter' => $encounter,
         ];
+        return true;
     }
 
     /**

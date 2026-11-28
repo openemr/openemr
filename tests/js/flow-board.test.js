@@ -174,9 +174,26 @@ describe('menus and clicks', () => {
         expect(global.fetch).toHaveBeenCalledTimes(1);
         const [url, options] = global.fetch.mock.calls[0];
         expect(url).toBe('/flow_board_change.php');
-        expect(Object.fromEntries(options.body)).toEqual({ csrf_token_form: 'token', eid: '768', room: '1' });
+        expect(Object.fromEntries(options.body)).toEqual({ flb_change: '1', csrf_token_form: 'token', eid: '768', room: '1' });
         expect(window.refreshMe).toHaveBeenCalled();
         expect(items()).toEqual([]);
+        expect(badge('room').getAttribute('data-flb-value')).toBe('1');
+    });
+
+    test('a badge is disabled while its save is pending, and enabled again after', async () => {
+        let finish;
+        global.fetch = jest.fn(() => new Promise((resolve) => { finish = resolve; }));
+        badge('room').click();
+        items()[1].click();
+
+        expect(badge('room').disabled).toBe(true);
+        badge('room').click();
+        expect(items()).toEqual([]);
+
+        finish({ ok: true, status: 200 });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        expect(badge('room').disabled).toBe(false);
+        expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
     test('choosing the current value saves nothing', () => {
@@ -194,6 +211,8 @@ describe('menus and clicks', () => {
 
         expect(window.alert).toHaveBeenCalledWith('Not saved.');
         expect(window.refreshMe).not.toHaveBeenCalled();
+        expect(badge('status').disabled).toBe(false);
+        expect(badge('status').getAttribute('data-flb-value')).toBe('-');
     });
 
     test('Escape closes the menu and returns to the badge; the arrows move between items', () => {
@@ -206,6 +225,29 @@ describe('menus and clicks', () => {
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
         expect(items()).toEqual([]);
         expect(document.activeElement).toBe(badge('status'));
+    });
+
+    test('the arrows are left alone once focus leaves the menu', () => {
+        badge('status').click();
+        badge('room').focus();
+        const arrow = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true });
+        document.dispatchEvent(arrow);
+
+        expect(arrow.defaultPrevented).toBe(false);
+        expect(document.activeElement).toBe(badge('room'));
+    });
+
+    test('in fullscreen (kiosk) the menu opens inside the fullscreen element', () => {
+        const table = document.getElementById('flb_table');
+        Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => table });
+        try {
+            badge('status').click();
+            const menu = document.querySelector('.flb-menu');
+            expect(menu.parentElement).toBe(table);
+            expect(menu.style.position).toBe('fixed');
+        } finally {
+            delete document.fullscreenElement;
+        }
     });
 
     test('a date, time or order cell opens the appointment dialog', () => {

@@ -60,8 +60,8 @@ final readonly class FlowBoardAppointment
         if (
             $eventId <= 0
             || $patientId <= 0
-            || DateTimeImmutable::createFromFormat('!Y-m-d', $date) === false
-            || DateTimeImmutable::createFromFormat('!H:i:s', $startTime) === false
+            || !self::isExact('Y-m-d', $date)
+            || !self::isExact('H:i:s', $startTime)
         ) {
             return null;
         }
@@ -80,6 +80,16 @@ final readonly class FlowBoardAppointment
             self::int($row['pc_facility'] ?? null),
             self::int($row['pc_billing_location'] ?? null),
         );
+    }
+
+    /**
+     * The value reads in the format and is a real date or time: 2026-02-31 and 25:00:00 parse
+     * (rolling over), but do not format back to themselves.
+     */
+    private static function isExact(string $format, string $value): bool
+    {
+        $parsed = DateTimeImmutable::createFromFormat('!' . $format, $value);
+        return $parsed !== false && $parsed->format($format) === $value;
     }
 
     private static function int(mixed $value): int

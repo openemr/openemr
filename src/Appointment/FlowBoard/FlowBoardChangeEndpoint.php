@@ -34,11 +34,19 @@ final readonly class FlowBoardChangeEndpoint
             return self::failure('method', JsonResponse::HTTP_METHOD_NOT_ALLOWED);
         }
 
-        $body = $request->request;
-        $eventId = $body->getString('eid');
-        $status = $body->has('status') ? $body->getString('status') : null;
-        $room = $body->has('room') ? $body->getString('room') : null;
-        if (!ctype_digit($eventId) || ($status === null && $room === null) || $status === '') {
+        // Read the fields raw: InputBag's getters throw on an array value (eid[]=1).
+        $body = $request->request->all();
+        $eventId = $body['eid'] ?? null;
+        $status = $body['status'] ?? null;
+        $room = $body['room'] ?? null;
+        if (
+            !is_string($eventId)
+            || !ctype_digit($eventId)
+            || !(is_string($status) || $status === null)
+            || !(is_string($room) || $room === null)
+            || ($status === null && $room === null)
+            || $status === ''
+        ) {
             return self::failure('request', JsonResponse::HTTP_BAD_REQUEST);
         }
 

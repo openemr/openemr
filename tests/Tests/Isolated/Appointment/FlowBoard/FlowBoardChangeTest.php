@@ -125,4 +125,12 @@ class FlowBoardChangeTest extends TestCase
         $this->assertSame([], $repeating->saved);
         $this->assertSame([], $repeating->createdEncounters);
     }
+
+    public function testASaveRefusedBecauseTheAppointmentNowRepeatsIsAConflict(): void
+    {
+        $store = new FakeFlowBoardStore(FakeFlowBoardStore::appointmentOn('2026-11-30'), refuseSave: true);
+
+        $this->assertSame(FlowBoardChangeResult::Repeating, self::change($store)->apply(768, null, '2', 'admin'));
+        $this->assertSame([], $store->saved);
+    }
 }

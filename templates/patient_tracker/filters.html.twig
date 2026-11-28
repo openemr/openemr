@@ -17,7 +17,7 @@
     <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw()|attr }}" />
     <input type="hidden" id="kiosk" name="kiosk" value="{{ kiosk|attr }}" />
     <div class="flb-filters">
-        <div class="flb-filter-group flb-dates{{ dateRange ? '' : ' d-none' }}">
+        <div class="flb-filter-group flb-dates{% if not dateRange %} d-none{% endif %}">
             <label class="mb-0" for="form_from_date">{{ 'From'|xlt }}:</label>
             <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm w-auto text-center" size="10" value="{{ fromDate|attr }}" />
             <label class="mb-0" for="form_to_date">{{ 'To{{Range}}'|xlt }}:</label>
@@ -41,25 +41,25 @@
         <select id="form_apptcat" name="form_apptcat" class="form-control form-control-sm" aria-label="{{ 'Visit Categories'|xla }}" onchange="refineMe('apptcat');">
             <option value="">{{ 'Visit Categories'|xlt }}</option>
             {% for option in filters.categories %}
-            <option value="{{ option.id|attr }}"{{ option.id == filters.category ? ' selected' : '' }}>{{ option.label|xlt }}</option>
+            <option value="{{ option.id|attr }}"{% if option.id == filters.category %} selected{% endif %}>{{ option.label|xlt }}</option>
             {% endfor %}
         </select>
         <select id="form_apptstatus" name="form_apptstatus" class="form-control form-control-sm w-auto" aria-label="{{ 'Visit Status'|xla }}" onchange="refineMe();">
             <option value="">{{ 'Visit Status'|xlt }}</option>
             {% for option in filters.statuses %}
-            <option value="{{ option.id|attr }}"{{ option.id == filters.status ? ' selected' : '' }}>{{ option.label|xlt }}</option>
+            <option value="{{ option.id|attr }}"{% if option.id == filters.status %} selected{% endif %}>{{ option.label|xlt }}</option>
             {% endfor %}
         </select>
-        <select id="form_facility" name="form_facility" class="form-control form-control-sm w-auto" aria-label="{{ 'All Facilities'|xla }}" onchange="refineMe('facility');"{{ filters.facilities is empty ? ' disabled' : '' }}>
+        <select id="form_facility" name="form_facility" class="form-control form-control-sm w-auto" aria-label="{{ 'All Facilities'|xla }}" onchange="refineMe('facility');"{% if filters.facilities is empty %} disabled{% endif %}>
             <option value="">{{ 'All Facilities'|xlt }}</option>
             {% for option in filters.facilities %}
-            <option value="{{ option.id|attr }}"{{ option.id == filters.facility ? ' selected' : '' }}>{{ option.label|text }}</option>
+            <option value="{{ option.id|attr }}"{% if option.id == filters.facility %} selected{% endif %}>{{ option.label|text }}</option>
             {% endfor %}
         </select>
-        <select id="form_provider" name="form_provider" class="form-control form-control-sm" aria-label="{{ 'All Providers'|xla }}" onchange="refineMe('provider');"{{ filters.providers|length < 2 ? ' disabled' : '' }}>
+        <select id="form_provider" name="form_provider" class="form-control form-control-sm" aria-label="{{ 'All Providers'|xla }}" onchange="refineMe('provider');"{% if filters.providers|length < 2 %} disabled{% endif %}>
             <option value="">{{ 'All Providers'|xlt }}</option>
             {% for option in filters.providers %}
-            <option value="{{ option.id|attr }}"{{ option.id == filters.provider ? ' selected' : '' }}>{{ option.label|text }}</option>
+            <option value="{{ option.id|attr }}"{% if option.id == filters.provider %} selected{% endif %}>{{ option.label|text }}</option>
             {% endfor %}
         </select>
     </div>

@@ -20492,11 +20492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'stage\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'status\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',

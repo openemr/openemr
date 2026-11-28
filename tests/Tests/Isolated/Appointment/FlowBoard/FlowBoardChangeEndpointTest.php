@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 class FlowBoardChangeEndpointTest extends TestCase
 {
     /**
-     * @param array<string, string> $body
+     * @param array<string, string|list<string>> $body
      * @return array{int, mixed}
      */
     private static function respond(FakeFlowBoardStore $store, array $body, string $method = 'POST'): array
@@ -49,7 +49,7 @@ class FlowBoardChangeEndpointTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, string>, string, int, string}>
+     * @return array<string, array{array<string, string|list<string>>, string, int, string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -61,6 +61,9 @@ class FlowBoardChangeEndpointTest extends TestCase
             'event not a number' => [['eid' => '7x', 'status' => '@'], 'POST', 400, 'request'],
             'nothing to change' => [['eid' => '768'], 'POST', 400, 'request'],
             'empty status' => [['eid' => '768', 'status' => ''], 'POST', 400, 'request'],
+            'event as a list' => [['eid' => ['768'], 'status' => '@'], 'POST', 400, 'request'],
+            'status as a list' => [['eid' => '768', 'status' => ['@']], 'POST', 400, 'request'],
+            'room as a list' => [['eid' => '768', 'room' => ['1']], 'POST', 400, 'request'],
             'no such appointment' => [['eid' => '5', 'status' => '@'], 'POST', 404, 'not_found'],
             'unknown status' => [['eid' => '768', 'status' => 'zz'], 'POST', 400, 'status'],
             'unknown room' => [['eid' => '768', 'room' => '9'], 'POST', 400, 'room'],
@@ -68,7 +71,7 @@ class FlowBoardChangeEndpointTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $body
+     * @param array<string, string|list<string>> $body
      */
     #[DataProvider('failureProvider')]
     public function testFailures(array $body, string $method, int $status, string $reason): void

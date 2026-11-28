@@ -64,6 +64,8 @@ class FlowBoardAppointmentTest extends TestCase
             'no event' => [['pc_eid' => null]],
             'bad date' => [['pc_eventDate' => '2026-13-45x']],
             'bad time' => [['pc_startTime' => '']],
+            'no such date' => [['pc_eventDate' => '2026-02-31']],
+            'no such time' => [['pc_startTime' => '25:00:00']],
         ];
     }
 

@@ -43,7 +43,8 @@ interface FlowBoardStore
 
     /**
      * Records the status and room on the tracker (creating it when needed) and on the
-     * appointment, with the encounter when it is not 0.
+     * appointment, with the encounter when it is not 0. False when the save was refused
+     * because the appointment repeats.
      */
-    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): void;
+    public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): bool;
 }

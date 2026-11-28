@@ -30,10 +30,13 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Si
 
 use ESign\SignatureIF;
 use OpenEMR\Appointment\FlowBoard\FlowBoardChange;
+use OpenEMR\Appointment\FlowBoard\FlowBoardChangeEndpoint;
 use OpenEMR\Appointment\FlowBoard\FlowBoardFilters;
 use OpenEMR\Appointment\FlowBoard\LegacyFlowBoardStore;
 use OpenEMR\Appointment\VisitList\VisitListFlowBoard;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\CurrentRequest;
@@ -45,6 +48,21 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+}
+
+// A status or room change from the board's menus (library/js/flowBoard.js).
+if (CurrentRequest::get()->request->has('flb_change')) {
+    if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
+        AccessDeniedHelper::deny('Flow Board change: patients/appt write required');
+    }
+    require_once OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php';
+    $flowBoardUser = $session->get('authUser');
+    (new FlowBoardChangeEndpoint(new FlowBoardChange(
+        new LegacyFlowBoardStore(todaysEncounterCheck(...)),
+        OEGlobalsBag::getInstance()->getInt('auto_create_new_encounters') !== 0,
+        ServiceContainer::getClock()
+    )))->respond(CurrentRequest::get(), is_string($flowBoardUser) ? $flowBoardUser : '')->send();
+    exit();
 }
 
 // These settings are sticky user preferences linked to a given page.
@@ -185,7 +203,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
             <div class="jumbotron p-3 mb-3">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
-                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/filters.html.twig', ['filters' => FlowBoardFilters::load(CurrentRequest::get()->request, OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')), 'dateRange' => OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range'), 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date), 'patientName' => $form_patient_name ?? '', 'patientId' => $form_patient_id ?? '', 'kiosk' => $_REQUEST['kiosk'] ?? '', 'medex' => OEGlobalsBag::getInstance()->getBoolean('medex_enable'), 'medexOnline' => is_array($logged_in ?? null) && is_string($logged_in['token'] ?? null) && $logged_in['token'] !== '']); ?>
+                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/filters.html.twig', ['filters' => FlowBoardFilters::load(CurrentRequest::get()->request, OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')), 'dateRange' => OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range'), 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date), 'patientName' => $form_patient_name ?? '', 'patientId' => $form_patient_id ?? '', 'kiosk' => CurrentRequest::get()->request->getString('kiosk'), 'medex' => OEGlobalsBag::getInstance()->getBoolean('medex_enable'), 'medexOnline' => is_array($logged_in ?? null) && is_string($logged_in['token'] ?? null) && $logged_in['token'] !== '']); ?>
                 </div>
             </div>
         </div>
@@ -208,6 +226,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date');
     $appointments = (new VisitListFlowBoard())->arrange(is_array($appointments) ? $appointments : [], OEGlobalsBag::getInstance()->getInt('time_display_format') === 1);
+    // Status and room titles for the rows, looked up once each.
+    $listTitles = [];
+    $listTitle = static function (string $list, mixed $option) use (&$listTitles) {
+        if (!is_string($option)) {
+            return getListItemTitle($list, $option);
+        }
+        return $listTitles[$list][$option] ??= getListItemTitle($list, $option);
+    };
     $when = ['showOrder' => array_any($appointments, static fn(array $row): bool => isset($row['visit_list']))];
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
@@ -280,7 +306,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 
                     <div class="table-responsive mt-3">
                     <table class="table table-sm table-bordered">
-                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/table_head.html.twig', $when + ['showPid' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid'), 'showReason' => OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason'), 'showEncounter' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter'), 'showProvider' => count($chk_prov) > 1, 'showStaff' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff'), 'drugScreen' => OEGlobalsBag::getInstance()->getBoolean('drug_screen') && ($_REQUEST['kiosk'] ?? '') != '1', 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date)]); ?>
+                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/table_head.html.twig', $when + ['showPid' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid'), 'showReason' => OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason'), 'showEncounter' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter'), 'showProvider' => count($chk_prov) > 1, 'showStaff' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff'), 'drugScreen' => OEGlobalsBag::getInstance()->getBoolean('drug_screen') && CurrentRequest::get()->request->getString('kiosk') !== '1', 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date)]); ?>
                     <tbody>
                     <?php
                     $prev_appt_date_time = "";
@@ -296,7 +322,6 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $other_title = '';
                             $title = '';
                             $icon2_here = '';
-                            $appt['stage'] = '';
                             $icon_here = [];
                             $icon_extra = '';
                             $prog_text = '';
@@ -327,6 +352,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 /** @var array<string, array{html: string}> $msgTypeIcons */
                                 $msgTypeIcons = $icons[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                 $apptMsgData = $appointment[$msg_type] ?? [];
+                                $apptStage = is_array($apptMsgData) && is_string($apptMsgData['stage'] ?? null) ? $apptMsgData['stage'] : '';
                                 if (!empty($row['msg_extra_text'])) {
                                     $local = attr($row['msg_extra_text']) . " |";
                                 }
@@ -346,18 +372,18 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 } elseif ($row['msg_reply'] == "FAILED") {
                                     $appointment[$msg_type]['stage'] = "FAILED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                     $icon_here[$msg_type] = $msgTypeIcons['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($apptMsgData['stage'] == "CONFIRMED")) {
+                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($apptStage == "CONFIRMED")) {
                                     $appointment[$msg_type]['stage'] = "CONFIRMED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                     $icon_here[$msg_type]  = $msgTypeIcons['CONFIRMED']['html'];
-                                } elseif (($row['msg_reply'] == "READ") || ($apptMsgData['stage'] == "READ")) {
+                                } elseif (($row['msg_reply'] == "READ") || ($apptStage == "READ")) {
                                     $appointment[$msg_type]['stage'] = "READ"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                     $icon_here[$msg_type] = $msgTypeIcons['READ']['html'];
-                                } elseif (($row['msg_reply'] == "SENT") || ($apptMsgData['stage'] == "SENT")) {
+                                } elseif (($row['msg_reply'] == "SENT") || ($apptStage == "SENT")) {
                                     $appointment[$msg_type]['stage'] = "SENT"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                     $icon_here[$msg_type] = $msgTypeIcons['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
                                     if (
-                                        !in_array($apptMsgData['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
+                                        !in_array($apptStage, ["CONFIRMED", "READ", "SENT", "FAILED"])
                                     ) {
                                         $appointment[$msg_type]['stage'] = "QUEUED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                         $icon_here[$msg_type] = $msgTypeIcons['SCHEDULED']['html'];
@@ -454,7 +480,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <td class="detail text-left" name="kiosk_hide">
                             <?php echo xlt($appointment['pc_title']); ?>
                         </td>
-                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => getListItemTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => getListItemTitle('patient_flow_board_rooms', $appt_room)]]); ?>
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => $listTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => $listTitle('patient_flow_board_rooms', $appt_room)]]); ?>
 
                         <!-- reason -->
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
