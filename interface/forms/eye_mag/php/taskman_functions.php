@@ -559,7 +559,6 @@ mpdf-->
     }
 </style>';
 
-    $stylesheet = file_get_contents('/var/www/localhost/htdocs/openemr/interface/forms/eye_mag/css/report.css');
 
     //$pdf->WriteHTML($stylesheet,\Mpdf\HTMLParserMode::HEADER_CSS);
     $pdf->WriteHTML($header);
