@@ -275,6 +275,52 @@ class X125010837PTest extends TestCase
         $this->assertStringNotContainsString(self::MSP_TYPE_LOG, $this->log);
     }
 
+    public function testAPayerWithoutAnAddressGetsNoN3N4InLoops2010BBAnd2330B(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM addresses WHERE id IN (?, ?)',
+            [self::ADDRESS_PRIMARY, self::ADDRESS_SECONDARY]
+        );
+
+        [$segments, $edicount] = $this->generate();
+
+        $this->assertTransactionIsWellFormed($segments, $edicount);
+        foreach (['NM1*PR*2*PRIMARY PAYER*', 'NM1*PR*2*SECONDARY PAYER*'] as $payerLoop) {
+            $next = $segments[$this->position($segments, $payerLoop) + 1];
+            $this->assertStringStartsNotWith('N3*', $next, 'no empty N3 after the payer name');
+            $this->assertStringStartsNotWith('N4*', $next, 'no empty N4 after the payer name');
+        }
+        // The biller is told which fields are missing, and that the pair was left out.
+        foreach (['payer', 'other insco'] as $who) {
+            $this->assertStringContainsString("*** Missing $who street.", $this->log);
+            $this->assertStringContainsString("*** Missing $who city.", $this->log);
+        }
+        $this->assertStringContainsString('*** Payer address is incomplete', $this->log);
+        $this->assertStringContainsString('*** Other payer address is incomplete', $this->log);
+    }
+
+    public function testAPayerAddressWithABadZipIsLeftOutAndTheZipIsLogged(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE addresses SET zip = '1234' WHERE id = ?",
+            [self::ADDRESS_PRIMARY]
+        );
+
+        [$segments] = $this->generate();
+
+        $this->assertStringStartsNotWith(
+            'N3*',
+            $segments[$this->position($segments, 'NM1*PR*2*PRIMARY PAYER*') + 1]
+        );
+        $this->assertStringContainsString('*** Payer zip is not 5 or 9 digits.', $this->log);
+        $this->assertStringNotContainsString('*** Missing payer street.', $this->log);
+        // The secondary's address is complete and still goes out.
+        $this->assertSame(
+            ['NM1*PR*2*SECONDARY PAYER*****PI*SP002', 'N3*200 OTHER RD', 'N4*BOSTON*MA*02110'],
+            $this->loopAfter($segments, 'NM1*PR*2*SECONDARY PAYER*', 3)
+        );
+    }
+
     public function testAMammogramSendsTheServiceFacilitysCertificationNumber(): void
     {
         $this->setTheFacilitysMammographyNumber(' 123456 ');
