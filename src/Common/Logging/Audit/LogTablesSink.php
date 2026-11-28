@@ -37,6 +37,17 @@ readonly class LogTablesSink implements SinkInterface
 
     public function record(Event $event): void
     {
+        try {
+            $this->recordInternal($event);
+        } catch (\Doctrine\DBAL\Exception) {
+            // Audit logging must never crash the primary request.
+            // Swallow the exception; operators can monitor via database alerts
+            // or external log aggregation on the audit connection.
+        }
+    }
+
+    private function recordInternal(Event $event): void
+    {
         $api = $event->api;
 
         // 1. insert entry into log table
