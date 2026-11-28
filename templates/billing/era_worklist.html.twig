@@ -1,0 +1,479 @@
+{#
+ # ERA Worklist: what unattended posting posted from the 835s received from X12 partners, the
+ # claim payments it left for a person, and the files it did not post. Rendered by
+ # OpenEMR\Controllers\Interface\Billing\EraWorklistController.
+ #
+ # The names, numbers and codes shown came from a payer's file. Autoescape is off in OpenEMR,
+ # so every value goes through |text, |attr or a translation filter.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Waite <stephen.waite@cmsvt.com>
+ # @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@cmsvt.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+{% extends "core/base.html.twig" %}
+
+{# Why a claim payment was left for review or skipped, as era_auto_post_claim.reasons stores it. #}
+{% macro reason(code) %}
+    {%- if code == 'claim_not_found' -%}{{ 'Claim not found'|xlt }}
+    {%- elseif code == 'already_posted' -%}{{ 'Already posted from this check'|xlt }}
+    {%- elseif code == 'denied' -%}{{ 'Denied'|xlt }}
+    {%- elseif code == 'reversal' -%}{{ 'Reversal'|xlt }}
+    {%- elseif code == 'charge_mismatch' -%}{{ 'Charge does not match the invoice'|xlt }}
+    {%- elseif code == 'code_not_on_invoice' -%}{{ 'Code is not on the invoice'|xlt }}
+    {%- elseif code == 'unpaid_adjustment' -%}{{ 'Adjustment on a line paid nothing'|xlt }}
+    {%- elseif code == 'lines_pended' -%}{{ 'Lines pended by the payer'|xlt }}
+    {%- else -%}{{ code|text }}
+    {%- endif -%}
+{% endmacro %}
+
+{# The claim status the payer sent (CLP02). #}
+{% macro claimStatus(code) %}
+    {%- if code == '1' -%}{{ 'Primary'|xlt }}
+    {%- elseif code == '2' -%}{{ 'Secondary'|xlt }}
+    {%- elseif code == '3' -%}{{ 'Tertiary'|xlt }}
+    {%- elseif code == '4' -%}{{ 'Denied'|xlt }}
+    {%- elseif code == '19' -%}{{ 'Primary, forwarded'|xlt }}
+    {%- elseif code == '20' -%}{{ 'Secondary, forwarded'|xlt }}
+    {%- elseif code == '21' -%}{{ 'Tertiary, forwarded'|xlt }}
+    {%- elseif code == '22' -%}{{ 'Reversal'|xlt }}
+    {%- elseif code == '23' -%}{{ 'Not our claim, forwarded'|xlt }}
+    {%- else -%}{{ code|text }}
+    {%- endif -%}
+{% endmacro %}
+
+{# The check number with its date under it. #}
+{% macro check(number, date) %}
+    {{ number|text }}{% if date != '' %}<br /><span class="text-muted">{{ date|shortDate|text }}</span>{% endif %}
+{% endmacro %}
+
+{# The patient and encounter, opening the invoice to post by hand when the claim was found. #}
+{% macro invoice(row) %}
+    {%- if row.invoiceId > 0 -%}
+        <a href="#" class="d-print-none" onclick="editInvoice(event, {{ row.invoiceId|attr_js }})" title="{{ 'Post on the invoice'|xla }}">{{ row.pid|text }}.{{ row.encounter|text }}</a>
+        <span class="d-none d-print-inline">{{ row.pid|text }}.{{ row.encounter|text }}</span>
+    {%- elseif row.pid > 0 -%}
+        {{ row.pid|text }}.{{ row.encounter|text }}
+    {%- endif -%}
+{% endmacro %}
+
+{# The "worked" mark of a row, or the button that sets it. #}
+{% macro worked(kind, row, selfQuery, csrfToken) %}
+    <form method="post" action="era_worklist.php?{{ selfQuery|attr }}" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+        <input type="hidden" name="kind" value="{{ kind|attr }}" />
+        <input type="hidden" name="id" value="{{ row.id|attr }}" />
+        {% if kind == 'file' %}
+            {# What this page shows of the file. A mark is refused when a posting run has changed it since. #}
+            <input type="hidden" name="state" value="{{ row.autoPostStatus is null ? '' : row.autoPostStatus.value|attr }}" />
+            <input type="hidden" name="held" value="{{ row.heldChecks|length|attr }}" />
+        {% endif %}
+        {% if row.worked is null %}
+            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">{{ 'Mark worked'|xlt }}</button>
+        {% else %}
+            {{ row.worked.by|text }}<br />
+            <span class="text-muted">{{ row.worked.at|date('Y-m-d H:i:s')|oeFormatDateTime|text }}</span>
+            <button type="submit" name="action" value="clear" class="btn btn-sm btn-link p-0 d-print-none">{{ 'Undo'|xlt }}</button>
+        {% endif %}
+    </form>
+{% endmacro %}
+
+{% block pagetitle %}{{ 'ERA Worklist'|xlt }}{% endblock %}
+
+{% block head %}
+    {{ setupHeader(['datetime-picker', 'datetime-picker-translated']) }}
+{% endblock %}
+
+{% block content %}
+<h2 class="mt-3">{{ 'ERA Worklist'|xlt }}</h2>
+<p class="text-muted d-print-none">
+    {{ 'Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.'|xlt }}
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link{% if view == 'review' %} active{% endif %}" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            {{ 'Needs review'|xlt }}{% if counts.review > 0 %} <span class="badge badge-danger" id="count-review">{{ counts.review|text }}</span>{% endif %}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link{% if view == 'posted' %} active{% endif %}" href="era_worklist.php?view=posted" onclick="top.restoreSession()">{{ 'Auto-posted'|xlt }}</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link{% if view == 'files' %} active{% endif %}" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            {{ 'Received files'|xlt }}{% if counts.files > 0 %} <span class="badge badge-danger" id="count-files">{{ counts.files|text }}</span>{% endif %}
+        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="{{ view|attr }}" />
+    <div class="form-row align-items-end">
+        {% if view != 'files' %}
+            <div class="form-group col-lg">
+                <label for="filter-payer">{{ 'Payer'|xlt }}:</label>
+                <select name="payer" id="filter-payer" class="form-control">
+                    <option value="">{{ 'All'|xlt }}</option>
+                    {% for payer in payers %}
+                        <option value="{{ payer|attr }}"{% if payer == (shown.payer ?? '') %} selected{% endif %}>{{ payer|text }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-lg">
+                <label for="filter-check">{{ 'Check or EFT Number'|xlt }}:</label>
+                <input type="text" name="check" id="filter-check" class="form-control" value="{{ (shown.check ?? '')|attr }}" />
+            </div>
+        {% endif %}
+        <div class="form-group col-lg">
+            <label for="filter-from">{% if view == 'files' %}{{ 'Received From'|xlt }}{% else %}{{ 'Processed From'|xlt }}{% endif %}:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="{{ (shown.from ?? '')|attr }}" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">{{ 'To'|xlt }}:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="{{ (shown.to ?? '')|attr }}" />
+        </div>
+        {% if view == 'review' %}
+            <div class="form-group col-lg">
+                <label for="filter-reason">{{ 'Reason'|xlt }}:</label>
+                <select name="reason" id="filter-reason" class="form-control">
+                    <option value="">{{ 'All'|xlt }}</option>
+                    {% for code in reasons %}
+                        <option value="{{ code|attr }}"{% if code == (shown.reason ?? '') %} selected{% endif %}>{{ _self.reason(code) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+        {% if view != 'posted' %}
+            <div class="form-group col-lg-auto">
+                <div class="form-check">
+                    <input type="checkbox" name="worked" id="filter-worked" class="form-check-input" value="1"{% if shown.worked is defined %} checked{% endif %} />
+                    <label class="form-check-label" for="filter-worked">{{ 'Show Worked'|xlt }}</label>
+                </div>
+            </div>
+        {% endif %}
+        <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">{{ 'Search'|xlt }}</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">{{ 'Print'|xlt }}</button>
+        </div>
+    </div>
+</form>
+
+{% if total > rows|length %}
+    <div class="alert alert-info" id="worklist-more">
+        {{ 'Showing the newest'|xlt }} {{ rows|length|text }} {{ 'of'|xlt }} {{ total|text }}. {{ 'Narrow the search to see the rest.'|xlt }}
+    </div>
+{% endif %}
+
+{% if view == 'review' %}
+    {% if rows is empty %}
+        <div class="alert alert-info" id="worklist-empty">{{ 'No claim payments are waiting for review.'|xlt }}</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm" id="review-list">
+                <thead>
+                <tr>
+                    <th>{{ 'Check'|xlt }}</th>
+                    <th>{{ 'Payer'|xlt }}</th>
+                    <th>{{ 'Patient'|xlt }}</th>
+                    <th>{{ 'Invoice'|xlt }}</th>
+                    <th>{{ 'Payer Claim Number'|xlt }}</th>
+                    <th>{{ 'Claim Status'|xlt }}</th>
+                    <th>{{ 'Reason'|xlt }}</th>
+                    <th class="text-right">{{ 'Claim Payment'|xlt }}</th>
+                    <th class="text-right">{{ 'Paid'|xlt }}</th>
+                    <th class="text-right">{{ 'Adjusted'|xlt }}</th>
+                    <th>{{ 'Processed'|xlt }}</th>
+                    <th>{{ 'Worked'|xlt }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for claim in rows %}
+                    <tr id="review-{{ claim.id|attr }}">
+                        <td class="text-nowrap">{{ _self.check(claim.checkNumber, claim.checkDate) }}</td>
+                        <td>{{ claim.payerName|text }}</td>
+                        <td>{{ claim.patientName|text }}</td>
+                        <td>
+                            {% if claim.pid > 0 %}
+                                {{ _self.invoice(claim) }}
+                            {% else %}
+                                <span class="text-muted" title="{{ 'The claim number the payer sent back'|xla }}">{{ claim.ourClaimId|text }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ claim.payerClaimId|text }}</td>
+                        <td>{{ _self.claimStatus(claim.claimStatusCode) }}</td>
+                        <td>
+                            {% for code in claim.reasons %}
+                                <span class="badge badge-warning">{{ _self.reason(code) }}</span>
+                            {% endfor %}
+                        </td>
+                        <td class="text-right">{{ claim.claimPayment|money|text }}</td>
+                        <td class="text-right">{{ claim.paymentsPosted|money|text }}</td>
+                        <td class="text-right">{{ claim.adjustmentsPosted|money|text }}</td>
+                        <td class="text-nowrap">{{ claim.processedAt|date('Y-m-d H:i:s')|oeFormatDateTime|text }}</td>
+                        <td class="text-nowrap">{{ _self.worked('claim', claim, selfQuery, csrfToken) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% elseif view == 'posted' %}
+    {% if rows is empty %}
+        <div class="alert alert-info" id="worklist-empty">{{ 'No checks have been posted unattended.'|xlt }}</div>
+    {% endif %}
+    {% for check in rows %}
+        <div class="card mb-3 posted-check" id="check-{{ check.id|attr }}">
+            <div class="card-header">
+                <strong>{{ 'Check'|xlt }} {{ check.checkNumber|text }}</strong>
+                {% if check.checkDate != '' %}<span class="ml-2">{{ check.checkDate|shortDate|text }}</span>{% endif %}
+                <span class="ml-2">{{ check.payerName|text }}</span>
+                <span class="text-muted float-right">
+                    {{ 'Processed'|xlt }} {{ check.processedAt|date('Y-m-d H:i:s')|oeFormatDateTime|text }}
+                    &middot; {{ 'File'|xlt }} {{ check.fileName|text }}
+                    &middot; {{ 'Payment session'|xlt }} {{ check.sessionId|text }}
+                </span>
+            </div>
+            <div class="card-body p-2">
+                <dl class="row mb-2">
+                    <dt class="col-sm-2">{{ 'Check Amount'|xlt }}</dt>
+                    <dd class="col-sm-2 text-right">{{ check.checkAmount|money|text }}</dd>
+                    <dt class="col-sm-2">{{ 'Claim Payments'|xlt }}</dt>
+                    <dd class="col-sm-2 text-right">{{ check.claimTotal|money|text }}</dd>
+                    <dt class="col-sm-2">{{ 'Provider Adjustments'|xlt }}</dt>
+                    <dd class="col-sm-2 text-right">{{ check.plbTotal|money|text }}{% if check.plbReasons != '' %} <span class="text-muted">({{ check.plbReasons|text }})</span>{% endif %}</dd>
+                    <dt class="col-sm-2">{{ 'Posted'|xlt }}</dt>
+                    <dd class="col-sm-2 text-right check-posted">{{ check.postedTotal()|money|text }}</dd>
+                    <dt class="col-sm-2">{{ 'Not Posted'|xlt }}</dt>
+                    <dd class="col-sm-2 text-right check-not-posted{% if check.notPostedTotal() != 0 %} text-danger font-weight-bold{% endif %}">{{ check.notPostedTotal()|money|text }}</dd>
+                </dl>
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th>{{ 'Patient'|xlt }}</th>
+                        <th>{{ 'Invoice'|xlt }}</th>
+                        <th>{{ 'Payer Claim Number'|xlt }}</th>
+                        <th>{{ 'Claim Status'|xlt }}</th>
+                        <th>{{ 'Code'|xlt }}</th>
+                        <th class="text-right">{{ 'Claim Payment'|xlt }}</th>
+                        <th class="text-right">{{ 'Paid'|xlt }}</th>
+                        <th class="text-right">{{ 'Adjusted'|xlt }}</th>
+                        <th>{{ 'Result'|xlt }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for claim in check.claims %}
+                        <tr class="table-active">
+                            <td>{{ claim.patientName|text }}</td>
+                            <td>{{ _self.invoice(claim) }}</td>
+                            <td>{{ claim.payerClaimId|text }}</td>
+                            <td>{{ _self.claimStatus(claim.claimStatusCode) }}</td>
+                            <td></td>
+                            <td class="text-right">{{ claim.claimPayment|money|text }}</td>
+                            <td class="text-right">{{ claim.paymentsPosted|money|text }}</td>
+                            <td class="text-right">{{ claim.adjustmentsPosted|money|text }}</td>
+                            <td>
+                                {% if claim.outcome.value == 'posted' %}
+                                    <span class="badge badge-success">{{ 'Posted'|xlt }}</span>
+                                {% elseif claim.outcome.value == 'skipped' %}
+                                    <span class="badge badge-secondary">{{ 'Already posted from this check'|xlt }}</span>
+                                {% else %}
+                                    <span class="badge badge-danger">{{ 'Needs review'|xlt }}</span>
+                                    {% for code in claim.reasons %}
+                                        <span class="badge badge-warning">{{ _self.reason(code) }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% for line in claim.lines %}
+                            <tr class="posted-line">
+                                <td colspan="4"></td>
+                                <td>{% if line.code == '' %}<span class="text-muted">{{ 'Claim'|xlt }}</span>{% else %}{{ line.code|text }}{% if line.modifier != '' %}:{{ line.modifier|text }}{% endif %}{% endif %}</td>
+                                <td></td>
+                                <td class="text-right">{% if line.paid != 0 %}{{ line.paid|money|text }}{% endif %}</td>
+                                <td class="text-right">{% if line.adjusted != 0 %}{{ line.adjusted|money|text }}{% endif %}</td>
+                                <td>{{ line.memo|text }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    {% if rows is empty %}
+        <div class="alert alert-info" id="worklist-empty">{{ 'No received remittance files are waiting to be posted.'|xlt }}</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-sm" id="file-list">
+                <thead>
+                <tr>
+                    <th>{{ 'Received'|xlt }}</th>
+                    <th>{{ 'Partner'|xlt }}</th>
+                    <th>{{ 'File'|xlt }}</th>
+                    <th>{{ 'Why It Was Not Posted'|xlt }}</th>
+                    <th class="d-print-none">{{ 'Post'|xlt }}</th>
+                    <th>{{ 'Worked'|xlt }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for file in rows %}
+                    <tr id="file-{{ file.id|attr }}">
+                        <td class="text-nowrap">{{ file.receivedAt|date('Y-m-d H:i:s')|oeFormatDateTime|text }}</td>
+                        <td>{{ file.partnerName|text }}</td>
+                        <td>{{ file.remoteName|text }}<br /><span class="text-muted">{{ file.storedName|text }}</span></td>
+                        <td>
+                            {% if file.autoPostStatus is null %}
+                                {{ 'Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.'|xlt }}
+                            {% elseif file.autoPostStatus.value == 'pending' %}
+                                {{ 'Waiting for the next unattended posting run.'|xlt }}
+                            {% elseif file.autoPostStatus.value == 'running' %}
+                                {{ 'A posting run took this file and has not finished it.'|xlt }}
+                            {% elseif file.autoPostStatus.value == 'unreadable' %}
+                                {{ 'The file could not be read as an 835. Nothing was posted from it.'|xlt }}
+                            {% elseif file.autoPostStatus.value == 'interrupted' %}
+                                {{ 'The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.'|xlt }}
+                            {% endif %}
+                            {% for held in file.heldChecks %}
+                                <div class="held-check">
+                                    <strong>{{ 'Check held'|xlt }}:</strong> {{ held.checkNumber|text }}{% if held.checkDate != '' %} {{ held.checkDate|shortDate|text }}{% endif %},
+                                    {{ held.payerName|text }}, {{ held.checkAmount|money|text }}, {{ held.claims|text }} {{ 'claim payments'|xlt }}.
+                                    {% if held.reason is null %}
+                                    {% elseif held.reason.value == 'out_of_balance' %}
+                                        {{ 'Out of balance: the claim payments'|xlt }} ({{ held.claimTotal|money|text }}) {{ 'less the provider adjustments'|xlt }} ({{ held.plbTotal|money|text }}) {{ 'do not add up to the check amount.'|xlt }}
+                                    {% elseif held.reason.value == 'no_payer' %}
+                                        {{ 'None of its claims could be matched to an insurance company to post the check for.'|xlt }}
+                                    {% elseif held.reason.value == 'posted_for_another_payer' %}
+                                        {{ 'A payment session for this check exists under a different insurance company.'|xlt }}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </td>
+                        <td class="d-print-none text-nowrap">
+                            {% if file.awaitsRun() %}
+                                {# A posting run may still post this file, so it is taken from the run before a person posts it. #}
+                                <form method="post" action="era_worklist.php?{{ selfQuery|attr }}" class="d-inline mb-0" onsubmit="return takeFromRun({{ file.autoPostStatus.value|attr_js }})">
+                                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="{{ file.id|attr }}" />
+                                    <input type="hidden" name="state" value="{{ file.autoPostStatus.value|attr }}" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">{{ 'Post by Hand'|xlt }}</button>
+                                </form>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer({{ file.eraName()|attr_js }}, false, {{ file.payerIds|json_encode|attr }})">{{ 'Open in Posting Window'|xlt }}</button>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-link" onclick="choosePayer({{ file.eraName()|attr_js }}, true, {{ file.payerIds|json_encode|attr }})">{{ 'Preview'|xlt }}</button>
+                        </td>
+                        <td class="text-nowrap">{% if not file.awaitsRun() or file.worked is not null %}{{ _self.worked('file', file, selfQuery, csrfToken) }}{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {# The posting window looks for an earlier posting of a check, and of each claim payment, under
+         # the insurance company it is opened for. Without one it would not see what unattended
+         # posting posted, and could post it again. #}
+        <div class="modal fade d-print-none" id="posting-payer-dialog" tabindex="-1" role="dialog" aria-labelledby="posting-payer-title" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="posting-payer-title">{{ 'Insurance Company to Post For'|xlt }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'Close'|xla }}"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ 'The checks you choose in the posting window are posted for this insurance company. A check or claim payment already posted for it is not posted again.'|xlt }}</p>
+                        <p id="posting-payer-recorded" hidden>{{ 'Unattended posting recorded this insurance company for the file.'|xlt }}</p>
+                        <p id="posting-payer-several" hidden>{{ 'Unattended posting recorded more than one insurance company for this file. Open it for one at a time, and choose only the checks of that company in the posting window:'|xlt }} <span id="posting-payer-names"></span></p>
+                        <label for="posting-payer">{{ 'Insurance Company'|xlt }}:</label>
+                        <select id="posting-payer" class="form-control">
+                            <option value="">{{ 'Choose an insurance company'|xlt }}</option>
+                            {% for insurer in insurers %}
+                                <option value="{{ insurer.id|attr }}">{{ insurer.name|text }} ({{ insurer.id|text }})</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">{{ 'Choose the insurance company the file is posted for.'|xlt }}</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Cancel'|xlt }}</button>
+                        <button type="button" class="btn btn-primary" id="posting-payer-open" onclick="openForPayer()">{{ 'Open'|xlt }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview, insuranceCompany) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: {{ csrfToken|js_escape }},
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: {{ today|js_escape }},
+            InsId: insuranceCompany
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayers) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? {{ 'A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?'|xlj }}
+            : {{ 'Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?'|xlj }};
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- setupHeader stub -->
+
+    <title>ERA Worklist</title>
+</head>
+<body>
+        <div id="container_div" class="container-fluid">
+                <h2 class="mt-3">ERA Worklist</h2>
+<p class="text-muted d-print-none">
+    Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            Needs review <span class="badge badge-danger" id="count-review">9</span>        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="era_worklist.php?view=posted" onclick="top.restoreSession()">Auto-posted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            Received files        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="posted" />
+    <div class="form-row align-items-end">
+                    <div class="form-group col-lg">
+                <label for="filter-payer">Payer:</label>
+                <select name="payer" id="filter-payer" class="form-control">
+                    <option value="">All</option>
+                                            <option value="ACME HEALTH">ACME HEALTH</option>
+                                            <option value="PLAN &lt;B&gt;">PLAN &lt;B&gt;</option>
+                                    </select>
+            </div>
+            <div class="form-group col-lg">
+                <label for="filter-check">Check or EFT Number:</label>
+                <input type="text" name="check" id="filter-check" class="form-control" value="EFT" />
+            </div>
+                <div class="form-group col-lg">
+            <label for="filter-from">Processed From:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">To:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="" />
+        </div>
+                        <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</form>
+
+
+                <div class="card mb-3 posted-check" id="check-21">
+            <div class="card-header">
+                <strong>Check EFT5001</strong>
+                <span class="ml-2">2026-10-20</span>                <span class="ml-2">PLAN &lt;B&gt;</span>
+                <span class="text-muted float-right">
+                    Processed 2026-11-26 02:15
+                    &middot; File 20261020_41_60054.edi
+                    &middot; Payment session 301
+                </span>
+            </div>
+            <div class="card-body p-2">
+                <dl class="row mb-2">
+                    <dt class="col-sm-2">Check Amount</dt>
+                    <dd class="col-sm-2 text-right">115.00</dd>
+                    <dt class="col-sm-2">Claim Payments</dt>
+                    <dd class="col-sm-2 text-right">125.00</dd>
+                    <dt class="col-sm-2">Provider Adjustments</dt>
+                    <dd class="col-sm-2 text-right">10.00 <span class="text-muted">(WO,L6)</span></dd>
+                    <dt class="col-sm-2">Posted</dt>
+                    <dd class="col-sm-2 text-right check-posted">45.00</dd>
+                    <dt class="col-sm-2">Not Posted</dt>
+                    <dd class="col-sm-2 text-right check-not-posted text-danger font-weight-bold">80.00</dd>
+                </dl>
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Invoice</th>
+                        <th>Payer Claim Number</th>
+                        <th>Claim Status</th>
+                        <th>Code</th>
+                        <th class="text-right">Claim Payment</th>
+                        <th class="text-right">Paid</th>
+                        <th class="text-right">Adjusted</th>
+                        <th>Result</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                                            <tr class="table-active">
+                            <td>ANNE "A" O'POSTING</td>
+                            <td><a href="#" class="d-print-none" onclick="editInvoice(event, 11)" title="Post on the invoice">9101.9201</a>
+        <span class="d-none d-print-inline">9101.9201</span></td>
+                            <td>ICN&lt;1&gt;</td>
+                            <td>Primary</td>
+                            <td></td>
+                            <td class="text-right">45.00</td>
+                            <td class="text-right">45.00</td>
+                            <td class="text-right">56.25</td>
+                            <td>
+                                                                    <span class="badge badge-success">Posted</span>
+                                                            </td>
+                        </tr>
+                                                    <tr class="posted-line">
+                                <td colspan="4"></td>
+                                <td>99213:25</td>
+                                <td></td>
+                                <td class="text-right">45.00</td>
+                                <td class="text-right"></td>
+                                <td></td>
+                            </tr>
+                                                    <tr class="posted-line">
+                                <td colspan="4"></td>
+                                <td>99213</td>
+                                <td></td>
+                                <td class="text-right"></td>
+                                <td class="text-right">55.00</td>
+                                <td>Adjust code &lt;45&gt;</td>
+                            </tr>
+                                                    <tr class="posted-line">
+                                <td colspan="4"></td>
+                                <td><span class="text-muted">Claim</span></td>
+                                <td></td>
+                                <td class="text-right"></td>
+                                <td class="text-right">1.25</td>
+                                <td>Ins1 interest</td>
+                            </tr>
+                                                                    <tr class="table-active">
+                            <td>BOB &lt;DENIED&gt;</td>
+                            <td><a href="#" class="d-print-none" onclick="editInvoice(event, 11)" title="Post on the invoice">9101.9201</a>
+        <span class="d-none d-print-inline">9101.9201</span></td>
+                            <td>ICN&lt;1&gt;</td>
+                            <td>Primary</td>
+                            <td></td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                            <td>
+                                                                    <span class="badge badge-danger">Needs review</span>
+                                                                            <span class="badge badge-warning">Denied</span>
+                                                                            <span class="badge badge-warning">Lines pended by the payer</span>
+                                                                                                </td>
+                        </tr>
+                                                                    <tr class="table-active">
+                            <td>CARA NOTFOUND</td>
+                            <td></td>
+                            <td>ICN&lt;1&gt;</td>
+                            <td>Primary</td>
+                            <td></td>
+                            <td class="text-right">80.00</td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                            <td>
+                                                                    <span class="badge badge-danger">Needs review</span>
+                                                                            <span class="badge badge-warning">Claim not found</span>
+                                                                                                </td>
+                        </tr>
+                                                                    <tr class="table-active">
+                            <td>EVE SKIPPED</td>
+                            <td><a href="#" class="d-print-none" onclick="editInvoice(event, 11)" title="Post on the invoice">9101.9201</a>
+        <span class="d-none d-print-inline">9101.9201</span></td>
+                            <td>ICN&lt;1&gt;</td>
+                            <td>Primary</td>
+                            <td></td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">0.00</td>
+                            <td>
+                                                                    <span class="badge badge-secondary">Already posted from this check</span>
+                                                            </td>
+                        </tr>
+                                                                </tbody>
+                </table>
+            </div>
+        </div>
+            <div class="card mb-3 posted-check" id="check-22">
+            <div class="card-header">
+                <strong>Check EFT5002</strong>
+                                <span class="ml-2">ACME HEALTH</span>
+                <span class="text-muted float-right">
+                    Processed 2026-11-25 02:15
+                    &middot; File 20261019_40_60054.edi
+                    &middot; Payment session 302
+                </span>
+            </div>
+            <div class="card-body p-2">
+                <dl class="row mb-2">
+                    <dt class="col-sm-2">Check Amount</dt>
+                    <dd class="col-sm-2 text-right">45.00</dd>
+                    <dt class="col-sm-2">Claim Payments</dt>
+                    <dd class="col-sm-2 text-right">45.00</dd>
+                    <dt class="col-sm-2">Provider Adjustments</dt>
+                    <dd class="col-sm-2 text-right">0.00</dd>
+                    <dt class="col-sm-2">Posted</dt>
+                    <dd class="col-sm-2 text-right check-posted">45.00</dd>
+                    <dt class="col-sm-2">Not Posted</dt>
+                    <dd class="col-sm-2 text-right check-not-posted">0.00</dd>
+                </dl>
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Invoice</th>
+                        <th>Payer Claim Number</th>
+                        <th>Claim Status</th>
+                        <th>Code</th>
+                        <th class="text-right">Claim Payment</th>
+                        <th class="text-right">Paid</th>
+                        <th class="text-right">Adjusted</th>
+                        <th>Result</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                                            <tr class="table-active">
+                            <td>DAN PAID</td>
+                            <td><a href="#" class="d-print-none" onclick="editInvoice(event, 11)" title="Post on the invoice">9101.9201</a>
+        <span class="d-none d-print-inline">9101.9201</span></td>
+                            <td>ICN&lt;1&gt;</td>
+                            <td>Primary</td>
+                            <td></td>
+                            <td class="text-right">45.00</td>
+                            <td class="text-right">45.00</td>
+                            <td class="text-right">0.00</td>
+                            <td>
+                                                                    <span class="badge badge-success">Posted</span>
+                                                            </td>
+                        </tr>
+                                                                </tbody>
+                </table>
+            </div>
+        </div>
+                            <script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview, insuranceCompany) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: "test-csrf-token",
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: "2026-11-27",
+            InsId: insuranceCompany
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayers) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? "A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?"
+            : "Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?";
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+    </div>
+</body>
+</html>

@@ -60,8 +60,10 @@ final class AutoPostRepository implements AutoPostLog
 
     public function finish(int $receivedId, AutoPostFileStatus $status): void
     {
+        // A "worked" mark set on the ERA worklist before the run finished did not cover what
+        // the run found, so it does not outlast the run and hide a check it held.
         QueryUtils::sqlStatementThrowException(
-            'UPDATE `x12_remote_received` SET `auto_post_status` = ? WHERE `id` = ?',
+            'UPDATE `x12_remote_received` SET `auto_post_status` = ?, `worked_by` = 0, `worked_at` = NULL WHERE `id` = ?',
             [$status->value, $receivedId]
         );
     }

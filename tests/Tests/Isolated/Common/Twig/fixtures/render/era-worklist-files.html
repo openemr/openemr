@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- setupHeader stub -->
+
+    <title>ERA Worklist</title>
+</head>
+<body>
+        <div id="container_div" class="container-fluid">
+                <h2 class="mt-3">ERA Worklist</h2>
+<p class="text-muted d-print-none">
+    Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            Needs review        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=posted" onclick="top.restoreSession()">Auto-posted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            Received files <span class="badge badge-danger" id="count-files">6</span>        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="files" />
+    <div class="form-row align-items-end">
+                <div class="form-group col-lg">
+            <label for="filter-from">Received From:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">To:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="" />
+        </div>
+                            <div class="form-group col-lg-auto">
+                <div class="form-check">
+                    <input type="checkbox" name="worked" id="filter-worked" class="form-check-input" value="1" checked />
+                    <label class="form-check-label" for="filter-worked">Show Worked</label>
+                </div>
+            </div>
+                <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</form>
+
+
+            <div class="table-responsive">
+            <table class="table table-striped table-sm" id="file-list">
+                <thead>
+                <tr>
+                    <th>Received</th>
+                    <th>Partner</th>
+                    <th>File</th>
+                    <th>Why It Was Not Posted</th>
+                    <th class="d-print-none">Post</th>
+                    <th>Worked</th>
+                </tr>
+                </thead>
+                <tbody>
+                                    <tr id="file-41">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;41&gt;.RMT<br /><span class="text-muted">20261020_41_60054.edi</span></td>
+                        <td>
+                                                            Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_41_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_41_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="41" />
+                                <input type="hidden" name="state" value="" />
+            <input type="hidden" name="held" value="0" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-42">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;42&gt;.RMT<br /><span class="text-muted">20261020_42_60054.edi</span></td>
+                        <td>
+                                                            Waiting for the next unattended posting run.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                                                            <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="d-inline mb-0" onsubmit="return takeFromRun(&quot;pending&quot;)">
+                                    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="42" />
+                                    <input type="hidden" name="state" value="pending" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
+                                </form>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_42_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap"></td>
+                    </tr>
+                                    <tr id="file-43">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;43&gt;.RMT<br /><span class="text-muted">20261020_43_60054.edi</span></td>
+                        <td>
+                                                            A posting run took this file and has not finished it.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                                                            <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="d-inline mb-0" onsubmit="return takeFromRun(&quot;running&quot;)">
+                                    <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+                                    <input type="hidden" name="kind" value="file" />
+                                    <input type="hidden" name="id" value="43" />
+                                    <input type="hidden" name="state" value="running" />
+                                    <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
+                                </form>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_43_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap"></td>
+                    </tr>
+                                    <tr id="file-44">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;44&gt;.RMT<br /><span class="text-muted">20261020_44_60054.edi</span></td>
+                        <td>
+                                                            The file could not be read as an 835. Nothing was posted from it.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_44_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_44_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="44" />
+                                <input type="hidden" name="state" value="unreadable" />
+            <input type="hidden" name="held" value="0" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-45">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;45&gt;.RMT<br /><span class="text-muted">20261020_45_60054.edi</span></td>
+                        <td>
+                                                            The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.
+                                                                                        <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt;,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            None of its claims could be matched to an insurance company to post the check for.
+                                                                    </div>
+                                                    </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_45_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_45_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="45" />
+                                <input type="hidden" name="state" value="interrupted" />
+            <input type="hidden" name="held" value="1" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-46">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;46&gt;.RMT<br /><span class="text-muted">20261020_46_60054.edi</span></td>
+                        <td>
+                                                                                        <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            Out of balance: the claim payments (150.00) less the provider adjustments (10.00) do not add up to the check amount.
+                                                                    </div>
+                                                            <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                            A payment session for this check exists under a different insurance company.
+                                                                    </div>
+                                                            <div class="held-check">
+                                    <strong>Check held:</strong> EFT&lt;9&gt; 2026-10-20,
+                                    PLAN &lt;B&gt;, 200.00, 2 claim payments.
+                                                                                                        </div>
+                                                    </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_46_60054&quot;, false, [17])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_46_60054&quot;, true, [17])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="46" />
+                                <input type="hidden" name="state" value="done" />
+            <input type="hidden" name="held" value="3" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-48">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;48&gt;.RMT<br /><span class="text-muted">20261020_48_60054.edi</span></td>
+                        <td>
+                                                            The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_48_60054&quot;, false, [17,23])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_48_60054&quot;, true, [17,23])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="48" />
+                                <input type="hidden" name="state" value="interrupted" />
+            <input type="hidden" name="held" value="0" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-47">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;47&gt;.RMT<br /><span class="text-muted">20261020_47_60054.edi</span></td>
+                        <td>
+                                                            Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_47_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_47_60054&quot;, true, [])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="47" />
+                                <input type="hidden" name="state" value="" />
+            <input type="hidden" name="held" value="0" />
+                            Billie &lt;Biller&gt;<br />
+            <span class="text-muted">2026-11-27 09:30</span>
+            <button type="submit" name="action" value="clear" class="btn btn-sm btn-link p-0 d-print-none">Undo</button>
+            </form>
+</td>
+                    </tr>
+                                </tbody>
+            </table>
+        </div>
+                <div class="modal fade d-print-none" id="posting-payer-dialog" tabindex="-1" role="dialog" aria-labelledby="posting-payer-title" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="posting-payer-title">Insurance Company to Post For</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>The checks you choose in the posting window are posted for this insurance company. A check or claim payment already posted for it is not posted again.</p>
+                        <p id="posting-payer-recorded" hidden>Unattended posting recorded this insurance company for the file.</p>
+                        <p id="posting-payer-several" hidden>Unattended posting recorded more than one insurance company for this file. Open it for one at a time, and choose only the checks of that company in the posting window: <span id="posting-payer-names"></span></p>
+                        <label for="posting-payer">Insurance Company:</label>
+                        <select id="posting-payer" class="form-control">
+                            <option value="">Choose an insurance company</option>
+                                                            <option value="17">Acme &lt;Health&gt; (17)</option>
+                                                            <option value="23">Plan B (23)</option>
+                                                    </select>
+                        <div class="invalid-feedback">Choose the insurance company the file is posted for.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="posting-payer-open" onclick="openForPayer()">Open</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+                            <script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview, insuranceCompany) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: "test-csrf-token",
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: "2026-11-27",
+            InsId: insuranceCompany
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayers) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? "A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?"
+            : "Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?";
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+    </div>
+</body>
+</html>

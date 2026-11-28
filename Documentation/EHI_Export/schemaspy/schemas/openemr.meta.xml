@@ -2549,5 +2549,17 @@
                 <foreignKey table="users" column="id" />
             </column>
         </table>
+        <table name="era_auto_post_claim" comments="One row per claim payment of an 835 that was run through unattended ERA posting, with its outcome">
+            <column name="worked_by" comments="The user who marked the claim payment worked on the ERA worklist; 0 when not marked">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="worked_at" comments="When the claim payment was marked worked; NULL when not marked"/>
+        </table>
+        <table name="x12_remote_received" comments="One row per file fetched from an X12 partner's remote folders">
+            <column name="worked_by" comments="The user who marked the file worked on the ERA worklist; 0 when not marked">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="worked_at" comments="When the file was marked worked; NULL when not marked"/>
+        </table>
     </tables>
 </schemaMeta>

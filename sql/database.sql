@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 584
+-- v_database: 585
 --
 
 --
@@ -14368,6 +14368,8 @@ CREATE TABLE `x12_remote_received` (
   `message` varchar(255) NOT NULL DEFAULT '' COMMENT 'why it was not stored',
   `received_at` datetime NOT NULL,
   `auto_post_status` varchar(31) NOT NULL DEFAULT '' COMMENT 'AutoPostFileStatus: empty when the file is not for unattended posting; else pending, running, done, unreadable or interrupted',
+  `worked_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'users.id of who marked the file worked on the ERA worklist; 0 when not marked',
+  `worked_at` datetime DEFAULT NULL COMMENT 'when the file was marked worked; NULL when not marked',
   PRIMARY KEY (`id`),
   UNIQUE KEY `remote_key` (`remote_key`),
   KEY `partner_status` (`x12_partner_id`, `status`)
@@ -14415,6 +14417,8 @@ CREATE TABLE `era_auto_post_claim` (
   `charges_added` decimal(12,2) NOT NULL DEFAULT 0.00,
   `level_closed` tinyint(1) NOT NULL DEFAULT 0,
   `secondary_queued` tinyint(1) NOT NULL DEFAULT 0,
+  `worked_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'users.id of who marked the claim payment worked on the ERA worklist; 0 when not marked',
+  `worked_at` datetime DEFAULT NULL COMMENT 'when the claim payment was marked worked; NULL when not marked',
   PRIMARY KEY (`id`),
   UNIQUE KEY `check_sequence` (`check_id`, `sequence`),
   KEY `outcome` (`outcome`),

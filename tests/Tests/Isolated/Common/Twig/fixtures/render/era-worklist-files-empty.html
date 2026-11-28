@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <!-- setupHeader stub -->
+
+    <title>ERA Worklist</title>
+</head>
+<body>
+        <div id="container_div" class="container-fluid">
+                <h2 class="mt-3">ERA Worklist</h2>
+<p class="text-muted d-print-none">
+    Remittances received from X12 partners: what unattended posting posted, the claim payments it left for you, and the files it did not post.
+</p>
+
+<ul class="nav nav-tabs mb-3 d-print-none">
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=review" onclick="top.restoreSession()">
+            Needs review        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="era_worklist.php?view=posted" onclick="top.restoreSession()">Auto-posted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="era_worklist.php?view=files" onclick="top.restoreSession()">
+            Received files        </a>
+    </li>
+</ul>
+
+<form method="get" action="era_worklist.php" id="worklist-filter" class="d-print-none mb-3" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="view" value="files" />
+    <div class="form-row align-items-end">
+                <div class="form-group col-lg">
+            <label for="filter-from">Received From:</label>
+            <input type="text" name="from" id="filter-from" class="form-control datepicker" value="" />
+        </div>
+        <div class="form-group col-lg">
+            <label for="filter-to">To:</label>
+            <input type="text" name="to" id="filter-to" class="form-control datepicker" value="" />
+        </div>
+                            <div class="form-group col-lg-auto">
+                <div class="form-check">
+                    <input type="checkbox" name="worked" id="filter-worked" class="form-check-input" value="1" />
+                    <label class="form-check-label" for="filter-worked">Show Worked</label>
+                </div>
+            </div>
+                <div class="form-group col-lg-auto">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+            <button type="button" class="btn btn-secondary btn-print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</form>
+
+
+            <div class="alert alert-info" id="worklist-empty">No received remittance files are waiting to be posted.</div>
+                            <script>
+    function editInvoice(e, id) {
+        e.preventDefault();
+        top.restoreSession();
+        const params = new URLSearchParams({id: id, isPosting: '1'});
+        dlgopen('sl_eob_invoice.php?' + params, 'editInvoiceDlg', 'modal-full', false, false, '', {sizeHeight: 'full'});
+    }
+
+    // Opened as the ERA posting page opens it after an upload: the window first lists the
+    // file's checks, and nothing is posted until the checks to post are chosen there. A
+    // preview posts nothing at all.
+    function openPostingWindow(eraName, preview, insuranceCompany) {
+        top.restoreSession();
+        const params = new URLSearchParams({
+            csrf_token_form: "test-csrf-token",
+            debug: preview ? '1' : '0',
+            eraname: eraName,
+            original: 'original',
+            paydate: "2026-11-27",
+            InsId: insuranceCompany
+        });
+        window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayers) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
+    }
+
+    // A file a posting run is still to take, or took and did not finish, is taken from the
+    // run before it is posted by hand, so the two never post the same check together. For a
+    // file a run took, only the person can say that the run has stopped.
+    function takeFromRun(state) {
+        const question = state === 'running'
+            ? "A posting run took this file and has not finished it. Take the file only if that run has stopped: if it is still running, posting by hand can post a check twice. The file will be recorded as interrupted. Take it?"
+            : "Unattended posting will no longer post this file. It will stay on this list for you to post. Take it?";
+        if (!window.confirm(question)) {
+            return false;
+        }
+        return top.restoreSession();
+    }
+
+    $(function () {
+        datetimepickerTranslated('.datepicker', {timepicker: false, formatInput: false});
+    });
+</script>
+    </div>
+</body>
+</html>
