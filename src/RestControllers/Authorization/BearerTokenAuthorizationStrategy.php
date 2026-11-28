@@ -586,7 +586,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $patientUuid = $context['patient'] ?? null;
         if (!empty($patientUuid)) {
             // we only set the bound patient access if the underlying user can still access the patient
-            if ($this->checkUserHasAccessToPatient($restRequest->getRequestUserId(), $patientUuid)) {
+            if ($this->checkUserHasAccessToPatient($restRequest->getRequestUserUUIDString(), $patientUuid)) {
                 $restRequest->setPatientUuidString($patientUuid);
             } else {
                 $this->getSystemLogger()->error("OpenEMR Error: api had patient launch scope but user did not have access to patient uuid."
@@ -735,7 +735,9 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     protected function findPatientByUuid(string $patientUuid): ?array
     {
         $patientService = $this->getPatientService();
-        $pid = $patientService->getPidByUuid($patientUuid);
+        // patient_data.uuid is binary(16) and getPidByUuid() compares as given,
+        // so convert the string UUID the way every other getPidByUuid() caller does.
+        $pid = $patientService->getPidByUuid(UuidRegistry::uuidToBytes($patientUuid));
         if (!is_numeric($pid) || (int) $pid <= 0) {
             return null;
         }
