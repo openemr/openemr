@@ -1710,7 +1710,7 @@ class EncounterccdadispatchTable
     <drug>" . xmlEscape($row['drug']) . "</drug>
     <direction>" . xmlEscape($str) . "</direction>
     <dosage>" . xmlEscape($row['dosage']) . "</dosage>
-    <size>" . xmlEscape(($row['size'] ?: 0)) . "</size>
+    <dosage>" . xmlEscape(($row['dosage'] ?: 0)) . "</dosage>
     <unit>" . xmlEscape(($row['unit'] ? preg_replace('/\s*/', '', Listener::z_xlt($row['unit'])) : '')) . "</unit>
     <unit_code>" . xmlEscape(($row['unit_code'] ?: 0)) . "</unit_code>
     <form>" . xmlEscape(Listener::z_xlt($row['form'])) . "</form>
