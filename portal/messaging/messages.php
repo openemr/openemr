@@ -255,8 +255,8 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 <div class="float-right my-2" id="pagingControls">
                     <span class="text-muted" id="pagingInfo"></span>
                     <div class="btn-group" id="pagingButtons">
-                        <button type="button" class="btn btn-secondary btn-lg" id="btnPrev"><i class="fa fa-chevron-left"></i></button>
-                        <button type="button" class="btn btn-secondary btn-lg" id="btnNext"><i class="fa fa-chevron-right"></i></button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="btnPrev" aria-label="<?php echo xla('Previous page'); ?>"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-secondary btn-lg" id="btnNext" aria-label="<?php echo xla('Next page'); ?>"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </div>
