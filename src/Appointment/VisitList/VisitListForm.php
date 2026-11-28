@@ -19,10 +19,17 @@ namespace OpenEMR\Appointment\VisitList;
 
 final readonly class VisitListForm
 {
+    /**
+     * @param array{categoryId: int, messages: array<string, string>, deleteText: string}|array{} $blockWarning
+     *        for an existing Visit List block with patients: what to ask before it is deleted or
+     *        given another category, by repeat scope (current, future, all; a scope with no
+     *        patients from today on is left out), for the editor's script; else empty
+     */
     public function __construct(
         public bool $active,
         public string $sequence = '',
         public string $stop = '',
+        public array $blockWarning = [],
     ) {
     }
 

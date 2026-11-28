@@ -20,6 +20,8 @@ namespace OpenEMR\Tests\Isolated\Appointment\VisitList;
 
 use DateTimeImmutable;
 use DomainException;
+use OpenEMR\Appointment\VisitList\VisitList;
+use OpenEMR\Appointment\VisitList\VisitListBlock;
 use OpenEMR\Appointment\VisitList\VisitListCopies;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListService;
@@ -326,8 +328,9 @@ class VisitListServiceTest extends TestCase
                 return str_contains($sql, '`pc_multiple`') ? $appointmentRows : [];
             },
             static fn (string $from, string $to, string $where, array $binds): array => $blockRows,
-            execute: static function (string $sql, array $binds) use (&$statements): void {
+            execute: static function (string $sql, array $binds) use (&$statements): int {
                 $statements[] = [$sql, $binds];
+                return 1;
             }
         );
     }
@@ -509,6 +512,103 @@ class VisitListServiceTest extends TestCase
     }
 
     /**
+     * A service that records each statement it runs and reads nothing.
+     *
+     * @param list<array{string, array<mixed>}> $statements
+     */
+    private static function writingService(array &$statements): VisitListService
+    {
+        return new VisitListService(
+            static fn (string $sql, array $binds): array => [],
+            static fn (string $from, string $to, string $where, array $binds): array => [],
+            execute: static function (string $sql, array $binds) use (&$statements): int {
+                $statements[] = [$sql, $binds];
+                return 1;
+            }
+        );
+    }
+
+    /**
+     * A list on a 9:00 block of provider 7 with patients of the given event IDs and Order #s, in that order.
+     *
+     * @param array<int, ?int> $sequences Order # by event ID
+     */
+    private static function list(array $sequences): VisitList
+    {
+        $start = new DateTimeImmutable('2026-03-09 09:00');
+        $entries = [];
+        foreach ($sequences as $eid => $sequence) {
+            $entries[] = new VisitListEntry($eid, 500 + $eid, 7, $start, $sequence, null);
+        }
+        return new VisitList(new VisitListBlock(1, 7, 3, $start, $start->modify('+8 hours')), $entries);
+    }
+
+    public function testRenumberWritesOnlyTheNumbersThatChange(): void
+    {
+        $statements = [];
+        // Patient 12 is saved as #1; patient 11 stays #3.
+        self::writingService($statements)->renumber(self::list([10 => 1, 11 => 3, 12 => 3]), 12, 1);
+
+        $this->assertSame([[2, 10, '7', '2026-03-09', '09:00:00'], [1, 12, '7', '2026-03-09', '09:00:00']], array_column($statements, 1));
+        $this->assertSame(
+            'UPDATE `openemr_postcalendar_events` SET `pc_visit_seq` = ? WHERE `pc_eid` = ?'
+            . ' AND `pc_visit_list` = 1 AND `pc_aid` = ? AND `pc_eventDate` = ? AND `pc_startTime` = ?',
+            $statements[0][0]
+        );
+    }
+
+    public function testRenumberClosesGaps(): void
+    {
+        $statements = [];
+        self::writingService($statements)->renumber(self::list([10 => 1, 11 => 4, 12 => null]));
+
+        $this->assertSame([[2, 11, '7', '2026-03-09', '09:00:00'], [3, 12, '7', '2026-03-09', '09:00:00']], array_column($statements, 1));
+    }
+
+    public function testRenumberOfAListInOrderWritesNothing(): void
+    {
+        $statements = [];
+        self::writingService($statements)->renumber(self::list([10 => 1, 11 => 2]));
+
+        $this->assertSame([], $statements);
+    }
+
+    public function testListOfAnAppointmentThatIsNotAVisitListPatientIsNull(): void
+    {
+        $statements = [];
+        $this->assertNull(self::writingService($statements)->listOf(42));
+    }
+
+    public function testListOfFindsTheListThePatientIsOn(): void
+    {
+        $service = new VisitListService(
+            static function (string $sql, array $binds): array {
+                if (str_contains($sql, 'openemr_postcalendar_categories')) {
+                    return [['pc_catid' => (string) self::CATEGORY_ID]];
+                }
+                if (str_contains($sql, '`pc_eid` = ?')) {
+                    return [['pc_aid' => '7', 'pc_eventDate' => '2026-03-09', 'pc_startTime' => '09:00:00']];
+                }
+                return [self::entryRow(42, 7, '2026-03-09', '09:00:00', '1', null)];
+            },
+            static fn (string $from, string $to, string $where, array $binds): array => [self::blockRow(1, 7, '2026-03-09', '09:00:00', 3600)],
+        );
+
+        $list = $service->listOf(42);
+
+        $this->assertNotNull($list);
+        $this->assertSame(1, $list->block->eventId);
+        $this->assertSame([42], self::eids($list->entries));
+    }
+
+    public function testListOfRejectsAnEventIdThatIsNotPositive(): void
+    {
+        $statements = [];
+        $this->expectException(DomainException::class);
+        self::writingService($statements)->listOf(0);
+    }
+
+    /**
      * @return array<string, array{int, ?int, ?int}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
@@ -528,7 +628,7 @@ class VisitListServiceTest extends TestCase
         $service = new VisitListService(
             static fn (string $sql, array $binds): array => [],
             static fn (string $from, string $to, string $where, array $binds): array => [],
-            execute: static function (string $sql, array $binds): void {
+            execute: static function (string $sql, array $binds): int {
                 self::fail('nothing is written');
             }
         );

@@ -619,6 +619,7 @@ $side-calendar-date-padding: 0.3rem !default;
     &-sequence {
       background: none;
       border: 0;
+      flex-shrink: 0;
       font: inherit;
       font-weight: bold;
       min-width: 1.75rem;
@@ -626,17 +627,32 @@ $side-calendar-date-padding: 0.3rem !default;
       text-align: start;
     }
 
-    &-patient {
+    // The name keeps its full width while the row has room for it; only the name
+    // shrinks, once nothing else is left. The category and status start at no width
+    // and grow into the room left over, up to their text: the category first, then the
+    // status. Each one cut short ends in an ellipsis.
+    &-patient,
+    &-category,
+    &-status {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    &-patient {
+      flex: 0 1 auto;
+    }
+
     &-category {
+      flex: 1000000 1 0;
       font-style: italic;
+      max-width: max-content;
     }
 
     &-status {
+      flex: 1 1 0;
       margin-#{$left}: auto;
+      max-width: max-content;
     }
 
     // Rows that don't fit in the block, until "+N more" opens it.

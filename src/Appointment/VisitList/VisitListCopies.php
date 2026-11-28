@@ -27,10 +27,13 @@ final readonly class VisitListCopies
     /**
      * @param ?int                           $multiple        pc_multiple, or null for a single-provider appointment
      * @param array<int, DateTimeImmutable> $startByProvider when each provider's copy started, by provider ID
+     * @param list<VisitList>               $lists           the Visit Lists the copies were on, to renumber
+     *                                                       when a copy leaves one
      */
     public function __construct(
         public ?int $multiple,
         public array $startByProvider,
+        public array $lists = [],
     ) {
         if ($multiple !== null && $multiple <= 0) {
             throw new DomainException('Visit List copies group must be positive');

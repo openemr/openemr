@@ -168,6 +168,128 @@ final readonly class VisitListDayColumn
     }
 
     /**
+     * The grid events in the order the overlap layout should see them: each block that shows a
+     * list goes last. The layout places the events of each time slot side by side in this
+     * order and keeps each event at its narrowest width and rightmost place, so a block that
+     * starts before the appointments beside it would otherwise end up in the same place as
+     * them, drawn over by them. Last, it stays on the right and the appointments on the left.
+     *
+     * When two of those blocks share a time slot, the order is left as it is: moving both last
+     * can give the earlier one the later one's place. The layout works per slot, so each
+     * block's time is widened to whole slots before they are compared: a block ending at 10:15
+     * and one starting at 10:15 share the 10:00 slot of a 30-minute grid.
+     *
+     * @param int $intervalMinutes the length of one time slot in the grid
+     * @return list<array<string, mixed>>
+     */
+    public function overlapOrder(int $intervalMinutes): array
+    {
+        $others = [];
+        $blocks = [];
+        $spans = [];
+        foreach ($this->gridEvents as $event) {
+            if (isset($this->lists[self::eventId($event) ?? 0])) {
+                $blocks[] = $event;
+                $spans[] = self::slots($event, max(1, $intervalMinutes));
+            } else {
+                $others[] = $event;
+            }
+        }
+        foreach ($spans as $index => [$start, $end]) {
+            foreach (array_slice($spans, $index + 1) as [$otherStart, $otherEnd]) {
+                if ($start < $otherEnd && $otherStart < $end) {
+                    return $this->gridEvents;
+                }
+            }
+        }
+        return [...$others, ...$blocks];
+    }
+
+    /**
+     * Where the overlap layout places each grid event: laid out in overlapOrder() only when
+     * that draws fewer events over a block that shows a list than the day's own order, or as
+     * few over a block and fewer over each other. Otherwise, ties included, the day's order is
+     * kept, as on master. The layout keeps each event's rightmost place and narrowest width
+     * across its slots, so moving a block last can make an appointment that also runs past
+     * the block cover part of it; the reorder is only taken when it leaves the blocks clearer.
+     *
+     * @param callable(list<array<string, mixed>>): array<int|string, array{width: float, leftpos: float}> $layout
+     * @param int $intervalMinutes the length of one time slot in the grid
+     * @return array<int|string, array{width: float, leftpos: float}>
+     */
+    public function overlapPositions(callable $layout, int $intervalMinutes): array
+    {
+        $ordered = $this->overlapOrder($intervalMinutes);
+        $positions = $layout($ordered);
+        if ($ordered === $this->gridEvents) {
+            return $positions;
+        }
+        $dayOrder = $layout($this->gridEvents);
+        [$dayOnBlocks, $dayAll] = $this->collisions($dayOrder, $intervalMinutes);
+        [$orderedOnBlocks, $orderedAll] = $this->collisions($positions, $intervalMinutes);
+        $reorderIsClearer = $orderedOnBlocks < $dayOnBlocks
+            || ($orderedOnBlocks === $dayOnBlocks && $orderedAll < $dayAll);
+        return $reorderIsClearer ? $positions : $dayOrder;
+    }
+
+    /**
+     * How many pairs of grid events these positions draw over each other (in the same time
+     * slot and sharing part of the column's width): those with a block that shows a list in
+     * them, and all of them.
+     *
+     * @param array<int|string, array{width: float, leftpos: float}> $positions
+     * @return array{int, int}
+     */
+    private function collisions(array $positions, int $intervalMinutes): array
+    {
+        $placed = [];
+        foreach ($this->gridEvents as $event) {
+            $eid = $event['eid'] ?? null;
+            if ((is_int($eid) || is_string($eid)) && isset($positions[$eid])) {
+                $isBlock = isset($this->lists[self::eventId($event) ?? 0]);
+                $placed[] = [self::slots($event, max(1, $intervalMinutes)), $positions[$eid], $isBlock];
+            }
+        }
+        $onBlocks = 0;
+        $all = 0;
+        foreach ($placed as $index => [[$start, $end], $place, $isBlock]) {
+            foreach (array_slice($placed, $index + 1) as [[$otherStart, $otherEnd], $other, $otherIsBlock]) {
+                $sameTime = $start < $otherEnd && $otherStart < $end;
+                $sameWidth = $place['leftpos'] < $other['leftpos'] + $other['width'] - 0.01
+                    && $other['leftpos'] < $place['leftpos'] + $place['width'] - 0.01;
+                if ($sameTime && $sameWidth) {
+                    $all++;
+                    if ($isBlock || $otherIsBlock) {
+                        $onBlocks++;
+                    }
+                }
+            }
+        }
+        return [$onBlocks, $all];
+    }
+
+    /**
+     * The start of an event's first time slot and the end of its last one, in minutes from
+     * midnight: its start rounded down and its end rounded up to whole slots.
+     *
+     * @param array<string, mixed> $event
+     * @return array{int, int}
+     */
+    private static function slots(array $event, int $intervalMinutes): array
+    {
+        $startTime = self::string($event['startTime'] ?? null);
+        $parts = explode(':', $startTime);
+        $start = (int) $parts[0] * 60 + (int) ($parts[1] ?? 0);
+        $duration = $event['duration'] ?? 0;
+        $seconds = is_numeric($duration) ? (int) $duration : 0;
+        $end = max($start + intdiv($seconds, 60), $start + 1);
+        return [
+            intdiv($start, $intervalMinutes) * $intervalMinutes,
+            intdiv($end + $intervalMinutes - 1, $intervalMinutes) * $intervalMinutes,
+        ];
+    }
+
+    /**
      * Appointment statuses by option_id from apptstat list rows. A row's notes hold its color
      * before a "|" (for example "FEFDCF|0"); a color that is not a plain CSS color is dropped.
      *

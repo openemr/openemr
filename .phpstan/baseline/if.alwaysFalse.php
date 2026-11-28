@@ -53,11 +53,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
 ];

@@ -12,9 +12,9 @@
     <div class="form-row mb-sm-2">
         <input type='hidden' name='form_visit_list' value='1' />
         <label class='col-sm-2 col-form-label' for='form_visit_seq'>{{ 'Order #'|xlt }}:</label>
-        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_seq' id='form_visit_seq' value='{{ form.sequence|attr }}' title='{{ 'Place on the Visit List'|xla }}' />
+        <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_seq' id='form_visit_seq' value='{{ form.sequence|attr }}' title='{{ 'Place on the Visit List; the patient there and those after move down one'|xla }}' />
         <label class='col-sm-2 col-form-label' for='form_visit_stop'>{{ 'Stop #'|xlt }}:</label>
         <input class='col-sm-2 form-control' type='number' min='1' step='1' name='form_visit_stop' id='form_visit_stop' value='{{ form.stop|attr }}' title='{{ 'Optional; patients at one address share a stop'|xla }}' />
-        <small class='col-sm form-text text-muted'>{{ 'Visit List patient: no appointment time.'|xlt }}</small>
+        <small class='col-sm form-text text-muted'>{{ 'Visit List patient: no appointment time.'|xlt }} {{ 'Other patients move down to make room.'|xlt }}</small>
     </div>
 {% endif %}

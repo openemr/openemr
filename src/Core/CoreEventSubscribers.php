@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core;
 
+use OpenEMR\Appointment\VisitList\VisitListDeleteSubscriber;
 use OpenEMR\FHIR\SMART\Subscriber\PortalSmartLaunchSubscriber;
 use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
@@ -33,5 +34,6 @@ final class CoreEventSubscribers
         $dispatcher->addSubscriber(new CodeTypeEventsSubscriber());
         $dispatcher->addSubscriber(new PatientFlowBoardEventsSubscriber());
         $dispatcher->addSubscriber(new PortalSmartLaunchSubscriber());
+        $dispatcher->addSubscriber(new VisitListDeleteSubscriber());
     }
 }
