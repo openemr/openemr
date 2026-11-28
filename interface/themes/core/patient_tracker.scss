@@ -26,10 +26,36 @@
     column-gap: 2rem;
     text-align: left;
 
-    // A long category name shows in full in the open menu, not in the closed one.
+    // A long choice shows in full in the open menu, and ends in "…" in the closed one.
     select {
       max-width: 20rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
+  }
+
+  // From, To and Filter, set apart from the patient boxes.
+  .flb-dates {
+    margin-right: 1.5rem;
+  }
+
+  // Filter: a little apart from the date, and as tall as the boxes beside it.
+  #filter_submit {
+    display: inline-flex;
+    align-items: center;
+    height: calc(1.5em + 0.5rem + 2px);
+    margin-left: 0.5rem;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  #form_apptcat {
+    width: 13rem;
+  }
+
+  #form_provider {
+    width: 15.5rem;
   }
 }
 
