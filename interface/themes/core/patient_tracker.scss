@@ -12,15 +12,34 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// The filter rows: groups and menus side by side, each as wide as its content.
 #flb_selectors {
-  .datepicker {
-    max-width: 10rem;
-    margin: 0 auto;
+  .flb-filters,
+  .flb-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .flb-filters {
+    column-gap: 2rem;
+    text-align: left;
+
+    // A long category name shows in full in the open menu, not in the closed one.
+    select {
+      max-width: 20rem;
+    }
   }
 }
 
 #flb_table {
   .table {
+    // The line under "Time", from the first time column to the last.
+    thead td.flb-time-group {
+      border-bottom: 2px solid var(--dark);
+    }
+
     td {
       vertical-align: middle;
       padding-top: 0.1rem;

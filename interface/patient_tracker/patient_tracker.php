@@ -30,11 +30,13 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Si
 
 use ESign\SignatureIF;
 use OpenEMR\Appointment\FlowBoard\FlowBoardChange;
+use OpenEMR\Appointment\FlowBoard\FlowBoardFilters;
 use OpenEMR\Appointment\FlowBoard\LegacyFlowBoardStore;
 use OpenEMR\Appointment\VisitList\VisitListFlowBoard;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -183,148 +185,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
             <div class="jumbotron p-3 mb-3">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
-                        <form name="flb" id="flb" method="post">
-                        <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                            <div class="text-center col-4 align-items-center">
-                              <!-- Visit Categories Section -->
-                              <div class="col-sm">
-                                <select id="form_apptcat" name="form_apptcat" class="form-control form-control-sm" onchange="refineMe('apptcat');">
-                                  <?php
-                                    $categories = fetchAppointmentCategories();
-                                    echo "<option value=''>" . xlt("Visit Categories") . "</option>";
-                                    while ($cat = sqlFetchArray($categories)) {
-                                        echo "<option value='" . attr($cat['id']) . "'";
-                                        if ($cat['id'] == ($_POST['form_apptcat'] ?? null)) {
-                                            echo " selected='true' ";
-                                        }
-                                        echo ">" . xlt($cat['category']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                              </div>
-                              <!-- Visit Status Section -->
-                              <div class="col-sm">
-                                <select id="form_apptstatus" name="form_apptstatus" class="form-control form-control-sm" onchange="refineMe();">
-                                  <option value=""><?php echo xlt("Visit Status"); ?></option>
-                                  <?php
-                                    $apptstats = sqlStatement("SELECT * FROM list_options WHERE list_id = 'apptstat' AND activity = 1 ORDER BY seq");
-                                    while ($apptstat = sqlFetchArray($apptstats)) {
-                                        echo "<option value='" . attr($apptstat['option_id']) . "'";
-                                        if ($apptstat['option_id'] == ($_POST['form_apptstatus'] ?? null)) {
-                                            echo " selected='true' ";
-                                        }
-                                        echo ">" . xlt($apptstat['title']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
-                              </div>
-                              <!-- Facility Section -->
-                              <div class="col-sm">
-                                  <select class="form-control form-control-sm" id="form_facility" name="form_facility"
-                                      <?php
-                                        $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
-                                        while ($fac = sqlFetchArray($fac_sql)) {
-                                            $true = ($fac['id'] == ($_POST['form_facility'] ?? null)) ? "selected=true" : '';
-                                            ($select_facs ?? null) ? $select_facs : $select_facs = '';
-                                            $select_facs .= "<option value=" . attr($fac['id']) . " " . $true . ">" . text($fac['name']) . "</option>\n";
-                                            ($count ?? null) ? $count_facs : $count_facs = 0;
-                                            $count_facs++;
-                                        }
-                                        if ($count_facs < '1') {
-                                            echo "disabled";
-                                        }
-                                        ?> onchange="refineMe('facility');">
-                                      <option value=""><?php echo xlt('All Facilities'); ?></option>
-                                      <?php echo $select_facs; ?>
-                                  </select>
-                              </div>
-
-                              <?php
-                              // Build a drop-down list of ACTIVE providers.
-                                $query = "SELECT id, lname, fname FROM users WHERE " .
-                                  "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
-                                $ures = sqlStatement($query);
-                                $sessionUserauthorized = $session->get('userauthorized');
-                                $sessionAuthUserID = $session->get('authUserID');
-                                while ($urow = sqlFetchArray($ures)) {
-                                    $provid = $urow['id'];
-                                    ($select_provs ?? null) ? $select_provs : $select_provs = '';
-                                    $select_provs .= "    <option value='" . attr($provid) . "'";
-                                    if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
-                                        $select_provs .= " selected";
-                                    } elseif (!isset($_POST['form_provider']) && $sessionUserauthorized && $provid == $sessionAuthUserID) {
-                                        $select_provs .= " selected";
-                                    }
-                                    $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                                    ($count_provs ?? null) ? $count_provs : $count_provs = 0;
-                                    $count_provs++;
-                                }
-                                ?>
-                              <!-- Provider Section -->
-                              <div class="col-sm">
-                                  <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php
-                                    if ($count_provs < '2') {
-                                        echo "disabled";
-                                    }
-                                    ?> onchange="refineMe('provider');">
-                                      <option value="" selected><?php echo xlt('All Providers'); ?></option>
-
-                                      <?php
-                                        echo $select_provs;
-                                        ?>
-                                  </select>
-                              </div>
-                            </div>
-                              <?php
-                                if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
-                                    $type = 'date';
-                                    $style = '';
-                                } else {
-                                    $type = 'hidden';
-                                    $style = 'display:none;';
-                                } ?>
-                            <div class="col-4 mt-3 nowrap row" style="<?php echo $style; ?>">
-
-                              <label class="col-form-label col-sm-3 text-right" for="flow_from"><?php echo xlt('From'); ?>:</label>
-                              <div class="col-sm-9">
-                                <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>"/>
-                              </div>
-                              <label class="col-form-label col-sm-3 text-right" for="flow_to"><?php echo xlt('To{{Range}}'); ?>:</label>
-                              <div class="col-sm-9">
-                                  <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>"/>
-                              </div>
-
-                              <div class="col-sm-12 mt-3 mx-auto">
-                                  <button id="filter_submit" class="btn btn-primary btn-sm btn-filter"><?php echo xlt('Filter'); ?></button>
-                                  <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk'] ?? ''); ?>" />
-                              </div>
-                            </div>
-                            <div class="col-4 mt-3 row">
-                                <div class="col-sm-12 text-center">
-                                    <!-- Patient Name Section -->
-                                      <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();" />
-                                </div>
-                                <div class="col-sm-12 text-center">
-                                        <!-- Patient ID Section -->
-                                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
-                                </div>
-                                <div class="col-sm-12 mx-auto">
-                                    <div class="text-center pt-3 mx-auto">
-
-                                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
-                                          <b>MedEx:</b>
-                                                <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
-                                                   target="_medex">
-                                                    <?php echo $current_events; ?>
-                                                </a>
-                                          <?php } ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="message" class="warning"></div>
-                        </div>
-                    </form>
+                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/filters.html.twig', ['filters' => FlowBoardFilters::load(CurrentRequest::get()->request, OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')), 'dateRange' => OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range'), 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date), 'patientName' => $form_patient_name ?? '', 'patientId' => $form_patient_id ?? '', 'kiosk' => $_REQUEST['kiosk'] ?? '', 'medex' => OEGlobalsBag::getInstance()->getBoolean('medex_enable'), 'medexOnline' => is_array($logged_in ?? null) && is_string($logged_in['token'] ?? null) && $logged_in['token'] !== '']); ?>
                 </div>
             </div>
         </div>
@@ -419,77 +280,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 
                     <div class="table-responsive mt-3">
                     <table class="table table-sm table-bordered">
-                    <thead class="table-primary">
-                    <tr class="small font-weight-bold text-center">
-                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['head' => true] + $when); ?>
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) { ?>
-                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('PID'); ?>
-                            </td>
-                        <?php } ?>
-                        <td class="dehead flb-name text-ovr-dark">
-                            <?php echo xlt('Patient'); ?>
-                        </td>
-                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['head' => true]); ?>
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
-                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('Appt Comment'); ?>
-                            </td>
-                        <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')) { ?>
-                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('Encounter'); ?>
-                            </td>
-                        <?php } ?>
-                        <td class="dehead text-center text-ovr-dark">
-                            <?php echo xlt('Arrive Time'); ?>
-                        </td>
-                        <td class="dehead text-center d-block d-sm-none text-ovr-dark">
-                            <?php echo xlt('Arrival'); ?>
-                        </td>
-                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
-                            <?php echo xlt('Current Status'); ?>
-                        </td>
-                        <td class="dehead text-center d-block d-table-cell d-sm-none text-ovr-dark">
-                            <?php echo xlt('Current'); ?>
-                        </td>
-                        <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                            <?php echo xlt('Visit Type'); ?>
-                        </td>
-                        <?php if (count($chk_prov) > 1) { ?>
-                            <td class="dehead flb-name d-sm-table-cell text-ovr-dark">
-                                <?php echo xlt('Provider'); ?>
-                            </td>
-                        <?php } ?>
-                        <td class="dehead text-center text-ovr-dark">
-                            <?php echo xlt('Total Time'); ?>
-                        </td>
-                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
-                            <?php echo xlt('Check Out Time'); ?>
-                        </td>
-                        <td class="dehead text-center d-block d-table-cell d-sm-none text-ovr-dark">
-                            <?php echo xlt('Out Time'); ?>
-                        </td>
-                        <?php
-                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) { ?>
-                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('Updated By'); ?>
-                            </td>
-                            <?php
-                        }
-                        if ($_REQUEST['kiosk'] != '1') {
-                            if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
-                                <td class="dehead center text-ovr-dark" name="kiosk_hide">
-                                    <?php echo xlt('Random Drug Screen'); ?>
-                                </td>
-                                <td class="dehead center text-ovr-dark" name="kiosk_hide">
-                                    <?php echo xlt('Drug Screen Completed'); ?>
-                                </td>
-                                <?php
-                            }
-                        } ?>
-                    </tr>
-                    </thead>
+                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/table_head.html.twig', $when + ['showPid' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid'), 'showReason' => OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason'), 'showEncounter' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter'), 'showProvider' => count($chk_prov) > 1, 'showStaff' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff'), 'drugScreen' => OEGlobalsBag::getInstance()->getBoolean('drug_screen') && ($_REQUEST['kiosk'] ?? '') != '1']); ?>
                     <tbody>
                     <?php
                     $prev_appt_date_time = "";
@@ -637,7 +428,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-pname="' . attr($ptname) . '"
                             class="text-small' . (isset($appointment['visit_list']) ? ' flb-visit-list' : '') . '"
                             style="background-color:#' . attr($bgcolor) . ';" >';
-                        echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['head' => false, 'eventId' => $appt_eid, 'dateSquash' => $date_squash, 'date' => oeFormatShortDate($date_appt), 'dateKey' => $date_appt, 'time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null] + $when);
+                        echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'date' => oeFormatShortDate($date_appt), 'dateKey' => $date_appt, 'time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null] + $when);
 
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                             ?>
@@ -657,7 +448,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
-                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['head' => false, 'eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => getListItemTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => getListItemTitle('patient_flow_board_rooms', $appt_room)]]); ?>
+                        <td class="detail text-center" name="kiosk_hide">
+                            <?php echo xlt($appointment['pc_title']); ?>
+                        </td>
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => getListItemTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => getListItemTitle('patient_flow_board_rooms', $appt_room)]]); ?>
 
                         <!-- reason -->
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
@@ -717,16 +511,13 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         //end time in current status
                         echo "</td>";
                         ?>
-                        <td class="detail text-center" name="kiosk_hide">
-                            <?php echo xlt($appointment['pc_title']); ?>
-                        </td>
-                        <?php
-                        if (count($chk_prov) > 1) { ?>
-                            <td class="detail flb-name d-sm-table-cell">
-                                <?php echo text($docname); ?>
-                            </td>
+                        <td class="detail text-center">
                             <?php
-                        } ?>
+                            if (strtotime((string) $newend) != '') {
+                                echo text(oeFormatTime(substr((string) $newend, 11))) ;
+                            }
+                            ?>
+                        </td>
                         <td class="detail text-center">
                             <?php
                             // total time in practice
@@ -744,13 +535,13 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             // end total time in practice
                             echo text($appointment['pc_time'] ?? ''); ?>
                         </td>
-                        <td class="detail text-center">
+                        <?php
+                        if (count($chk_prov) > 1) { ?>
+                            <td class="detail flb-name d-sm-table-cell">
+                                <?php echo text($docname); ?>
+                            </td>
                             <?php
-                            if (strtotime((string) $newend) != '') {
-                                echo text(oeFormatTime(substr((string) $newend, 11))) ;
-                            }
-                            ?>
-                        </td>
+                        } ?>
                         <?php
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>

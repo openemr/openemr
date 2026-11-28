@@ -1,9 +1,9 @@
-{# A Flow Board row's Status and Room cells, or their header cells. Each value is a badge;
+{# A Flow Board row's Status and Room cells (headings in table_head.html.twig). Each value is a badge;
    clicking it opens a menu of the values it can change to (library/js/flowBoard.js). A
    repeating appointment's date has to be split off its series first, so its badges open the
    appointment dialog instead.
 
-   Input: head (bool); for a row also eventId, dateSquash (Ymd), repeating (bool), status and
+   Input: eventId, dateSquash (Ymd), repeating (bool), status and
    room ({value, label}; a room's value is '' for none)
 
    @package   OpenEMR
@@ -11,10 +11,6 @@
    @author    David Eschelbacher <psoas@tampabay.rr.com>
    @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
    @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
-{% if head %}
-<td class="dehead text-center text-ovr-dark">{{ 'Status'|xlt }}</td>
-<td class="dehead text-center text-ovr-dark">{{ 'Room'|xlt }}</td>
-{% else %}
 {% for kind, choice in {status: status, room: room} %}
 <td class="detail text-center">
     {% set label = choice.value == '' ? '–' : choice.label %}
@@ -26,4 +22,3 @@
     {% endif %}
 </td>
 {% endfor %}
-{% endif %}

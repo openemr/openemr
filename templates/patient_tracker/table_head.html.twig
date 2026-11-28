@@ -1,0 +1,54 @@
+{# The Flow Board table's header: two rows, so the four time columns sit under one "Time"
+   heading. Every other heading spans both rows. The order matches the row cells in
+   interface/patient_tracker/patient_tracker.php.
+
+   Input: showDate, showOrder (see appointment_when.html.twig), showPid, showReason,
+   showEncounter, showProvider (more than one provider on the board), showStaff, drugScreen
+   (bool each)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+<thead class="table-primary">
+<tr class="small font-weight-bold text-center">
+    {% if showDate %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Appt Date'|xlt }}</td>
+    {% endif %}
+    <td class="dehead text-ovr-dark" rowspan="2">{{ 'Appt Time'|xlt }}</td>
+    {% if showOrder %}
+    <td class="dehead text-ovr-dark" rowspan="2" title="{{ 'Visit List order'|xla }}">{{ 'Order'|xlt }}</td>
+    {% endif %}
+    {% if showPid %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'PID'|xlt }}</td>
+    {% endif %}
+    <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Patient'|xlt }}</td>
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Visit Type'|xlt }}</td>
+    <td class="dehead text-ovr-dark" rowspan="2">{{ 'Status'|xlt }}</td>
+    <td class="dehead text-ovr-dark" rowspan="2">{{ 'Room'|xlt }}</td>
+    {% if showReason %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Appt Comment'|xlt }}</td>
+    {% endif %}
+    {% if showEncounter %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Encounter'|xlt }}</td>
+    {% endif %}
+    <td class="dehead text-ovr-dark flb-time-group" colspan="4">{{ 'Time'|xlt }}</td>
+    {% if showProvider %}
+    <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
+    {% endif %}
+    {% if showStaff %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Updated By'|xlt }}</td>
+    {% endif %}
+    {% if drugScreen %}
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Random Drug Screen'|xlt }}</td>
+    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Drug Screen Completed'|xlt }}</td>
+    {% endif %}
+</tr>
+<tr class="small font-weight-bold text-center">
+    <td class="dehead text-ovr-dark" title="{{ 'When the patient arrived'|xla }}">{{ 'Arrival'|xlt }}</td>
+    <td class="dehead text-ovr-dark" title="{{ 'How long the patient has been in the current status'|xla }}">{{ 'In Status'|xlt }}</td>
+    <td class="dehead text-ovr-dark" title="{{ 'When the patient checked out'|xla }}">{{ 'Check Out'|xlt }}</td>
+    <td class="dehead text-ovr-dark" title="{{ 'From arrival to check out, or to now'|xla }}">{{ 'Total'|xlt }}</td>
+</tr>
+</thead>
