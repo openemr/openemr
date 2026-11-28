@@ -1,0 +1,45 @@
+/**
+ * Flow Board (interface/patient_tracker/patient_tracker.php)
+ *
+ * Rows one line tall where the content allows, names left-aligned, and a mark on the
+ * rows of Visit List patients.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    David Eschelbacher <psoas@tampabay.rr.com>
+ * @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+#flb_selectors {
+  .datepicker {
+    max-width: 10rem;
+    margin: 0 auto;
+  }
+}
+
+#flb_table {
+  .table {
+    td {
+      vertical-align: middle;
+    }
+
+    // Header cells may wrap, so columns that are often empty stay narrow.
+    td.detail {
+      white-space: nowrap;
+    }
+
+    td.flb-comment {
+      min-width: 12rem;
+      white-space: normal;
+    }
+
+    .flb-name {
+      text-align: left;
+    }
+  }
+
+  tr.flb-visit-list > td:first-child {
+    border-left: 3px solid var(--primary);
+  }
+}

@@ -178,8 +178,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
     <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
-            <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
-            <div class="jumbotron p-4">
+            <div class="jumbotron p-3 mb-3">
                 <div class="showRFlow text-center" id="show_flows" name="kiosk_hide">
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
@@ -416,7 +415,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
             </div>
 
                     <div class="table-responsive mt-3">
-                    <table class="table table-bordered">
+                    <table class="table table-sm table-bordered">
                     <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) { ?>
@@ -424,7 +423,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <?php echo xlt('PID'); ?>
                             </td>
                         <?php } ?>
-                        <td class="dehead text-center text-ovr-dark" style="max-width: 150px;">
+                        <td class="dehead flb-name text-ovr-dark">
                             <?php echo xlt('Patient'); ?>
                         </td>
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
@@ -438,7 +437,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             </td>
                         <?php } ?>
 
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Date'); ?>
                             </td>
@@ -465,7 +464,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <?php echo xlt('Visit Type'); ?>
                         </td>
                         <?php if (count($chk_prov) > 1) { ?>
-                            <td class="dehead text-center d-sm-table-cell text-ovr-dark">
+                            <td class="dehead flb-name d-sm-table-cell text-ovr-dark">
                                 <?php echo xlt('Provider'); ?>
                             </td>
                         <?php } ?>
@@ -643,7 +642,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-provider="' . attr($appointment['uprovider_id']) . '"
                             data-pid="' . attr($appointment['pc_pid']) . '"
                             data-pname="' . attr($ptname) . '"
-                            class="text-small"
+                            class="text-small' . (isset($appointment['visit_list']) ? ' flb-visit-list' : '') . '"
                             style="background-color:#' . attr($bgcolor) . ';" >';
 
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
@@ -655,7 +654,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         }
 
                         ?>
-                        <td class="detail text-center" name="kiosk_hide">
+                        <td class="detail flb-name" name="kiosk_hide">
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname); ?></a>
                         </td>
@@ -667,7 +666,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 
                         <!-- reason -->
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
-                            <td class="detail text-center" name="kiosk_hide">
+                            <td class="detail text-center flb-comment" name="kiosk_hide">
                                 <?php echo text($reason_visit) ?>
                             </td>
                         <?php } ?>
@@ -685,7 +684,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 ?>
                             </td>
                         <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
@@ -703,7 +702,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <?php if (empty($tracker_id)) { //for appt not yet with tracker id and for recurring appt ?>
                             <a class="btn btn-primary btn-sm" onclick="return calendarpopup(<?php echo attr_js($appt_eid) . "," . attr_js($date_squash); // calls popup for add edit calendar event?>)">
                             <?php } else { ?>
-                                <a class="btn btn-primary btn-s" onclick="return bpopup(<?php echo attr_js($tracker_id); // calls popup for patient tracker status?>)">
+                                <a class="btn btn-primary btn-sm" onclick="return bpopup(<?php echo attr_js($tracker_id); // calls popup for patient tracker status?>)">
                             <?php } ?>
                             <?php
                             if ($appointment['room'] > '') {
@@ -750,7 +749,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         </td>
                         <?php
                         if (count($chk_prov) > 1) { ?>
-                            <td class="detail text-center  d-sm-table-cell">
+                            <td class="detail flb-name d-sm-table-cell">
                                 <?php echo text($docname); ?>
                             </td>
                             <?php
