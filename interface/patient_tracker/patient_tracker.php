@@ -280,7 +280,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 
                     <div class="table-responsive mt-3">
                     <table class="table table-sm table-bordered">
-                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/table_head.html.twig', $when + ['showPid' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid'), 'showReason' => OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason'), 'showEncounter' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter'), 'showProvider' => count($chk_prov) > 1, 'showStaff' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff'), 'drugScreen' => OEGlobalsBag::getInstance()->getBoolean('drug_screen') && ($_REQUEST['kiosk'] ?? '') != '1']); ?>
+                    <?php echo ServiceContainer::getTwig()->render('patient_tracker/table_head.html.twig', $when + ['showPid' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid'), 'showReason' => OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason'), 'showEncounter' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter'), 'showProvider' => count($chk_prov) > 1, 'showStaff' => OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff'), 'drugScreen' => OEGlobalsBag::getInstance()->getBoolean('drug_screen') && ($_REQUEST['kiosk'] ?? '') != '1', 'fromDate' => oeFormatShortDate($from_date), 'toDate' => oeFormatShortDate($to_date)]); ?>
                     <tbody>
                     <?php
                     $prev_appt_date_time = "";

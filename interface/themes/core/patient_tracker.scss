@@ -81,10 +81,61 @@
     border-width: 0;
     cursor: pointer;
   }
+
+  // The block's times under a Visit List patient's number, and the title above the table:
+  // print only. A block's times print once, under its first patient.
+  .flb-range,
+  .flb-print-title {
+    display: none;
+  }
 }
 
 .flb-menu {
   max-height: 50vh;
   overflow-y: auto;
   z-index: 1060;
+}
+
+@media print {
+  // The table without the filters and buttons, narrow enough for the page.
+  #flb_selectors .jumbotron,
+  #pull_kiosk_right {
+    display: none;
+  }
+
+  #flb_table {
+    .flb-range {
+      display: block;
+      white-space: nowrap;
+    }
+
+    .flb-repeat .flb-range {
+      display: none;
+    }
+
+    .flb-print-title {
+      display: table-caption;
+      caption-side: top;
+      font-weight: bold;
+      color: var(--dark);
+    }
+
+    .table-responsive {
+      overflow: visible;
+    }
+
+    .table {
+      font-size: 0.7rem;
+
+      td.detail {
+        white-space: normal;
+      }
+    }
+
+    // Backgrounds don't print, so a badge's white text would vanish.
+    .flb-badge {
+      color: var(--dark);
+      border: 1px solid var(--dark);
+    }
+  }
 }

@@ -3,11 +3,11 @@
    Clicking one opens the appointment dialog (library/js/flowBoard.js). A date or time the row
    above already shows is hidden by the script, so each appears once; data-flb-repeat is what
    it compares. A Visit List patient shows its block's start time, and its Order # with the
-   block's times as a tooltip on screen and under the number in print.
+   block's times as a tooltip on screen; in print the times are under the first patient's number.
 
    Input: showDate (bool), showOrder (bool), eventId, dateSquash
    (Ymd), date and time (formatted), dateKey (Y-m-d), and visitList (null, or {sequenceLabel,
-   start, timeRange} from OpenEMR\Appointment\VisitList\VisitListFlowBoard)
+   block, start, timeRange} from OpenEMR\Appointment\VisitList\VisitListFlowBoard)
 
    @package   OpenEMR
    @link      https://www.open-emr.org
@@ -25,9 +25,9 @@
 </td>
 {% if showOrder %}
 {% if visitList %}
-<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" title="{{ 'Visit List'|xla }} {{ visitList.timeRange|attr }}">
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" data-flb-repeat="{{ ('block ' ~ visitList.block)|attr }}" title="{{ 'Visit List'|xla }} {{ visitList.timeRange|attr }}">
     {{ visitList.sequenceLabel|text }}
-    <span class="d-none d-print-block small">{{ visitList.timeRange|text }}</span>
+    <span class="flb-range small">{{ visitList.timeRange|text }}</span>
 </td>
 {% else %}
 <td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}"></td>

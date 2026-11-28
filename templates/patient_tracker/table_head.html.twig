@@ -1,16 +1,17 @@
-{# The Flow Board table's header: two rows, so the four time columns sit under one "Time"
+{# The Flow Board table's printed title and header: two rows, so the four time columns sit under one "Time"
    heading. Every other heading spans both rows. The order matches the row cells in
    interface/patient_tracker/patient_tracker.php.
 
    Input: showDate, showOrder (see appointment_when.html.twig), showPid, showReason,
    showEncounter, showProvider (more than one provider on the board), showStaff, drugScreen
-   (bool each)
+   (bool each), fromDate and toDate (formatted, for the printed title)
 
    @package   OpenEMR
    @link      https://www.open-emr.org
    @author    David Eschelbacher <psoas@tampabay.rr.com>
    @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
    @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+<caption class="flb-print-title">{{ 'Flow Board'|xlt }}: {{ fromDate|text }}{% if toDate != fromDate %} – {{ toDate|text }}{% endif %}</caption>
 <thead class="table-primary">
 <tr class="small font-weight-bold text-center">
     {% if showDate %}
