@@ -91,10 +91,17 @@ final class FhirBundleImporter
     private const OBSERVATION_REJECTED_LOINCS = [
         '39156-5', // BMI — "derived from height and weight; post those instead"
         '72514-3', // pain scale — "written through their form"
+        '74006-8', // weight difference pre/post dialysis — "written through their form"
+        '79892-6', // right eye intraocular pressure — "written through their form"
+        '79893-4', // left eye intraocular pressure — "written through their form"
+        '71425-3', // NT-proBNP — a lab Synthea tags vital-signs; "written through their form"
     ];
 
     /** @var array<string, string> */
     private array $referenceMap = [];
+
+    /** @var array<string, true> */
+    private array $spo2Seen = [];
 
     /** @var array{bundles: int, posted: int, skipped: int, transformSkipped: int, failed: int} */
     private array $counters = [
@@ -131,9 +138,9 @@ final class FhirBundleImporter
             'Patient'           => [self::transformTagFirstNameOfficial(...)],
             'Practitioner'      => [self::transformTagFirstNameOfficial(...)],
             'Organization'      => [self::transformMintOrganizationNpi(...)],
-            'CarePlan'          => [self::transformCareplanForcePlanIntent(...)],
+            'CarePlan'          => [self::transformCareplanDropNoActivity(...), self::transformCareplanForcePlanIntent(...)],
             'CareTeam'          => [self::transformCareteamKeepPractitionerParticipants(...)],
-            'Observation'       => [self::transformObservationDropRejectedLoincs(...)],
+            'Observation'       => [self::transformObservationDropRejectedLoincs(...), $this->transformObservationDropDuplicateSpo2(...)],
             'MedicationRequest' => [self::transformInlineMedicationReference(...)],
         ];
     }
@@ -389,6 +396,8 @@ final class FhirBundleImporter
         $byType = [];
         /** @var array<string, array<array-key, mixed>> $bundleIndex */
         $bundleIndex = [];
+        // Per-bundle SpO2 dedup state (transformObservationDropDuplicateSpo2).
+        $this->spo2Seen = [];
         foreach ($entries as $entry) {
             if (!is_array($entry)) {
                 continue;
@@ -782,6 +791,28 @@ final class FhirBundleImporter
     }
 
     /**
+     * [README B5] Drop CarePlans with no activity[].
+     *
+     * The CarePlan write path refuses a plan with no items ("At least one
+     * care plan item is required"). Synthea emits such plans (e.g. a major
+     * depressive disorder management plan with no activity). Runs before
+     * transformCareplanForcePlanIntent so dropped plans skip the rewrite.
+     * Delete when the write path accepts item-less plans.
+     *
+     * @param array<array-key, mixed> $resource
+     * @param array<string, array<array-key, mixed>> $bundleIndex
+     * @return array<array-key, mixed>|null
+     */
+    private static function transformCareplanDropNoActivity(array $resource, array $bundleIndex): ?array
+    {
+        $activity = $resource['activity'] ?? null;
+        if (!is_array($activity) || $activity === []) {
+            return null;
+        }
+        return $resource;
+    }
+
+    /**
      * [README C2+C3+B3] Drop Observations the write path refuses.
      *
      * Two tiers:
@@ -789,7 +820,7 @@ final class FhirBundleImporter
      *      and social-history are rejected ("written through procedure
      *      order / form / patient history").
      *   2. LOINC filter within accepted categories — vital-signs still
-     *      refuses derived measures (BMI 39156-5, pain scale 72514-3).
+     *      refuses codes the write path won't take (OBSERVATION_REJECTED_LOINCS).
      *
      * Trim tier 1 as the write path adds laboratory/survey/social-history
      * support. Trim tier 2 as narrow bans relax. The transform disappears
@@ -837,6 +868,60 @@ final class FhirBundleImporter
                 }
             }
         }
+        return $resource;
+    }
+
+    /**
+     * [README B6] Drop a second SpO2 reading for the same encounter and time.
+     *
+     * FhirObservationVitalsService folds 2708-6 and 59408-5 into one vitals
+     * row, and the write path refuses a second POST at the same encounter
+     * and effectiveDateTime ("POST does not overwrite"). Synthea emits both
+     * codes at the same instant. Keep the first reading per encounter +
+     * effectiveDateTime across the two codes; drop the rest. Unlike the
+     * other transforms this one holds per-bundle state (spo2Seen, reset in
+     * importBundle) because universal transforms mutate the resource before
+     * per-type transforms run, so a stateless scan of bundleIndex cannot
+     * reliably identify the first occurrence. Transforms run before
+     * reference rewriting, so the key uses the raw urn:uuid encounter
+     * reference. Delete when the write path accepts both codes separately.
+     *
+     * @param array<array-key, mixed> $resource
+     * @param array<string, array<array-key, mixed>> $bundleIndex
+     * @return array<array-key, mixed>|null
+     */
+    private function transformObservationDropDuplicateSpo2(array $resource, array $bundleIndex): ?array
+    {
+        $code = $resource['code'] ?? null;
+        $codeCoding = is_array($code) ? ($code['coding'] ?? []) : [];
+        $isSpo2 = false;
+        if (is_array($codeCoding)) {
+            foreach ($codeCoding as $coding) {
+                if (
+                    is_array($coding)
+                    && isset($coding['code'])
+                    && is_string($coding['code'])
+                    && in_array($coding['code'], ['2708-6', '59408-5'], true)
+                ) {
+                    $isSpo2 = true;
+                    break;
+                }
+            }
+        }
+        if (!$isSpo2) {
+            return $resource;
+        }
+        $encounter = $resource['encounter'] ?? null;
+        $encounterRef = is_array($encounter) ? ($encounter['reference'] ?? null) : null;
+        $when = $resource['effectiveDateTime'] ?? null;
+        if (!is_string($encounterRef) || $encounterRef === '' || !is_string($when) || $when === '') {
+            return $resource;
+        }
+        $key = $encounterRef . '|' . $when;
+        if (isset($this->spo2Seen[$key])) {
+            return null;
+        }
+        $this->spo2Seen[$key] = true;
         return $resource;
     }
 
