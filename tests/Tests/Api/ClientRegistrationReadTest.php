@@ -13,6 +13,9 @@
  * - is_enabled gate: a disabled client cannot read its own metadata.
  * - RAT rotation: using the RAT once invalidates it (the response body
  *   carries a fresh RAT for the next call).
+ * - Method gate: only the RFC 7592 read is implemented, so update (PUT),
+ *   delete (DELETE) and any other non-GET method get 405 with Allow: GET,
+ *   and leave the registration and its token untouched.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -28,6 +31,7 @@ namespace OpenEMR\Tests\Api;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils as PromiseUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -170,17 +174,78 @@ class ClientRegistrationReadTest extends TestCase
         $this->assertSame(200, $secondReadWithRotatedToken['status']);
     }
 
+    #[Test]
+    #[DataProvider('unsupportedMethodProvider')]
+    public function testUnsupportedMethodReturns405AndLeavesRegistrationUntouched(string $method): void
+    {
+        $registration = $this->registerClient();
+        $path = parse_url($registration['registration_client_uri'], PHP_URL_PATH);
+        $this->assertIsString($path);
+
+        // An RFC 7592 §2.2 update carries the full client metadata. Send a
+        // changed client_name so a silently applied update would show up
+        // in the follow-up read.
+        $response = $this->http->request($method, $path, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $registration['registration_access_token'],
+                'Content-Type' => 'application/json',
+            ],
+            'body' => (string) json_encode([
+                'client_id' => $registration['client_id'],
+                'client_name' => 'renamed-by-' . $method,
+                'redirect_uris' => ['https://client.example/cb'],
+            ]),
+        ]);
+
+        $this->assertSame(405, $response->getStatusCode(), $method . ' must be rejected with 405');
+        $this->assertSame('GET', $response->getHeaderLine('Allow'));
+        $this->assertStringContainsString('no-store', $response->getHeaderLine('Cache-Control'));
+        $body = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($body);
+        $this->assertSame('invalid_request', $body['error'] ?? null);
+        $this->assertArrayNotHasKey('client_secret', $body, 'A rejected method must not echo client credentials');
+        $this->assertArrayNotHasKey('registration_access_token', $body);
+
+        // The rejected request must not have rotated the registration token,
+        // changed the metadata, or removed the client: the original token
+        // still reads the original registration.
+        $readResponse = $this->readClient(
+            $registration['registration_client_uri'],
+            $registration['registration_access_token']
+        );
+        $this->assertSame(200, $readResponse['status'], 'The original registration token must still work after a rejected ' . $method);
+        $this->assertIsArray($readResponse['body']);
+        $this->assertSame($registration['client_id'], $readResponse['body']['client_id']);
+        $this->assertSame($registration['client_name'], $readResponse['body']['client_name']);
+    }
+
     /**
-     * @return array{client_id: string, registration_access_token: string, registration_client_uri: string}
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unsupportedMethodProvider(): array
+    {
+        return [
+            'PUT (RFC 7592 update)' => ['PUT'],
+            'DELETE (RFC 7592 delete)' => ['DELETE'],
+            'POST' => ['POST'],
+            'PATCH' => ['PATCH'],
+        ];
+    }
+
+    /**
+     * @return array{client_id: string, client_name: string, registration_access_token: string, registration_client_uri: string}
      */
     private function registerClient(): array
     {
+        $clientName = 'ClientRegistrationReadTest-' . bin2hex(random_bytes(3));
         $response = $this->http->post('/oauth2/default/registration', [
             'headers' => ['Content-Type' => 'application/json'],
             'body' => (string) json_encode([
                 'application_type' => 'private',
                 'redirect_uris' => ['https://client.example/cb'],
-                'client_name' => 'ClientRegistrationReadTest-' . bin2hex(random_bytes(3)),
+                'client_name' => $clientName,
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
                 'scope' => 'openid',
@@ -195,6 +260,7 @@ class ClientRegistrationReadTest extends TestCase
         $this->clientId = $body['client_id'];
         return [
             'client_id' => $body['client_id'],
+            'client_name' => $clientName,
             'registration_access_token' => $body['registration_access_token'],
             'registration_client_uri' => $body['registration_client_uri'],
         ];

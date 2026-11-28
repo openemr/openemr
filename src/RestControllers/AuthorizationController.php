@@ -633,6 +633,24 @@ class AuthorizationController implements LoggerAwareInterface
     {
         $response = $this->createServerResponse();
 
+        // Only the RFC 7592 §2.1 read operation is implemented. Reject every
+        // other method up front, before the registration token is checked or
+        // rotated, so an update (§2.2) or delete (§2.3) request is not
+        // answered as if it had been carried out.
+        if ($request->getMethod() !== 'GET') {
+            $this->session->invalidate();
+            $response->getBody()->write((string) json_encode([
+                'error' => 'invalid_request',
+                'error_description' => 'Only GET is supported on the client configuration endpoint',
+            ]));
+            return $response
+                ->withStatus(Response::HTTP_METHOD_NOT_ALLOWED)
+                ->withHeader('Allow', 'GET')
+                ->withHeader('Cache-Control', 'no-store')
+                ->withHeader('Pragma', 'no-cache')
+                ->withHeader('Content-Type', 'application/json');
+        }
+
         try {
             $token = $request->request->get('access_token');
             if (!$token) {
