@@ -848,6 +848,7 @@ class X125010837I
             if (!($claim->providerNPIValid())) {
                 //If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
                 $log .= "*** Skipping 2310B because " . $claim->providerLastName() . "," . $claim->providerFirstName() . " has invalid NPI.\n";
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
             }
             /*
              * Skipping this segment because the providerNPI and the billingFacilityNPI are identical
