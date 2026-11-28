@@ -29,6 +29,7 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\VersionFile;
+use OpenEMR\Services\LBF\Bootstrap;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -831,7 +832,10 @@ xlWarmCache();
 const OPENEMR_GLOBALS_LOADED = true;
 
 // Core event subscribers: always-on behaviour, registered in src/Core/CoreEventSubscribers.php.
-(new CoreEventSubscribers())->register($globalsBag->getKernel()->getEventDispatcher());
+$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
+(new CoreEventSubscribers())->register($coreDispatcher);
+// Layout statements are always on, so they register with the other core listeners.
+Bootstrap::instantiate($coreDispatcher, $globalsBag->getKernel());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files

@@ -21,6 +21,7 @@ use OpenEMR\Common\Database\LayoutColumnUpdate;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -37,6 +38,11 @@ if ($patientPortalSession) {
 }
 
 require_once "../../globals.php";
+$statement = CurrentRequest::get()->query->getString('statement');
+if ($statement !== '') {
+    \OpenEMR\Services\LBF\StatementEntry::dispatch($statement);
+    exit;
+}
 require_once "$srcdir/options.inc.php";
 require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";

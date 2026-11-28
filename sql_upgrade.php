@@ -492,85 +492,92 @@ header('Content-type: text/html; charset=utf-8');
             <div class='col-md bg-light text-dark'>
                 <?php if (!empty($_POST['form_submit']) || $cliFromVersion !== null) {
                     $form_old_version = $cliFromVersion ?? ($_POST['form_old_version'] ?? '');
-
-                    foreach ($versions as $version => $filename) {
-                        if (strcmp($version, (string) $form_old_version) < 0) {
-                            continue;
+                    if (!is_string($form_old_version) || !array_key_exists($form_old_version, $versions)) {
+                        echo "<br /><p class='text-danger'>" . xlt("Choose a version this upgrade offers.") . "</p>\n";
+                        if ($isCli) {
+                            exit(1);
                         }
-                        // set polling version and start
-                        $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
-                        $sqlUpgradeService->upgradeFromSqlFile($filename);
-                        // end polling
+                    } else {
+
+                        foreach ($versions as $version => $filename) {
+                            if (strcmp($version, $form_old_version) < 0) {
+                                continue;
+                            }
+                            // set polling version and start
+                            $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
+                            $sqlUpgradeService->upgradeFromSqlFile($filename);
+                            // end polling
+                            sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
+                            $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
+                        }
+
+                        if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+                            // Upgrade custom stuff for IPPF.
+                            $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
+                        }
+
+                        if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
+                            // This release contains a patch file, so process it.
+                            echo "<script>serverStatus('Patch', 0, 1);</script>";
+                            $sqlUpgradeService->upgradeFromSqlFile('patch.sql');
+                        }
+                        flush();
+
+                        echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
+                        $sqlUpgradeService->flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
+                        $updateUuidLog = UuidRegistry::populateAllMissingUuids();
+                        if (!empty($updateUuidLog)) {
+                            echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
+                        } else {
+                            echo "Did not need to update or add any new UUIDs</p><br />\n";
+                        }
                         sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
                         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
-                    }
 
-                    if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
-                        // Upgrade custom stuff for IPPF.
-                        $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
-                    }
-
-                    if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
-                        // This release contains a patch file, so process it.
-                        echo "<script>serverStatus('Patch', 0, 1);</script>";
-                        $sqlUpgradeService->upgradeFromSqlFile('patch.sql');
-                    }
-                    flush();
-
-                    echo "<br /><p class='text-success'>Updating UUIDs (this could take some time)<br />\n";
-                    $sqlUpgradeService->flush_echo("<script>processProgress = 10; serverStatus('UUID', 1);</script>");
-                    $updateUuidLog = UuidRegistry::populateAllMissingUuids();
-                    if (!empty($updateUuidLog)) {
-                        echo "Updated UUIDs: " . text($updateUuidLog) . "</p><br />\n";
-                    } else {
-                        echo "Did not need to update or add any new UUIDs</p><br />\n";
-                    }
-                    sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
-                    $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
-
-                    echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
-                    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
-                    require_once("library/globals.inc.php");
-                    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-                        foreach ($grparr as $fldid => $fldarr) {
-                            [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
-                            if (is_array($fldtype) || (!str_starts_with((string) $fldtype, 'm_'))) {
-                                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-                                if (empty($row['count'])) {
-                                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                        echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
+                        $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
+                        require_once("library/globals.inc.php");
+                        foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+                            foreach ($grparr as $fldid => $fldarr) {
+                                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                                if (is_array($fldtype) || (!str_starts_with((string) $fldtype, 'm_'))) {
+                                    $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                                    if (empty($row['count'])) {
+                                        sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
                                         "VALUES ( '$fldid', '0', '$flddef' )");
+                                    }
                                 }
                             }
                         }
+
+                        echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
+                        require("acl_upgrade.php");
+                        echo "<br />\n";
+
+                        $versionService = new VersionService();
+                        $currentVersion = $versionService->fetch();
+                        $desiredVersion = $currentVersion;
+                        $desiredVersion['v_database'] = $v_database;
+                        $desiredVersion['v_tag'] = $v_tag;
+                        $desiredVersion['v_realpatch'] = $v_realpatch;
+                        $desiredVersion['v_patch'] = $v_patch;
+                        $desiredVersion['v_minor'] = $v_minor;
+                        $desiredVersion['v_major'] = $v_major;
+
+                        $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+                        $line = "Updating version indicators";
+
+                        if ($canRealPatchBeApplied) {
+                            $line = $line . ". " . xlt("Patch was also installed, updating version patch indicator");
+                        }
+
+                        echo "<p class='text-success'>" . $line . "...</p><br />\n";
+                        $versionService->update($desiredVersion);
+
+                        echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
+                        echo "</div></body></html>\n";
+                        exit();
                     }
-
-                    echo "<p class='text-success'>" . xlt("Updating Access Controls") . "..." . "</p><br />\n";
-                    require("acl_upgrade.php");
-                    echo "<br />\n";
-
-                    $versionService = new VersionService();
-                    $currentVersion = $versionService->fetch();
-                    $desiredVersion = $currentVersion;
-                    $desiredVersion['v_database'] = $v_database;
-                    $desiredVersion['v_tag'] = $v_tag;
-                    $desiredVersion['v_realpatch'] = $v_realpatch;
-                    $desiredVersion['v_patch'] = $v_patch;
-                    $desiredVersion['v_minor'] = $v_minor;
-                    $desiredVersion['v_major'] = $v_major;
-
-                    $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
-                    $line = "Updating version indicators";
-
-                    if ($canRealPatchBeApplied) {
-                        $line = $line . ". " . xlt("Patch was also installed, updating version patch indicator");
-                    }
-
-                    echo "<p class='text-success'>" . $line . "...</p><br />\n";
-                    $versionService->update($desiredVersion);
-
-                    echo "<p><p class='text-success'>" . xlt("Database and Access Control upgrade finished.") . "</p></p>\n";
-                    echo "</div></body></html>\n";
-                    exit();
                 }
                 ?>
             </div>
