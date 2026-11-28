@@ -1203,10 +1203,11 @@ trait UiSeedingTrait
         // flow). Setting form_category to a value not in the
         // dropdown's options renders as blank + fails save.
         //
-        // The outside-hours prompt that would otherwise fire on
-        // save (find_appt_popup.php:479 "Provider not available,
-        // use it anyway?") is a native browser confirm(), which
-        // muzzleBrowserPrompts() overrides to return true — so the
+        // Save opens find_appt_popup.php in a nested dialog to check
+        // slot availability. When the slot is outside provider hours
+        // that popup asks "Provider not available, use it anyway?"
+        // with a native browser confirm(), which
+        // muzzleBrowserPrompts() overrides to return true, so the
         // save proceeds regardless of provider availability.
         $this->createCalendarEvent(
             date: self::PERSIST_APPT_DATE,
@@ -1395,6 +1396,15 @@ trait UiSeedingTrait
             );
         }
 
+        // Save opens a second dialog. SubmitForm() calls
+        // find_available('&cktime=...'), which opens find_appt_popup.php
+        // to check slot availability, and that popup is what submits
+        // the form and closes the modal. It's opened by this iframe's
+        // own dlgopen(), so its name comes from this iframe's copy of
+        // dialogID(), which the patch in the calendar frame didn't
+        // reach. Patch it here too.
+        $this->patchLegacyDialogIdOnPreFixRelease();
+
         // Save. Muzzle handles any confirm() for outside-hours checks.
         $client->findElement(WebDriverBy::xpath("//input[@id='form_save']"))->click();
 
@@ -1417,18 +1427,23 @@ trait UiSeedingTrait
      * unary plus on one segment, so about 1% of names came out in
      * exponent form (e.g. "...1e+46..."). dlgclose() looks its dialog
      * up with top.$("div#" + name), where "+" is a sibling combinator,
-     * so such a dialog can never close. The add-event modal then stays
-     * open after a successful save and the close wait below times out.
+     * so such a dialog can never close. The add-event modal, or the
+     * find_appt_popup.php dialog its Save opens, then stays open and
+     * the close wait in createCalendarEvent() times out.
      *
      * The "Fresh install of from_tag" and upgrade cells boot released
      * images that still carry the bug and will never get a patch
-     * release, so on those versions only, replace dialogID() in the
-     * calendar frame (and top) with the fixed implementation before
-     * newEvt() calls dlgopen(). Versions from FIRST_FIXED_DIALOG_ID_VERSION
+     * release, so on those versions only, replace dialogID() with the
+     * fixed implementation in the current frame (and top). Each frame
+     * loads its own copy of dialog.js, so this runs twice: in the
+     * calendar frame before newEvt() opens the add-event modal, and in
+     * the add-event frame before Save opens find_appt_popup.php.
+     * Versions from FIRST_FIXED_DIALOG_ID_VERSION
      * on, and runs with no expected version, keep the shipped function.
      * Delete this once every from_tag is at or above that version.
      *
-     * Caller context: switched into the calendar iframe.
+     * Caller context: switched into the frame whose dlgopen() opens
+     * the next dialog.
      */
     private function patchLegacyDialogIdOnPreFixRelease(): void
     {
