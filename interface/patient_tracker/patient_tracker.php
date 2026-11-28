@@ -208,7 +208,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date');
     $appointments = (new VisitListFlowBoard())->arrange(is_array($appointments) ? $appointments : [], OEGlobalsBag::getInstance()->getInt('time_display_format') === 1);
-    $when = ['showDate' => OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date, 'showOrder' => array_any($appointments, static fn(array $row): bool => isset($row['visit_list']))];
+    $when = ['showOrder' => array_any($appointments, static fn(array $row): bool => isset($row['visit_list']))];
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
@@ -448,6 +448,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
+                        <?php if (count($chk_prov) > 1) { ?>
+                            <td class="detail flb-name"><?php echo text($docname); ?></td>
+                        <?php } ?>
                         <td class="detail text-center" name="kiosk_hide">
                             <?php echo xlt($appointment['pc_title']); ?>
                         </td>
@@ -535,13 +538,6 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             // end total time in practice
                             echo text($appointment['pc_time'] ?? ''); ?>
                         </td>
-                        <?php
-                        if (count($chk_prov) > 1) { ?>
-                            <td class="detail flb-name d-sm-table-cell">
-                                <?php echo text($docname); ?>
-                            </td>
-                            <?php
-                        } ?>
                         <?php
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>

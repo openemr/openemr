@@ -72,6 +72,11 @@
       padding-bottom: 0.1rem;
     }
 
+    // Headings that span both header rows sit at the top, level with "Appointment" and "Time".
+    thead td {
+      vertical-align: top;
+    }
+
     // Row text at the size of the status and room badges.
     tbody td {
       font-size: 85%;

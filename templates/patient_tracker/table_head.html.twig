@@ -1,9 +1,9 @@
 {# The Flow Board table's printed title and header: two rows, so Date and Time sit under one
    "Appointment" heading and the four time columns under one "Time" heading, each with a line
-   below it. Every other heading spans both rows. Headings are left-aligned. The order matches the row cells in
+   below it. Every other heading spans both rows, at the top. Headings are left-aligned. The order matches the row cells in
    interface/patient_tracker/patient_tracker.php.
 
-   Input: showDate, showOrder (see appointment_when.html.twig), showPid, showReason,
+   Input: showOrder (see appointment_when.html.twig), showPid, showReason,
    showEncounter, showProvider (more than one provider on the board), showStaff, drugScreen
    (bool each), fromDate and toDate (formatted, for the printed title)
 
@@ -15,7 +15,7 @@
 <caption class="flb-print-title">{{ 'Flow Board'|xlt }}: {{ fromDate|text }}{% if toDate != fromDate %} – {{ toDate|text }}{% endif %}</caption>
 <thead class="table-primary">
 <tr class="small font-weight-bold text-left">
-    <td class="dehead text-ovr-dark flb-group" colspan="{{ showDate ? 2 : 1 }}">{{ 'Appointment'|xlt }}</td>
+    <td class="dehead text-ovr-dark flb-group" colspan="2">{{ 'Appointment'|xlt }}</td>
     {% if showOrder %}
     <td class="dehead text-ovr-dark" rowspan="2" title="{{ 'Visit List order'|xla }}">{{ 'Order'|xlt }}</td>
     {% endif %}
@@ -23,6 +23,9 @@
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'PID'|xlt }}</td>
     {% endif %}
     <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Patient'|xlt }}</td>
+    {% if showProvider %}
+    <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
+    {% endif %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Visit Type'|xlt }}</td>
     <td class="dehead text-ovr-dark" rowspan="2">{{ 'Status'|xlt }}</td>
     <td class="dehead text-ovr-dark" rowspan="2">{{ 'Room'|xlt }}</td>
@@ -33,9 +36,6 @@
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Encounter'|xlt }}</td>
     {% endif %}
     <td class="dehead text-ovr-dark flb-group" colspan="4">{{ 'Time'|xlt }}</td>
-    {% if showProvider %}
-    <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
-    {% endif %}
     {% if showStaff %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Updated By'|xlt }}</td>
     {% endif %}
@@ -45,9 +45,7 @@
     {% endif %}
 </tr>
 <tr class="small font-weight-bold text-left">
-    {% if showDate %}
     <td class="dehead text-ovr-dark">{{ 'Date'|xlt }}</td>
-    {% endif %}
     <td class="dehead text-ovr-dark">{{ 'Time'|xlt }}</td>
     <td class="dehead text-ovr-dark" title="{{ 'When the patient arrived'|xla }}">{{ 'Arrival'|xlt }}</td>
     <td class="dehead text-ovr-dark" title="{{ 'How long the patient has been in the current status'|xla }}">{{ 'In Status'|xlt }}</td>
