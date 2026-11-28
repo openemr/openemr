@@ -60,7 +60,8 @@ final readonly class PatientFinderRequest
         public array $columnSearches,
         public PatientFinderSearchMode $searchMode = PatientFinderSearchMode::All,
         public PatientFinderColumnList $columnList = PatientFinderColumnList::PatientList,
-        public bool $showInactive = false
+        public bool $showInactive = false,
+        public PatientFinderCriteria $criteria = new PatientFinderCriteria()
     ) {
     }
 
@@ -101,7 +102,8 @@ final readonly class PatientFinderRequest
             self::parseColumnSearches($get, count($columnKeys)),
             PatientFinderSearchMode::fromRequestValue(PatientFinderValue::string($get['searchMode'] ?? null)),
             PatientFinderColumnList::fromRequestValue(PatientFinderValue::string($get['finderList'] ?? null)),
-            PatientFinderValue::string($get['showInactive'] ?? null) === 'true'
+            PatientFinderValue::string($get['showInactive'] ?? null) === 'true',
+            PatientFinderCriteria::fromArray($get)
         );
     }
 
