@@ -249,6 +249,7 @@
             }
         } catch (e) {
             console.error('Error getting all messages:', e);
+            throw e;
         }
     }
 
@@ -260,6 +261,7 @@
             }
         } catch (e) {
             console.error('Error getting deleted messages:', e);
+            throw e;
         }
     }
 
@@ -269,6 +271,7 @@
             state.sentItems = Array.isArray(data) ? data.slice() : [];
         } catch (e) {
             console.error('Error getting sent messages:', e);
+            throw e;
         }
     }
 
@@ -301,7 +304,10 @@
                 state.selected = null;
             }
             search();
-            getDeletedMessages();
+            return getDeletedMessages();
+        }).catch(() => {
+            // deleteMessage() already alerted the user; swallow the rethrow so it
+            // does not escape as an unhandled promise rejection.
         });
     }
 
@@ -390,14 +396,15 @@
     function renderLoadingState() {
         const loadingRow = document.getElementById('loadingRow');
         const contentRow = document.getElementById('contentRow');
+        const loadErrorRow = document.getElementById('loadErrorRow');
+        const failed = state.errorLoadingMessages;
+        if (loadErrorRow) {
+            loadErrorRow.classList.toggle('d-none', !failed);
+        }
         if (loadingRow && contentRow) {
-            if (state.isInit) {
-                loadingRow.classList.add('d-none');
-                contentRow.classList.remove('d-none');
-            } else {
-                loadingRow.classList.remove('d-none');
-                contentRow.classList.add('d-none');
-            }
+            // A failed load keeps the content hidden and shows the error row instead.
+            loadingRow.classList.toggle('d-none', state.isInit || failed);
+            contentRow.classList.toggle('d-none', !state.isInit || failed);
         }
     }
 
@@ -813,6 +820,12 @@
         // Paging
         document.getElementById('btnPrev').addEventListener('click', e => { e.preventDefault(); prevPage(); });
         document.getElementById('btnNext').addEventListener('click', e => { e.preventDefault(); nextPage(); });
+
+        // Retry a failed initial load without a full page reload.
+        const btnRetryLoad = document.getElementById('btnRetryLoad');
+        if (btnRetryLoad) {
+            btnRetryLoad.addEventListener('click', e => { e.preventDefault(); initData(); });
+        }
 
         // Compose modal
         $('#modalCompose').on('hidden.bs.modal', function () {
