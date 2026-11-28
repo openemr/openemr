@@ -261,12 +261,19 @@
         return window.finderCriteria ? window.finderCriteria.params() : [];
     }
 
-    // Redraw a tab's table with the heading's search when it last drew with another.
+    // Whether a search a table drew or asked for is the one the heading and filters hold now.
+    function isCurrent(asked) {
+        return Boolean(asked) && asked.term === search.term && asked.mode === search.mode
+            && asked.exact === isExactSearch() && asked.criteria === JSON.stringify(criteriaParams());
+    }
+
+    // Redraw a tab's table with the heading's search unless its rows already show that search
+    // and no other search is still on its way. Going back to the shown search while a reply for
+    // another is pending (typing "smit", then back to "smi") must ask again, or that reply would
+    // replace the rows; DataTables then drops the earlier reply, since it answers an older draw.
     function applySearch(tab) {
         var oTable = tables[tab.key];
-        var last = drawnSearch[tab.key];
-        if (!oTable || (last && last.term === search.term && last.mode === search.mode
-            && last.exact === isExactSearch() && last.criteria === JSON.stringify(criteriaParams()))) {
+        if (!oTable || (isCurrent(drawnSearch[tab.key]) && isCurrent(requestedSearch[tab.key]))) {
             return;
         }
         oTable.api().search(search.term).draw();
