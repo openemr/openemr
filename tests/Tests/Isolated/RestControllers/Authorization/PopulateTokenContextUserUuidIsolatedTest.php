@@ -32,7 +32,10 @@ final class PopulateTokenContextUserUuidIsolatedTest extends TestCase
         $strategy = new class (new OEGlobalsBag(), $this->createMock(EventAuditLogger::class)) extends BearerTokenAuthorizationStrategy {
             public mixed $checkedUserId = null;
 
-            public function getTokenContextForRequest(HttpRestRequest $restRequest)
+            /**
+             * @return array<string, string>
+             */
+            public function getTokenContextForRequest(HttpRestRequest $restRequest): array
             {
                 return ['patient' => '1f2e3d4c-5b6a-4978-8a9b-0c1d2e3f4a5b'];
             }

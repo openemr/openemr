@@ -735,7 +735,9 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
     protected function findPatientByUuid(string $patientUuid): ?array
     {
         $patientService = $this->getPatientService();
-        $pid = $patientService->getPidByUuid($patientUuid);
+        // patient_data.uuid is binary(16) and getPidByUuid() compares as given,
+        // so convert the string UUID the way every other getPidByUuid() caller does.
+        $pid = $patientService->getPidByUuid(UuidRegistry::uuidToBytes($patientUuid));
         if (!is_numeric($pid) || (int) $pid <= 0) {
             return null;
         }
