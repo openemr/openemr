@@ -33,6 +33,7 @@ use OpenEMR\Services\PatientReview\FhirWrite\QuestionnaireResponseWriteApplier;
 use OpenEMR\Services\PatientReview\Migration\LegacyActivityMapping;
 use OpenEMR\Services\PatientReview\Migration\PortalActivityMigrator;
 use OpenEMR\Services\PatientReview\Portal\PortalReviewWorkflows;
+use OpenEMR\Services\Questionnaire\QuestionnaireEncounterFiling;
 use OpenEMR\Services\QuestionnaireResponseService;
 
 final class ReviewQueueFactory
@@ -79,22 +80,29 @@ final class ReviewQueueFactory
     /**
      * The queue as staff review patient app writes: approving a fhir-write request writes it to
      * the chart.
+     *
+     * @param ?QuestionnaireEncounterFiling $encounters the encounters approval can file in; by
+     *        default those the signed-in user can open
      */
-    public static function withFhirWriteHandler(): ReviewQueueService
+    public static function withFhirWriteHandler(?QuestionnaireEncounterFiling $encounters = null): ReviewQueueService
     {
-        return self::create([self::fhirWriteHandler()]);
+        return self::create([self::fhirWriteHandler($encounters)]);
     }
 
     /**
      * The fhir-write handler with an applier for each resource type that can be approved.
+     *
+     * @param ?QuestionnaireEncounterFiling $encounters the encounters approval can file in; by
+     *        default those the signed-in user can open
      */
-    public static function fhirWriteHandler(): FhirWriteReviewHandler
+    public static function fhirWriteHandler(?QuestionnaireEncounterFiling $encounters = null): FhirWriteReviewHandler
     {
         return new FhirWriteReviewHandler([
             new QuestionnaireResponseWriteApplier(
                 new FhirQuestionnaireResponseFormService(),
                 new FhirRelatedPersonService(),
                 new QuestionnaireResponseEncounterForm(new QuestionnaireResponseService(), new FormService()),
+                $encounters ?? new QuestionnaireEncounterFiling(),
             ),
         ]);
     }

@@ -115,7 +115,7 @@ $fileInEncounter = null;
 $auditEncounterInput = CurrentRequest::get()->request->all()['audit_encounter'] ?? null;
 if ($auditForm !== null && $auditForm->encounter === 0 && is_string($auditEncounterInput) && $auditEncounterInput !== '') {
     $chosenEncounter = $nonNegativeInt($auditEncounterInput) ?? 0;
-    if ($chosenEncounter <= 0 || !(new QuestionnaireEncounterFiling())->isPatientEncounter($auditForm->pid, $chosenEncounter)) {
+    if ($chosenEncounter <= 0 || !(new QuestionnaireEncounterFiling())->canFileIn($auditForm->pid, $chosenEncounter)) {
         die(xlt('That encounter could not be found.'));
     }
     $fileInEncounter = $chosenEncounter;

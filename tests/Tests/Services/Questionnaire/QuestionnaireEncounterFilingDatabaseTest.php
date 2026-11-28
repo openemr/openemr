@@ -106,15 +106,16 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
      */
     public function testWhatCannotBeFiledIsRefusedAndNothingChanges(): void
     {
+        $otherPid = $this->otherPatient();
         $own = $this->encounter('2026-11-20', 'Annual visit');
-        $other = $this->encounter('2026-11-21', 'Someone else', $this->pid + 1000000);
+        $other = $this->encounter('2026-11-21', 'Someone else', $otherPid);
         $waiting = $this->portalForm('resp-waiting');
         $filed = $this->portalForm('resp-in-visit', $own);
 
         $attempts = [
             "another patient's encounter" => [$waiting, $this->pid, $other],
             'a form already in an encounter' => [$filed, $this->pid, $own],
-            "another patient's form" => [$waiting, $this->pid + 1000000, $other],
+            "another patient's form" => [$waiting, $otherPid, $other],
         ];
         foreach ($attempts as $label => [$formId, $pid, $encounter]) {
             try {
@@ -130,11 +131,57 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         $this->assertSame($own, $this->formEncounter($filed));
     }
 
+    /**
+     * As on the encounter screens, an encounter with a sensitivity the user's access doesn't
+     * include is not offered, shown or filed into; the list still fills up with encounters the
+     * user can open.
+     */
+    public function testOnlyEncountersTheUserCanOpenAreOfferedAndFiledInto(): void
+    {
+        $open = $this->encounter('2026-10-01', 'Open visit');
+        $restricted = [];
+        for ($i = 0; $i < QuestionnaireEncounterFiling::CHOICES; $i++) {
+            $restricted[] = $this->encounter('2026-11-' . (10 + $i), 'Restricted visit', null, 'high');
+        }
+        $formId = $this->portalForm('resp-restricted');
+        $withoutHigh = new QuestionnaireEncounterFiling(static fn(string $sensitivity): bool => $sensitivity !== 'high');
+
+        $this->assertSame([$open], array_column($withoutHigh->latestEncounters($this->pid), 'encounter'), 'newer restricted encounters do not crowd it out');
+        $this->assertNull($withoutHigh->encounterByUuid($this->pid, $this->encounterUuid($restricted[0])));
+        $this->assertFalse($withoutHigh->canFileIn($this->pid, $restricted[0]));
+        $this->assertTrue($withoutHigh->canFileIn($this->pid, $open));
+        try {
+            $withoutHigh->fileForm($formId, $this->pid, $restricted[0]);
+            $this->fail('Expected a refusal');
+        } catch (\InvalidArgumentException) {
+            // expected
+        }
+        $this->assertSame(0, $this->formEncounter($formId));
+        $this->assertSame(0, $this->responseEncounter('resp-restricted'));
+
+        // A user who can open them sees them and can file there.
+        $withHigh = new QuestionnaireEncounterFiling(static fn(string $sensitivity): bool => true);
+        $this->assertCount(QuestionnaireEncounterFiling::CHOICES, $withHigh->latestEncounters($this->pid));
+        $this->assertNotNull($withHigh->encounterByUuid($this->pid, $this->encounterUuid($restricted[0])));
+        $withHigh->fileForm($formId, $this->pid, $restricted[0]);
+        $this->assertSame($restricted[0], $this->formEncounter($formId));
+        $this->assertSame($restricted[0], $this->responseEncounter('resp-restricted'));
+    }
+
+    private function encounterUuid(int $encounter): string
+    {
+        $uuid = QueryUtils::fetchSingleValue('SELECT `uuid` FROM `form_encounter` WHERE `encounter` = ?', 'uuid', [$encounter]);
+        $this->assertIsString($uuid);
+
+        return UuidRegistry::uuidToString($uuid);
+    }
+
     public function testTheLatestEncountersAreListedNewestFirst(): void
     {
         $older = $this->encounter('2026-10-01', "Knee pain\nleft side");
         $newer = $this->encounter('2026-11-20', str_repeat('Long reason ', 10));
-        $this->encounter('2026-11-22', 'Someone else', $this->pid + 1000000);
+        $otherPid = $this->otherPatient();
+        $this->encounter('2026-11-22', 'Someone else', $otherPid);
 
         $choices = $this->filing->latestEncounters($this->pid);
 
@@ -143,16 +190,16 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
         $this->assertSame('Knee pain', $choices[1]['reason'], 'the first line of the reason');
         $this->assertStringEndsWith('…', $choices[0]['reason'], 'a long reason is cut short');
         $this->assertTrue($this->filing->isPatientEncounter($this->pid, $older));
-        $this->assertFalse($this->filing->isPatientEncounter($this->pid + 1000000, $older));
+        $this->assertFalse($this->filing->isPatientEncounter($otherPid, $older));
     }
 
-    private function encounter(string $date, string $reason, ?int $pid = null): int
+    private function encounter(string $date, string $reason, ?int $pid = null, ?string $sensitivity = null): int
     {
         $encounter = QueryUtils::generateId();
         $uuid = (new UuidRegistry(['table_name' => 'form_encounter']))->createUuid();
         QueryUtils::sqlInsert(
-            'INSERT INTO `form_encounter` (`uuid`, `date`, `reason`, `pid`, `encounter`) VALUES (?, ?, ?, ?, ?)',
-            [$uuid, $date . ' 09:00:00', $reason, $pid ?? $this->pid, $encounter]
+            'INSERT INTO `form_encounter` (`uuid`, `date`, `reason`, `pid`, `encounter`, `sensitivity`) VALUES (?, ?, ?, ?, ?, ?)',
+            [$uuid, $date . ' 09:00:00', $reason, $pid ?? $this->pid, $encounter, $sensitivity]
         );
         $this->encounters[] = $encounter;
 
@@ -207,10 +254,61 @@ class QuestionnaireEncounterFilingDatabaseTest extends TestCase
     }
 
     /**
+     * Another patient, removed with the test patient (it shares the pubpid).
+     */
+    private function otherPatient(): int
+    {
+        $other = (new PatientService())->insert([
+            'DOB' => '1970-01-01',
+            'fname' => 'Other',
+            'lname' => 'Patient',
+            'sex' => 'Female',
+            'pubpid' => self::PUBPID,
+        ]);
+        $this->assertTrue($other->isValid(), 'other patient');
+        $ids = $other->getFirstDataResult();
+        $this->assertIsArray($ids);
+        $pid = self::id($ids['pid'] ?? null);
+        $this->assertNotNull($pid, 'other patient pid');
+
+        return $pid;
+    }
+
+    /**
      * A database id: a native integer or a string of decimal digits, nothing else.
      */
     private static function id(mixed $value): ?int
     {
         return is_int($value) ? $value : (is_string($value) && ctype_digit($value) ? intval($value) : null);
+    }
+
+    /**
+     * A deleted form, or a forms row of another form type that shares the
+     * form id, is not filed.
+     */
+    public function testADeletedOrOtherTypeFormIsNotFiled(): void
+    {
+        $visit = $this->encounter('2026-11-20', 'Annual visit');
+        $deleted = $this->portalForm('resp-deleted');
+        QueryUtils::sqlStatementThrowException("UPDATE `forms` SET `deleted` = 1 WHERE `formdir` = 'questionnaire_assessments' AND `form_id` = ?", [$deleted]);
+        try {
+            $this->filing->fileForm($deleted, $this->pid, $visit);
+            $this->fail('Expected a refusal: deleted form');
+        } catch (\InvalidArgumentException) {
+        }
+        $this->assertSame(0, $this->responseEncounter('resp-deleted'));
+
+        QueryUtils::sqlInsert(
+            "INSERT INTO `forms` (`date`, `encounter`, `form_name`, `form_id`, `pid`, `user`, `formdir`, `deleted`)"
+            . " VALUES (NOW(), 0, 'Vitals', 987654321, ?, 'admin', 'vitals', 0)",
+            [$this->pid]
+        );
+        try {
+            $this->filing->fileForm(987654321, $this->pid, $visit);
+            $this->fail('Expected a refusal: another form type');
+        } catch (\InvalidArgumentException) {
+        }
+        $vitals = QueryUtils::fetchSingleValue("SELECT `encounter` FROM `forms` WHERE `formdir` = 'vitals' AND `form_id` = 987654321", 'encounter', []);
+        $this->assertSame(0, self::id($vitals));
     }
 }

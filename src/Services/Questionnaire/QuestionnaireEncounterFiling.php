@@ -8,6 +8,10 @@
  * encounters to choose from and files a Questionnaire Assessment form that is in no encounter
  * into the one chosen.
  *
+ * Only encounters the signed-in user can add forms to are offered or filed into: as on the
+ * encounter screens, an encounter with a sensitivity is one the user's `sensitivities` ACL
+ * must allow.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -19,6 +23,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Questionnaire;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -30,25 +35,55 @@ final readonly class QuestionnaireEncounterFiling
     /** How much of an encounter's reason is shown. */
     private const REASON_SHOWN = 60;
 
+    /** @var \Closure(string): bool */
+    private \Closure $allowsSensitivity;
+
     /**
-     * The patient's latest encounters, newest first.
+     * @param ?\Closure(string): bool $allowsSensitivity whether the signed-in user may open an
+     *        encounter with this sensitivity; by default the user's `sensitivities` ACL, as the
+     *        encounter screens check it
+     */
+    public function __construct(?\Closure $allowsSensitivity = null)
+    {
+        $this->allowsSensitivity = $allowsSensitivity
+            ?? static fn(string $sensitivity): bool => AclMain::aclCheckCore('sensitivities', $sensitivity);
+    }
+
+    /**
+     * The patient's latest encounters the signed-in user can open, newest first.
      *
      * @return list<array{encounter: int, date: string, reason: string}>
      */
     public function latestEncounters(int $pid): array
     {
+        // The sensitivities the patient's encounters use that the user may open; an encounter
+        // with none is open to all. Filtered in the query so the list still holds CHOICES.
+        $allowed = array_values(array_filter(
+            array_map(
+                self::text(...),
+                QueryUtils::fetchTableColumn(
+                    "SELECT DISTINCT `sensitivity` FROM `form_encounter` WHERE `pid` = ? AND `sensitivity` IS NOT NULL AND `sensitivity` <> ''",
+                    'sensitivity',
+                    [$pid]
+                )
+            ),
+            fn(string $sensitivity): bool => $sensitivity !== '' && ($this->allowsSensitivity)($sensitivity)
+        ));
+        $allowedSql = $allowed === [] ? '' : ' OR `sensitivity` IN (' . implode(', ', array_fill(0, count($allowed), '?')) . ')';
         $records = QueryUtils::fetchRecords(
             'SELECT `encounter`, `date`, `reason` FROM `form_encounter` WHERE `pid` = ?'
+            . " AND (`sensitivity` IS NULL OR `sensitivity` = ''" . $allowedSql . ')'
             // An integer constant, not request text; the driver cannot bind LIMIT.
             . ' ORDER BY `date` DESC, `encounter` DESC LIMIT ' . self::CHOICES,
-            [$pid]
+            [$pid, ...$allowed]
         );
 
         return array_values(array_filter(array_map(self::encounter(...), $records)));
     }
 
     /**
-     * The patient's encounter with this uuid; null when it is not one of the patient's.
+     * The patient's encounter with this uuid; null when it is not one of the patient's or the
+     * signed-in user cannot open it.
      *
      * @return ?array{encounter: int, date: string, reason: string}
      */
@@ -58,11 +93,14 @@ final readonly class QuestionnaireEncounterFiling
             return null;
         }
         $records = QueryUtils::fetchRecords(
-            'SELECT `encounter`, `date`, `reason` FROM `form_encounter` WHERE `uuid` = ? AND `pid` = ?',
+            'SELECT `encounter`, `date`, `reason`, `sensitivity` FROM `form_encounter` WHERE `uuid` = ? AND `pid` = ?',
             [UuidRegistry::uuidToBytes($uuid), $pid]
         );
+        if ($records === [] || !$this->opens($records[0]['sensitivity'] ?? null)) {
+            return null;
+        }
 
-        return $records === [] ? null : self::encounter($records[0]);
+        return self::encounter($records[0]);
     }
 
     public function isPatientEncounter(int $pid, int $encounter): bool
@@ -77,17 +115,33 @@ final readonly class QuestionnaireEncounterFiling
     }
 
     /**
+     * Whether answers can be filed in this encounter: it is one of the patient's, and the
+     * signed-in user can open it.
+     */
+    public function canFileIn(int $pid, int $encounter): bool
+    {
+        $record = QueryUtils::querySingleRow(
+            'SELECT `encounter`, `sensitivity` FROM `form_encounter` WHERE `encounter` = ? AND `pid` = ?',
+            [$encounter, $pid]
+        );
+
+        return is_array($record)
+            && self::int($record['encounter'] ?? null) === $encounter
+            && $this->opens($record['sensitivity'] ?? null);
+    }
+
+    /**
      * Files the patient's Questionnaire Assessment form, which is in no encounter, and the
      * response it shows into one of the patient's encounters. Both change or neither does.
      *
      * @param int $formId form_questionnaire_assessments.id
      * @param int $encounter form_encounter.encounter
-     * @throws \InvalidArgumentException when the encounter is not the patient's, or the form is
-     *         not the patient's, is deleted, or is already in an encounter
+     * @throws \InvalidArgumentException when the encounter is not the patient's or the user cannot
+     *         open it, or the form is not the patient's, is deleted, or is already in an encounter
      */
     public function fileForm(int $formId, int $pid, int $encounter): void
     {
-        if ($encounter <= 0 || !$this->isPatientEncounter($pid, $encounter)) {
+        if ($encounter <= 0 || !$this->canFileIn($pid, $encounter)) {
             throw new \InvalidArgumentException('The encounter is not one of the patient\'s');
         }
         QueryUtils::inTransaction(function () use ($formId, $encounter, $pid): void {
@@ -162,6 +216,17 @@ final readonly class QuestionnaireEncounterFiling
             'date' => substr(self::text($record['date'] ?? null), 0, 10),
             'reason' => $reason,
         ];
+    }
+
+    /**
+     * Whether the signed-in user can open an encounter with this sensitivity; one with none is
+     * open to all.
+     */
+    private function opens(mixed $sensitivity): bool
+    {
+        $sensitivity = self::text($sensitivity);
+
+        return $sensitivity === '' || ($this->allowsSensitivity)($sensitivity);
     }
 
     private static function int(mixed $value): ?int
