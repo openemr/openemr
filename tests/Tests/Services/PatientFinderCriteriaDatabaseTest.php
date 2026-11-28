@@ -67,11 +67,34 @@ final class PatientFinderCriteriaDatabaseTest extends TestCase
     }
 
     /**
-     * The database's today moved by a relative date, e.g. "-18 years +1 day".
+     * The database's today moved by a relative date, e.g. "-18 years +1 day". Whole years
+     * go first and keep to the end of the month the way MySQL's DATE_SUB() does, which the
+     * age criterion uses: on 29 February, PHP's "-18 years" would give 1 March instead.
      */
     private function day(string $modifier): string
     {
-        return $this->today->modify($modifier)->format('Y-m-d');
+        $date = $this->today;
+        if (preg_match('/^([+-]\d+) years?(.*)$/', $modifier, $match) === 1) {
+            $year = (int) $date->format('Y') + (int) $match[1];
+            $month = (int) $date->format('n');
+            $lastDay = (int) $date->setDate($year, $month, 1)->format('t');
+            $date = $date->setDate($year, $month, min((int) $date->format('j'), $lastDay));
+            $modifier = trim($match[2]);
+        }
+        return ($modifier === '' ? $date : $date->modify($modifier))->format('Y-m-d');
+    }
+
+    /**
+     * The criteria read the date from CURDATE() each time they run, so a test that runs past
+     * midnight would set its rows for one day and filter them on the next.
+     */
+    private function assertSameDay(): void
+    {
+        self::assertSame(
+            $this->today->format('Y-m-d'),
+            QueryUtils::fetchSingleValue('SELECT CURDATE() AS `today`', 'today'),
+            'the date changed while the test ran; run it again'
+        );
     }
 
     private function setPatient(string $column, ?string $value): void
@@ -107,6 +130,7 @@ final class PatientFinderCriteriaDatabaseTest extends TestCase
             'pid',
             [$this->pid, ...$binds]
         );
+        $this->assertSameDay();
         return $found !== null && $found !== false;
     }
 
