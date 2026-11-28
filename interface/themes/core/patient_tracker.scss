@@ -1,9 +1,8 @@
 /**
  * Flow Board (interface/patient_tracker/patient_tracker.php)
  *
- * Short rows, one line tall where the content allows, names left-aligned, a mark on the
- * rows of Visit List patients, and the status and room badges with their menus
- * (library/js/flowBoard.js).
+ * Short rows, one line tall where the content allows, names left-aligned, and the status
+ * and room badges with their menus (library/js/flowBoard.js).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -103,11 +102,8 @@
 
     .flb-provider {
       padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
-  }
-
-  tr.flb-visit-list > td:first-child {
-    border-left: 3px solid var(--primary);
   }
 
   // Appt Date, Appt Time and Order open the appointment dialog.

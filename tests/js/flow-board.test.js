@@ -175,7 +175,7 @@ describe('menus and clicks', () => {
         const [url, options] = global.fetch.mock.calls[0];
         expect(url).toBe('/flow_board_change.php');
         expect(Object.fromEntries(options.body)).toEqual({ flb_change: '1', csrf_token_form: 'token', eid: '768', room: '1' });
-        expect(window.refreshMe).toHaveBeenCalled();
+        expect(window.refreshMe).toHaveBeenCalledWith(true);
         expect(items()).toEqual([]);
         expect(badge('room').getAttribute('data-flb-value')).toBe('1');
     });

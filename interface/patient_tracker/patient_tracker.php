@@ -452,7 +452,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-provider="' . attr($appointment['uprovider_id']) . '"
                             data-pid="' . attr($appointment['pc_pid']) . '"
                             data-pname="' . attr($ptname) . '"
-                            class="text-small' . (isset($appointment['visit_list']) ? ' flb-visit-list' : '') . '"
+                            class="text-small"
                             style="background-color:#' . attr($bgcolor) . ';" >';
                         echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'date' => oeFormatShortDate($date_appt), 'dateKey' => $date_appt, 'time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null] + $when);
 
@@ -567,7 +567,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <?php
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>
-                                <td class="detail text-center" name="kiosk_hide">
+                                <td class="detail text-left" name="kiosk_hide">
                                     <?php $userVal = $appointment['user'] ?? '';
                                     echo text(is_string($userVal) ? $userVal : '') ?>
                                 </td>

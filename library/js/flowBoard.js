@@ -132,7 +132,9 @@ function flowBoardRedrawChoice(select) {
                 badge.setAttribute('data-flb-value', value);
                 badge.disabled = false;
                 if (typeof window.refreshMe === 'function') {
-                    window.refreshMe();
+                    // As the board's timer does: the new table replaces the old in place,
+                    // with no blank table and loading spinner.
+                    window.refreshMe(true);
                 }
             })
             .catch(function () {

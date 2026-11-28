@@ -1,7 +1,8 @@
 {# The Flow Board table's printed title and header: two rows, so Date and Time sit under one
    "Appointment" heading and the four time columns under one "Time" heading, each with a line
-   below it. Every other heading spans both rows, at the top. Headings are left-aligned. The order matches the row cells in
-   interface/patient_tracker/patient_tracker.php.
+   below it. Every other heading spans both rows, at the top. Headings are left-aligned,
+   except Status and Room, which are centered over their badges. The order matches the row
+   cells in interface/patient_tracker/patient_tracker.php.
 
    Input: showOrder (see appointment_when.html.twig), showPid, showReason,
    showEncounter, showProvider (more than one provider on the board), showStaff, drugScreen
@@ -27,8 +28,8 @@
     <td class="dehead flb-name flb-provider text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
     {% endif %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Visit Type'|xlt }}</td>
-    <td class="dehead text-ovr-dark" rowspan="2">{{ 'Status'|xlt }}</td>
-    <td class="dehead text-ovr-dark" rowspan="2">{{ 'Room'|xlt }}</td>
+    <td class="dehead text-ovr-dark text-center" rowspan="2">{{ 'Status'|xlt }}</td>
+    <td class="dehead text-ovr-dark text-center" rowspan="2">{{ 'Room'|xlt }}</td>
     {% if showReason %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Appt Comment'|xlt }}</td>
     {% endif %}
@@ -37,7 +38,7 @@
     {% endif %}
     <td class="dehead text-ovr-dark flb-group" colspan="4">{{ 'Time'|xlt }}</td>
     {% if showStaff %}
-    <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Updated By'|xlt }}</td>
+    <td class="dehead text-ovr-dark text-left" rowspan="2" name="kiosk_hide">{{ 'Updated By'|xlt }}</td>
     {% endif %}
     {% if drugScreen %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Random Drug Screen'|xlt }}</td>
