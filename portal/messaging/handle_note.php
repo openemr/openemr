@@ -136,7 +136,29 @@ $resolvedStaffSenderName = $staffSenderName ?? null;
 switch ($task) {
     case "forward":
         $pid = $_POST['pid'] ?? 0;
-        addPnote($pid, $note, 1, 1, $title, $sn, '', 'New');
+        // The forward UI posts the destination staff username in sender_id
+        // (hiddenSenderId). pnotes.assigned_to is matched against usernames,
+        // so assign the note to the validated destination, not the sender.
+        $forwardTo = is_string($_POST['sender_id'] ?? null) ? $_POST['sender_id'] : '';
+        $assignedTo = '';
+        if ($forwardTo !== '') {
+            // Mirror the staff destination list in messages.php: active
+            // portal users, falling back to user id 1 when none exist.
+            $destRow = sqlQuery(
+                "SELECT `id` FROM `users` WHERE `username` = ? AND `active` = 1 AND `portal_user` = 1",
+                [$forwardTo]
+            );
+            if (empty($destRow)) {
+                $anyPortalUser = sqlQuery("SELECT `id` FROM `users` WHERE `active` = 1 AND `portal_user` = 1 LIMIT 1");
+                if (empty($anyPortalUser)) {
+                    $destRow = sqlQuery("SELECT `id` FROM `users` WHERE `id` = 1 AND `username` = ?", [$forwardTo]);
+                }
+            }
+            if (!empty($destRow)) {
+                $assignedTo = $forwardTo;
+            }
+        }
+        addPnote($pid, $note, 1, 1, $title, $assignedTo, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';
