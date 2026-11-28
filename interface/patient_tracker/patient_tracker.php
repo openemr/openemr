@@ -29,6 +29,8 @@ require_once "$srcdir/MedEx/API.php";
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignatureIF.php';
 
 use ESign\SignatureIF;
+use OpenEMR\Appointment\FlowBoard\FlowBoardChange;
+use OpenEMR\Appointment\FlowBoard\LegacyFlowBoardStore;
 use OpenEMR\Appointment\VisitList\VisitListFlowBoard;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -345,6 +347,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date');
     $appointments = (new VisitListFlowBoard())->arrange(is_array($appointments) ? $appointments : [], OEGlobalsBag::getInstance()->getInt('time_display_format') === 1);
+    $when = ['showDate' => OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date, 'showOrder' => array_any($appointments, static fn(array $row): bool => isset($row['visit_list']))];
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
@@ -418,6 +421,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <table class="table table-sm table-bordered">
                     <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['head' => true] + $when); ?>
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
@@ -426,6 +430,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <td class="dehead flb-name text-ovr-dark">
                             <?php echo xlt('Patient'); ?>
                         </td>
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['head' => true]); ?>
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Comment'); ?>
@@ -436,23 +441,11 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <?php echo xlt('Encounter'); ?>
                             </td>
                         <?php } ?>
-
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date) { ?>
-                            <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
-                                <?php echo xlt('Appt Date'); ?>
-                            </td>
-                        <?php } ?>
-                        <td class="dehead text-center text-ovr-dark">
-                            <?php echo xlt('Appt Time'); ?>
-                        </td>
                         <td class="dehead text-center text-ovr-dark">
                             <?php echo xlt('Arrive Time'); ?>
                         </td>
                         <td class="dehead text-center d-block d-sm-none text-ovr-dark">
                             <?php echo xlt('Arrival'); ?>
-                        </td>
-                        <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
-                            <?php echo xlt('Appt Status'); ?>
                         </td>
                         <td class="dehead text-center  d-sm-table-cell text-ovr-dark">
                             <?php echo xlt('Current Status'); ?>
@@ -644,6 +637,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             data-pname="' . attr($ptname) . '"
                             class="text-small' . (isset($appointment['visit_list']) ? ' flb-visit-list' : '') . '"
                             style="background-color:#' . attr($bgcolor) . ';" >';
+                        echo ServiceContainer::getTwig()->render('patient_tracker/appointment_when.html.twig', ['head' => false, 'eventId' => $appt_eid, 'dateSquash' => $date_squash, 'date' => oeFormatShortDate($date_appt), 'dateKey' => $date_appt, 'time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null] + $when);
 
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                             ?>
@@ -663,6 +657,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['head' => false, 'eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => getListItemTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => getListItemTitle('patient_flow_board_rooms', $appt_room)]]); ?>
 
                         <!-- reason -->
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
@@ -684,34 +679,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 ?>
                             </td>
                         <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range') && $from_date !== $to_date) { ?>
-                            <td class="detail text-center" name="kiosk_hide">
-                                <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
-                                ?>
-                            </td>
-                        <?php } ?>
-                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/appointment_time.html.twig', ['time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null]); ?>
                         <td class="detail text-center">
                             <?php
                             if ($newarrive) {
                                 echo text(oeFormatTime($newarrive));
                             }
                             ?>
-                        </td>
-                        <td class="detail text-center ">
-                            <?php if (empty($tracker_id)) { //for appt not yet with tracker id and for recurring appt ?>
-                            <a class="btn btn-primary btn-sm" onclick="return calendarpopup(<?php echo attr_js($appt_eid) . "," . attr_js($date_squash); // calls popup for add edit calendar event?>)">
-                            <?php } else { ?>
-                                <a class="btn btn-primary btn-sm" onclick="return bpopup(<?php echo attr_js($tracker_id); // calls popup for patient tracker status?>)">
-                            <?php } ?>
-                            <?php
-                            if ($appointment['room'] > '') {
-                                echo text(getListItemTitle('patient_flow_board_rooms', $appt_room));
-                            } else {
-                                echo text(getListItemTitle("apptstat", $status)); // drop down list for appointment status
-                            }
-                            ?>
-                            </a>
                         </td>
 
                         <?php
@@ -843,6 +816,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
     </form>
 
     <?php myLocalJS($session); ?>
+    <?php echo ServiceContainer::getTwig()->render('patient_tracker/flow_board_script.html.twig', ['statuses' => ($flowBoardStore = new LegacyFlowBoardStore())->activeOptions(FlowBoardChange::STATUS_LIST), 'rooms' => $flowBoardStore->activeOptions(FlowBoardChange::ROOM_LIST), 'dateFormat' => OEGlobalsBag::getInstance()->getInt('date_display_format')]); ?>
 </body>
 </html>
     <?php
@@ -989,13 +963,7 @@ function myLocalJS(SessionInterface $session): void
                 }
                 return meets_pname && meets_pid && meets_cat && meets_stat && meets_fac && meets_prov;
             }).show();
-        }
-
-        // popup for patient tracker status
-        function bpopup(tkid) {
-            top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session)); ?>, '_blank', 500, 250);
-            return false;
+            window.flowBoardRedrawn?.(document.getElementById('flb_table'));
         }
 
         // popup for calendar add edit

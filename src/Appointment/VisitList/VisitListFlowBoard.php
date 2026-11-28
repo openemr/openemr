@@ -6,7 +6,7 @@
  * Puts the Flow Board's Visit List patients in list order. Each patient on a Visit List sits
  * at its block's start time; the timed appointments at that time come first, then the block's
  * patients by Order #. Each such row gets a `visit_list` key with the Order # label and the
- * block's time range, which the board shows instead of the appointment time.
+ * block's start and time range, which the board shows instead of the appointment time.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -66,8 +66,9 @@ final readonly class VisitListFlowBoard
      * rows at the same date and time keep the order they came in. A row is on a list when its
      * event, provider and date match one of the schedule's entries.
      *
-     * Each Visit List row gets `visit_list`: `sequenceLabel` ("#3", or "#" with no Order #)
-     * and `timeRange`, the block's start and end ("08:00–12:00", or "8:00 am–12:00 pm").
+     * Each Visit List row gets `visit_list`: `sequenceLabel` ("#3", or "#" with no Order #),
+     * `start`, the block's start ("08:00", or "8:00 am"), and `timeRange`, its start and end
+     * ("08:00–12:00", or "8:00 am–12:00 pm").
      *
      * @param list<array<mixed>> $rows
      * @return list<array<mixed>>
@@ -101,6 +102,7 @@ final readonly class VisitListFlowBoard
                 $sequence = $spot['entry']->sequence;
                 $row['visit_list'] = [
                     'sequenceLabel' => $sequence === null ? '#' : '#' . $sequence,
+                    'start' => $block->start->format($format),
                     'timeRange' => $block->start->format($format) . '–' . $block->end->format($format),
                 ];
             }

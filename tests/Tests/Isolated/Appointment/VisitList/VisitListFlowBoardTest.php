@@ -115,7 +115,7 @@ class VisitListFlowBoardTest extends TestCase
         );
 
         $this->assertArrayNotHasKey('visit_list', $ordered[0]);
-        $this->assertSame(['sequenceLabel' => '#2', 'timeRange' => '09:00–11:00'], $ordered[1]['visit_list']);
+        $this->assertSame(['sequenceLabel' => '#2', 'start' => '09:00', 'timeRange' => '09:00–11:00'], $ordered[1]['visit_list']);
     }
 
     public function testTwelveHourTimesAndAPatientWithoutAnOrderNumber(): void
@@ -126,7 +126,7 @@ class VisitListFlowBoardTest extends TestCase
 
         $ordered = VisitListFlowBoard::order([self::row(21, 7, '11:30:00')], $schedule, true);
 
-        $this->assertSame(['sequenceLabel' => '#', 'timeRange' => '11:30 am–1:00 pm'], $ordered[0]['visit_list']);
+        $this->assertSame(['sequenceLabel' => '#', 'start' => '11:30 am', 'timeRange' => '11:30 am–1:00 pm'], $ordered[0]['visit_list']);
     }
 
     public function testBlocksAtTheSameTimeKeepTheScheduleOrder(): void

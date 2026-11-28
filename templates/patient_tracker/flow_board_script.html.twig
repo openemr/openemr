@@ -1,0 +1,27 @@
+{# The Flow Board's status and room menus, appointment clicks and date range checks
+   (library/js/flowBoard.js), with what they need from the server.
+
+   Input: statuses and rooms (list of {id, title}, titles untranslated), dateFormat (the
+   date_display_format setting: 0 Y-m-d, 1 m/d/Y, 2 d/m/Y)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+<script>
+    window.flowBoardConfig = {
+        url: {{ (webroot ~ '/interface/patient_tracker/flow_board_change.php')|js_escape }},
+        csrfToken: {{ csrfTokenRaw()|js_escape }},
+        dateFormat: {{ dateFormat|js_escape }},
+        menus: {
+            status: [{% for option in statuses %}{id: {{ option.id|js_escape }}, title: {{ option.title|xlListLabel|js_escape }}}{{ loop.last ? '' : ',' }}{% endfor %}],
+            room: [{id: '', title: {{ 'No room'|xlj }}}{% for option in rooms %}, {id: {{ option.id|js_escape }}, title: {{ option.title|xlListLabel|js_escape }}}{% endfor %}]
+        },
+        text: {
+            menuLabel: {status: {{ 'Change status'|xlj }}, room: {{ 'Change room'|xlj }}},
+            failed: {{ 'The change could not be saved.'|xlj }}
+        }
+    };
+</script>
+<script src="{{ webroot|attr }}/library/js/flowBoard.js?v={{ assetVersion|attr_url }}"></script>

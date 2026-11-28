@@ -1,0 +1,44 @@
+{# A Flow Board row's first cells: Appt Date, Appt Time and Order, or their header cells.
+   Clicking one opens the appointment dialog (library/js/flowBoard.js). A date or time the row
+   above already shows is hidden by the script, so each appears once; data-flb-repeat is what
+   it compares. A Visit List patient shows its block's start time, and its Order # with the
+   block's times as a tooltip on screen and under the number in print.
+
+   Input: head (bool), showDate (bool), showOrder (bool); for a row also eventId, dateSquash
+   (Ymd), date and time (formatted), dateKey (Y-m-d), and visitList (null, or {sequenceLabel,
+   start, timeRange} from OpenEMR\Appointment\VisitList\VisitListFlowBoard)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+{% if head %}
+{% if showDate %}
+<td class="dehead text-center text-ovr-dark" name="kiosk_hide">{{ 'Appt Date'|xlt }}</td>
+{% endif %}
+<td class="dehead text-center text-ovr-dark">{{ 'Appt Time'|xlt }}</td>
+{% if showOrder %}
+<td class="dehead text-center text-ovr-dark" title="{{ 'Visit List order'|xla }}">{{ 'Order'|xlt }}</td>
+{% endif %}
+{% else %}
+{% set shownTime = visitList ? visitList.start : time %}
+{% if showDate %}
+<td class="detail text-center flb-appt" name="kiosk_hide" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" data-flb-repeat="{{ dateKey|attr }}">
+    <span class="flb-when">{{ date|text }}</span>
+</td>
+{% endif %}
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" data-flb-repeat="{{ (dateKey ~ ' ' ~ shownTime)|attr }}">
+    <span class="flb-when">{{ shownTime|text }}</span>
+</td>
+{% if showOrder %}
+{% if visitList %}
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}" title="{{ 'Visit List'|xla }} {{ visitList.timeRange|attr }}">
+    {{ visitList.sequenceLabel|text }}
+    <span class="d-none d-print-block small">{{ visitList.timeRange|text }}</span>
+</td>
+{% else %}
+<td class="detail text-center flb-appt" data-flb-eid="{{ eventId|attr }}" data-flb-date="{{ dateSquash|attr }}"></td>
+{% endif %}
+{% endif %}
+{% endif %}
