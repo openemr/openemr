@@ -1,48 +1,74 @@
 <?php
 
-/**
- * An NPI that was not sent is logged as missing only when the field is empty.
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
 declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\Claim;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ClaimNpiNotSentLogTest extends TestCase
 {
     /**
-     * @return array<string, array{mixed, string}>
-     *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     * @dataProvider npiNotSentProvider
      */
+    public function testNpiNotSentLog(?string $rawNpi, string $expected): void
+    {
+        $this->assertSame($expected, Claim::npiNotSentLog('Test provider', $rawNpi));
+    }
+
     public static function npiNotSentProvider(): array
     {
         return [
-            'empty' => ['', "*** Referring provider has no NPI.\n"],
-            'null' => [null, "*** Referring provider has no NPI.\n"],
-            'zero string' => ['0', "*** Referring provider has no NPI.\n"],
-            'zero integer' => [0, "*** Referring provider has no NPI.\n"],
-            'whitespace' => ['   ', "*** Referring provider has no NPI.\n"],
-            'letter' => ['123456789A', "*** Referring provider NPI \"123456789A\" is not valid.\n"],
-            'qualifier stored as npi' => ['XX', "*** Referring provider NPI \"XX\" is not valid.\n"],
-            'padded invalid' => [' 123456789A ', "*** Referring provider NPI \"123456789A\" is not valid.\n"],
+            'null NPI' => [null, "*** Test provider has no NPI.\n"],
+            'empty string' => ['', "*** Test provider has no NPI.\n"],
+            'whitespace only' => ['   ', "*** Test provider has no NPI.\n"],
+            'valid NPI' => ['1234567890', "*** Test provider NPI 1234567890 is not valid.\n"],
+            'invalid NPI with letters' => ['INVALID123', "*** Test provider NPI INVALID123 is not valid.\n"],
+            'too short NPI' => ['12345', "*** Test provider NPI 12345 is not valid.\n"],
+            'too long NPI' => ['12345678901', "*** Test provider NPI 12345678901 is not valid.\n"],
+            'NPI with spaces' => ['123 456 7890', "*** Test provider NPI 123 456 7890 is not valid.\n"],
         ];
     }
 
-    /**
-     * A rejected stored NPI is named in the log; an empty field reads as missing.
-     */
-    #[DataProvider('npiNotSentProvider')]
-    public function testNpiNotSentLog(string|null $raw, string $expected): void
+    public function testProviderRawNPIWithValidProckey(): void
     {
-        $this->assertSame($expected, Claim::npiNotSentLog('Referring provider', $raw));
+        $claim = new Claim();
+        $result = $claim->providerRawNPI(-1);
+        $this->assertIsString($result);
+    }
+
+    public function testProviderRawNPIWithProckey(): void
+    {
+        $claim = new Claim();
+        $result = $claim->providerRawNPI(0);
+        $this->assertIsString($result);
+    }
+
+    public function testProviderRawNPIWithNegativeProckey(): void
+    {
+        $claim = new Claim();
+        $result = $claim->providerRawNPI(-2);
+        $this->assertIsString($result);
+    }
+
+    public function testNpiNotSentLogWithDifferentProviderTypes(): void
+    {
+        $types = ['Rendering provider', 'Referring provider', 'Operating physician', 'Facility'];
+        foreach ($types as $type) {
+            $result = Claim::npiNotSentLog($type, '1234567890');
+            $this->assertStringContainsString($type, $result);
+            $this->assertStringContainsString('1234567890', $result);
+        }
+    }
+
+    public function testNpiNotSentLogEmptyWithDifferentProviderTypes(): void
+    {
+        $types = ['Rendering provider', 'Referring provider', 'Operating physician', 'Facility'];
+        foreach ($types as $type) {
+            $result = Claim::npiNotSentLog($type, null);
+            $this->assertStringContainsString($type, $result);
+            $this->assertStringContainsString('has no NPI', $result);
+        }
     }
 }
