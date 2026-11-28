@@ -1238,10 +1238,10 @@ class CdaTemplateImportDispose
 
             //drug form
             $query_select_form = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
-            $result = QueryUtils::fetchRecords($query_select_form, ['drug_form', $value['dose_unit']]);
+            $result = QueryUtils::fetchRecords($query_select_form, ['drug_units', $value['dose_unit']]);
             if (count($result) > 0) {
                 $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ?";
-                QueryUtils::sqlStatementThrowException($q_update, ['drug_form', $value['dose_unit']]);
+                QueryUtils::sqlStatementThrowException($q_update, ['drug_units', $value['dose_unit']]);
                 foreach ($result as $value2) {
                     $oidu_unit = $value2['option_id'];
                 }
