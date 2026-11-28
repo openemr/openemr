@@ -43,7 +43,7 @@ nth_entry() {
 
 # Bump and print the call counter for <verb>.
 next_call() {
-    local file="${MOCK_STATE_DIR}/$1.count" count=0
+    local file="${MOCK_STATE_DIR:?MOCK_STATE_DIR must be set}/$1.count" count=0
     if [[ -f "${file}" ]]; then
         count=$(<"${file}")
     fi
@@ -60,7 +60,8 @@ fi
 case "${2:-}" in
     watch)
         n=$(next_call watch)
-        exit "$(nth_entry "${MOCK_WATCH_EXITS:-0}" "${n}")"
+        watch_exit=$(nth_entry "${MOCK_WATCH_EXITS:-0}" "${n}")
+        exit "${watch_exit}"
         ;;
     view)
         n=$(next_call view)
