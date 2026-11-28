@@ -23,6 +23,7 @@ use OpenEMR\Appointment\VisitList\VisitListBlock;
 use OpenEMR\Appointment\VisitList\VisitListEntry;
 use OpenEMR\Appointment\VisitList\VisitListMatcher;
 use OpenEMR\Appointment\VisitList\VisitListSchedule;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
@@ -43,6 +44,21 @@ final class VisitListDayColumnTest extends TestCase
         '-' => ['title' => '- None', 'color' => '#FEFDCF'],
         'AVM' => ['title' => 'AVM Confirmed', 'color' => '#F0FFE8'],
     ];
+
+    private bool $disableTranslation = false;
+
+    protected function setUp(): void
+    {
+        // xl() returns its input, without a database, while translation is off. Without this
+        // the tests that draw a day needed another test to have turned translation off first.
+        $this->disableTranslation = OEGlobalsBag::getInstance()->getBoolean('disable_translation');
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+    }
+
+    protected function tearDown(): void
+    {
+        OEGlobalsBag::getInstance()->set('disable_translation', $this->disableTranslation);
+    }
 
     /**
      * @param list<array<string, mixed>> $events
