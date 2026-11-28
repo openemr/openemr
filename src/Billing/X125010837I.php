@@ -107,7 +107,7 @@ class X125010837I
         $edicount = 0;
         // Qualify data array
         if (!empty($ub04id)) {
-            for ($i = 0; $i < 428; ++$i) {
+            for ($i = 0; $i <= 428; ++$i) {
                 $ub04id[$i] ??= '';
             }
         }
@@ -231,7 +231,7 @@ class X125010837I
         if ($claim->billingFacilityNPI()) {
             $out .= "*XX*" . $claim->billingFacilityNPI();
         } else {
-            $log .= "*** Billing facility has no NPI.\n";
+            $log .= Claim::npiNotSentLog('Billing facility', $claim->billing_facility['facility_npi'] ?? '');
             $out .= "*XX*";
         }
         $out .= "~\n";
@@ -747,11 +747,11 @@ class X125010837I
         if ($ub04id[388] ?? null) {
             ++$edicount;
             // Loop 2310A Attending Physician
-            $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
+            $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*" . "*";
             $attendingId = self::physicianIdentifier('XX', $ub04id[379] ?? null);
             $out .= $attendingId;
             if ($attendingId === '**') {
-                $log .= "*** Attending Physician has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Attending Physician', $ub04id[379] ?? '');
             }
             $out .= "~\n";
 
@@ -768,18 +768,18 @@ class X125010837I
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310B operating Physician
-                "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[400] . "*" . "*";
+                "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[401] . "*" . "*" . "*";
             $operatingId = self::physicianIdentifier('XX', $ub04id[390] ?? null);
             $out .= $operatingId;
             if ($operatingId === '**') {
-                $log .= "*** Operating Physician has no NPI qualifier.\n";
+                $log .= Claim::npiNotSentLog('Operating Physician', $ub04id[390] ?? '');
             }
             $out .= "~\n";
 
             if ($ub04id[391]) {
                 ++$edicount;
                 $out .= "REF" . // operating Physician Secondary Identification
-                    "*" . $claim->$ub04id[391] . "*" . $ub04id[392] . "~\n";
+                    "*" . $ub04id[391] . "*" . $ub04id[392] . "~\n";
             }
         }
 
@@ -789,14 +789,14 @@ class X125010837I
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310C other operating Physician
-                "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
+                "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*" . "*";
             $otherId = self::physicianIdentifier(
                 self::physicianQualifier($ub04id[405] ?? null),
                 $ub04id[406] ?? null
             );
             $out .= $otherId;
             if ($otherId === '**') {
-                $log .= "*** Other Operating Physician has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Other Operating Physician', $ub04id[406] ?? '');
             }
             $out .= "~\n";
 
@@ -810,14 +810,14 @@ class X125010837I
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310C other operating Physician
-                "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
+                "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*" . "*";
             $secondOtherId = self::physicianIdentifier(
                 self::physicianQualifier($ub04id[419] ?? null),
                 $ub04id[420] ?? null
             );
             $out .= $secondOtherId;
             if ($secondOtherId === '**') {
-                $log .= "*** Other Operating Physician has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Other Operating Physician', $ub04id[420] ?? '');
             }
             $out .= "~\n";
 
@@ -848,6 +848,8 @@ class X125010837I
             if (!($claim->providerNPIValid())) {
                 //If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
                 $log .= "*** Skipping 2310B because " . $claim->providerLastName() . "," . $claim->providerFirstName() . " has invalid NPI.\n";
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
             }
             /*
              * Skipping this segment because the providerNPI and the billingFacilityNPI are identical
@@ -881,7 +883,7 @@ class X125010837I
                 if ($claim->facilityNPI()) {
                     $out .= "*XX*" . $claim->facilityNPI();
                 } else {
-                    $log .= "*** Service location has no NPI.\n";
+                    $log .= Claim::npiNotSentLog('Service location', $claim->facility['facility_npi'] ?? '');
                 }
             }
             $out .= "~\n";
@@ -909,7 +911,7 @@ class X125010837I
             if ($claim->referrerNPI()) {
                 $out .= "*XX" . "*" . $claim->referrerNPI();
             } else {
-                $log .= "*** Referrer has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Referrer', $claim->referrer['npi'] ?? '');
             }
             $out .= "~\n";
         }
@@ -1214,7 +1216,7 @@ class X125010837I
                         "*" . "XX" .
                         "*" . $claim->providerNPI($prockey);
                 } else {
-                    $log .= "*** Rendering provider has no NPI.\n";
+                    $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI($prockey));
                 }
                 $out .= "~\n";
 

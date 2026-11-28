@@ -329,7 +329,7 @@ class X125010837P
             if ($claim->billingFacilityNPI()) {
                 $out .= "*XX*" . $claim->billingFacilityNPI();
             } else {
-                $log .= "*** Billing facility has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Billing facility', $claim->billing_facility['facility_npi'] ?? '');
             }
             $out .= "~\n";
 
@@ -989,7 +989,7 @@ class X125010837P
                     "*" . "XX" .
                     "*" . $claim->referrerNPI();
             } else {
-                $log .= "*** Referring provider has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Referring provider', $claim->referrer['npi'] ?? '');
             }
             $out .= "~\n";
         }
@@ -1042,6 +1042,9 @@ class X125010837P
             // If the loop was skipped because the provider NPI was invalid, generate a warning for the log.
             $log .= "*** Skipping 2310B because " . $claim->providerLastName() .
                 "," . $claim->providerFirstName() . " has invalid NPI.\n";
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
+            $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
         }
 
         if (!$claim->providerNPI() && in_array($claim->providerNumberType(), ['0B', '1G', 'G2', 'LU'])) {
@@ -1083,7 +1086,7 @@ class X125010837P
                         "*" . "24" . "*" . $claim->facilityETIN();
                 }
                 if (!$claim->facilityNPI()) {
-                    $log .= "*** Service location has no NPI.\n";
+                    $log .= Claim::npiNotSentLog('Service location', $claim->facility['facility_npi'] ?? '');
                 }
             }
 
@@ -1140,7 +1143,7 @@ class X125010837P
                     "*" . "XX" .
                     "*" . $claim->supervisorNPI();
             } else {
-                $log .= "*** Supervising Provider has no NPI.\n";
+                $log .= Claim::npiNotSentLog('Supervising Provider', $claim->supervisor['npi'] ?? '');
             }
             $out .= "~\n";
 
@@ -1587,7 +1590,7 @@ class X125010837P
                         "*" . "XX" .
                         "*" . $claim->providerNPI($prockey);
                 } else {
-                    $log .= "*** Rendering provider has no NPI.\n";
+                    $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI($prockey));
                 }
                 $out .= "~\n";
 
@@ -1628,9 +1631,15 @@ class X125010837P
                     "*" .  $claim->ordererLastName() . '*' . $claim->ordererFirstName() .
                     "*" .
                     "*" .
-                    "*" .
-                    "*" . "XX" .
-                    "*" . $claim->ordererNPI() . "~\n";
+                    "*";
+                if ($claim->ordererNPI()) {
+                    $out .=
+                        "*" . "XX" .
+                        "*" . $claim->ordererNPI();
+                } else {
+                    $log .= Claim::npiNotSentLog('Ordering provider', $claim->orderer['npi'] ?? '');
+                }
+                $out .= "~\n";
                 ++$edicount;
                 $out .= "N3" . "*" . $claim->ordererStreet() . "~\n";
                 ++$edicount;

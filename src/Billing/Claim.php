@@ -274,6 +274,20 @@ class Claim
     }
 
     /**
+     * Log line for an NPI that was not sent. A stored value that is not an
+     * NPI is named so it can be corrected; an empty field reads as missing.
+     */
+    public static function npiNotSentLog(string $label, string|null $rawNpi): string
+    {
+        $rawNpi = trim((string) ($rawNpi ?? ''));
+        if ($rawNpi === '' || $rawNpi === '0') {
+            return "*** $label has no NPI.\n";
+        }
+
+        return "*** $label NPI \"$rawNpi\" is not valid.\n";
+    }
+
+    /**
      * Make sure dates have no formatting and zero filled becomes blank
      * Handles date time stamp formats as well
      *
@@ -2336,6 +2350,18 @@ class Claim
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
         return $this->x12Clean($this->x12NpiDigits(trim($tmp['npi'] ?? '')));
+    }
+
+    /**
+     * Stored rendering provider NPI, before sanitizing, for log messages.
+     *
+     * @return string
+     */
+    public function providerRawNPI(int $prockey = -1): string
+    {
+        $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
+        $this->provider : $this->procs[$prockey]['provider'];
+        return trim((string) ($tmp['npi'] ?? ''));
     }
 
     public function NPIValid($npi)
