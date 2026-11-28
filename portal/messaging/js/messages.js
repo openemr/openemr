@@ -504,7 +504,11 @@
         // Render chained messages
         const chainTbody = document.getElementById('chainTbody');
         if (!chainTbody) return;
-        const chained = groupChain(state.allItems, sel.mail_chain);
+        // getall excludes archived rows, so an Archive-folder conversation must
+        // also group deletedItems. A chain can be partially archived (a reply
+        // sent after archiving), so merge both sources.
+        const chainItems = state.isTrash ? state.allItems.concat(state.deletedItems) : state.allItems;
+        const chained = groupChain(chainItems, sel.mail_chain);
 
         let html = '';
         chained.forEach(item => {
