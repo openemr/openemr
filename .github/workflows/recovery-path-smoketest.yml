@@ -440,13 +440,14 @@ jobs:
     - name: Wait for build-release run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching build-release run ${SOURCE_RUN_ID}"
-        # --exit-status makes gh run watch return the run's
-        # conclusion status (0 on success, non-zero on any failure
-        # or cancellation).
-        gh run watch "${SOURCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
+        # Exits 0 only if the run completed with 'success'. A
+        # GitHub API error during the watch is retried rather than
+        # read as a failed run (see the script header).
+        .github/scripts/wait-for-run.sh "${SOURCE_RUN_ID}"
 
     # Variant A -- skip-acceptance recovery path. This IS the real-
     # ship recovery pattern used in G35 (acceptance had already
@@ -541,10 +542,11 @@ jobs:
     - name: Wait for variant A acceptance-only run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching variant A (skip_acceptance) run ${ACCEPTANCE_RUN_ID_SKIP}"
-        gh run watch "${ACCEPTANCE_RUN_ID_SKIP}" --exit-status --repo "${{ github.repository }}"
+        .github/scripts/wait-for-run.sh "${ACCEPTANCE_RUN_ID_SKIP}"
 
     # Variant B -- full acceptance path with publish blocked.
     # Exercises the full acceptance matrix + confirms the
@@ -626,10 +628,11 @@ jobs:
     - name: Wait for variant B acceptance-only run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching variant B (full acceptance) run ${ACCEPTANCE_RUN_ID_FULL}"
-        gh run watch "${ACCEPTANCE_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
+        .github/scripts/wait-for-run.sh "${ACCEPTANCE_RUN_ID_FULL}"
 
     # GUARDRAIL VERIFY -- runtime check that no real release
     # artifact was modified by the dispatched workflows. This is
@@ -936,10 +939,11 @@ jobs:
     - name: Wait for docker-build-release run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching docker-build-release run ${SOURCE_RUN_ID}"
-        gh run watch "${SOURCE_RUN_ID}" --exit-status --repo "${{ github.repository }}"
+        .github/scripts/wait-for-run.sh "${SOURCE_RUN_ID}"
 
     # Same baseline capture as the tarball job -- see that step's
     # header + recovery-smoketest-baseline.sh for details. L4b (the
@@ -1042,10 +1046,11 @@ jobs:
     - name: Wait for variant A docker-acceptance-only run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching variant A (docker skip_acceptance) run ${DOCKER_RUN_ID_SKIP}"
-        gh run watch "${DOCKER_RUN_ID_SKIP}" --exit-status --repo "${{ github.repository }}"
+        .github/scripts/wait-for-run.sh "${DOCKER_RUN_ID_SKIP}"
 
     - name: Dispatch docker-acceptance-only.yml (variant B - no_publish only)
       env:
@@ -1119,10 +1124,11 @@ jobs:
     - name: Wait for variant B docker-acceptance-only run to complete
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        REPO: ${{ github.repository }}
       run: |
         set -euo pipefail
         echo "==> Watching variant B (docker full acceptance) run ${DOCKER_RUN_ID_FULL}"
-        gh run watch "${DOCKER_RUN_ID_FULL}" --exit-status --repo "${{ github.repository }}"
+        .github/scripts/wait-for-run.sh "${DOCKER_RUN_ID_FULL}"
 
     # GUARDRAIL VERIFY (docker) -- three-check split into two
     # `if: always()` steps so both fire regardless of upstream

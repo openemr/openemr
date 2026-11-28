@@ -13,7 +13,9 @@
 #   2. Publish job = 'skipped' on each dispatched acceptance-only /
 #      docker-acceptance-only run. Direct signal that the
 #      `if: inputs.no_publish != true` gate held (belt-and-suspenders
-#      with the state-unchanged check above).
+#      with the state-unchanged check above). A run that hasn't
+#      completed yet fails this check with its own message, since its
+#      publish job has no final conclusion to judge.
 #
 # Extracted from previously-inline verify blocks in recovery-path-
 # smoketest.yml (tarball `smoketest` job + docker `smoketest-docker`
@@ -144,10 +146,22 @@ for var_pair in "$@"; do
     if [[ -z "${rid}" ]]; then
         continue
     fi
-    if ! publish_status=$(gh run view "${rid}" --repo "${REPO}" \
-        --json jobs \
-        --jq '[.jobs[] | select(.name | test("(?i)publish")) | .conclusion] | first // empty' 2>/dev/null); then
+    if ! run_state=$(gh run view "${rid}" --repo "${REPO}" \
+        --json status,jobs \
+        --jq '"\(.status) \([.jobs[] | select(.name | test("(?i)publish")) | .conclusion] | first // "")"' 2>/dev/null); then
         echo "::error::GUARDRAIL FAILED (${label}): gh run view failed for run ${rid}." >&2
+        FAILED=1
+        continue
+    fi
+    run_status="${run_state%% *}"
+    publish_status="${run_state#* }"
+    # An unfinished run's publish job has no conclusion yet, so a
+    # check now can't tell a held gate from a broken one. Say that,
+    # rather than reporting a gate failure nobody has seen. (This is
+    # how the wait step's early exit on a GitHub API error surfaced
+    # before wait-for-run.sh.)
+    if [[ "${run_status}" != "completed" ]]; then
+        echo "::error::GUARDRAIL INCOMPLETE (${label}): run ${rid} is still '${run_status}', so its publish job has no final conclusion; can't confirm the no_publish gate held. An earlier wait step most likely stopped before the run finished." >&2
         FAILED=1
         continue
     fi

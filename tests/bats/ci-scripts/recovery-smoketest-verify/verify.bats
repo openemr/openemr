@@ -157,3 +157,23 @@ teardown() {
     [[ ${status} -eq 0 ]]
     [[ "${output}" == *"Guardrail OK"* ]]
 }
+
+@test "run still in progress -> exit 2 with GUARDRAIL INCOMPLETE, not a gate failure" {
+    # The 2026-11-25 nightly: the wait step's gh run watch died on an
+    # HTTP 500, so verify ran while variant B was still going and its
+    # publish job had no conclusion yet.
+    export MOCK_RUN_STATUS_67890="in_progress"
+    export MOCK_PUBLISH_CONCLUSION_67890=""
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}" "variant-A:12345" "variant-B:67890"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"variant-A publish job: skipped (gate held)"* ]]
+    [[ "${output}" == *"GUARDRAIL INCOMPLETE (variant-B): run 67890 is still 'in_progress'"* ]]
+    [[ "${output}" != *"no_publish gate silently failed"* ]]
+}
+
+@test "completed run with no publish job -> exit 2 reporting <not-found>" {
+    export MOCK_PUBLISH_CONCLUSION_12345=""
+    run bash "${RECOVERY_SMOKETEST_VERIFY_SCRIPT}" "variant-A:12345"
+    [[ ${status} -eq 2 ]]
+    [[ "${output}" == *"publish job conclusion = '<not-found>'"* ]]
+}

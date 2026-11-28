@@ -60,9 +60,9 @@ teardown_test_dir() {
     unset MOCK_GH_RELEASE_VIEW_JSON MOCK_GH_RELEASE_VIEW_EXIT
     unset RELEASE_TAG REPO GH_TOKEN BASELINE_TAG_SHA BASELINE_RELEASE_HASH
     unset GITHUB_STEP_SUMMARY
-    # Unset any MOCK_PUBLISH_CONCLUSION_* / MOCK_GH_RUN_VIEW_EXIT_*
+    # Unset any MOCK_PUBLISH_CONCLUSION_* / MOCK_GH_RUN_VIEW_EXIT_* / MOCK_RUN_STATUS_*
     # vars tests may have set.
-    while IFS= read -r var; do unset "${var}"; done < <(compgen -e | grep -E '^MOCK_(PUBLISH_CONCLUSION|GH_RUN_VIEW_EXIT)_' || true)
+    while IFS= read -r var; do unset "${var}"; done < <(compgen -e | grep -E '^MOCK_(PUBLISH_CONCLUSION|GH_RUN_VIEW_EXIT|RUN_STATUS)_' || true)
 }
 
 read_step_summary() {

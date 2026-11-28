@@ -19,10 +19,13 @@
 #   MOCK_GH_RELEASE_VIEW_EXIT      exit code for both release view
 #                                  calls. Default 0.
 #
-#   MOCK_PUBLISH_CONCLUSION_<RID>  per-run conclusion emitted for
-#                                  `gh run view <RID> ... --json
-#                                  jobs --jq ...`. Default 'skipped'
-#                                  (happy path).
+#   MOCK_PUBLISH_CONCLUSION_<RID>  per-run publish-job conclusion
+#                                  emitted for `gh run view <RID>
+#                                  ... --json status,jobs --jq ...`.
+#                                  Default 'skipped' (happy path).
+#                                  Set to '' for "no publish job".
+#   MOCK_RUN_STATUS_<RID>          per-run status emitted before the
+#                                  conclusion. Default 'completed'.
 
 set -euo pipefail
 
@@ -87,11 +90,15 @@ case "${subcommand}" in
                 if [[ "${run_exit}" != "0" ]]; then
                     exit "${run_exit}"
                 fi
-                # Look up per-RID conclusion; default 'skipped'.
+                # Look up per-RID status + conclusion, printed as
+                # "<status> <conclusion>" like the script's --jq.
+                # ${!var} does indirect variable expansion; `-` (not
+                # `:-`) keeps an explicitly empty conclusion empty.
+                status_var="MOCK_RUN_STATUS_${rid}"
+                run_status="${!status_var:-completed}"
                 var_name="MOCK_PUBLISH_CONCLUSION_${rid}"
-                # ${!var} does indirect variable expansion.
-                conclusion="${!var_name:-skipped}"
-                printf '%s\n' "${conclusion}"
+                conclusion="${!var_name-skipped}"
+                printf '%s %s\n' "${run_status}" "${conclusion}"
                 exit 0
                 ;;
             *)
