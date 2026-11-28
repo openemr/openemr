@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-export function RegistrationChecker(scriptLocation)
+export function RegistrationChecker(scriptLocation, apiCSRFToken)
 {
     var checker = this;
     var timeoutId;
@@ -27,7 +27,7 @@ export function RegistrationChecker(scriptLocation)
         let location = scriptLocation + '?action=check_registration';
 
         window.top.restoreSession();
-        window.fetch(location)
+        window.fetch(location, {headers: {'apicsrftoken': apiCSRFToken || ''}})
             .then(result => {
                 if (!result.ok)
                 {

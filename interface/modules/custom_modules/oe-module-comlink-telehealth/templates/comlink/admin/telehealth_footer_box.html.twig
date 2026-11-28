@@ -1,3 +1,14 @@
+{#
+ # Telehealth admin settings footer box
+ #
+ # @package openemr
+ # @link      https://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @author    Brady Miller <brady.g.miller@gmail.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 <!-- bootstrap alert box for telehealth information -->
 <script>
     (function(window) {
@@ -52,7 +63,7 @@
                 settings.classList.remove('text-success');
                 settings.classList.remove('text-danger');
                 settings.classList.remove('text-info');
-                window.fetch(url)
+                window.fetch(url, {headers: {'apicsrftoken': {{ apiCSRFToken|json_encode }}}})
                     .then(function (response) {
                         return response.json();
                     })

@@ -15,7 +15,9 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
@@ -438,6 +440,7 @@ class TelehealthGlobalConfig
             , 'fldid' => $fldid
             , 'fldarray' => $fldarray
             , 'verifyInstallationPathUrl' => $this->publicWebPath . 'index.php?action=verify_installation_settings'
+            , 'apiCSRFToken' => CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession(), 'api')
             , 'telehealthCvbUrl' => $this->publicWebPath . 'assets/js/src/cvb.min.js'
             , 'isLocaleConfigured' => $isLocaleConfigured
         ];

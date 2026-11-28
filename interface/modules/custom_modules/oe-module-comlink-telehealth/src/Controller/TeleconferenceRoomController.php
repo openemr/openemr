@@ -50,6 +50,7 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
 class TeleconferenceRoomController
@@ -65,6 +66,12 @@ class TeleconferenceRoomController
     const REGISTRATION_CHECK_REQUIRES_ENROLLMENT_CODE = 402;
 
     const LAUNCH_PATIENT_SESSION = 'launch_patient_session';
+
+    /**
+     * The settings script is loaded by a script tag, which cannot send headers, and it is
+     * what hands the token to the page, so it is the one provider action that runs without it.
+     */
+    private const PROVIDER_ACTIONS_WITHOUT_TOKEN = ['get_telehealth_settings'];
 
     /**
      * @var EncounterService
@@ -124,6 +131,21 @@ class TeleconferenceRoomController
     public function dispatch($action, $queryVars)
     {
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
+
+        if (
+            !$this->isPatient
+            && !self::providerRequestTokenAllows(
+                SessionWrapperFactory::getInstance()->getActiveSession(),
+                $action,
+                is_array($queryVars) ? ($queryVars['csrf_token'] ?? null) : null
+            )
+        ) {
+            $this->logger->error(self::class . '->dispatch() request token missing or invalid', ['action' => $action]);
+            http_response_code(401);
+            header("Content-type: application/json");
+            echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
+            return;
+        }
 
         // TODO: @adunsulag need to look at each individual action and make sure we are following access permissions here...
         match ($action) {
@@ -350,6 +372,17 @@ class TeleconferenceRoomController
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
         }
+    }
+
+    public static function providerRequestTokenAllows(SessionInterface $session, mixed $action, mixed $token): bool
+    {
+        if (in_array($action, self::PROVIDER_ACTIONS_WITHOUT_TOKEN, true)) {
+            return true;
+        }
+        if (!is_string($token) || $token === '') {
+            return false;
+        }
+        return CsrfUtils::verifyCsrfToken($token, $session, 'api');
     }
 
     public function handleInvalidAction($action)

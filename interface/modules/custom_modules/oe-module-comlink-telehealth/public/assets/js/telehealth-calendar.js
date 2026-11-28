@@ -16,6 +16,8 @@
      */
     let moduleLocation = comlink.settings.modulePath || '/interface/modules/custom_modules/oe-module-comlink-telehealth/';
 
+    let csrfToken = comlink.settings.apiCSRFToken || "";
+
     let defaultTranslations = {
         'SESSION_LAUNCH_FAILED': "There was an error in launching your telehealth session.  Please try again or contact support",
         'PROVIDER_SESSION_START_PROMPT': "Would you like to start a telehealth session with this patient (This will create an encounter if one does not exist)?",
@@ -46,7 +48,10 @@
             action: 'set_current_appt_encounter',
             pc_eid: appointmentId
         });
-        return window.fetch(moduleLocation + 'public/index.php?' + params, {redirect: "manual"})
+        return window.fetch(moduleLocation + 'public/index.php?' + params, {
+            redirect: "manual"
+            ,headers: {'apicsrftoken': csrfToken}
+        })
             .then(response => {
                 if (!response.ok)
                 {
