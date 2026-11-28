@@ -565,7 +565,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         });
         const scriptLocation = this.getRemoteScriptLocation() + '?' + params;
         window.top.restoreSession();
-        return window.fetch(scriptLocation, {redirect: "manual"});
+        return window.fetch(scriptLocation, {redirect: "manual", headers: {'apicsrftoken': conf.apiCSRFToken}});
     };
 
     this.setupProviderWaitingRoom = function()
@@ -841,7 +841,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             conf.sessionClose();
         }
         else {
-            let dialog = new ConfirmSessionCloseDialog(translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function() {
+            let dialog = new ConfirmSessionCloseDialog(conf.apiCSRFToken, translations, conf.telehealthSessionData.pc_eid, conf.getRemoteScriptLocation(), function() {
                 conf.sessionClose();
             });
             dialog.show();
@@ -1036,7 +1036,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             pc_eid: eid
         });
         window.top.restoreSession();
-        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual"})
+        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual", headers: {'apicsrftoken': conf.apiCSRFToken}})
             .then((request) => {
                 if (request.ok) {
                     return request.json();
@@ -1058,7 +1058,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
             pc_eid: pc_eid
         });
         window.top.restoreSession();
-        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual"})
+        window.fetch(conf.getRemoteScriptLocation() + '?' + params, {redirect: "manual", headers: {'apicsrftoken': conf.apiCSRFToken}})
             .then((request) => {
                 if (request.ok) {
                     return request.json();

@@ -123,6 +123,7 @@ export class AddPatientDialog
                 method: 'POST'
                 ,headers: {
                     'Content-Type': 'application/json'
+                    ,'apicsrftoken': this.__apiCSRFToken
                 }
                 ,body: JSON.stringify(postData)
                 ,redirect: 'manual'
@@ -611,6 +612,7 @@ export class AddPatientDialog
                 method: 'POST'
                 ,headers: {
                     'Content-Type': 'application/json'
+                    ,'apicsrftoken': this.__apiCSRFToken
                 }
                 ,body: JSON.stringify(postData)
                 ,redirect: 'manual'

@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, closeCallback)
+export function ConfirmSessionCloseDialog(apiCSRFToken, translations, pc_eid, scriptLocation, closeCallback)
 {
     let dialog = this;
     let modal = null;
@@ -53,6 +53,7 @@ export function ConfirmSessionCloseDialog(translations, pc_eid, scriptLocation, 
                 method: 'POST'
                 ,headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
+                    ,'apicsrftoken': apiCSRFToken
                 }
                 ,body: postData
                 ,redirect: 'manual'

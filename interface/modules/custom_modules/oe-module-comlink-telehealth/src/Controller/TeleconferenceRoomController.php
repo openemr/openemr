@@ -26,6 +26,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\ProviderRequestTokenCheck;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use InvalidArgumentException;
@@ -124,6 +125,18 @@ class TeleconferenceRoomController
     public function dispatch($action, $queryVars)
     {
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
+
+        if (
+            !$this->isPatient
+            && !(new ProviderRequestTokenCheck(SessionWrapperFactory::getInstance()->getActiveSession()))
+                ->allows($action, is_array($queryVars) ? ($queryVars['csrf_token'] ?? null) : null)
+        ) {
+            $this->logger->error(self::class . '->dispatch() request token missing or invalid', ['action' => $action]);
+            http_response_code(401);
+            header("Content-type: application/json");
+            echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
+            return;
+        }
 
         // TODO: @adunsulag need to look at each individual action and make sure we are following access permissions here...
         match ($action) {

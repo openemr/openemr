@@ -1,8 +1,3 @@
-import {RegistrationChecker} from "./registration-checker.js";
-import {ConferenceRoom} from "./conference-room.js";
-import {PatientConferenceRoom} from "./patient-conference-room.js";
-
-
 /**
  * Core TeleHealth javascript library for communicating with OpenEMR to start and stop TeleHealth sessions.
  *
@@ -12,6 +7,11 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+import {RegistrationChecker} from "./registration-checker.js";
+import {ConferenceRoom} from "./conference-room.js";
+import {PatientConferenceRoom} from "./patient-conference-room.js";
+
 
 (function(window, comlink, bootstrap, jQuery) {
 
@@ -119,7 +119,7 @@ import {PatientConferenceRoom} from "./patient-conference-room.js";
 
     function launchRegistrationChecker(isPatient)
     {
-        checker = new RegistrationChecker(getTeleHealthScriptLocation(isPatient));
+        checker = new RegistrationChecker(getTeleHealthScriptLocation(isPatient), comlink.settings.apiCSRFToken);
         checker.checkRegistration();
     }
 
