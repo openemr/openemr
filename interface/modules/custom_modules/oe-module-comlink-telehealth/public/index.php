@@ -14,6 +14,7 @@
 require_once "../../../../globals.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -22,10 +23,12 @@ $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(false);
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$action = $_REQUEST['action'] ?? '';
-$queryVars = $_REQUEST ?? [];
+$request = CurrentRequest::get();
+// Form body values take precedence over query values, matching the request_order the callers rely on.
+$queryVars = array_merge($request->query->all(), $request->request->all());
+$action = $queryVars['action'] ?? '';
 $queryVars['pid'] = $session->get('pid');
 $queryVars['authUser'] = $session->get('authUser');
-$queryVars['csrf_token'] = $_SERVER['HTTP_APICSRFTOKEN'] ?? '';
+$queryVars['csrf_token'] = $request->headers->get('apicsrftoken') ?? '';
 $roomController->dispatch($action, $queryVars);
 exit;

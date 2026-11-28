@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Modules\TeleHealth;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\Util\ProviderRequestTokenCheck;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleconferenceRoomController;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
  * module manager registers them when the module is enabled), so the test
  * registers its own autoloader for them, as TelehealthGlobalConfigInstitutionIdTest does.
  */
-final class ProviderRequestTokenCheckTest extends TestCase
+final class TeleconferenceRoomControllerRequestTokenTest extends TestCase
 {
     private const MODULE_PREFIX = 'Comlink\\OpenEMR\\Modules\\TeleHealthModule\\';
 
@@ -83,30 +83,30 @@ final class ProviderRequestTokenCheckTest extends TestCase
     {
         $token = CsrfUtils::collectCsrfToken($this->session, 'api');
 
-        $this->assertTrue((new ProviderRequestTokenCheck($this->session))->allows($action, $token));
+        $this->assertTrue(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, $token));
     }
 
     #[DataProvider('providerActionProvider')]
     public function testActionDoesNotRunWithoutToken(string $action): void
     {
-        $check = new ProviderRequestTokenCheck($this->session);
-
-        $this->assertFalse($check->allows($action, null));
-        $this->assertFalse($check->allows($action, ''));
-        $this->assertFalse($check->allows($action, ['value']));
+        $this->assertFalse(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, null));
+        $this->assertFalse(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, ''));
+        $this->assertFalse(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, ['value']));
     }
 
     #[DataProvider('providerActionProvider')]
     public function testActionDoesNotRunWithAnotherToken(string $action): void
     {
-        $check = new ProviderRequestTokenCheck($this->session);
+        $otherSubjectToken = CsrfUtils::collectCsrfToken($this->session, 'default');
 
-        $this->assertFalse($check->allows($action, CsrfUtils::collectCsrfToken($this->session, 'default')));
-        $this->assertFalse($check->allows($action, str_repeat('0', 40)));
+        $this->assertFalse(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, $otherSubjectToken));
+        $this->assertFalse(TeleconferenceRoomController::providerRequestTokenAllows($this->session, $action, str_repeat('0', 40)));
     }
 
     public function testSettingsScriptRunsWithoutToken(): void
     {
-        $this->assertTrue((new ProviderRequestTokenCheck($this->session))->allows('get_telehealth_settings', null));
+        $this->assertTrue(
+            TeleconferenceRoomController::providerRequestTokenAllows($this->session, 'get_telehealth_settings', null)
+        );
     }
 }
