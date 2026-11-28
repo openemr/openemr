@@ -509,6 +509,11 @@
         // sent after archiving), so merge both sources.
         const chainItems = state.isTrash ? state.allItems.concat(state.deletedItems) : state.allItems;
         const chained = groupChain(chainItems, sel.mail_chain);
+        if (state.isTrash) {
+            // concat() lists active rows before archived ones; restore the
+            // newest-first date order used by the source queries.
+            chained.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+        }
 
         let html = '';
         chained.forEach(item => {
