@@ -168,6 +168,14 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 <div class="alert alert-info"><h3><?php echo xlt("Loading..."); ?> <i class="wait fa fa-cog fa-spin ml-2"></i></h3></div>
             </div>
         </div>
+        <div class="row d-none" id="loadErrorRow">
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <h3><?php echo xlt('Could not load messages.'); ?></h3>
+                    <button type="button" class="btn btn-primary" id="btnRetryLoad"><?php echo xlt('Retry'); ?></button>
+                </div>
+            </div>
+        </div>
         <div class="row d-none" id="contentRow">
             <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
                 <div class="sticky-top">
