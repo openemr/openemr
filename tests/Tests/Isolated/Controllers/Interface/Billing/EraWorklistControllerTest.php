@@ -156,9 +156,9 @@ final class EraWorklistControllerTest extends TestCase
         $at = new \DateTimeImmutable(self::NOW);
         $files = [
             new ReceivedFile(9, 'Partner', 'remote.RMT', 'a.edi', $at, null, [], null),
-            new ReceivedFile(10, 'Partner', 'remote.RMT', 'b.edi', $at, AutoPostFileStatus::Done, [], null, 17),
-            new ReceivedFile(11, 'Partner', 'remote.RMT', 'c.edi', $at, AutoPostFileStatus::Interrupted, [], null, 23),
-            new ReceivedFile(12, 'Partner', 'remote.RMT', 'd.edi', $at, AutoPostFileStatus::Done, [], null, 17),
+            new ReceivedFile(10, 'Partner', 'remote.RMT', 'b.edi', $at, AutoPostFileStatus::Done, [], null, [17]),
+            new ReceivedFile(11, 'Partner', 'remote.RMT', 'c.edi', $at, AutoPostFileStatus::Interrupted, [], null, [17, 23]),
+            new ReceivedFile(12, 'Partner', 'remote.RMT', 'd.edi', $at, AutoPostFileStatus::Done, [], null, [31]),
         ];
         $this->worklist->expects(self::once())
             ->method('receivedFiles')
@@ -167,7 +167,7 @@ final class EraWorklistControllerTest extends TestCase
         $this->worklist->expects(self::never())->method('payerNames');
         $this->worklist->expects(self::once())
             ->method('insuranceCompanies')
-            ->with([17, 23])
+            ->with([17, 23, 31])
             ->willReturn([new InsuranceCompanyOption(17, 'Acme'), new InsuranceCompanyOption(23, 'Plan B')]);
 
         $response = $this->controller->show(Request::create('/', 'GET', ['view' => 'files']));

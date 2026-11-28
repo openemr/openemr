@@ -155,7 +155,7 @@ final class WorklistRepository implements Worklist
                 autoPostStatus: AutoPostFileStatus::tryFrom(self::text($row, 'auto_post_status')),
                 heldChecks: $held[$id] ?? [],
                 worked: self::worked($row),
-                payerId: $payers[$id] ?? 0,
+                payerIds: $payers[$id] ?? [],
             );
         }
         return new WorklistPage(
@@ -458,11 +458,11 @@ final class WorklistRepository implements Worklist
     }
 
     /**
-     * The insurance company unattended posting recorded for each file's checks, where it
-     * recorded one and only one. A check held before its company was worked out has none.
+     * The insurance companies unattended posting recorded for each file's checks. A check
+     * held before its company was worked out has none.
      *
      * @param list<array<mixed>> $fileRows rows of x12_remote_received with id
-     * @return array<int, int> insurance_companies.id keyed by received id
+     * @return array<int, list<int>> insurance_companies.id, lowest first, keyed by received id
      */
     private static function payersOf(array $fileRows): array
     {
@@ -471,15 +471,14 @@ final class WorklistRepository implements Worklist
         }
         $ids = array_map(static fn(array $row): int => self::int($row, 'id'), $fileRows);
         $rows = QueryUtils::fetchRecords(
-            'SELECT `received_id`, MIN(`payer_id`) AS low, MAX(`payer_id`) AS high FROM `era_auto_post_check`'
-            . ' WHERE `received_id` IN (' . self::placeholders(count($ids)) . ') AND `payer_id` > 0 GROUP BY `received_id`',
+            'SELECT DISTINCT `received_id`, `payer_id` FROM `era_auto_post_check`'
+            . ' WHERE `received_id` IN (' . self::placeholders(count($ids)) . ') AND `payer_id` > 0'
+            . ' ORDER BY `received_id`, `payer_id`',
             $ids
         );
         $payers = [];
         foreach ($rows as $row) {
-            if (self::int($row, 'low') === self::int($row, 'high')) {
-                $payers[self::int($row, 'received_id')] = self::int($row, 'low');
-            }
+            $payers[self::int($row, 'received_id')][] = self::int($row, 'payer_id');
         }
         return $payers;
     }

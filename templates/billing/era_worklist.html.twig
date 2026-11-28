@@ -361,9 +361,9 @@
                                     <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">{{ 'Post by Hand'|xlt }}</button>
                                 </form>
                             {% else %}
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer({{ file.eraName()|attr_js }}, false, {{ file.payerId|attr_js }})">{{ 'Open in Posting Window'|xlt }}</button>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer({{ file.eraName()|attr_js }}, false, {{ file.payerIds|json_encode|attr }})">{{ 'Open in Posting Window'|xlt }}</button>
                             {% endif %}
-                            <button type="button" class="btn btn-sm btn-link" onclick="choosePayer({{ file.eraName()|attr_js }}, true, {{ file.payerId|attr_js }})">{{ 'Preview'|xlt }}</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="choosePayer({{ file.eraName()|attr_js }}, true, {{ file.payerIds|json_encode|attr }})">{{ 'Preview'|xlt }}</button>
                         </td>
                         <td class="text-nowrap">{% if not file.awaitsRun() or file.worked is not null %}{{ _self.worked('file', file, selfQuery, csrfToken) }}{% endif %}</td>
                     </tr>
@@ -384,6 +384,7 @@
                     <div class="modal-body">
                         <p>{{ 'The checks you choose in the posting window are posted for this insurance company. A check or claim payment already posted for it is not posted again.'|xlt }}</p>
                         <p id="posting-payer-recorded" hidden>{{ 'Unattended posting recorded this insurance company for the file.'|xlt }}</p>
+                        <p id="posting-payer-several" hidden>{{ 'Unattended posting recorded more than one insurance company for this file. Open it for one at a time, and choose only the checks of that company in the posting window:'|xlt }} <span id="posting-payer-names"></span></p>
                         <label for="posting-payer">{{ 'Insurance Company'|xlt }}:</label>
                         <select id="posting-payer" class="form-control">
                             <option value="">{{ 'Choose an insurance company'|xlt }}</option>
@@ -431,15 +432,19 @@
 
     // The posting window recognizes an earlier posting of a check, and of a claim payment,
     // only under the insurance company it is opened for, so a file is opened for one: the
-    // company unattended posting recorded for it comes chosen, and can be changed.
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
     let fileToOpen = null;
 
-    function choosePayer(eraName, preview, recordedPayer) {
+    function choosePayer(eraName, preview, recordedPayers) {
         fileToOpen = {eraName: eraName, preview: preview};
         const select = document.getElementById('posting-payer');
         select.classList.remove('is-invalid');
-        select.value = recordedPayer > 0 ? String(recordedPayer) : '';
-        document.getElementById('posting-payer-recorded').hidden = !(recordedPayer > 0 && select.value !== '');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
         $('#posting-payer-dialog').modal('show');
     }
 

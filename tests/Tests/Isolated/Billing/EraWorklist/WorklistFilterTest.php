@@ -174,4 +174,20 @@ final class WorklistFilterTest extends TestCase
 
         self::assertSame([AutoPostFileStatus::Pending, AutoPostFileStatus::Running], $awaiting);
     }
+
+    #[Test]
+    public function aFileIsPostedForTheOneInsuranceCompanyItsChecksWereRecordedFor(): void
+    {
+        self::assertSame(17, self::fileRecordedFor([17])->payerId());
+        self::assertSame(0, self::fileRecordedFor([])->payerId());
+        self::assertSame(0, self::fileRecordedFor([17, 23])->payerId());
+    }
+
+    /**
+     * @param list<int> $payerIds
+     */
+    private static function fileRecordedFor(array $payerIds): ReceivedFile
+    {
+        return new ReceivedFile(1, 'Partner', 'remote.RMT', 'a.edi', new \DateTimeImmutable('2026-11-19 10:00:00'), AutoPostFileStatus::Done, [], null, $payerIds);
+    }
 }

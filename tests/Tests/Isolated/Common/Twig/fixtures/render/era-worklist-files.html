@@ -72,8 +72,8 @@
                                                             Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_41_60054&quot;, false, 0)">Open in Posting Window</button>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_41_60054&quot;, true, 0)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_41_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_41_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -100,7 +100,7 @@
                                     <input type="hidden" name="state" value="pending" />
                                     <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
                                 </form>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_42_60054&quot;, true, 0)">Preview</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_42_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap"></td>
                     </tr>
@@ -119,7 +119,7 @@
                                     <input type="hidden" name="state" value="running" />
                                     <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">Post by Hand</button>
                                 </form>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_43_60054&quot;, true, 0)">Preview</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_43_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap"></td>
                     </tr>
@@ -131,8 +131,8 @@
                                                             The file could not be read as an 835. Nothing was posted from it.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_44_60054&quot;, false, 0)">Open in Posting Window</button>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_44_60054&quot;, true, 0)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_44_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_44_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -157,8 +157,8 @@
                                                                     </div>
                                                     </td>
                         <td class="d-print-none text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_45_60054&quot;, false, 0)">Open in Posting Window</button>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_45_60054&quot;, true, 0)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_45_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_45_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -191,8 +191,8 @@
                                                                                                         </div>
                                                     </td>
                         <td class="d-print-none text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_46_60054&quot;, false, 17)">Open in Posting Window</button>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_46_60054&quot;, true, 17)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_46_60054&quot;, false, [17])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_46_60054&quot;, true, [17])">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -200,6 +200,27 @@
         <input type="hidden" name="id" value="46" />
                                 <input type="hidden" name="state" value="done" />
             <input type="hidden" name="held" value="3" />
+                            <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
+            </form>
+</td>
+                    </tr>
+                                    <tr id="file-48">
+                        <td class="text-nowrap">2026-11-26 03:00</td>
+                        <td>Demo &lt;Clearinghouse&gt;</td>
+                        <td>REMIT&lt;48&gt;.RMT<br /><span class="text-muted">20261020_48_60054.edi</span></td>
+                        <td>
+                                                            The posting run stopped part way through this file, or the file was taken from the run. See the Auto-posted list for what the run posted.
+                                                                                </td>
+                        <td class="d-print-none text-nowrap">
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_48_60054&quot;, false, [17,23])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_48_60054&quot;, true, [17,23])">Preview</button>
+                        </td>
+                        <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type="hidden" name="kind" value="file" />
+        <input type="hidden" name="id" value="48" />
+                                <input type="hidden" name="state" value="interrupted" />
+            <input type="hidden" name="held" value="0" />
                             <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">Mark worked</button>
             </form>
 </td>
@@ -212,8 +233,8 @@
                                                             Not for unattended posting: it was off for this partner when the file arrived, or the file was taken from it to be posted by hand.
                                                                                 </td>
                         <td class="d-print-none text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_47_60054&quot;, false, 0)">Open in Posting Window</button>
-                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_47_60054&quot;, true, 0)">Preview</button>
+                                                            <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer(&quot;20261020_47_60054&quot;, false, [])">Open in Posting Window</button>
+                                                        <button type="button" class="btn btn-sm btn-link" onclick="choosePayer(&quot;20261020_47_60054&quot;, true, [])">Preview</button>
                         </td>
                         <td class="text-nowrap">    <form method="post" action="era_worklist.php?view=files&amp;worked=1" class="mb-0" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
@@ -240,6 +261,7 @@
                     <div class="modal-body">
                         <p>The checks you choose in the posting window are posted for this insurance company. A check or claim payment already posted for it is not posted again.</p>
                         <p id="posting-payer-recorded" hidden>Unattended posting recorded this insurance company for the file.</p>
+                        <p id="posting-payer-several" hidden>Unattended posting recorded more than one insurance company for this file. Open it for one at a time, and choose only the checks of that company in the posting window: <span id="posting-payer-names"></span></p>
                         <label for="posting-payer">Insurance Company:</label>
                         <select id="posting-payer" class="form-control">
                             <option value="">Choose an insurance company</option>
@@ -281,15 +303,19 @@
 
     // The posting window recognizes an earlier posting of a check, and of a claim payment,
     // only under the insurance company it is opened for, so a file is opened for one: the
-    // company unattended posting recorded for it comes chosen, and can be changed.
+    // company unattended posting recorded for it comes chosen, and can be changed. A file
+    // with checks recorded for several companies is opened for each in turn.
     let fileToOpen = null;
 
-    function choosePayer(eraName, preview, recordedPayer) {
+    function choosePayer(eraName, preview, recordedPayers) {
         fileToOpen = {eraName: eraName, preview: preview};
         const select = document.getElementById('posting-payer');
         select.classList.remove('is-invalid');
-        select.value = recordedPayer > 0 ? String(recordedPayer) : '';
-        document.getElementById('posting-payer-recorded').hidden = !(recordedPayer > 0 && select.value !== '');
+        select.value = recordedPayers.length === 1 ? String(recordedPayers[0]) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayers.length === 1 && select.value !== '');
+        const names = recordedPayers.map(id => [...select.options].find(option => option.value === String(id))?.textContent.trim() ?? String(id));
+        document.getElementById('posting-payer-names').textContent = names.join('; ');
+        document.getElementById('posting-payer-several').hidden = recordedPayers.length < 2;
         $('#posting-payer-dialog').modal('show');
     }
 

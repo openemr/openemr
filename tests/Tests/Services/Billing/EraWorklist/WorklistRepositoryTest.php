@@ -383,7 +383,7 @@ class WorklistRepositoryTest extends TestCase
         $this->assertTrue($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 1));
     }
 
-    public function testAFileNamesTheOneInsuranceCompanyItsChecksWereRecordedFor(): void
+    public function testAFileNamesTheInsuranceCompaniesItsChecksWereRecordedFor(): void
     {
         [$first, $second] = self::INSURERS;
         // Posted for one company, with a check held before its company was worked out.
@@ -392,14 +392,16 @@ class WorklistRepositoryTest extends TestCase
         $this->check($one, 'CHK-2', status: 'held', holdReason: 'out_of_balance', sequence: 2);
         // Checks for two companies: the person has to say which.
         $two = $this->received('two.edi', receivedAt: '2026-11-19 12:00:00');
-        $this->check($two, 'CHK-3', payerId: $first);
-        $this->check($two, 'CHK-4', status: 'held', holdReason: 'posted_for_another_payer', sequence: 2, payerId: $second);
+        $this->check($two, 'CHK-3', payerId: $second);
+        $this->check($two, 'CHK-4', status: 'held', holdReason: 'posted_for_another_payer', sequence: 2, payerId: $first);
+        $this->check($two, 'CHK-5', sequence: 3, payerId: $second);
         // Never read by a run.
         $none = $this->received('none.edi', autoPostStatus: '', receivedAt: '2026-11-19 11:00:00');
 
         $files = $this->files(new WorklistFilter(), [$one, $two, $none]);
 
-        $this->assertSame([$first, 0, 0], array_map(static fn(ReceivedFile $file): int => $file->payerId, $files));
+        $this->assertSame([[$first], [$first, $second], []], array_map(static fn(ReceivedFile $file): array => $file->payerIds, $files));
+        $this->assertSame([$first, 0, 0], array_map(static fn(ReceivedFile $file): int => $file->payerId(), $files));
     }
 
     public function testTheInsuranceCompaniesToPostForAreTheActiveOnesAndThoseAskedFor(): void

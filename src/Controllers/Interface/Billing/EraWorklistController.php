@@ -110,11 +110,11 @@ final readonly class EraWorklistController
     {
         $ids = [];
         foreach ($rows as $row) {
-            if ($row instanceof ReceivedFile && $row->payerId > 0) {
-                $ids[$row->payerId] = $row->payerId;
+            if ($row instanceof ReceivedFile) {
+                $ids = [...$ids, ...$row->payerIds];
             }
         }
-        return array_values($ids);
+        return array_values(array_unique($ids));
     }
 
     /**
