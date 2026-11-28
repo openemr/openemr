@@ -62,20 +62,27 @@ final readonly class FlowBoardChange
             return FlowBoardChangeResult::UnknownRoom;
         }
 
-        $encounter = $this->store->trackerEncounter($appointment);
-        if (
-            $encounter === 0
-            && $this->autoCreateEncounters
-            && $appointment->date === $this->today()
-            && $this->store->isCheckIn($status)
-        ) {
-            $encounter = $this->store->createArrivalEncounter($appointment);
+        // The save is refused when the appointment was made repeating after it was read; the
+        // arrival encounter made for it is then rolled back with it.
+        try {
+            return $this->store->atomically(function () use ($appointment, $user, $status, $room): FlowBoardChangeResult {
+                $encounter = $this->store->trackerEncounter($appointment);
+                if (
+                    $encounter === 0
+                    && $this->autoCreateEncounters
+                    && $appointment->date === $this->today()
+                    && $this->store->isCheckIn($status)
+                ) {
+                    $encounter = $this->store->createArrivalEncounter($appointment);
+                }
+                if (!$this->store->save($appointment, $user, $status, $room, $encounter)) {
+                    throw new FlowBoardSaveRefused('The tracker refused the save');
+                }
+                return FlowBoardChangeResult::Saved;
+            });
+        } catch (FlowBoardSaveRefused) {
+            return FlowBoardChangeResult::Repeating;
         }
-
-        // The save is refused when the appointment was made repeating after it was read.
-        return $this->store->save($appointment, $user, $status, $room, $encounter)
-            ? FlowBoardChangeResult::Saved
-            : FlowBoardChangeResult::Repeating;
     }
 
     private function isActive(string $listId, string $optionId): bool

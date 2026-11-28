@@ -133,4 +133,13 @@ class FlowBoardChangeTest extends TestCase
         $this->assertSame(FlowBoardChangeResult::Repeating, self::change($store)->apply(768, null, '2', 'admin'));
         $this->assertSame([], $store->saved);
     }
+
+    public function testARefusedSaveRollsBackTheArrivalEncounterMadeForIt(): void
+    {
+        $store = new FakeFlowBoardStore(FakeFlowBoardStore::appointmentOn(self::TODAY), refuseSave: true);
+
+        $this->assertSame(FlowBoardChangeResult::Repeating, self::change($store)->apply(768, '@', null, 'admin'));
+        $this->assertSame([], $store->createdEncounters);
+        $this->assertSame([], $store->saved);
+    }
 }

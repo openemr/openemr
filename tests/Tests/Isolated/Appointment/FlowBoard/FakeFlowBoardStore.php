@@ -66,6 +66,22 @@ final class FakeFlowBoardStore implements FlowBoardStore
         return $this->newEncounter;
     }
 
+    /**
+     * Like a transaction: what the action records is dropped when it throws.
+     */
+    public function atomically(callable $action): mixed
+    {
+        $saved = $this->saved;
+        $createdEncounters = $this->createdEncounters;
+        try {
+            return $action();
+        } catch (\Throwable $e) {
+            $this->saved = $saved;
+            $this->createdEncounters = $createdEncounters;
+            throw $e;
+        }
+    }
+
     public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): bool
     {
         if ($this->refuseSave) {

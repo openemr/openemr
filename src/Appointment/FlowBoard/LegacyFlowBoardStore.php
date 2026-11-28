@@ -94,6 +94,13 @@ final readonly class LegacyFlowBoardStore implements FlowBoardStore
         return is_numeric($encounter) ? (int) $encounter : 0;
     }
 
+    public function atomically(callable $action): mixed
+    {
+        // The outer form: todaysEncounterCheck() and the tracker service may begin their own
+        // transactions, which then join this one instead of committing it early.
+        return QueryUtils::inOuterTransaction($action);
+    }
+
     public function save(FlowBoardAppointment $appointment, string $user, string $status, string $room, int $encounter): bool
     {
         // It refuses, returning false, when the appointment repeats.

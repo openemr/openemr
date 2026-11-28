@@ -42,6 +42,16 @@ interface FlowBoardStore
     public function createArrivalEncounter(FlowBoardAppointment $appointment): int;
 
     /**
+     * Runs the action in one database transaction: everything it writes is committed together,
+     * or rolled back together when it throws (and the exception is rethrown).
+     *
+     * @template T
+     * @param callable(): T $action
+     * @return T
+     */
+    public function atomically(callable $action): mixed;
+
+    /**
      * Records the status and room on the tracker (creating it when needed) and on the
      * appointment, with the encounter when it is not 0. False when the save was refused
      * because the appointment repeats.
