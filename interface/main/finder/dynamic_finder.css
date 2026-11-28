@@ -41,6 +41,7 @@ div.dataTables_wrapper div.dataTables_processing {
 #finder-heading .navbar {
   flex-wrap: wrap;
   padding: 0;
+  border-bottom: 1px solid var(--gray400);
   background-color: transparent !important;
 }
 
@@ -59,6 +60,26 @@ div.dataTables_wrapper div.dataTables_processing {
 
 #finder-heading-content {
   flex: 1 1 auto;
+}
+
+/* The tabs' bottom line runs the whole width of the heading bar, under the icons too:
+   the bar draws it (above), and the tabs' own line is dropped. The active tab still
+   covers the line under it, as Bootstrap's tabs overhang it by a pixel. The outline is
+   darker than Bootstrap's so the tabs stand out from the page. */
+#finderTabsNav {
+  border-bottom: 0;
+}
+
+#finderTabsNav .nav-link.active {
+  border-top-color: var(--gray400);
+  border-right-color: var(--gray400);
+  border-left-color: var(--gray400);
+}
+
+#finderTabsNav .nav-link:not(.active):hover {
+  border-top-color: var(--gray300);
+  border-right-color: var(--gray300);
+  border-left-color: var(--gray300);
 }
 
 /* The search line under the tabs: Show on the left, the search box centered, and
@@ -435,8 +456,27 @@ table thead .sorting::after {
   width: 5.5em;
 }
 
-/* Chips read at the toolbar's own text size. */
+/* Chips and Clear all take the Filter button's text size and height (a small button's
+   size, padding, line height and border). The chips are a light tint of the theme's
+   primary color, so they read as what is applied rather than as more buttons. */
 #finder-chips .badge {
-  font-size: 1em;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--white));
+  background-color: color-mix(in srgb, var(--primary) 12%, var(--white));
+  color: var(--primary);
+  font-size: 0.875rem;
   font-weight: normal;
+  line-height: 1.5;
+}
+
+#finder-chips .btn {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* A chip's remove button has no border, so it adds no height to the chip. */
+#finder-chips .badge .btn {
+  border: 0;
+  color: inherit;
+  vertical-align: baseline;
 }
