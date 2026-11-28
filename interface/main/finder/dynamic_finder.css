@@ -32,8 +32,8 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* ==========================================================================
-   Heading bar: tabs, page length and search on the left (finder_heading.html.twig);
-   then Add Patient and the OemrUI margins and search-row icons on the right.
+   Heading bar: the tabs on the left (finder_heading.html.twig), then the OemrUI
+   margins and search-row icons on the right. Below it, the search line.
    ========================================================================== */
 
 /* Let the page show through. Bootstrap's .bg-light utility on the OemrUI navbar is
@@ -61,14 +61,19 @@ div.dataTables_wrapper div.dataTables_processing {
   flex: 1 1 auto;
 }
 
-/* The page-length menu and the search box sit to the right of the tabs. */
-#finder-length-slot {
-  margin-right: 2rem;
-  margin-left: auto;
+/* The search line under the tabs: Show on the left, the search box centered, and
+   Filter and Add Patient on the right. The equal outer columns keep the search box
+   centered on the line whatever the widths of the two ends. */
+#finder-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 0.5rem;
 }
 
-#finder-search {
-  margin-right: 1.5rem;
+#finder-length-slot {
+  justify-self: start;
 }
 
 #finder-search .input-group {
@@ -76,9 +81,24 @@ div.dataTables_wrapper div.dataTables_processing {
   width: 15rem;
 }
 
+#finder-toolbar-buttons {
+  justify-self: end;
+  gap: 0.5rem;
+}
+
 #finder-add-patient {
-  padding: 0.25rem 0.75rem;
   white-space: nowrap;
+}
+
+/* On a narrow screen the three parts stack, each still in its place. */
+@media screen and (width <= 640px) {
+  #finder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  #finder-search {
+    justify-self: center;
+  }
 }
 
 /* Keep the icons visible at every width; OemrUI's navbar gives them no toggle
@@ -413,10 +433,6 @@ table thead .sorting::after {
 
 #finder-filter-panel .finder-number {
   width: 5.5em;
-}
-
-#finder-filter {
-  margin-right: 0.5rem;
 }
 
 /* Chips read at the toolbar's own text size. */

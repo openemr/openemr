@@ -10,13 +10,52 @@ dynamic_finder.js), and the options below the list.
 {% import _self as finder %}
 <body>
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
-        {# The heading bar holds the list tabs, page-length menu, search, Add Patient and the OemrUI icons. #}
+        {# The heading bar holds the list tabs and the OemrUI icons. #}
         <div id="finder-heading">{{ pageHeading }}</div>
+        {# Below the tabs: the page-length menu (moved in by dynamic_finder.js) on the left,
+           the search box centered, and Filter and Add Patient on the right. #}
+        <div id="finder-toolbar" class="mb-2">
+            <div id="finder-length-slot" class="d-flex align-items-center"></div>
+            <div id="finder-search" class="d-flex align-items-center">
+                <label for="finder-search-input" class="mb-0 mr-2">{{ "Search"|xlt }}:</label>
+                <div class="input-group input-group-sm">
+                    <input type="search" id="finder-search-input" class="form-control" placeholder="{{ "All"|xla }}" aria-controls="pt_table" autocomplete="off" />
+                    <div class="input-group-append">
+                        <button type="button" id="finder-search-mode" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ "Choose what to search"|xla }}" aria-label="{{ "Choose what to search"|xla }}">
+                            <i class="fa fa-search" aria-hidden="true"></i><i class="fa fa-chevron-down ml-1" aria-hidden="true"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="finder-search-mode">
+                            <button type="button" class="dropdown-item active" data-search-mode="all" data-placeholder="{{ "All"|xla }}" aria-current="true">{{ "Search All"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="name" data-placeholder="{{ "Name"|xla }}">{{ "Search Name"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="dob" data-placeholder="{{ "Date of Birth"|xla }}">{{ "Search Date of Birth"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="phone" data-placeholder="{{ "Phone"|xla }}">{{ "Search Phone"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="address" data-placeholder="{{ "Address"|xla }}">{{ "Search Address"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="zip" data-placeholder="{{ "ZIP"|xla }}">{{ "Search ZIP"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="email" data-placeholder="{{ "Email"|xla }}">{{ "Search Email"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="pubpid" data-placeholder="{{ "External ID"|xla }}">{{ "Search External ID"|xlt }}</button>
+                            <button type="button" class="dropdown-item" data-search-mode="ssn" data-placeholder="{{ "SSN Last 4"|xla }}">{{ "Search SSN (Last 4)"|xlt }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="finder-toolbar-buttons" class="d-flex align-items-center">
+                {# The panel inside is drawn by finder_criteria.js. #}
+                <div class="dropdown" id="finder-filter">
+                    <button type="button" id="finder-filter-button" class="btn btn-primary btn-sm" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false" title="{{ "Filter the lists"|xla }}">
+                        <i class="fa fa-filter" aria-hidden="true"></i> <span id="finder-filter-label" data-label="{{ "Filter"|xla }}">{{ "Filter"|xlt }}</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right p-3" id="finder-filter-panel" aria-labelledby="finder-filter-button" data-add="{{ "Add filter"|xla }}" data-clear="{{ "Clear all"|xla }}" data-apply="{{ "Apply"|xla }}" data-remove="{{ "Remove"|xla }}" data-invalid="{{ "Enter whole numbers within the range shown."|xla }}"></div>
+                </div>
+                {% if canAddPatient %}
+                    <a id="finder-add-patient" class="btn btn-primary btn-sm" href="{{ webroot|attr }}/interface/new/new.php">{{ "Add Patient"|xlt }}</a>
+                {% endif %}
+            </div>
+        </div>
          <div class="w-100">
             <div>
                 {# data-finder-font-size sets the lists' text size; the Font Size menu changes it. #}
                 {# The filters in use, as removable chips; empty (and hidden) when none is set. #}
-                <div id="finder-chips" class="mb-2" hidden aria-live="polite"></div>
+                <div id="finder-chips" class="mb-2 text-center" hidden aria-live="polite"></div>
                 <div class="tab-content" id="finderTabs" data-finder-font-size="{{ fontSize|attr }}">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div class="table-responsive">
