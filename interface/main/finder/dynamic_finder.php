@@ -148,12 +148,9 @@ $criteriaDefinitions = (new PatientFinderCriteriaRegistryFactory())->create()->d
             return;
         }
 
-        // One heading row: the list tabs, page-length menu, search box and Add Patient,
-        // then the OemrUI margins and search-row icons on the right.
-        $event->setTitleNavContent(ServiceContainer::getTwig()->render('patient_finder/finder_heading.html.twig', [
-            'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
-            'canAddPatient' => AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']),
-        ]));
+        // The heading row: the list tabs, then the OemrUI margins and search-row icons on
+        // the right. The search line below it is in finder.html.twig.
+        $event->setTitleNavContent(ServiceContainer::getTwig()->render('patient_finder/finder_heading.html.twig'));
     });
     ?>
 </head>
@@ -164,6 +161,8 @@ $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
     'pageHeading' => $oemr_ui->pageHeading(),
+    'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
+    'canAddPatient' => AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']),
     'columns' => $columns,
     'detailEnabled' => $detailEnabled,
     // Customize opens Administration > Lists, which needs admin/super.

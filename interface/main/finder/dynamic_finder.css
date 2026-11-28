@@ -32,8 +32,8 @@ div.dataTables_wrapper div.dataTables_processing {
 }
 
 /* ==========================================================================
-   Heading bar: tabs, page length and search on the left (finder_heading.html.twig);
-   then Add Patient and the OemrUI margins and search-row icons on the right.
+   Heading bar: the tabs on the left (finder_heading.html.twig), then the OemrUI
+   margins and search-row icons on the right. Below it, the search line.
    ========================================================================== */
 
 /* Let the page show through. Bootstrap's .bg-light utility on the OemrUI navbar is
@@ -41,6 +41,7 @@ div.dataTables_wrapper div.dataTables_processing {
 #finder-heading .navbar {
   flex-wrap: wrap;
   padding: 0;
+  border-bottom: 1px solid var(--gray400);
   background-color: transparent !important;
 }
 
@@ -61,14 +62,39 @@ div.dataTables_wrapper div.dataTables_processing {
   flex: 1 1 auto;
 }
 
-/* The page-length menu and the search box sit to the right of the tabs. */
-#finder-length-slot {
-  margin-right: 2rem;
-  margin-left: auto;
+/* The tabs' bottom line runs the whole width of the heading bar, under the icons too:
+   the bar draws it (above), and the tabs' own line is dropped. The active tab still
+   covers the line under it, as Bootstrap's tabs overhang it by a pixel. The outline is
+   darker than Bootstrap's so the tabs stand out from the page. */
+#finderTabsNav {
+  border-bottom: 0;
 }
 
-#finder-search {
-  margin-right: 1.5rem;
+#finderTabsNav .nav-link.active {
+  border-top-color: var(--gray400);
+  border-right-color: var(--gray400);
+  border-left-color: var(--gray400);
+}
+
+#finderTabsNav .nav-link:not(.active):hover {
+  border-top-color: var(--gray300);
+  border-right-color: var(--gray300);
+  border-left-color: var(--gray300);
+}
+
+/* The search line under the tabs: Show on the left, the search box centered, and
+   Filter and Add Patient on the right. The equal outer columns keep the search box
+   centered on the line whatever the widths of the two ends. */
+#finder-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+#finder-length-slot {
+  justify-self: start;
 }
 
 #finder-search .input-group {
@@ -76,9 +102,24 @@ div.dataTables_wrapper div.dataTables_processing {
   width: 15rem;
 }
 
+#finder-toolbar-buttons {
+  justify-self: end;
+  gap: 0.5rem;
+}
+
 #finder-add-patient {
-  padding: 0.25rem 0.75rem;
   white-space: nowrap;
+}
+
+/* On a narrow screen the three parts stack, each still in its place. */
+@media screen and (width <= 640px) {
+  #finder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  #finder-search {
+    justify-self: center;
+  }
 }
 
 /* Keep the icons visible at every width; OemrUI's navbar gives them no toggle
@@ -415,12 +456,27 @@ table thead .sorting::after {
   width: 5.5em;
 }
 
-#finder-filter {
-  margin-right: 0.5rem;
+/* Chips and Clear all take the Filter button's text size and height (a small button's
+   size, padding, line height and border). The chips are a light tint of the theme's
+   primary color, so they read as what is applied rather than as more buttons. */
+#finder-chips .badge {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--white));
+  background-color: color-mix(in srgb, var(--primary) 12%, var(--white));
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: normal;
+  line-height: 1.5;
 }
 
-/* Chips read at the toolbar's own text size. */
-#finder-chips .badge {
-  font-size: 1em;
-  font-weight: normal;
+#finder-chips .btn {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* A chip's remove button has no border, so it adds no height to the chip. */
+#finder-chips .badge .btn {
+  border: 0;
+  color: inherit;
+  vertical-align: baseline;
 }

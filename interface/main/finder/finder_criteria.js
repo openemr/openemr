@@ -223,9 +223,9 @@
     function renderChips() {
         $chips.empty();
         applied.forEach(function (row, index) {
-            $chips.append($('<span class="badge badge-pill badge-primary mr-1 p-2"></span>')
+            $chips.append($('<span class="badge badge-pill badge-primary mr-1"></span>')
                 .append($('<span></span>').text(describe(row)))
-                .append($('<button type="button" class="btn btn-link btn-sm p-0 ml-2 text-white"></button>')
+                .append($('<button type="button" class="btn btn-link btn-sm p-0 ml-2"></button>')
                     .attr('aria-label', $panel.data('remove') + ': ' + describe(row))
                     .html('<i class="fa fa-times" aria-hidden="true"></i>')
                     .on('click', function () {
