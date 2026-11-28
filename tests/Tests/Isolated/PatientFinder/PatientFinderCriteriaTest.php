@@ -84,7 +84,13 @@ class PatientFinderCriteriaTest extends TestCase
             'age over the maximum' => '[{"key":"age","operator":"at_most","value":"151"}]',
             'range with one end' => '[{"key":"age","operator":"between","value":[18]}]',
             'range given a scalar' => '[{"key":"age","operator":"between","value":"18"}]',
+            'range with an end not a number' => '[{"key":"age","operator":"between","value":["18","abc"]}]',
+            'range with an end over the maximum' => '[{"key":"age","operator":"between","value":["151","18"]}]',
+            'unknown age operator' => '[{"key":"age","operator":"over","value":"18"}]',
             'zero days' => '[{"key":"last_visit","operator":"within","value":"0"}]',
+            'days over the maximum' => '[{"key":"last_visit","operator":"older","value":"3651"}]',
+            'unknown last visit operator' => '[{"key":"last_visit","operator":"since","value":"30"}]',
+            'unknown insurance operator' => '[{"key":"insurance","operator":"any","value":""}]',
             'entry not an object' => '["sex"]',
         ];
         return array_map(static fn (string $json): array => [$json], $bad);
