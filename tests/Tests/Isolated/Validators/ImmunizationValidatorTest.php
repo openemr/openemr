@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ImmunizationValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ImmunizationValidatorTest extends TestCase
@@ -90,6 +91,63 @@ class ImmunizationValidatorTest extends TestCase
             BaseValidator::DATABASE_INSERT_CONTEXT
         );
         $this->assertTrue($result->isValid());
+    }
+
+    public function testInsertRejectsFutureAdministeredDate(): void
+    {
+        $result = $this->validator->validate(
+            ['patient_id' => 1, 'cvx_code' => '197', 'administered_date' => '2999-01-15'],
+            BaseValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertIsArray($messages);
+        $this->assertArrayHasKey('administered_date', $messages);
+    }
+
+    #[DataProvider('administeredDateProvider')]
+    public function testIsAdministeredDateInFuture(string $date, bool $expected): void
+    {
+        $this->assertSame($expected, ImmunizationValidator::isAdministeredDateInFuture($date));
+    }
+
+    #[DataProvider('administeredDateValidityProvider')]
+    public function testIsAdministeredDateValid(string $date, bool $expected): void
+    {
+        $this->assertSame($expected, ImmunizationValidator::isAdministeredDateValid($date));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function administeredDateProvider(): array
+    {
+        return [
+            'past datetime' => ['2000-01-15 14:30:00', false],
+            'future date' => ['2999-01-15', true],
+            'unparsable date' => ['not-a-date', false],
+            'overflow date' => ['2024-02-31', false],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function administeredDateValidityProvider(): array
+    {
+        return [
+            'date only' => ['2024-01-15', true],
+            'date and time' => ['2024-01-15 14:30', true],
+            'date and seconds' => ['2024-01-15 14:30:00', true],
+            'empty date' => ['', false],
+            'unparsable date' => ['not-a-date', false],
+            'overflow date' => ['2024-02-31', false],
+        ];
     }
 
     public function testUpdateRequiresUuid(): void
