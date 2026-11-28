@@ -44,9 +44,9 @@ $alertmsg = '';
  * The dialog closes only when the status is saved. A postal sentence is
  * included when one applies.
  */
-$echoFacilitySaveDialogResult = function (bool $saved, string $sentence): void {
+$echoFacilitySaveDialogResult = function (bool $saved, string $sentence, array $errors = []): void {
     header('Content-Type: application/json; charset=utf-8');
-    echo FacilityService::facilitySaveDialogBody($saved, $sentence);
+    echo FacilityService::facilitySaveDialogBody($saved, $sentence, $errors);
 };
 
 /**
@@ -64,6 +64,15 @@ $values = FacilityService::facilityFormValues($_POST);
 
 /*      Inserting New facility                  */
 if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST["newmode"] != "admin_facility"))) {
+    $validation = $facilityService->validateFormValues($values);
+    if (!$validation->isValid()) {
+        $formErrors = [];
+        foreach ($validation->getValidationMessages() as $column => $message) {
+            $formErrors[FacilityService::FACILITY_FORM_FIELDS[$column] ?? $column] = $message;
+        }
+        $echoFacilitySaveDialogResult(false, 'Please correct the highlighted fields.', $formErrors);
+        exit();
+    }
     $facilityService->insertFacility($values);
     $sentence = $facilityPostalSentence(
         $values['postal_code'] ?? '',
@@ -79,6 +88,15 @@ if (($_POST["mode"] ?? "") == "facility" && (empty($_POST["newmode"]) || ($_POST
 if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility") {
     // Since it's an edit, add in the facility ID
     $values["id"] = trim($_POST['fid'] ?? '');
+    $validation = $facilityService->validateFormValues($values);
+    if (!$validation->isValid()) {
+        $formErrors = [];
+        foreach ($validation->getValidationMessages() as $column => $message) {
+            $formErrors[FacilityService::FACILITY_FORM_FIELDS[$column] ?? $column] = $message;
+        }
+        $echoFacilitySaveDialogResult(false, 'Please correct the highlighted fields.', $formErrors);
+        exit();
+    }
     // The facility row and the linked user names commit together.
     // A missing id is not saved. The postal sentence is sent only after that commit.
     $saved = $facilityService->updateFacilityAndUsers($values);

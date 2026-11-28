@@ -36,7 +36,7 @@ use Particle\Validator\Validator;
 
 class FacilityService extends BaseService
 {
-    private $facilityValidator;
+    private FacilityValidator $facilityValidator;
     private const FACILITY_TABLE = "facility";
 
     /**
@@ -183,14 +183,21 @@ class FacilityService extends BaseService
      *
      * Status is saved or not saved. A sentence that cannot be encoded is
      * dropped, and the status stays.
+     *
+     * @param array<string, mixed> $errors validation messages keyed by field
      */
-    public static function facilitySaveDialogBody(bool $saved, string $sentence): string
+    public static function facilitySaveDialogBody(bool $saved, string $sentence, array $errors = []): string
     {
+        $payload = [
+            'status' => $saved ? 'saved' : 'not_saved',
+            'message' => $sentence,
+        ];
+        if ($errors !== []) {
+            $payload['errors'] = $errors;
+        }
+
         $encoded = json_encode(
-            [
-                'status' => $saved ? 'saved' : 'not_saved',
-                'message' => $sentence,
-            ],
+            $payload,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE
         );
         if (!is_string($encoded)) {
@@ -238,6 +245,42 @@ class FacilityService extends BaseService
         $validator->optional('iban')->lengthBetween(2, 34);
 
         return $validator->validate($facility);
+    }
+
+    /**
+     * Validate and normalize facility form values submitted from facilities.php.
+     *
+     * Normalizes in place: the five NOT NULL checkbox columns ('' -> '0') and
+     * pos_code ('' -> null, nullable tinyint). Then validates with
+     * FacilityValidator using FacilityValidator::FORM_SAVE_CONTEXT. The caller
+     * receives the normalized $values through the by-reference parameter.
+     *
+     * @param array<string, mixed> $values
+     * @return ProcessingResult validation messages keyed by DB column name
+     */
+    public function validateFormValues(array &$values): ProcessingResult
+    {
+        $checkboxColumns = [
+            'service_location',
+            'billing_location',
+            'accepts_assignment',
+            'primary_business_entity',
+            'inactive',
+        ];
+        foreach ($checkboxColumns as $column) {
+            if (!isset($values[$column]) || $values[$column] === '') {
+                $values[$column] = '0';
+            }
+        }
+
+        if (isset($values['pos_code']) && $values['pos_code'] === '') {
+            $values['pos_code'] = null;
+        }
+
+        return $this->facilityValidator->validate(
+            $values,
+            FacilityValidator::FORM_SAVE_CONTEXT
+        );
     }
 
     public function getAllFacility()
@@ -704,7 +747,7 @@ class FacilityService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
-            $processingResult->addErrorMessage("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($uuid);
         }

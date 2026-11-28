@@ -33,7 +33,14 @@ dlgclose();
 * */
 var collectvalidation = {{ collectThis }};
 
+function clearFieldErrors() {
+    $("#facility-form").find(".invalid-feedback").remove();
+    $("#facility-form").find(".is-invalid").removeClass("is-invalid");
+    $("#facility-form").find("[aria-invalid]").removeAttr("aria-invalid");
+}
+
 function submitform() {
+    clearFieldErrors();
 
     var valid = submitme(1, undefined, 'facility-form', collectvalidation);
     if (!valid) return;
@@ -90,6 +97,43 @@ function submitform() {
             }
             if (typeof payload.message === 'string') {
                 message = payload.message;
+            }
+        }
+
+        if (payload && $.isPlainObject(payload.errors) && Object.keys(payload.errors).length > 0) {
+            let form = $("#facility-form").get(0);
+            if (form) {
+                let firstInvalid = null;
+                Object.entries(payload.errors).forEach(([inputName, messages]) => {
+                    let input = form.elements[inputName];
+                    if (!input) {
+                        return;
+                    }
+                    $(input).addClass('is-invalid').attr('aria-invalid', 'true');
+                    let msg = '';
+                    if (Array.isArray(messages) && messages.length > 0) {
+                        msg = messages[0];
+                    } else if (typeof messages === 'string') {
+                        msg = messages;
+                    } else if (typeof messages === 'object' && messages !== null) {
+                        msg = Object.values(messages)[0] ?? '';
+                    }
+                    if (msg) {
+                        $(input).after($('<div class="invalid-feedback"></div>').text(msg));
+                    }
+                    if (!firstInvalid) {
+                        firstInvalid = input;
+                    }
+                });
+                if (firstInvalid) {
+                    const $pane = $(firstInvalid).closest('.tab-pane');
+                    if ($pane.length && !$pane.hasClass('show active')) {
+                        const tabId = $pane.attr('id');
+                        $(`button.nav-link[data-toggle="tab"][data-target="#${tabId}"]`).tab('show');
+                    }
+                    firstInvalid.focus();
+                    return;
+                }
             }
         }
         if (status !== 'saved' && message === '') {
