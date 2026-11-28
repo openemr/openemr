@@ -64,6 +64,11 @@
         <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
         <input type="hidden" name="kind" value="{{ kind|attr }}" />
         <input type="hidden" name="id" value="{{ row.id|attr }}" />
+        {% if kind == 'file' %}
+            {# What this page shows of the file. A mark is refused when a posting run has changed it since. #}
+            <input type="hidden" name="state" value="{{ row.autoPostStatus is null ? '' : row.autoPostStatus.value|attr }}" />
+            <input type="hidden" name="held" value="{{ row.heldChecks|length|attr }}" />
+        {% endif %}
         {% if row.worked is null %}
             <button type="submit" name="action" value="worked" class="btn btn-sm btn-primary d-print-none">{{ 'Mark worked'|xlt }}</button>
         {% else %}

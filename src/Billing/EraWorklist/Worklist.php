@@ -72,9 +72,12 @@ interface Worklist
     public function takeFromUnattended(int $receivedId, AutoPostFileStatus $seen): bool;
 
     /**
-     * @return bool false when the file is not on the worklist, is waiting for or held by a posting run, or is already marked
+     * @param ?AutoPostFileStatus $seen     the unattended posting state the person saw the file in
+     * @param int                 $heldSeen how many held checks of the file the person saw
+     * @return bool false when the file is not on the worklist, is waiting for or held by a posting run, is
+     *              already marked, or is no longer as the person saw it
      */
-    public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at): bool;
+    public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at, ?AutoPostFileStatus $seen, int $heldSeen): bool;
 
     /**
      * @return bool false when the file was not marked

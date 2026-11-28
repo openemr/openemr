@@ -283,9 +283,9 @@ class WorklistRepositoryTest extends TestCase
         $at = new \DateTimeImmutable('2026-11-27 09:30:00');
         $open = $this->worklist->openCounts()->files;
 
-        $this->assertTrue($this->worklist->markFileWorked($off, $by, $at));
-        $this->assertFalse($this->worklist->markFileWorked($off, $by, $at));
-        $this->assertFalse($this->worklist->markFileWorked($done, $by, $at));
+        $this->assertTrue($this->worklist->markFileWorked($off, $by, $at, null, 0));
+        $this->assertFalse($this->worklist->markFileWorked($off, $by, $at, null, 0));
+        $this->assertFalse($this->worklist->markFileWorked($done, $by, $at, AutoPostFileStatus::Done, 0));
 
         $this->assertSame($open - 1, $this->worklist->openCounts()->files);
         $this->assertSame([], $this->files(new WorklistFilter(), [$off, $done]));
@@ -311,8 +311,8 @@ class WorklistRepositoryTest extends TestCase
         $at = new \DateTimeImmutable('2026-11-27 09:30:00');
 
         // What the run finds is still to come: a mark now would hide it.
-        $this->assertFalse($this->worklist->markFileWorked($pending, $by, $at));
-        $this->assertFalse($this->worklist->markFileWorked($running, $by, $at));
+        $this->assertFalse($this->worklist->markFileWorked($pending, $by, $at, AutoPostFileStatus::Pending, 0));
+        $this->assertFalse($this->worklist->markFileWorked($running, $by, $at, AutoPostFileStatus::Running, 0));
 
         // Only from the state the person saw: a run that took the file in between keeps it.
         $this->assertFalse($this->worklist->takeFromUnattended($pending, AutoPostFileStatus::Running));
@@ -333,16 +333,18 @@ class WorklistRepositoryTest extends TestCase
         $this->assertFalse($pendingFile->awaitsRun());
         $this->assertSame(AutoPostFileStatus::Interrupted, $runningFile->autoPostStatus);
         $this->assertFalse($runningFile->awaitsRun());
-        $this->assertTrue($this->worklist->markFileWorked($pending, $by, $at));
-        $this->assertTrue($this->worklist->markFileWorked($running, $by, $at));
+        $this->assertTrue($this->worklist->markFileWorked($pending, $by, $at, null, 0));
+        $this->assertTrue($this->worklist->markFileWorked($running, $by, $at, AutoPostFileStatus::Interrupted, 0));
     }
 
     public function testAMarkDoesNotOutlastAPostingRunThatWasStillGoing(): void
     {
         // The file was taken from a run that had not stopped after all, and marked worked.
         $file = $this->received('running.edi', autoPostStatus: 'running');
+        $by = new WorklistUser(self::USER);
+        $at = new \DateTimeImmutable('2026-11-27 09:30:00');
         $this->assertTrue($this->worklist->takeFromUnattended($file, AutoPostFileStatus::Running));
-        $this->assertTrue($this->worklist->markFileWorked($file, new WorklistUser(self::USER), new \DateTimeImmutable('2026-11-27 09:30:00')));
+        $this->assertTrue($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 0));
         $open = $this->worklist->openCounts()->files;
 
         // The run then holds a check of the file and finishes it.
@@ -355,6 +357,27 @@ class WorklistRepositoryTest extends TestCase
         $this->assertSame(AutoPostFileStatus::Done, $files[0]->autoPostStatus);
         $this->assertCount(1, $files[0]->heldChecks);
         $this->assertSame($open + 1, $this->worklist->openCounts()->files);
+
+        // A mark from the page as it was before the run finished is refused.
+        $this->assertFalse($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 0));
+        $this->assertFalse($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Done, 0));
+        $this->assertFalse($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 1));
+        // One from a page that shows the held check is taken.
+        $this->assertTrue($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Done, 1));
+    }
+
+    public function testAFileIsNotMarkedFromAPageThatDidNotShowACheckHeldSince(): void
+    {
+        // A run an error stopped leaves the file interrupted before and after it holds a check.
+        $file = $this->received('interrupted.edi', autoPostStatus: 'interrupted');
+        $by = new WorklistUser(self::USER);
+        $at = new \DateTimeImmutable('2026-11-27 09:30:00');
+        $this->check($file, 'CHK-HELD', status: 'held', holdReason: 'no_payer');
+        $this->check($file, 'CHK-OK', sequence: 2);
+
+        $this->assertFalse($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 0));
+        $this->assertFalse($this->worklist->markFileWorked($file, $by, $at, null, 1));
+        $this->assertTrue($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 1));
     }
 
     public function testThePayersOfTheChecksAreListedOnceEachInOrder(): void

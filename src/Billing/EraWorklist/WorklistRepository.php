@@ -225,19 +225,26 @@ final class WorklistRepository implements Worklist
         return self::changedOne();
     }
 
-    public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at): bool
+    public function markFileWorked(int $receivedId, WorklistUser $by, \DateTimeImmutable $at, ?AutoPostFileStatus $seen, int $heldSeen): bool
     {
         // Not while a posting run is still to take the file or has it: what the run finds
         // (a check it holds, an error) is for a person to see, and a mark would hide it.
+        // For the same reason the file must still be as the person saw it: a file taken
+        // from a run that had not stopped can gain a held check after the page was shown.
         QueryUtils::sqlStatementThrowException(
             'UPDATE `x12_remote_received` AS r SET r.`worked_by` = ?, r.`worked_at` = ?'
-            . ' WHERE r.`id` = ? AND r.`worked_by` = 0 AND r.`auto_post_status` NOT IN (?, ?) AND ' . self::FILE_ON_WORKLIST,
+            . ' WHERE r.`id` = ? AND r.`worked_by` = 0 AND r.`auto_post_status` NOT IN (?, ?) AND r.`auto_post_status` = ?'
+            . ' AND (SELECT COUNT(*) FROM `era_auto_post_check` AS s WHERE s.`received_id` = r.`id` AND s.`status` = ?) = ?'
+            . ' AND ' . self::FILE_ON_WORKLIST,
             [
                 $by->id,
                 $at->format('Y-m-d H:i:s'),
                 $receivedId,
                 AutoPostFileStatus::Pending->value,
                 AutoPostFileStatus::Running->value,
+                $seen->value ?? '',
+                CheckStatus::Held->value,
+                $heldSeen,
                 ...self::fileBinds(),
             ]
         );

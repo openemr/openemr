@@ -175,14 +175,43 @@ final class EraWorklistControllerTest extends TestCase
     }
 
     #[Test]
-    public function marksAFileWorkedByTheSignedInUserNow(): void
+    public function marksAFileWorkedByTheSignedInUserNowAsThePageShowedIt(): void
     {
-        $this->worklist->expects(self::once())
+        $this->worklist->expects(self::exactly(2))
             ->method('markFileWorked')
-            ->with(9, new WorklistUser(7), new \DateTimeImmutable(self::NOW))
-            ->willReturn(true);
+            ->willReturnCallback(static function (int $id, WorklistUser $by, \DateTimeImmutable $at, ?AutoPostFileStatus $seen, int $heldSeen): bool {
+                self::assertSame([9, 7, self::NOW], [$id, $by->id, $at->format('Y-m-d H:i:s')]);
 
-        self::assertTrue($this->controller->mark(self::post('file', 'worked', '9')));
+                return [$seen, $heldSeen] === [AutoPostFileStatus::Done, 2] || [$seen, $heldSeen] === [null, 0];
+            });
+
+        self::assertTrue($this->controller->mark(self::post('file', 'worked', '9', 'done', '2')));
+        // A file that was never for unattended posting has no state.
+        self::assertTrue($this->controller->mark(self::post('file', 'worked', '9', '', '0')));
+    }
+
+    #[Test]
+    #[DataProvider('fileNotAsShownProvider')]
+    public function marksNoFileWhenTheFormDoesNotSayHowThePageShowedIt(string $state, string $held): void
+    {
+        $this->expectNoMark();
+
+        self::assertFalse($this->controller->mark(self::post('file', 'worked', '9', $state, $held)));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function fileNotAsShownProvider(): array
+    {
+        return [
+            'no held count' => ['done', ''],
+            'unknown state' => ['stuck', '0'],
+            'held count not a number' => ['done', 'two'],
+            'negative held count' => ['', '-1'],
+        ];
     }
 
     #[Test]
@@ -258,12 +287,12 @@ final class EraWorklistControllerTest extends TestCase
         }
     }
 
-    private static function post(string $kind, string $action, string $id, string $state = ''): Request
+    private static function post(string $kind, string $action, string $id, string $state = '', string $held = ''): Request
     {
         return Request::create(
             '/interface/billing/era_worklist.php?view=review',
             'POST',
-            ['kind' => $kind, 'action' => $action, 'id' => $id, 'state' => $state]
+            ['kind' => $kind, 'action' => $action, 'id' => $id, 'state' => $state, 'held' => $held]
         );
     }
 }

@@ -92,11 +92,26 @@ final readonly class EraWorklistController
         return match ([$post->getString('kind'), $post->getString('action')]) {
             ['claim', 'worked'] => $this->worklist->markClaimWorked($id, $by, $this->clock->now()),
             ['claim', 'clear'] => $this->worklist->clearClaimWorked($id),
-            ['file', 'worked'] => $this->worklist->markFileWorked($id, $by, $this->clock->now()),
+            ['file', 'worked'] => $this->markFile($id, $by, $post->getString('state'), $post->getString('held')),
             ['file', 'clear'] => $this->worklist->clearFileWorked($id),
             ['file', 'take'] => $this->takeFile($id, $post->getString('state')),
             default => false,
         };
+    }
+
+    /**
+     * @param string $state the unattended posting state the file was shown in, '' when it had none
+     * @param string $held  how many held checks the file was shown with
+     */
+    private function markFile(int $id, WorklistUser $by, string $state, string $held): bool
+    {
+        $seen = AutoPostFileStatus::tryFrom($state);
+        $heldSeen = filter_var($held, FILTER_VALIDATE_INT);
+        if (($seen === null && $state !== '') || !is_int($heldSeen) || $heldSeen < 0) {
+            return false;
+        }
+
+        return $this->worklist->markFileWorked($id, $by, $this->clock->now(), $seen, $heldSeen);
     }
 
     /**
