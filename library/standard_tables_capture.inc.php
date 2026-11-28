@@ -595,7 +595,8 @@ function icd_import($type)
                     $run_sql .= $incoming[$this_key][$fld] . ", ";
                     $sql_place .= "?, ";
                     // concat this fields template in the sql string
-                    array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                    // The order files are fixed-width: drop the space padding and the CRLF line ending
+                    array_push($sql_values, rtrim(substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len])));
                     if (!array_key_exists($nxtfld, $incoming[$this_key])) {
                         $run_sql .= "active, revision) VALUES ";
                         $sql_place .= "?, ?)";

@@ -24,11 +24,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\Json;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\UserSettingsService;
+use OpenEMR\Services\PatientFinder\Criteria\PatientFinderCriteriaRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnList;
 use OpenEMR\Services\PatientFinder\PatientFinderColumnRegistryFactory;
 use OpenEMR\Services\PatientFinder\PatientFinderDetailService;
@@ -76,6 +78,8 @@ $fontSize = PatientFinderFontSize::fromSetting(UserSettingsService::getUserSetti
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $cacheBust = attr_url(OEGlobalsBag::getInstance()->getString('v_js_includes'));
 $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
+// What the Filter panel offers: one entry per criterion with its operators and choices.
+$criteriaDefinitions = (new PatientFinderCriteriaRegistryFactory())->create()->definitions();
 ?>
 <!DOCTYPE html>
 <html>
@@ -100,6 +104,8 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             pageLength: <?php echo $pageSize > 0 ? $pageSize : 10; ?>,
             // Column definitions from the shared registry (the Name column renders as a link).
             columns: <?php echo json_encode($columns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
+            // The Filter panel's criteria (finder_criteria.js draws the panel from these).
+            criteria: <?php echo Json::encode($criteriaDefinitions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
             // The Recent Patients tab: its columns, and the list Customize opens for it.
             recent: {
                 columns: <?php echo json_encode($recentColumns, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>,
@@ -119,6 +125,7 @@ $pageSize = OEGlobalsBag::getInstance()->getInt('gbl_pt_list_page_size');
             <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         };
     </script>
+    <script src="finder_criteria.js?v=<?php echo $cacheBust; ?>"></script>
     <script src="dynamic_finder.js?v=<?php echo $cacheBust; ?>"></script>
 <?php
     /** @var EventDispatcher $eventDispatcher (resolved above when building the column registry) */

@@ -15,6 +15,8 @@ dynamic_finder.js), and the options below the list.
          <div class="w-100">
             <div>
                 {# data-finder-font-size sets the lists' text size; the Font Size menu changes it. #}
+                {# The filters in use, as removable chips; empty (and hidden) when none is set. #}
+                <div id="finder-chips" class="mb-2" hidden aria-live="polite"></div>
                 <div class="tab-content" id="finderTabs" data-finder-font-size="{{ fontSize|attr }}">
                     <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
                         <div class="table-responsive">

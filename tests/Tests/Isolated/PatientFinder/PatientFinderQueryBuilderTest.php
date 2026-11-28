@@ -689,10 +689,10 @@ class PatientFinderQueryBuilderTest extends TestCase
 
         $this->assertSame(
             'SELECT patient_data.pid, `sex`, patient_data.active AS ' . PatientFinderQueryBuilder::ACTIVE_ALIAS
-            . ' FROM patient_data WHERE 1',
+            . ' FROM patient_data WHERE ( 1 )',
             $plan->dataSql
         );
-        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE 1', $plan->totalCountSql);
+        $this->assertSame('SELECT COUNT(id) AS count FROM patient_data WHERE ( 1 )', $plan->totalCountSql);
     }
 
     public function testActivePatientsOnlyByDefaultWithoutTheFlag(): void

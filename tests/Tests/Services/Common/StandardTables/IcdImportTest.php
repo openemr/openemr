@@ -99,6 +99,30 @@ final class IcdImportTest extends TestCase
         );
     }
 
+    /**
+     * The CMS order files pad every field and end each record with CRLF; none of that belongs in the table.
+     */
+    public function testPaddedCrlfRecordsAreStoredTrimmed(): void
+    {
+        $this->seedActiveRevisions();
+        $this->stageRelease([
+            'icd10cm_order_2026.txt' => str_replace(PHP_EOL, "\r\n", self::dxLine(1, 'A00', '0', 'Cholera') . self::dxLine(2, 'A001', '1', 'Cholera due to Vibrio cholerae 01, biovar eltor')),
+        ]);
+
+        icd_import('ICD10');
+
+        $revision = $this->previousDxRevision + 2;
+        $expected = [
+            'A00' => ['formatted' => 'A00', 'long' => 'Cholera'],
+            'A001' => ['formatted' => 'A00.1', 'long' => 'Cholera due to Vibrio cholerae 01, biovar eltor'],
+        ];
+        foreach ($expected as $code => $values) {
+            $this->assertSame($code, QueryUtils::fetchSingleValue('SELECT dx_code AS v FROM icd10_dx_order_code WHERE revision = ? AND dx_code = ?', 'v', [$revision, $code]));
+            $this->assertSame($values['formatted'], QueryUtils::fetchSingleValue('SELECT formatted_dx_code AS v FROM icd10_dx_order_code WHERE revision = ? AND dx_code = ?', 'v', [$revision, $code]));
+            $this->assertSame($values['long'], QueryUtils::fetchSingleValue('SELECT long_desc AS v FROM icd10_dx_order_code WHERE revision = ? AND dx_code = ?', 'v', [$revision, $code]));
+        }
+    }
+
     public function testAnnualReleaseReplacesBothSets(): void
     {
         $this->seedActiveRevisions();

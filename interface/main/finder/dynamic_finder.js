@@ -72,6 +72,9 @@
     var tables = {};
     // The search each table last drew with, so switching tabs redraws only when it changed.
     var drawnSearch = {};
+    // The search each table is asking for; it becomes drawnSearch once the rows arrive, so a
+    // failed request leaves drawnSearch describing the rows still on screen.
+    var requestedSearch = {};
     var activeTab = TABS.list;
 
     function escapeAttr(text) {
@@ -253,12 +256,17 @@
         return $("#setting_search_type:checked").length > 0;
     }
 
+    // The filters chosen in the Filter panel (finder_criteria.js) as request parameters.
+    function criteriaParams() {
+        return window.finderCriteria ? window.finderCriteria.params() : [];
+    }
+
     // Redraw a tab's table with the heading's search when it last drew with another.
     function applySearch(tab) {
         var oTable = tables[tab.key];
         var last = drawnSearch[tab.key];
         if (!oTable || (last && last.term === search.term && last.mode === search.mode
-            && last.exact === isExactSearch())) {
+            && last.exact === isExactSearch() && last.criteria === JSON.stringify(criteriaParams()))) {
             return;
         }
         oTable.api().search(search.term).draw();
@@ -395,7 +403,16 @@
                 aoData.push({"name": "searchMode", "value": search.mode});
                 aoData.push({"name": "finderList", "value": tab.finderList});
                 aoData.push({"name": "showInactive", "value": showInactive()});
-                drawnSearch[tab.key] = {term: search.term, mode: search.mode, exact: searchType};
+                var criteria = criteriaParams();
+                criteria.forEach(function (param) {
+                    aoData.push(param);
+                });
+                requestedSearch[tab.key] = {
+                    term: search.term,
+                    mode: search.mode,
+                    exact: searchType,
+                    criteria: JSON.stringify(criteria)
+                };
             },
             // dom invokes ColReorderWithResize. The heading's own search box replaces
             // DataTables' filter, and the options sit under the tables outside DataTables.
@@ -416,6 +433,11 @@
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": cfg.pageLength || 10,
             "infoCallback": countLine,
+            "drawCallback": function () {
+                if (requestedSearch[tab.key]) {
+                    drawnSearch[tab.key] = requestedSearch[tab.key];
+                }
+            },
             "createdRow": markInactive,
             "language": language
         });
@@ -468,7 +490,10 @@
             syncSearchRow();
             createTable(tab);
         } else if (tab === TABS.recent) {
-            tables[tab.key].api().search(search.term).draw(false);
+            // Keep the page unless the filters changed, which can leave fewer pages.
+            var drawn = drawnSearch[tab.key];
+            var filtersChanged = !drawn || drawn.criteria !== JSON.stringify(criteriaParams());
+            tables[tab.key].api().search(search.term).draw(filtersChanged);
         } else {
             applySearch(tab);
         }
@@ -496,6 +521,14 @@
         wireFontSize();
         $('#finder-customize').on('click', function () {
             openListEditor(activeTab.listId);
+        });
+        // The filters narrow the showing list from the first page; the other list redraws
+        // when it is shown.
+        $(document).on('finder:criteria', function () {
+            var oTable = tables[activeTab.key];
+            if (oTable) {
+                oTable.api().draw();
+            }
         });
         $("#setting_search_type").on('change', function (e) {
             persistCriteria(this, e);

@@ -1,8 +1,46 @@
 {
-  "resourceType": "Bundle",
-  "entry": [
-    {"resource": {"resourceType": "ExplanationOfBenefit", "created": "2023-07-04T09:00:00-04:00", "insurance": [{"coverage": {"display": "Humana"}}]}},
-    {"resource": {"resourceType": "ExplanationOfBenefit", "created": "2019-01-02T09:00:00-05:00", "insurance": [{"coverage": {"display": "Medicaid"}}]}},
-    {"resource": {"resourceType": "Patient", "gender": "male", "birthDate": "2019-08-01", "name": [{"family": "Able", "given": ["Bob"]}]}}
-  ]
+    "resourceType": "Bundle",
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "ExplanationOfBenefit",
+                "created": "2023-07-04T09:00:00-04:00",
+                "insurance": [
+                    {
+                        "coverage": {
+                            "display": "Humana"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "ExplanationOfBenefit",
+                "created": "2019-01-02T09:00:00-05:00",
+                "insurance": [
+                    {
+                        "coverage": {
+                            "display": "Medicaid"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "Patient",
+                "gender": "male",
+                "birthDate": "2019-08-01",
+                "name": [
+                    {
+                        "family": "Able",
+                        "given": [
+                            "Bob"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
 }
