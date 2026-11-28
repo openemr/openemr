@@ -1,0 +1,22 @@
+{# A Flow Board row's appointment time cell. A Visit List patient has no time of its own, so
+   its cell shows its Order # instead, with the block's times as a tooltip on screen and
+   under the number in print.
+
+   Input: time (string, formatted), visitList (null, or {sequenceLabel, timeRange} from
+   OpenEMR\Appointment\VisitList\VisitListFlowBoard)
+
+   @package   OpenEMR
+   @link      https://www.open-emr.org
+   @author    David Eschelbacher <psoas@tampabay.rr.com>
+   @copyright Copyright (c) 2026 David Eschelbacher <psoas@tampabay.rr.com>
+   @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 #}
+{% if visitList %}
+<td class="detail text-center flb-visit-list-time" title="{{ 'Visit List'|xla }} {{ visitList.timeRange|attr }}">
+    {{ visitList.sequenceLabel|text }}
+    <span class="d-none d-print-block small">{{ visitList.timeRange|text }}</span>
+</td>
+{% else %}
+<td class="detail text-center">
+    {{ time|text }}
+</td>
+{% endif %}

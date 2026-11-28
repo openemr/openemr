@@ -29,6 +29,8 @@ require_once "$srcdir/MedEx/API.php";
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignatureIF.php';
 
 use ESign\SignatureIF;
+use OpenEMR\Appointment\VisitList\VisitListFlowBoard;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -83,6 +85,8 @@ if (!OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     } elseif (OEGlobalsBag::getInstance()->get('first_day_week') == 6) {
         //Saturday
         $from_date = date('Y-m-d', strtotime('previous saturday'));
+    } else {
+        $from_date = date('Y-m-d');
     }
 } else {
     //shouldn't be able to get here...
@@ -341,6 +345,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     $datetime = date("Y-m-d H:i:s");
     $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
     $appointments = sortAppointments($appointments, 'date');
+    $appointments = (new VisitListFlowBoard())->arrange(is_array($appointments) ? $appointments : [], OEGlobalsBag::getInstance()->getInt('time_display_format') === 1);
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
@@ -353,7 +358,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     // Scan appointments for additional info
     foreach ($appointments as $apt) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
-        if ($collectLockedEncounters && is_array($apt)) {
+        if ($collectLockedEncounters) {
             $encValue = $apt['encounter'] ?? null;
             if (is_numeric($encValue) && (int)$encValue !== 0) {
                 $encounterIds[(int)$encValue] = true;
@@ -538,7 +543,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 $msg_type = text($row['msg_type']);
                                 /** @var array<string, array{html: string}> $msgTypeIcons */
                                 $msgTypeIcons = $icons[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                $apptMsgData = $appointment[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                $apptMsgData = $appointment[$msg_type] ?? [];
                                 if (!empty($row['msg_extra_text'])) {
                                     $local = attr($row['msg_extra_text']) . " |";
                                 }
@@ -686,9 +691,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 ?>
                             </td>
                         <?php } ?>
-                        <td class="detail text-center">
-                            <?php echo text(oeFormatTime($appt_time)); ?>
-                        </td>
+                        <?php echo ServiceContainer::getTwig()->render('patient_tracker/appointment_time.html.twig', ['time' => oeFormatTime($appt_time), 'visitList' => $appointment['visit_list'] ?? null]); ?>
                         <td class="detail text-center">
                             <?php
                             if ($newarrive) {
