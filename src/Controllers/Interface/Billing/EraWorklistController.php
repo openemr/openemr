@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Controllers\Interface\Billing;
 
 use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
+use OpenEMR\Billing\EraWorklist\ReceivedFile;
 use OpenEMR\Billing\EraWorklist\Worklist;
 use OpenEMR\Billing\EraWorklist\WorklistFilter;
 use OpenEMR\Billing\EraWorklist\WorklistUser;
@@ -100,6 +101,23 @@ final readonly class EraWorklistController
     }
 
     /**
+     * The insurance companies unattended posting recorded for the files listed.
+     *
+     * @param list<mixed> $rows
+     * @return list<int>
+     */
+    private static function payerIds(array $rows): array
+    {
+        $ids = [];
+        foreach ($rows as $row) {
+            if ($row instanceof ReceivedFile && $row->payerId > 0) {
+                $ids[$row->payerId] = $row->payerId;
+            }
+        }
+        return array_values($ids);
+    }
+
+    /**
      * @param string $state the unattended posting state the file was shown in, '' when it had none
      * @param string $held  how many held checks the file was shown with
      */
@@ -163,6 +181,8 @@ final readonly class EraWorklistController
                 'limit' => $limit,
                 'counts' => $this->worklist->openCounts(),
                 'payers' => $view === WorklistView::Files ? [] : $this->worklist->payerNames(),
+                // A file is posted by hand for an insurance company the person chooses.
+                'insurers' => $view === WorklistView::Files ? $this->worklist->insuranceCompanies(self::payerIds($page->rows)) : [],
                 'reasons' => WorklistFilter::reviewReasons(),
                 // The pay date the posting window uses for a check that carries none.
                 'today' => $this->clock->now()->format('Y-m-d'),

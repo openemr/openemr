@@ -17,6 +17,7 @@ use OpenEMR\Billing\EraAutoPost\AutoPostRepository;
 use OpenEMR\Billing\EraAutoPost\ClaimOutcome;
 use OpenEMR\Billing\EraAutoPost\HoldReason;
 use OpenEMR\Billing\EraPosting\ClaimIssue;
+use OpenEMR\Billing\EraWorklist\InsuranceCompanyOption;
 use OpenEMR\Billing\EraWorklist\PostedCheck;
 use OpenEMR\Billing\EraWorklist\PostedLine;
 use OpenEMR\Billing\EraWorklist\ReceivedFile;
@@ -38,6 +39,8 @@ class WorklistRepositoryTest extends TestCase
     private const SESSION = 99990301;
     private const PAYER = 'WORKLIST TEST PAYER';
     private const OTHER_PAYER = 'WORKLIST OTHER PAYER';
+    /** An active insurance company, a second, and an inactive one. */
+    private const INSURERS = [99990171, 99990172, 99990173];
 
     private WorklistRepository $worklist;
 
@@ -380,6 +383,42 @@ class WorklistRepositoryTest extends TestCase
         $this->assertTrue($this->worklist->markFileWorked($file, $by, $at, AutoPostFileStatus::Interrupted, 1));
     }
 
+    public function testAFileNamesTheOneInsuranceCompanyItsChecksWereRecordedFor(): void
+    {
+        [$first, $second] = self::INSURERS;
+        // Posted for one company, with a check held before its company was worked out.
+        $one = $this->received('one.edi', receivedAt: '2026-11-19 13:00:00');
+        $this->check($one, 'CHK-1', payerId: $first);
+        $this->check($one, 'CHK-2', status: 'held', holdReason: 'out_of_balance', sequence: 2);
+        // Checks for two companies: the person has to say which.
+        $two = $this->received('two.edi', receivedAt: '2026-11-19 12:00:00');
+        $this->check($two, 'CHK-3', payerId: $first);
+        $this->check($two, 'CHK-4', status: 'held', holdReason: 'posted_for_another_payer', sequence: 2, payerId: $second);
+        // Never read by a run.
+        $none = $this->received('none.edi', autoPostStatus: '', receivedAt: '2026-11-19 11:00:00');
+
+        $files = $this->files(new WorklistFilter(), [$one, $two, $none]);
+
+        $this->assertSame([$first, 0, 0], array_map(static fn(ReceivedFile $file): int => $file->payerId, $files));
+    }
+
+    public function testTheInsuranceCompaniesToPostForAreTheActiveOnesAndThoseAskedFor(): void
+    {
+        [$active, $other, $inactive] = self::INSURERS;
+        foreach ([[$active, 'Worklist Zeta Health', 0], [$other, 'Worklist Alpha Health', 0], [$inactive, 'Worklist Old Plan', 1]] as [$id, $name, $off]) {
+            QueryUtils::sqlStatementThrowException('INSERT INTO `insurance_companies` (`id`, `name`, `inactive`) VALUES (?, ?, ?)', [$id, $name, $off]);
+        }
+        $this->assertSame(
+            [$other . ' Worklist Alpha Health', $active . ' Worklist Zeta Health'],
+            self::ourCompanies($this->worklist->insuranceCompanies([]))
+        );
+        // The company a file's checks were recorded for is offered though it is no longer active.
+        $this->assertSame(
+            [$other . ' Worklist Alpha Health', $inactive . ' Worklist Old Plan', $active . ' Worklist Zeta Health'],
+            self::ourCompanies($this->worklist->insuranceCompanies([$inactive, $active]))
+        );
+    }
+
     public function testThePayersOfTheChecksAreListedOnceEachInOrder(): void
     {
         $this->check($this->received('a.edi'), 'CHK1');
@@ -426,6 +465,21 @@ class WorklistRepositoryTest extends TestCase
         ));
     }
 
+    /**
+     * @param list<InsuranceCompanyOption> $companies
+     * @return list<string> this test's companies among them, as "id name"
+     */
+    private static function ourCompanies(array $companies): array
+    {
+        $ours = [];
+        foreach ($companies as $company) {
+            if (in_array($company->id, self::INSURERS, true)) {
+                $ours[] = $company->id . ' ' . $company->name;
+            }
+        }
+        return $ours;
+    }
+
     private function invoiceId(): int
     {
         $id = QueryUtils::fetchSingleValue('SELECT `id` FROM `form_encounter` WHERE `pid` = ? AND `encounter` = ?', 'id', [self::PID, self::ENC]);
@@ -460,12 +514,13 @@ class WorklistRepositoryTest extends TestCase
         string $plbReasons = '',
         int $sessionId = 0,
         int $sequence = 1,
+        int $payerId = 0,
     ): int {
         return QueryUtils::sqlInsert(
             'INSERT INTO `era_auto_post_check` (`received_id`, `sequence`, `check_number`, `check_date`, `payer_name`,'
             . ' `check_amount`, `claim_total`, `plb_total`, `plb_reasons`, `status`, `hold_reason`, `session_id`,'
-            . ' `processed_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [$receivedId, $sequence, $number, $checkDate, $payer, $checkAmount, $claimTotal, $plbTotal, $plbReasons, $status, $holdReason, $sessionId, $processedAt]
+            . ' `processed_at`, `payer_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$receivedId, $sequence, $number, $checkDate, $payer, $checkAmount, $claimTotal, $plbTotal, $plbReasons, $status, $holdReason, $sessionId, $processedAt, $payerId]
         );
     }
 
@@ -537,5 +592,6 @@ class WorklistRepositoryTest extends TestCase
         QueryUtils::sqlStatementThrowException('DELETE FROM `ar_activity` WHERE `pid` = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM `form_encounter` WHERE `pid` = ?', [self::PID]);
         QueryUtils::sqlStatementThrowException('DELETE FROM `users` WHERE `id` IN (?, ?)', [self::USER, self::NAMELESS_USER]);
+        QueryUtils::sqlStatementThrowException('DELETE FROM `insurance_companies` WHERE `id` IN (?, ?, ?)', self::INSURERS);
     }
 }

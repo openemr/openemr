@@ -18,6 +18,7 @@ use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Billing\EraAutoPost\ClaimOutcome;
 use OpenEMR\Billing\EraAutoPost\HoldReason;
 use OpenEMR\Billing\EraWorklist\HeldCheck;
+use OpenEMR\Billing\EraWorklist\InsuranceCompanyOption;
 use OpenEMR\Billing\EraWorklist\OpenCounts;
 use OpenEMR\Billing\EraWorklist\PostedCheck;
 use OpenEMR\Billing\EraWorklist\PostedClaim;
@@ -48,6 +49,7 @@ final class EraWorklistRows
             'limit' => 500,
             'counts' => new OpenCounts($review, $files),
             'payers' => $view === 'files' ? [] : ['ACME HEALTH', 'PLAN <B>'],
+            'insurers' => $view === 'files' ? [new InsuranceCompanyOption(17, 'Acme <Health>'), new InsuranceCompanyOption(23, 'Plan B')] : [],
             'reasons' => WorklistFilter::reviewReasons(),
             'today' => '2026-11-27',
             'csrfToken' => 'test-csrf-token',
@@ -142,7 +144,7 @@ final class EraWorklistRows
             self::file(43, AutoPostFileStatus::Running),
             self::file(44, AutoPostFileStatus::Unreadable),
             self::file(45, AutoPostFileStatus::Interrupted, [self::held(HoldReason::NoPayer, '')]),
-            self::file(46, AutoPostFileStatus::Done, [self::held(HoldReason::OutOfBalance), self::held(HoldReason::PostedForAnotherPayer), self::held(null)]),
+            self::file(46, AutoPostFileStatus::Done, [self::held(HoldReason::OutOfBalance), self::held(HoldReason::PostedForAnotherPayer), self::held(null)], payerId: 17),
             self::file(47, null, worked: new WorkedMark('Billie <Biller>', new \DateTimeImmutable('2026-11-27 09:30:00'))),
         ];
     }
@@ -186,7 +188,7 @@ final class EraWorklistRows
     /**
      * @param list<HeldCheck> $heldChecks
      */
-    private static function file(int $id, ?AutoPostFileStatus $status, array $heldChecks = [], ?WorkedMark $worked = null): ReceivedFile
+    private static function file(int $id, ?AutoPostFileStatus $status, array $heldChecks = [], ?WorkedMark $worked = null, int $payerId = 0): ReceivedFile
     {
         return new ReceivedFile(
             id: $id,
@@ -197,6 +199,7 @@ final class EraWorklistRows
             autoPostStatus: $status,
             heldChecks: $heldChecks,
             worked: $worked,
+            payerId: $payerId,
         );
     }
 }

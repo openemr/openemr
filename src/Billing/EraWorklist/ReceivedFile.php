@@ -24,6 +24,8 @@ final readonly class ReceivedFile
      * @param string              $storedName     the name it is stored under in documents/era
      * @param ?AutoPostFileStatus $autoPostStatus null when the file was not for unattended posting
      * @param list<HeldCheck>     $heldChecks     its checks that unattended posting held
+     * @param int                 $payerId        the insurance company unattended posting posted or held its checks
+     *                                            for; 0 when it recorded none, or more than one
      */
     public function __construct(
         public int $id,
@@ -34,6 +36,7 @@ final readonly class ReceivedFile
         public ?AutoPostFileStatus $autoPostStatus,
         public array $heldChecks,
         public ?WorkedMark $worked,
+        public int $payerId = 0,
     ) {
     }
 

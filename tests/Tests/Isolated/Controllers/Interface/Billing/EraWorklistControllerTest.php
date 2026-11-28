@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Isolated\Controllers\Interface\Billing;
 
 use OpenEMR\Billing\EraAutoPost\AutoPostFileStatus;
 use OpenEMR\Billing\EraPosting\ClaimIssue;
+use OpenEMR\Billing\EraWorklist\InsuranceCompanyOption;
 use OpenEMR\Billing\EraWorklist\OpenCounts;
 use OpenEMR\Billing\EraWorklist\ReceivedFile;
 use OpenEMR\Billing\EraWorklist\Worklist;
@@ -56,7 +57,7 @@ final class EraWorklistControllerTest extends TestCase
         $twig = new Environment(new ArrayLoader([
             EraWorklistController::TEMPLATE => '{{ view }}|{{ rows|length }}/{{ total }}/{{ limit }}|{{ selfQuery|raw }}'
                 . '|{{ counts.review }},{{ counts.files }}|{{ payers|join(",") }}|{{ reasons|length }}|{{ today }}'
-                . '|{{ csrfToken is empty ? "" : "token" }}',
+                . '|{{ csrfToken is empty ? "" : "token" }}|{{ insurers|map(i => i.id)|join(",") }}',
         ]));
         $clock = new class implements ClockInterface {
             public function now(): \DateTimeImmutable
@@ -81,7 +82,7 @@ final class EraWorklistControllerTest extends TestCase
 
         $response = $this->controller->show(Request::create('/interface/billing/era_worklist.php'));
 
-        self::assertSame('review|0/0/500|view=review|4,2|ACME HEALTH,OTHER PLAN|7|2026-11-27|token', $response->getContent());
+        self::assertSame('review|0/0/500|view=review|4,2|ACME HEALTH,OTHER PLAN|7|2026-11-27|token|', $response->getContent());
         self::assertSame('text/html; charset=utf-8', $response->headers->get('Content-Type'));
     }
 
@@ -146,21 +147,33 @@ final class EraWorklistControllerTest extends TestCase
     }
 
     /**
-     * The files view has no payer to choose: a file never read has none.
+     * The files view has no payer name to filter by: a file never read has none. It lists the
+     * insurance companies a file can be posted for, with those the files' checks were recorded for.
      */
     #[Test]
-    public function listsTheReceivedFilesWithoutLookingUpPayers(): void
+    public function listsTheReceivedFilesWithTheInsuranceCompaniesToPostFor(): void
     {
-        $file = new ReceivedFile(9, 'Partner', 'remote.RMT', 'stored.edi', new \DateTimeImmutable(self::NOW), null, [], null);
+        $at = new \DateTimeImmutable(self::NOW);
+        $files = [
+            new ReceivedFile(9, 'Partner', 'remote.RMT', 'a.edi', $at, null, [], null),
+            new ReceivedFile(10, 'Partner', 'remote.RMT', 'b.edi', $at, AutoPostFileStatus::Done, [], null, 17),
+            new ReceivedFile(11, 'Partner', 'remote.RMT', 'c.edi', $at, AutoPostFileStatus::Interrupted, [], null, 23),
+            new ReceivedFile(12, 'Partner', 'remote.RMT', 'd.edi', $at, AutoPostFileStatus::Done, [], null, 17),
+        ];
         $this->worklist->expects(self::once())
             ->method('receivedFiles')
             ->with(new WorklistFilter(), EraWorklistController::FILE_LIMIT)
-            ->willReturn(new WorklistPage([$file], 1));
+            ->willReturn(new WorklistPage($files, 4));
         $this->worklist->expects(self::never())->method('payerNames');
+        $this->worklist->expects(self::once())
+            ->method('insuranceCompanies')
+            ->with([17, 23])
+            ->willReturn([new InsuranceCompanyOption(17, 'Acme'), new InsuranceCompanyOption(23, 'Plan B')]);
 
         $response = $this->controller->show(Request::create('/', 'GET', ['view' => 'files']));
 
-        self::assertStringStartsWith('files|1/1/200|view=files|4,2||', (string) $response->getContent());
+        self::assertStringStartsWith('files|4/4/200|view=files|4,2||', (string) $response->getContent());
+        self::assertStringEndsWith('|17,23', (string) $response->getContent());
     }
 
     #[Test]

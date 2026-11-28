@@ -361,15 +361,44 @@
                                     <button type="submit" name="action" value="take" class="btn btn-sm btn-secondary">{{ 'Post by Hand'|xlt }}</button>
                                 </form>
                             {% else %}
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="openPostingWindow({{ file.eraName()|attr_js }}, false)">{{ 'Open in Posting Window'|xlt }}</button>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="choosePayer({{ file.eraName()|attr_js }}, false, {{ file.payerId|attr_js }})">{{ 'Open in Posting Window'|xlt }}</button>
                             {% endif %}
-                            <button type="button" class="btn btn-sm btn-link" onclick="openPostingWindow({{ file.eraName()|attr_js }}, true)">{{ 'Preview'|xlt }}</button>
+                            <button type="button" class="btn btn-sm btn-link" onclick="choosePayer({{ file.eraName()|attr_js }}, true, {{ file.payerId|attr_js }})">{{ 'Preview'|xlt }}</button>
                         </td>
                         <td class="text-nowrap">{% if not file.awaitsRun() or file.worked is not null %}{{ _self.worked('file', file, selfQuery, csrfToken) }}{% endif %}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
+        </div>
+        {# The posting window looks for an earlier posting of a check, and of each claim payment, under
+         # the insurance company it is opened for. Without one it would not see what unattended
+         # posting posted, and could post it again. #}
+        <div class="modal fade d-print-none" id="posting-payer-dialog" tabindex="-1" role="dialog" aria-labelledby="posting-payer-title" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="posting-payer-title">{{ 'Insurance Company to Post For'|xlt }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'Close'|xla }}"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ 'The checks you choose in the posting window are posted for this insurance company. A check or claim payment already posted for it is not posted again.'|xlt }}</p>
+                        <p id="posting-payer-recorded" hidden>{{ 'Unattended posting recorded this insurance company for the file.'|xlt }}</p>
+                        <label for="posting-payer">{{ 'Insurance Company'|xlt }}:</label>
+                        <select id="posting-payer" class="form-control">
+                            <option value="">{{ 'Choose an insurance company'|xlt }}</option>
+                            {% for insurer in insurers %}
+                                <option value="{{ insurer.id|attr }}">{{ insurer.name|text }} ({{ insurer.id|text }})</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">{{ 'Choose the insurance company the file is posted for.'|xlt }}</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Cancel'|xlt }}</button>
+                        <button type="button" class="btn btn-primary" id="posting-payer-open" onclick="openForPayer()">{{ 'Open'|xlt }}</button>
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
 {% endif %}
@@ -387,16 +416,42 @@
     // Opened as the ERA posting page opens it after an upload: the window first lists the
     // file's checks, and nothing is posted until the checks to post are chosen there. A
     // preview posts nothing at all.
-    function openPostingWindow(eraName, preview) {
+    function openPostingWindow(eraName, preview, insuranceCompany) {
         top.restoreSession();
         const params = new URLSearchParams({
             csrf_token_form: {{ csrfToken|js_escape }},
             debug: preview ? '1' : '0',
             eraname: eraName,
             original: 'original',
-            paydate: {{ today|js_escape }}
+            paydate: {{ today|js_escape }},
+            InsId: insuranceCompany
         });
         window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayer) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayer > 0 ? String(recordedPayer) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayer > 0 && select.value !== '');
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
     }
 
     // A file a posting run is still to take, or took and did not finish, is taken from the

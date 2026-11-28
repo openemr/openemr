@@ -88,16 +88,42 @@
     // Opened as the ERA posting page opens it after an upload: the window first lists the
     // file's checks, and nothing is posted until the checks to post are chosen there. A
     // preview posts nothing at all.
-    function openPostingWindow(eraName, preview) {
+    function openPostingWindow(eraName, preview, insuranceCompany) {
         top.restoreSession();
         const params = new URLSearchParams({
             csrf_token_form: "test-csrf-token",
             debug: preview ? '1' : '0',
             eraname: eraName,
             original: 'original',
-            paydate: "2026-11-27"
+            paydate: "2026-11-27",
+            InsId: insuranceCompany
         });
         window.open('sl_eob_process.php?' + params, '_blank');
+    }
+
+    // The posting window recognizes an earlier posting of a check, and of a claim payment,
+    // only under the insurance company it is opened for, so a file is opened for one: the
+    // company unattended posting recorded for it comes chosen, and can be changed.
+    let fileToOpen = null;
+
+    function choosePayer(eraName, preview, recordedPayer) {
+        fileToOpen = {eraName: eraName, preview: preview};
+        const select = document.getElementById('posting-payer');
+        select.classList.remove('is-invalid');
+        select.value = recordedPayer > 0 ? String(recordedPayer) : '';
+        document.getElementById('posting-payer-recorded').hidden = !(recordedPayer > 0 && select.value !== '');
+        $('#posting-payer-dialog').modal('show');
+    }
+
+    function openForPayer() {
+        const select = document.getElementById('posting-payer');
+        if (fileToOpen === null || select.value === '') {
+            select.classList.add('is-invalid');
+            return;
+        }
+        select.classList.remove('is-invalid');
+        $('#posting-payer-dialog').modal('hide');
+        openPostingWindow(fileToOpen.eraName, fileToOpen.preview, select.value);
     }
 
     // A file a posting run is still to take, or took and did not finish, is taken from the

@@ -49,6 +49,15 @@ interface Worklist
      */
     public function payerNames(): array;
 
+    /**
+     * The insurance companies a file can be posted for by hand: the active ones, and any of
+     * the others asked for by id, by name.
+     *
+     * @param list<int> $alsoIds
+     * @return list<InsuranceCompanyOption>
+     */
+    public function insuranceCompanies(array $alsoIds): array;
+
     public function openCounts(): OpenCounts;
 
     /**

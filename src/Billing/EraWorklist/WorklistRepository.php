@@ -142,6 +142,7 @@ final class WorklistRepository implements Worklist
             $binds
         );
         $held = self::heldChecksOf($rows);
+        $payers = self::payersOf($rows);
         $files = [];
         foreach ($rows as $row) {
             $id = self::int($row, 'id');
@@ -154,6 +155,7 @@ final class WorklistRepository implements Worklist
                 autoPostStatus: AutoPostFileStatus::tryFrom(self::text($row, 'auto_post_status')),
                 heldChecks: $held[$id] ?? [],
                 worked: self::worked($row),
+                payerId: $payers[$id] ?? 0,
             );
         }
         return new WorklistPage(
@@ -169,6 +171,19 @@ final class WorklistRepository implements Worklist
             'payer_name'
         );
         return array_values(array_filter($names, is_string(...)));
+    }
+
+    public function insuranceCompanies(array $alsoIds): array
+    {
+        $where = '`inactive` = 0';
+        if ($alsoIds !== []) {
+            $where .= ' OR `id` IN (' . self::placeholders(count($alsoIds)) . ')';
+        }
+        $companies = [];
+        foreach (QueryUtils::fetchRecords('SELECT `id`, `name` FROM `insurance_companies` WHERE ' . $where . ' ORDER BY `name`, `id`', $alsoIds) as $row) {
+            $companies[] = new InsuranceCompanyOption(self::int($row, 'id'), self::text($row, 'name'));
+        }
+        return $companies;
     }
 
     public function openCounts(): OpenCounts
@@ -440,6 +455,33 @@ final class WorklistRepository implements Worklist
             );
         }
         return $held;
+    }
+
+    /**
+     * The insurance company unattended posting recorded for each file's checks, where it
+     * recorded one and only one. A check held before its company was worked out has none.
+     *
+     * @param list<array<mixed>> $fileRows rows of x12_remote_received with id
+     * @return array<int, int> insurance_companies.id keyed by received id
+     */
+    private static function payersOf(array $fileRows): array
+    {
+        if ($fileRows === []) {
+            return [];
+        }
+        $ids = array_map(static fn(array $row): int => self::int($row, 'id'), $fileRows);
+        $rows = QueryUtils::fetchRecords(
+            'SELECT `received_id`, MIN(`payer_id`) AS low, MAX(`payer_id`) AS high FROM `era_auto_post_check`'
+            . ' WHERE `received_id` IN (' . self::placeholders(count($ids)) . ') AND `payer_id` > 0 GROUP BY `received_id`',
+            $ids
+        );
+        $payers = [];
+        foreach ($rows as $row) {
+            if (self::int($row, 'low') === self::int($row, 'high')) {
+                $payers[self::int($row, 'received_id')] = self::int($row, 'low');
+            }
+        }
+        return $payers;
     }
 
     private static function lineKey(int $sessionId, int $pid, int $encounter): string
