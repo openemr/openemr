@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <recordTarget>
+    <patientRole>
+      <id root="2.16.840.1.113883.19.5" extension="22222222-2222-2222-2222-222222222222" assigningAuthorityName="https://github.com/synthetichealth/synthea"/>
+      <patient>
+        <name><given>Bob</given><family>Able</family></name>
+      </patient>
+    </patientRole>
+  </recordTarget>
+</ClinicalDocument>

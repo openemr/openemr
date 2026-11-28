@@ -64,6 +64,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -98,6 +99,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       EMPTY: yes
       MYSQL_HOST: mariadb
       MYSQL_ROOT_PASS: root
@@ -170,6 +172,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       FORCE_NO_BUILD_MODE: yes
       EMPTY: yes
     healthcheck:
@@ -203,6 +206,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -237,6 +241,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
@@ -271,6 +276,7 @@ services:
       COLORTERM: truecolor
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
       OPENEMR__ENVIRONMENT: "dev"
+      OPENEMR_ENABLE_DEMO_SEED: 1
       FORCE_NO_BUILD_MODE: yes
       REDIS_SERVER: redis
       EMPTY: yes
