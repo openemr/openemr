@@ -35,8 +35,8 @@
 
 #flb_table {
   .table {
-    // The line under "Time", from the first time column to the last.
-    thead td.flb-time-group {
+    // The line under "Appointment" and under "Time", across the columns each heads.
+    thead td.flb-group {
       border-bottom: 2px solid var(--dark);
     }
 
@@ -44,6 +44,11 @@
       vertical-align: middle;
       padding-top: 0.1rem;
       padding-bottom: 0.1rem;
+    }
+
+    // Row text at the size of the status and room badges.
+    tbody td {
+      font-size: 85%;
     }
 
     // Header cells may wrap, so columns that are often empty stay narrow.
@@ -77,14 +82,12 @@
 
   .flb-badge {
     padding: 0.15em 0.65em;
-    font-size: 85%;
+    font-size: 100%;
     border-width: 0;
     cursor: pointer;
   }
 
-  // The block's times under a Visit List patient's number, and the title above the table:
-  // print only. A block's times print once, under its first patient.
-  .flb-range,
+  // The title above the table: print only.
   .flb-print-title {
     display: none;
   }
@@ -104,15 +107,6 @@
   }
 
   #flb_table {
-    .flb-range {
-      display: block;
-      white-space: nowrap;
-    }
-
-    .flb-repeat .flb-range {
-      display: none;
-    }
-
     .flb-print-title {
       display: table-caption;
       caption-side: top;
@@ -125,7 +119,7 @@
     }
 
     .table {
-      font-size: 0.7rem;
+      font-size: 0.8rem;
 
       td.detail {
         white-space: normal;

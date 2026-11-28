@@ -66,8 +66,7 @@ final readonly class VisitListFlowBoard
      * rows at the same date and time keep the order they came in. A row is on a list when its
      * event, provider and date match one of the schedule's entries.
      *
-     * Each Visit List row gets `visit_list`: `block`, the block's event ID, `sequenceLabel`
-     * ("#3", or "#" with no Order #),
+     * Each Visit List row gets `visit_list`: `sequenceLabel` ("#3", or "#" with no Order #),
      * `start`, the block's start ("08:00", or "8:00 am"), and `timeRange`, its start and end
      * ("08:00–12:00", or "8:00 am–12:00 pm").
      *
@@ -102,7 +101,6 @@ final readonly class VisitListFlowBoard
                 $key = [$date, $block->start->format('H:i:s'), 1, $spot['listIndex'], $spot['entryIndex'], $index];
                 $sequence = $spot['entry']->sequence;
                 $row['visit_list'] = [
-                    'block' => $block->eventId,
                     'sequenceLabel' => $sequence === null ? '#' : '#' . $sequence,
                     'start' => $block->start->format($format),
                     'timeRange' => $block->start->format($format) . '–' . $block->end->format($format),
