@@ -20,7 +20,7 @@ const path = require('path');
 
 const board = new Function(
     fs.readFileSync(path.resolve(__dirname, '../../library/js/flowBoard.js'), 'utf8') +
-    '\nreturn { flowBoardMarkRepeats, flowBoardDateKey, flowBoardKeepRange };'
+    '\nreturn { flowBoardMarkRepeats, flowBoardDateKey, flowBoardKeepRange, flowBoardRedrawChoice };'
 )();
 
 function row(date, time, hidden) {
@@ -221,5 +221,27 @@ describe('menus and clicks', () => {
         window.flowBoardRedrawn(document.getElementById('flb_table'));
 
         expect(items()).toEqual([]);
+    });
+});
+
+describe('filter menus', () => {
+    test('a changed filter menu is drawn clipped for one frame, then with its "…" again', () => {
+        const frames = [];
+        window.requestAnimationFrame = jest.fn((callback) => frames.push(callback));
+        document.body.innerHTML = `<div class="flb-filters"><select id="form_apptcat">
+            <option value="43">Initial psychiatric interview with mental status and evaluation (procedure)</option>
+            <option value="1">No Show</option>
+        </select></div><select id="elsewhere"><option>A</option></select>`;
+        const menu = document.getElementById('form_apptcat');
+
+        menu.value = '1';
+        menu.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(menu.classList.contains('flb-redraw')).toBe(true);
+
+        frames.forEach((callback) => callback());
+        expect(menu.classList.contains('flb-redraw')).toBe(false);
+
+        document.getElementById('elsewhere').dispatchEvent(new Event('change', { bubbles: true }));
+        expect(frames).toHaveLength(1);
     });
 });

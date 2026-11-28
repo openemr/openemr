@@ -5,7 +5,8 @@
  * - clicking an Appt Date, Appt Time or Order cell (or a repeating appointment's badge)
  *   opens the appointment dialog;
  * - a date or time the row above already shows is hidden, so each appears once;
- * - the To date is kept on or after the From date.
+ * - the To date is kept on or after the From date;
+ * - a filter menu is redrawn after each change, so a long choice's "…" doesn't stay.
  *
  * window.flowBoardConfig (templates/patient_tracker/flow_board_script.html.twig):
  * { url, csrfToken, dateFormat, menus: { status: [{id, title}], room: [...] },
@@ -18,7 +19,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* exported flowBoardMarkRepeats, flowBoardDateKey, flowBoardKeepRange */
+/* exported flowBoardMarkRepeats, flowBoardDateKey, flowBoardKeepRange, flowBoardRedrawChoice */
 
 /**
  * Hides each Appt Date or Appt Time that is the same as in the shown row above, so a date
@@ -77,6 +78,18 @@ function flowBoardKeepRange(fromInput, toInput, format) {
     }
     toInput.value = fromInput.value;
     return true;
+}
+
+/**
+ * Redraws a filter menu's shown choice. Some browsers keep the "…" of a long choice after a
+ * shorter one is picked; showing the choice clipped for one frame makes them draw it again.
+ */
+function flowBoardRedrawChoice(select) {
+    select.classList.add('flb-redraw');
+    select.getBoundingClientRect();
+    window.requestAnimationFrame(function () {
+        select.classList.remove('flb-redraw');
+    });
 }
 
 (function () {
@@ -217,6 +230,13 @@ function flowBoardKeepRange(fromInput, toInput, format) {
             }
         });
     }
+
+    document.addEventListener('change', function (event) {
+        var target = event.target;
+        if (target && target.tagName === 'SELECT' && target.closest('.flb-filters')) {
+            flowBoardRedrawChoice(target);
+        }
+    });
 
     // Called by the board's refineMe() after each redraw or filter change.
     window.flowBoardRedrawn = function (root) {

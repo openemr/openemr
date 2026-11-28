@@ -24,7 +24,7 @@
     {% endif %}
     <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Patient'|xlt }}</td>
     {% if showProvider %}
-    <td class="dehead flb-name text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
+    <td class="dehead flb-name flb-provider text-ovr-dark" rowspan="2">{{ 'Provider'|xlt }}</td>
     {% endif %}
     <td class="dehead text-ovr-dark" rowspan="2" name="kiosk_hide">{{ 'Visit Type'|xlt }}</td>
     <td class="dehead text-ovr-dark" rowspan="2">{{ 'Status'|xlt }}</td>
@@ -48,8 +48,8 @@
     <td class="dehead text-ovr-dark">{{ 'Date'|xlt }}</td>
     <td class="dehead text-ovr-dark">{{ 'Time'|xlt }}</td>
     <td class="dehead text-ovr-dark" title="{{ 'When the patient arrived'|xla }}">{{ 'Arrival'|xlt }}</td>
-    <td class="dehead text-ovr-dark" title="{{ 'How long the patient has been in the current status'|xla }}">{{ 'In Status'|xlt }}</td>
-    <td class="dehead text-ovr-dark" title="{{ 'When the patient checked out'|xla }}">{{ 'Check Out'|xlt }}</td>
+    <td class="dehead text-ovr-dark" title="{{ 'How long the patient has been in the current status'|xla }}">{{ 'In{{Time in current status}}'|xlt }}</td>
+    <td class="dehead text-ovr-dark" title="{{ 'When the patient checked out'|xla }}">{{ 'Out{{Check out time}}'|xlt }}</td>
     <td class="dehead text-ovr-dark" title="{{ 'From arrival to check out, or to now'|xla }}">{{ 'Total'|xlt }}</td>
 </tr>
 </thead>

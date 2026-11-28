@@ -449,9 +449,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <?php echo text($ptname_short); ?></a>
                         </td>
                         <?php if (count($chk_prov) > 1) { ?>
-                            <td class="detail flb-name"><?php echo text($docname); ?></td>
+                            <td class="detail flb-name flb-provider"><?php echo text($docname); ?></td>
                         <?php } ?>
-                        <td class="detail text-center" name="kiosk_hide">
+                        <td class="detail text-left" name="kiosk_hide">
                             <?php echo xlt($appointment['pc_title']); ?>
                         </td>
                         <?php echo ServiceContainer::getTwig()->render('patient_tracker/status_room.html.twig', ['eventId' => $appt_eid, 'dateSquash' => $date_squash, 'repeating' => !empty($appointment['pc_recurrtype']), 'status' => ['value' => $status, 'label' => getListItemTitle('apptstat', $status)], 'room' => ['value' => $appt_room, 'label' => getListItemTitle('patient_flow_board_rooms', $appt_room)]]); ?>

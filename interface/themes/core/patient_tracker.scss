@@ -32,6 +32,11 @@
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+
+      // For one frame after a change (flowBoardRedrawChoice in library/js/flowBoard.js).
+      &.flb-redraw {
+        text-overflow: clip;
+      }
     }
   }
 
@@ -94,6 +99,10 @@
 
     .flb-name {
       text-align: left;
+    }
+
+    .flb-provider {
+      padding-left: 0.75rem;
     }
   }
 
