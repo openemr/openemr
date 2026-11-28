@@ -487,6 +487,17 @@ WHERE EXISTS (SELECT 1 FROM `globals` WHERE `gl_name` = 'language_default');
 -- A site that chose Always ('1') keeps it.
 #IfRow2D globals gl_name translation_preload_cache gl_value 0
 UPDATE `globals` SET `gl_value` = 'auto' WHERE `gl_name` = 'translation_preload_cache' AND `gl_value` = '0';
+
+-- A provider can hold more than one taxonomy code; users.taxonomy stays the primary one.
+#IfNotTable users_taxonomy
+CREATE TABLE `users_taxonomy` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL COMMENT 'users.id',
+  `taxonomy` varchar(30) NOT NULL COMMENT 'additional NUCC provider taxonomy code; users.taxonomy stays the primary',
+  `seq` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_taxonomy` (`user_id`, `taxonomy`)
+) ENGINE=InnoDB COMMENT='additional taxonomy codes of a provider (users.taxonomy is the primary)';
 #EndIf
 
 -- The Squad demographics field is no longer wired to any application code. Convert
