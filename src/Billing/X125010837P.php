@@ -1043,6 +1043,7 @@ class X125010837P
             $log .= "*** Skipping 2310B because " . $claim->providerLastName() .
                 "," . $claim->providerFirstName() . " has invalid NPI.\n";
                 $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
+                $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
             $log .= Claim::npiNotSentLog('Rendering provider', $claim->providerRawNPI());
         }
 
