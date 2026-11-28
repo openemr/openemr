@@ -456,11 +456,9 @@ function convLbtoKg(value) {
     var hash_loc=lb.indexOf("#");
     if(hash_loc>=0)
     {
-        var pounds=lb.substr(0,hash_loc);
-        var ounces=lb.substr(hash_loc+1);
-        var num=parseInt(pounds)+parseInt(ounces)/16;
-        lb=num;
-        return lb;
+        // pounds#ounces: reuse the validated parser (keeps decimals, rejects
+        // partial numbers) and convert to kg like the plain-pounds path.
+        return parseUsWeightValue(lb) * 0.45359237;
     }
     if (lb == "0") {
         return 0;
