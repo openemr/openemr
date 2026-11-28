@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Subramani Nagaraj <yuvamani.mani@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -143,27 +145,7 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                 // Dose: {value} {unit} {timing} {route} {additionalInstructions}
                 $instructions = [];
                 foreach ($fhirResource->getDosageInstruction() as $fhirDosage) {
-                    $dosageText = $fhirDosage->getText();
-                    if ($dosageText !== null) {
-                        $dosageText = 'Dose: ';
-                        $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
-                        if ($doseQuantity) {
-                            $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
-                        }
-                        $timing = $fhirDosage->getTiming();
-                        if ($timing !== null) {
-                            $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
-                        }
-                        $route = $fhirDosage->getRoute();
-                        if ($route) {
-                            $dosageText .= ' via ' . $route->getCoding()[0]->getDisplay() . ' ';
-                        }
-                        $additionalInstructions = $fhirDosage->getAdditionalInstruction();
-                        if ($additionalInstructions) {
-                            $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
-                        }
-                    }
-                    $instructions[] = trim($dosageText);
+                    $instructions[] = $this->narrativeForDosageInstruction($fhirDosage);
                 }
 
                 $medicationName = $fhirResource->getMedicationCodeableConcept()->getText() ?? xl("Unknown Medication");
@@ -431,7 +413,45 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
     }
 
     /**
-     * Map dosage instruction information
+     * Encounter-summary line for one Dosage. Keep a free-text SIG when there is
+     * no doseAndRate (a SIG is not a quantity, #14703).
+     */
+    private function narrativeForDosageInstruction(FHIRDosage $fhirDosage): string
+    {
+        $dosageText = $fhirDosage->getText();
+        if ($dosageText !== null) {
+            $rates = $fhirDosage->getDoseAndRate();
+            if (isset($rates[0])) {
+                $dosageText = 'Dose: ';
+                $doseQuantity = $rates[0]->getDoseQuantity();
+                if ($doseQuantity) {
+                    $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
+                }
+                $timing = $fhirDosage->getTiming();
+                if ($timing !== null) {
+                    $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
+                }
+                $route = $fhirDosage->getRoute();
+                if ($route) {
+                    $coding = $route->getCoding();
+                    if (isset($coding[0])) {
+                        $dosageText .= ' via ' . $coding[0]->getDisplay() . ' ';
+                    }
+                }
+                $additionalInstructions = $fhirDosage->getAdditionalInstruction();
+                if (isset($additionalInstructions[0])) {
+                    $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
+                }
+            }
+        }
+        return trim((string)$dosageText);
+    }
+
+    /**
+     * Map SIG, timing, route, and doseQuantity onto a FHIR Dosage.
+     *
+     * doseQuantity is prescriptions.dosage + form as a decimal, matching
+     * MedicationRequest; intval() would send 0 for 0.5 tablet (#14703).
      */
     private function mapDosageInstruction(array $dataRecord): ?FHIRDosage
     {
@@ -470,9 +490,11 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
             $dosage->setTiming($fhirTiming);
         }
 
-        if (!empty($dataRecord['prescription_drug_size']) && is_numeric($dataRecord['prescription_drug_size'])) {
-            $quantity = intval($dataRecord['prescription_drug_size']); // should be an integer value for dosage
-            $doseQuantity = UtilsService::createQuantity($quantity, $dataRecord['unit_title'] ?? '', $dataRecord['unit_title'] ?? '');
+        // Same mapping as MedicationRequest: dosage + form as a decimal, not intval (#14703).
+        $quantity = UtilsService::decimalQuantityValue($dataRecord['dosage'] ?? null);
+        if ($quantity !== null) {
+            $unit = $dataRecord['prescription_form_title'] ?? $dataRecord['drug_form_title'] ?? '';
+            $doseQuantity = UtilsService::createQuantity($quantity, $unit, $unit);
             $doseAndRate = new FHIRDosageDoseAndRate();
             $doseAndRate->setDoseQuantity($doseQuantity);
             $dosage->addDoseAndRate($doseAndRate);
