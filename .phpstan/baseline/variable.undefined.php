@@ -1252,11 +1252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$rtn might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ajax/upload.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$pid$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/api.inc.php',
