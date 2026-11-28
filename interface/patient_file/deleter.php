@@ -31,6 +31,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PatientFile\Deletion\DeletionKind;
+use OpenEMR\PatientFile\Deletion\DeletionRequest;
 use OpenEMR\Services\ReferralTaskService;
 use OpenEMR\Services\UserService;
 
@@ -40,16 +42,22 @@ if (!empty($_GET)) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
-$patient     = filter_input(INPUT_GET, 'patient', FILTER_VALIDATE_INT) ?: 0;
-$encounterid = filter_input(INPUT_GET, 'encounterid', FILTER_VALIDATE_INT) ?: 0;
-$formid      = filter_input(INPUT_GET, 'formid', FILTER_VALIDATE_INT) ?: 0;
-$issue       = filter_input(INPUT_GET, 'issue') ?: '';
-$document    = filter_input(INPUT_GET, 'document', FILTER_VALIDATE_INT) ?: 0;
-// Patient the document is filed under. Not `patient`: that parameter deletes the patient.
-$documentPid = CurrentRequest::get()->query->getInt('document_pid');
-$payment     = filter_input(INPUT_GET, 'payment') ?: '';
-$billing     = filter_input(INPUT_GET, 'billing') ?: '';
-$transaction = filter_input(INPUT_GET, 'transaction', FILTER_VALIDATE_INT) ?: 0;
+// One record. A document request that also names the patient is refused here,
+// before the confirmation and before either deletion branch can run.
+$deletion = DeletionRequest::parse(CurrentRequest::get()->query);
+if (!$deletion instanceof DeletionRequest) {
+    AccessDeniedHelper::deny('Delete request did not name exactly one record');
+}
+
+$patient = $deletion->kind === DeletionKind::Patient ? (int) $deletion->id : 0;
+$encounterid = $deletion->kind === DeletionKind::Encounter ? (int) $deletion->id : 0;
+$formid = $deletion->kind === DeletionKind::Form ? (int) $deletion->id : 0;
+$issue = $deletion->kind === DeletionKind::Issue ? $deletion->id : '';
+$document = $deletion->kind === DeletionKind::Document ? (int) $deletion->id : 0;
+$documentPid = $deletion->documentPid;
+$payment = $deletion->kind === DeletionKind::Payment ? $deletion->id : '';
+$billing = $deletion->kind === DeletionKind::Billing ? $deletion->id : '';
+$transaction = $deletion->kind === DeletionKind::Transaction ? (int) $deletion->id : 0;
 
 $info_msg = "";
 
@@ -220,7 +228,7 @@ function popup_close() {
         if (!empty($_POST['form_submit'])) {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-            if ($patient) {
+            if ($deletion->kind === DeletionKind::Patient) {
                 if (!AclMain::aclCheckCore('admin', 'super') || !OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete')) {
                     AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
@@ -259,7 +267,7 @@ function popup_close() {
                 }
 
                 deleter_row_delete("patient_data", "pid = ?", [$patient]);
-            } elseif ($encounterid) {
+            } elseif ($deletion->kind === DeletionKind::Encounter) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     AccessDeniedHelper::deny('Unauthorized encounter deletion attempt');
                 }
@@ -275,7 +283,7 @@ function popup_close() {
                 }
 
                 deleter_row_delete("forms", "encounter = ?", [$encounterid]);
-            } elseif ($formid) {
+            } elseif ($deletion->kind === DeletionKind::Form) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     AccessDeniedHelper::deny('Unauthorized form deletion attempt');
                 }
@@ -283,11 +291,11 @@ function popup_close() {
                 $row = QueryUtils::querySingleRow("SELECT * FROM forms WHERE id = ?", [$formid]);
                 $formdir = $row['formdir'];
                 if (! $formdir) {
-                    throw new \RuntimeException("There is no form with id '" . text($formid) . "'");
+                    throw new \RuntimeException("There is no form with id '" . text((string) $formid) . "'");
                 }
                 form_delete($formdir, $row['form_id'], $row['pid'], $row['encounter']);
                 deleter_row_delete("forms", "id = ?", [$formid]);
-            } elseif ($issue) {
+            } elseif ($deletion->kind === DeletionKind::Issue) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     AccessDeniedHelper::deny('Unauthorized issue deletion attempt');
                 }
@@ -299,7 +307,7 @@ function popup_close() {
                     deleter_row_delete("lists_medication", "list_id = ?", [$id]);
                     deleter_row_delete("lists", "id = ?", [$id]);
                 }
-            } elseif ($document) {
+            } elseif ($deletion->kind === DeletionKind::Document) {
                 if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
                     AccessDeniedHelper::deny('Unauthorized document deletion attempt');
                 }
@@ -319,7 +327,7 @@ function popup_close() {
                 }
 
                 delete_document($document);
-            } elseif ($payment) {
+            } elseif ($deletion->kind === DeletionKind::Payment) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     // allow biller to delete misapplied payments
                     if (!AclMain::aclCheckCore('acct', 'bill')) {
@@ -403,7 +411,7 @@ function popup_close() {
 
                     deleter_row_delete("payments", "id = ?", [$payrow['id']]);
                 }
-            } elseif ($billing) {
+            } elseif ($deletion->kind === DeletionKind::Billing) {
                 if (!AclMain::aclCheckCore('acct', 'disc')) {
                     AccessDeniedHelper::deny('Unauthorized billing deletion attempt');
                 }
@@ -441,7 +449,7 @@ function popup_close() {
                 QueryUtils::sqlStatementThrowException("UPDATE drug_sales SET billed = 0 WHERE " .
                 "pid = ? AND encounter = ?", [$patient_id, $encounter_id]);
                 BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
-            } elseif ($transaction) {
+            } elseif ($deletion->kind === DeletionKind::Transaction) {
                 if (!AclMain::aclCheckCore('admin', 'super')) {
                     AccessDeniedHelper::deny('Unauthorized transaction deletion attempt');
                 }
@@ -498,47 +506,29 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo $document ?>&document_pid=<?php echo $documentPid ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo $transaction; ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'>
+        <?php
+            $deleteQuery = $deletion->queryParameters();
+            $deleteQuery['csrf_token_form'] = CsrfUtils::collectCsrfToken(session: $session);
+            $deleteAction = 'deleter.php?' . http_build_query($deleteQuery, '', '&', PHP_QUERY_RFC3986);
+            $recordCount = $deletion->recordCount();
+            $recordNoun = match ($deletion->kind) {
+                DeletionKind::Patient => xl('patient'),
+                DeletionKind::Encounter => xl('encounter'),
+                DeletionKind::Form => xl('form'),
+                DeletionKind::Issue => $recordCount > 1 ? xl('issues') : xl('issue'),
+                DeletionKind::Document => xl('document'),
+                DeletionKind::Payment => xl('payment'),
+                DeletionKind::Billing => xl('invoice'),
+                DeletionKind::Transaction => xl('transaction'),
+            };
+            $msg = xl('You have selected to delete') . ' ' . $recordCount . ' ' . $recordNoun
+                . '. ' . xl('Are you sure you want to continue?');
+            ?>
+        <form method='post' name="deletefrm" action='<?php echo attr($deleteAction); ?>'>
             <input type="hidden" name="csrf_token_form"
                 value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <p>
-            <?php
-            $type = '';
-            $id = '';
-            if ($patient) {
-                $id = $patient;
-                $type = 'patient';
-            } elseif ($encounterid) {
-                $id = $encounterid;
-                $type = 'encounter';
-            } elseif ($formid) {
-                $id = $formid;
-                $type = 'form';
-            } elseif ($issue) {
-                $id = $issue;
-                $type = ('issue');
-            } elseif ($document) {
-                $id = $document;
-                $type = 'document';
-            } elseif ($payment) {
-                $id = $payment;
-                $type = 'payment';
-            } elseif ($billing) {
-                $id = $billing;
-                $type = 'invoice';
-            } elseif ($transaction) {
-                $id = $transaction;
-                $type = 'transaction';
-            }
-
-            $ids = explode(",", (string) $id);
-            if (count($ids) > 1) {
-                $type .= 's';
-            }
-
-            $msg = xl("You have selected to delete") . ' ' . count($ids) . ' ' . xl($type) . ". " . xl("Are you sure you want to continue?");
-            echo text($msg);
-            ?>
+            <?php echo text($msg); ?>
             </p>
             <div class="btn-group">
                 <button onclick="submit_form()" class="btn btn-sm btn-primary mr-2"><?php echo xlt('Yes'); ?></button>
