@@ -41,7 +41,7 @@ class ClaimNpiNotSentLogTest extends TestCase
      * A rejected stored NPI is named in the log; an empty field reads as missing.
      */
     #[DataProvider('npiNotSentProvider')]
-    public function testNpiNotSentLog(mixed $raw, string $expected): void
+    public function testNpiNotSentLog(string|null $raw, string $expected): void
     {
         $this->assertSame($expected, Claim::npiNotSentLog('Referring provider', $raw));
     }

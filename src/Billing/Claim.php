@@ -277,7 +277,7 @@ class Claim
      * Log line for an NPI that was not sent. A stored value that is not an
      * NPI is named so it can be corrected; an empty field reads as missing.
      */
-    public static function npiNotSentLog(string $label, mixed $rawNpi): string
+    public static function npiNotSentLog(string $label, string|null $rawNpi): string
     {
         $rawNpi = trim((string) ($rawNpi ?? ''));
         if ($rawNpi === '' || $rawNpi === '0') {
@@ -2323,7 +2323,7 @@ class Claim
      *
      * @return string
      */
-    public function providerRawNPI($prockey = -1)
+    public function providerRawNPI(int $prockey = -1): string
     {
         $tmp = ($prockey < 0 || empty($this->procs[$prockey]['provider_id'])) ?
         $this->provider : $this->procs[$prockey]['provider'];
