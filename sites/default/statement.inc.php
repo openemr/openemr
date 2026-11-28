@@ -25,7 +25,40 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\StatementEnvelope;
 use OpenEMR\Core\OEGlobalsBag;
+
+/**
+ * Opt-in for this copy of the statement template.
+ *
+ * A site that kept an older statement.inc.php does not define this class,
+ * and the PDF margins stay at the stock values.
+ */
+final class StatementSiteTemplate
+{
+    private static int $sheetsOpened = 0;
+
+    /**
+     * This copy of the statement template draws envelope windows.
+     */
+    public static function supportsEnvelopeWindows(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Open one windowed sheet. The first sheet in a batch stays on page one.
+     * Each later sheet starts a new page, so a following statement is not
+     * left off the PDF and the batch does not end on a blank page.
+     */
+    public static function openWindowSheet(StatementEnvelope $env): string
+    {
+        self::$sheetsOpened++;
+        $css = self::$sheetsOpened === 1 ? $env->windowCss() : '';
+        $break = self::$sheetsOpened > 1 ? ' style="page-break-before:always;"' : '';
+        return $css . '<div class="stmt-env-sheet"' . $break . '>';
+    }
+}
 
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
@@ -44,6 +77,8 @@ $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_di
  *      Adjust directory paths per your installation.
  *      Further customize 2. manually in functions report_2() and create_HTML_statement(), below.
  *
+ * Windowed envelopes: Administration > Billing > Statement envelope.
+ *
  */
 function make_statement($stmt)
 {
@@ -57,6 +92,7 @@ function make_statement($stmt)
         return create_statement($stmt);
     }
 }
+
 /**
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
@@ -126,6 +162,9 @@ function report_header_2($stmt, $providerID = '1')
     return $output;
 }
 
+/**
+ * Modern HTML statement. Windowed profiles put remit and patient in the envelope windows.
+ */
 function create_HTML_statement($stmt)
 {
     if (! $stmt['pid']) {
@@ -148,18 +187,34 @@ function create_HTML_statement($stmt)
 // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = "{$row['name']}";
-    $remit_addr = "{$row['street']}";
-    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
-
+    $remit_name = StatementEnvelope::stmtString($row, 'name');
+    $env = StatementEnvelope::fromGlobals();
+    $windowed = $env->isWindowed();
+    [$remit_addr, $remit_csz] = StatementEnvelope::remitLines($row, $windowed);
     ob_start();
-    ?><div style="padding-left:25px; page-break-after:always;">
-    <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
-    $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $providerID);
+    $providerID = $find_provider['provider_id'] ?? '';
+    if ($windowed) {
+        echo StatementSiteTemplate::openWindowSheet($env);
+        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, [
+            StatementEnvelope::stmtToLine($stmt, 0),
+            StatementEnvelope::stmtToLine($stmt, 1),
+            StatementEnvelope::stmtToLine($stmt, 2),
+            StatementEnvelope::stmtToLine($stmt, 3),
+        ]);
+        echo '<div class="stmt-env-body">';
+        echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
+        echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
+        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text(StatementEnvelope::stmtString($stmt, 'patient')) . '</b><br />';
+        echo xlt('Chart') . ': ' . text(StatementEnvelope::stmtString($stmt, 'pid')) . '<br />';
+        echo xlt('Date') . ': ' . text(StatementEnvelope::stmtString($stmt, 'today')) . '<br />';
+        echo '<b>' . xlt('Amount due') . ': ' . text(StatementEnvelope::stmtString($stmt, 'amount')) . '</b></td></tr></table>';
+    } else {
+        echo '<div style="padding-left:25px; page-break-after:always;">';
+        echo report_header_2($stmt, $providerID);
+    }
 
     // dunning message setup
 
@@ -218,11 +273,19 @@ function create_HTML_statement($stmt)
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
 
-    $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
-    $out .= "\n";
-    $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
-    $out .= "\n";
-    $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
+    if ($windowed) {
+        $out  = "<div><pre style='font-size:12pt;line-height:1.3;margin:0;'>";
+        $out .= "\n";
+        $out .= sprintf("____________________ %s ____________________\n", $label_pgbrk);
+        $out .= "\n";
+        $out .= sprintf("%-14s %-42s %s\n", $label_visit, $label_desc, $label_amt);
+    } else {
+        $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
+        $out .= "\n";
+        $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
+        $out .= "\n";
+        $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
+    }
 
     // This must be set to the number of lines generated above.
     $count = 5;
@@ -339,11 +402,12 @@ function create_HTML_statement($stmt)
         $aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
-    // This generates blank lines until we are at line 20.
-    //  At line 20 we start middle third.
-
-    while ($count++ < 16) {
-        $out .= "\n";
+    if (!$windowed) {
+        // This generates blank lines until we are at line 20.
+        //  At line 20 we start middle third.
+        while ($count++ < 16) {
+            $out .= "\n";
+        }
     }
 
     # Generate the string of aging text.  This will look like:
@@ -368,7 +432,7 @@ function create_HTML_statement($stmt)
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
-    $out .= "\n\n\n";
+    $out .= $windowed ? "\n" : "\n\n\n";
     if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
@@ -440,20 +504,32 @@ function create_HTML_statement($stmt)
         }
     }
 
-    while ($count++ < 29) {
-        $out .= "\n";
-    }
-
-    $out .= sprintf("%-10s %s\n", null, $label_retpay);
-    $out .= '</pre></div>';
-    $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
+    if ($windowed) {
+        $out .= '</pre></div></div>';
+        $out .= '<div class="stmt-env-stub">';
+        $out .= '<div style="width:100%;border-top:1pt dotted black;font-size:12pt;margin:0;">';
+        $out .= '<div style="text-align:center;font-size:11pt;padding:6pt 0;">' . text($label_retpay) . '</div>';
+        $out .= '<table width="100%" style="width:100%;"><tr><td style="width:60%;">';
+        $out .= $label_payby . ' ' . $label_cards;
+        $out .= "<br />";
+        $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br />';
+        $out .= $label_sign . '  ______________________________________________<br />';
+        $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+    } else {
+        while ($count++ < 29) {
+            $out .= "\n";
+        }
+        $out .= sprintf("%-10s %s\n", null, $label_retpay);
+        $out .= '</pre></div>';
+        $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:7in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
  ';
-    $out .= $label_payby . ' ' . $label_cards;
-    $out .= "<br /><br />";
-    $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
-    $out .= $label_sign . '  ______________________________________________<br />';
-    $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+        $out .= $label_payby . ' ' . $label_cards;
+        $out .= "<br /><br />";
+        $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
+        $out .= $label_sign . '  ______________________________________________<br />';
+        $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+    }
     $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         $out .= "<img src='$practice_cards' style='width:90px;height:auto; margin:4px auto;'><br /><p>\n<b>" .
@@ -468,30 +544,54 @@ function create_HTML_statement($stmt)
 
     $out .= "</td></tr></table>";
 
-    $out .= '</div><br />
-   <pre>';
-    if (!empty($stmt['to'][3])) { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
-    }
-
-    $out .= ' </pre>
-  <div style="width:7.0in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:7.0in;margin:auto;'><tr>";
-    $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
-        . $label_addressee . '</b><br />'
-        . $stmt['to'][0] . '<br />'
-        . $stmt['to'][1] . '<br />'
-        . ($stmt['to'][2] ?? '') . '
-      </td><td style="width:0.5in;"></td>
-      <td style="margin:auto;"><b>' . $label_remitto . '</b><br />'
-        . $remit_name . '<br />'
-        . $remit_addr . '<br />'
-        . $remit_csz . '
+    if ($windowed) {
+        $out .= '</div>';
+        $out .= '<div style="width:100%;border-top:1pt solid black;margin-top:8pt;padding-top:8pt;">';
+        $out .= '<table width="100%" style="width:100%;margin:0;"><tr>';
+        $addressed = '';
+        foreach ([0, 1, 2, 3] as $toIndex) {
+            $toLine = StatementEnvelope::stmtToLine($stmt, $toIndex);
+            if ($toLine !== '') {
+                $addressed .= text($toLine) . '<br />';
+            }
+        }
+        $out .= '<td style="width:3.3in;vertical-align:top;text-align:left;"><b>'
+            . text($label_addressee) . '</b><br />'
+            . $addressed . '
+      </td>
+      <td style="width:3.7in;vertical-align:top;text-align:right;"><b>'
+            . text($label_remitto) . '</b><br />'
+            . text($remit_name) . '<br />'
+            . nl2br(text($remit_addr), false) . '<br />'
+            . text($remit_csz) . '
       </td>
       </tr></table>';
-
-    $out .= "      </div></div>";
-    $out .= "\014";
+        $out .= '</div></div></div>';
+    } else {
+        $out .= '</div><br />
+   <pre>';
+        $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+        if ($to3 !== '') {
+            $out .= sprintf("   %-32s\n", text($to3));
+        }
+        $out .= ' </pre>
+  <div style="width:7.0in;border-top:1pt solid black;"><br />';
+        $out .= " <table style='width:7.0in;margin:auto;'><tr>";
+        $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
+            . text($label_addressee) . '</b><br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
+            . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
+      </td><td style="width:0.5in;"></td>
+      <td style="margin:auto;"><b>' . text($label_remitto) . '</b><br />'
+            . text($remit_name) . '<br />'
+            . nl2br(text($remit_addr), false) . '<br />'
+            . text($remit_csz) . '
+      </td>
+      </tr></table>';
+        $out .= "      </div></div>";
+        $out .= "\014";
+    }
     echo $out;
     $output = ob_get_clean();
     return $output;
@@ -569,6 +669,9 @@ function create_HTML_statement($stmt)
     //  Billing Department
     //  [Your billing dept phone]
 
+/**
+ * Plain-text statement. Windowed profiles pad addresses to the envelope geometry.
+ */
 function create_statement($stmt): string
 {
     if (! $stmt['pid']) {
@@ -594,9 +697,10 @@ function create_statement($stmt): string
     // Billing location modified by Daniel Pflieger at Growlingflea Software
     $service_query = sqlStatement("SELECT * FROM `form_encounter` fe join facility f on fe.billing_facility = f.id where fe.id = ?", [$stmt['fid']]);
     $row = sqlFetchArray($service_query);
-    $remit_name = "{$row['name']}";
-    $remit_addr = "{$row['street']}";
-    $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
+    $env = StatementEnvelope::fromGlobals();
+    $windowed = $env->isWindowed();
+    $remit_name = StatementEnvelope::stmtString($row, 'name');
+    [$remit_addr, $remit_csz] = StatementEnvelope::remitLines($row, $windowed);
 
 
     // Contacts
@@ -664,20 +768,40 @@ function create_statement($stmt): string
     //  %-25s = left-justified string of 25 characters padded with spaces
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
-    $out = "\n\n";
     $providerNAME = getProviderName($stmt['provider_id']);
-    $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
-    $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
-    $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
-    $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
-    $out .= "\n";
-    $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
-
-    if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if ($windowed) {
+        $toLines = [];
+        foreach ([0, 1, 2, 3] as $i) {
+            $ln = StatementEnvelope::stmtToLine($stmt, $i);
+            if ($ln !== '') {
+                $toLines[] = $ln;
+            }
+        }
+        $block = $env->textAddressBlock($remit_name, $remit_addr, $remit_csz, $toLines);
+        $out = $block['text'];
+        $out .= sprintf("%-30s %s %-s\n", $clinic_name, StatementEnvelope::stmtString($stmt, 'patient'), StatementEnvelope::stmtString($stmt, 'today'));
+        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, StatementEnvelope::stmtString($stmt, 'pid'));
+        $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
+        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, StatementEnvelope::stmtString($stmt, 'amount'));
+        $out .= "\n";
+        // 5 clinic/patient lines plus 13 payment-stub header lines that follow.
+        $count = $block['lines'] + 18;
+    } else {
+        $out = "\n\n";
+        $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
+        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+        $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
+        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
+        $out .= "\n";
+        $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][1], StatementEnvelope::indentTextRemit($remit_addr));
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
+        if ($stmt['to'][3] != '') {
+            $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        }
+        $out .= "\n";
+        $count = 25;
     }
 
     $out .= sprintf("_________________________________________________________________\n");
@@ -699,9 +823,8 @@ function create_statement($stmt): string
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
-    // This must be set to the number of lines generated above.
+    // Aging covers every charge. Stopping at the page break must not drop a later one.
     //
-    $count = 25;
     $num_ages = 4;
     $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
@@ -709,12 +832,131 @@ function create_statement($stmt): string
     }
 
     $todays_time = strtotime(date('Y-m-d'));
+    foreach ($stmt['lines'] as $line) {
+        $age_in_days = (int) (($todays_time - strtotime((string) $line['dos'])) / (60 * 60 * 24));
+        $age_index = (int) (($age_in_days - 1) / 30);
+        $age_index = max(0, min($num_ages - 1, $age_index));
+        $aging[$age_index] += $line['amount'] - $line['paid'];
+    }
 
+    $footer = "";
+    # Generate the string of aging text.  This will look like:
+    # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
+    # ....+....1....+....2....+....3....+....4....+....5....+....6....+
+    #
+    $ageline = xl('Current') . ' ' . sprintf("%.2f", $aging[0]);
+    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
+        $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
+            sprintf(" %.2f", $aging[$age_index]);
+    }
+
+    // Fixed text labels
+    $label_ptname = xl('Name');
+    $label_today = xl('Date');
+    $label_due = xl('Amount Due');
+    $label_thanks = xl('Thank you for choosing');
+    $label_call = xl('Please call if any of the above information is incorrect.');
+    $label_prompt = xl('We appreciate prompt payment of balances due.');
+    $label_dept = xl('Billing Department');
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
+    $label_appointments = xl('Future Appointments') . ':';
+
+    // This is the bottom portion of the page.
+    $footer .= "\n";
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
+        $footer .= sprintf("%-46s\n", $stmt['bill_note']);
+    }
+
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
+        $footer .= sprintf("%-46s\n", $dun_message);
+    }
+
+    $footer .= "\n";
+    $footer .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
+    $footer .= sprintf("__________________________________________________________________\n");
+    $footer .= "\n";
+    $footer .= sprintf("%-s\n", $label_call);
+    $footer .= sprintf("%-s\n", $label_prompt);
+    $footer .= "\n";
+    $footer .= sprintf("%-s\n", $billing_contact);
+    $footer .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
+        $footer .= "\n";
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
+        $footer .= sprintf("%-40s\n", $statement_message);
+    }
+
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
+        # code for ageing
+        $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
+            sprintf(" %.2f", $aging[$age_index]);
+        $footer .= "\n" . $ageline . "\n\n";
+    }
+
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
+        $footer .= "\n";
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
+        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
+        # add one day to date so it will not get todays appointment
+        $current_date2 = date('Y-m-d', $next_day);
+        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
+        $j = 0;
+        $footer .= sprintf("%-s\n", $label_appointments);
+        #loop to add the appointments
+        for ($x = 1; $x <= $num_appts; $x++) {
+            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
+            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
+            if (strlen((string) $events[$j]['umname']) != 0) {
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
+                    ' ' .  $events[$j]['ulname'];
+            } else {
+                $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
+            }
+
+            if (strlen($next_appoint_time) != 0) {
+                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
+                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
+                $footer .= sprintf("%-s\n", $label_plsnote[$j]);
+            }
+
+            $j++;
+        }
+    }
+
+    // Letter stubs pad to line 42. A shorter sheet keeps the footer on page one.
+    // An amount wider than the sheet wraps onto another row, and that row is reserved too.
+    $padTo = 42;
+    $pageLines = 0;
+    if ($windowed) {
+        $pageLines = StatementEnvelope::textPageLines();
+        $pieces = explode("\n", $footer);
+        if ($pieces !== [] && $pieces[array_key_last($pieces)] === '') {
+            array_pop($pieces);
+        }
+        $footerRows = 0;
+        $columns = StatementEnvelope::textPageColumns();
+        foreach ($pieces as $piece) {
+            $footerRows += StatementEnvelope::textRows($piece, $columns);
+        }
+        $padTo = min(42, $pageLines - $footerRows);
+        if ($padTo < 1) {
+            $padTo = 1;
+        }
+    }
     // This generates the detail lines.  Again, note that the values must
     // be specified in the order used.
     //
-
-
+    // A windowed sheet keeps the footer on this page. Charges that do not
+    // fit are named once and are not moved onto a second sheet.
+    $omitted = false;
     foreach ($stmt['lines'] as $line) {
         $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
@@ -727,13 +969,6 @@ function create_statement($stmt): string
 
         $dos = $line['dos'];
         ksort($line['detail']);
-        # Compute the aging bucket index and accumulate into that bucket.
-        #
-        $age_in_days = (int) (($todays_time - strtotime((string) $dos)) / (60 * 60 * 24));
-        $age_index = (int) (($age_in_days - 1) / 30);
-        $age_index = max(0, min($num_ages - 1, $age_index));
-        $aging[$age_index] += $line['amount'] - $line['paid'];
-
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr((string) $dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
@@ -760,114 +995,45 @@ function create_statement($stmt): string
                 $desc = $description;
             }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+            if ($windowed && $pageLines > 0 && $count >= $padTo) {
+                $omitted = true;
+                break 2;
+            }
+            $descWidth = 45;
+            if ($windowed) {
+                $descWidth = max(1, StatementEnvelope::textPageColumns() - 20);
+                $descText = is_scalar($desc) ? (string) $desc : '';
+                $out .= sprintf('%-10s  ', oeFormatShortDate($dos))
+                    . StatementEnvelope::fitColumns($descText, $descWidth)
+                    . sprintf('%8s', $amount) . "\n";
+            } else {
+                $out .= sprintf("%-10s  %-" . $descWidth . "s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+            }
             $dos = '';
             ++$count;
         }
     }
 
-    // This generates blank lines until we are at line 42.
-    //
-    while ($count++ < 42) {
+    if ($omitted && $count < $padTo) {
+        $out .= xl('Further charges are not on this page.') . "\n";
+        ++$count;
+    }
+
+    while ($count < $padTo) {
         $out .= "\n";
+        ++$count;
     }
 
-    # Generate the string of aging text.  This will look like:
-    # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
-    # ....+....1....+....2....+....3....+....4....+....5....+....6....+
-    #
-    $ageline = xl('Current') . ' ' . sprintf("%.2f", $aging[0]);
-    for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
-        $ageline .= ' / ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) .
-            sprintf(" %.2f", $aging[$age_index]);
-    }
-
-    // Fixed text labels
-    $label_ptname = xl('Name');
-    $label_today = xl('Date');
-    $label_due = xl('Amount Due');
-    $label_thanks = xl('Thank you for choosing');
-    $label_call = xl('Please call if any of the above information is incorrect.');
-    $label_prompt = xl('We appreciate prompt payment of balances due.');
-    $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
-    $label_appointments = xl('Future Appointments') . ':';
-
-    // This is the bottom portion of the page.
-    $out .= "\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
-        $out .= sprintf("%-46s\n", $stmt['bill_note']);
-    }
-
-    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
-        $out .= sprintf("%-46s\n", $dun_message);
-    }
-
-    $out .= "\n";
-    $out .= sprintf(
-        "%-s: %-25s %-s: %-14s %-s: %8s\n",
-        $label_ptname,
-        $stmt['patient'],
-        $label_today,
-        oeFormatShortDate($stmt['today']),
-        $label_due,
-        $stmt['amount']
-    );
-    $out .= sprintf("__________________________________________________________________\n");
-    $out .= "\n";
-    $out .= sprintf("%-s\n", $label_call);
-    $out .= sprintf("%-s\n", $label_prompt);
-    $out .= "\n";
-    $out .= sprintf("%-s\n", $billing_contact);
-    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
-        $out .= "\n";
-        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
-        $out .= sprintf("%-40s\n", $statement_message);
-    }
-
-    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
-        # code for ageing
-        $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
-            sprintf(" %.2f", $aging[$age_index]);
-        $out .= "\n" . $ageline . "\n\n";
-    }
-
-    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
-        $out .= "\n";
-        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
-        $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
-        # add one day to date so it will not get todays appointment
-        $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
-        $j = 0;
-        $out .= sprintf("%-s\n", $label_appointments);
-        #loop to add the appointments
-        for ($x = 1; $x <= $num_appts; $x++) {
-            $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr((string) $events[$j]['pc_startTime'], 0, 5);
-            if (strlen((string) $events[$j]['umname']) != 0) {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] .
-                    ' ' .  $events[$j]['ulname'];
-            } else {
-                $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
-            }
-
-            if (strlen($next_appoint_time) != 0) {
-                $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') .
-                    ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n", $label_plsnote[$j]);
-            }
-
-            $j++;
-        }
-    }
-
+    $out .= $footer;
     $out .= "\014"; // this is a form feed
 
     return $out;
 }
 
+/**
+ * Portal HTML statement. Read on screen, so it keeps the stock layout
+ * even when printed statements are fitted to an envelope.
+ */
 function osp_create_HTML_statement($stmt)
 {
     if (! $stmt['pid']) {
@@ -879,30 +1045,32 @@ function osp_create_HTML_statement($stmt)
         return "";
     }
 
-    // Facility (service location)
-    $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
-    " left join users u on f.id=u.facility_id " .
-    " left join  billing b on b.provider_id=u.id and b.pid = ? " .
-    " where  service_location=1", [$stmt['pid']]);
+    // First service-location facility, same source the stock portal statement uses.
+    $atres = sqlStatement(
+        "select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f "
+        . " left join users u on f.id=u.facility_id "
+        . " left join billing b on b.provider_id=u.id and b.pid = ? "
+        . " where service_location=1",
+        [$stmt['pid']]
+    );
     $row = sqlFetchArray($atres);
-    $clinic_name = "{$row['name']}";
-    $clinic_addr = "{$row['street']}";
-    $clinic_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
-// Contacts
-    $billing_contact = "{$row['attn']}";
-    $billing_phone = "{$row['phone']}";
-// Billing location
+    $clinic_name = StatementEnvelope::stmtString($row, 'name');
+    $clinic_addr = StatementEnvelope::stmtString($row, 'street');
+    $clinic_csz = StatementEnvelope::stmtString($row, 'city')
+        . ', ' . StatementEnvelope::stmtString($row, 'state')
+        . ', ' . StatementEnvelope::stmtString($row, 'postal_code');
+    $billing_contact = StatementEnvelope::stmtString($row, 'attn');
+    $billing_phone = StatementEnvelope::stmtString($row, 'phone');
     $remit_name = $clinic_name;
     $remit_addr = $clinic_addr;
     $remit_csz = $clinic_csz;
 
     ob_start();
-    ?><div style="padding-left:25px;">
-    <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
-    $providerID = $find_provider['provider_id'];
+    $providerID = $find_provider['provider_id'] ?? '';
+    echo '<div style="padding-left:25px;">';
     echo report_header_2($stmt, $providerID);
 
     // dunning message setup
@@ -1130,7 +1298,7 @@ function osp_create_HTML_statement($stmt)
 
     // while ($count++ < 29) $out .= "\n";
     $out .= sprintf("%-10s %s\n", null, $label_retpay);
-    $out .= '</pre></div>';
+    $out .= '</div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:8in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
  ';
@@ -1148,23 +1316,24 @@ function osp_create_HTML_statement($stmt)
     $out .= "</td></tr></table>";
 
     $out .= '</div><br />';
-    if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    $to3 = StatementEnvelope::stmtToLine($stmt, 3);
+    if ($to3 !== '') {
+        $out .= sprintf("   %-32s\n", text($to3));
     }
 
-    $out .= ' </pre>
-  <div style="width:8in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
-    $out .= '<td style="width:3.0in;"><b>'
-        . $label_addressee . '</b><br />'
-        . $stmt['to'][0] . '<br />'
-        . $stmt['to'][1] . '<br />'
-        . $stmt['to'][2] . '
+    $out .= '<div style="width:8in;border-top:1pt solid black;"><br />';
+    $out .= " <table width=\"100%\" style='width:6.0in;margin-left:40px;'><tr>";
+    $out .= '<td style="width:3.0in;vertical-align:top;text-align:left;"><b>'
+        . text($label_addressee) . '</b><br />'
+        . text(StatementEnvelope::stmtToLine($stmt, 0)) . '<br />'
+        . text(StatementEnvelope::stmtToLine($stmt, 1)) . '<br />'
+        . text(StatementEnvelope::stmtToLine($stmt, 2)) . '
       </td>
-      <td style="width:3.0in;"><b>' . $label_remitto . '</b><br />'
-        . $remit_name . '<br />'
-        . $remit_addr . '<br />'
-        . $remit_csz . '
+      <td style="width:3.0in;vertical-align:top;text-align:right;"><b>'
+        . text($label_remitto) . '</b><br />'
+        . text($remit_name) . '<br />'
+        . nl2br(text($remit_addr), false) . '<br />'
+        . text($remit_csz) . '
       </td>
       </tr></table>';
 

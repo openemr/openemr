@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing\Statement;
 
 use Mpdf\Mpdf;
-use OpenEMR\Pdf\Config_Mpdf;
+use OpenEMR\Billing\StatementEnvelope;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessException;
 use Symfony\Component\Process\Process;
@@ -53,7 +53,7 @@ final readonly class StatementFileOutput implements StatementOutput
         $batch = file_get_contents($batchFile);
         $batch = $batch === false ? '' : $batch;
         if ($this->htmlStatements) {
-            $pdf = new Mpdf(Config_Mpdf::getConfigMpdf());
+            $pdf = new Mpdf(StatementEnvelopeDocuments::pdfConfig());
             if ($this->rightToLeft) {
                 $pdf->SetDirectionality('rtl');
             }
@@ -101,10 +101,20 @@ final readonly class StatementFileOutput implements StatementOutput
      */
     private static function textPdf(string $batch): string
     {
-        $pdf = new \Cezpdf('LETTER');
-        $pdf->ezSetMargins(45, 9, 36, 10);
+        $paper = StatementEnvelopeDocuments::textMarginsAreZero()
+            ? StatementEnvelope::sheetFormat()
+            : 'LETTER';
+        $pdf = new \Cezpdf($paper);
+        if (StatementEnvelopeDocuments::textMarginsAreZero()) {
+            $pdf->ezSetMargins(0, 0, 0, 0);
+        } else {
+            $pdf->ezSetMargins(45, 9, 36, 10);
+        }
         $pdf->selectFont('Courier');
         $pdf->ezSetY(self::pageTop($pdf));
+        $width = self::pageWidth($pdf);
+        // Courier is 0.6 em. One source line is 12 points, six lines per inch.
+        $columns = $width > 0.0 ? (int) floor($width / 7.2) : 0;
         $lines = preg_split('/(?<=\n)/', $batch);
         $lines = $lines === false ? [] : $lines;
         $last = count($lines) - 1;
@@ -112,13 +122,18 @@ final readonly class StatementFileOutput implements StatementOutput
             if (str_contains($line, "\014") && $i < $last) {
                 $pdf->ezNewPage();
                 $pdf->ezSetY(self::pageTop($pdf));
-                $line = str_replace("\014", '', $line);
             }
-            $bold = stristr($line, 'REMIT TO') !== false
-                || stristr($line, 'Visit Date') !== false
-                || stristr($line, 'Future Appointments') !== false
-                || stristr($line, 'Current') !== false;
-            $pdf->ezText($bold ? '<b>' . $line . '</b>' : $line, 12, ['justification' => 'left', 'leading' => 6]);
+            $plain = str_replace("\014", '', $line);
+            $plain = rtrim($plain, "\r\n");
+            $keepsAmount = preg_match('/\d+\.\d{2}$/', $plain) === 1;
+            if ($columns > 0 && strlen($plain) > $columns && !$keepsAmount) {
+                $plain = substr($plain, 0, $columns);
+            }
+            $bold = stristr($plain, 'REMIT TO') !== false
+                || stristr($plain, 'Visit Date') !== false
+                || stristr($plain, 'Future Appointments') !== false
+                || stristr($plain, 'Current') !== false;
+            $pdf->ezText($bold ? '<b>' . $plain . '</b>' : $plain, 12, ['justification' => 'left', 'leading' => 12]);
         }
         return $pdf->ezOutput();
     }
@@ -132,6 +147,16 @@ final readonly class StatementFileOutput implements StatementOutput
         $height = is_array($page) && is_numeric($page['pageHeight'] ?? null) ? (float) $page['pageHeight'] : 0.0;
         $margin = is_array($page) && is_numeric($page['topMargin'] ?? null) ? (float) $page['topMargin'] : 0.0;
         return $height - $margin;
+    }
+
+    private static function pageWidth(\Cezpdf $pdf): float
+    {
+        $page = $pdf->ez;
+        $width = is_array($page) && is_numeric($page['pageWidth'] ?? null) ? (float) $page['pageWidth'] : 0.0;
+        $left = is_array($page) && is_numeric($page['leftMargin'] ?? null) ? (float) $page['leftMargin'] : 0.0;
+        $right = is_array($page) && is_numeric($page['rightMargin'] ?? null) ? (float) $page['rightMargin'] : 0.0;
+
+        return max(0.0, $width - $left - $right);
     }
 
     private static function send(string $file): never
