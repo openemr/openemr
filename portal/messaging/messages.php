@@ -148,6 +148,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                 regarding: <?php echo xlj('regarding'); ?>,
                 onPrep: <?php echo xlj('on'); ?>,
                 archiveTitle: <?php echo xlj('Archive this message'); ?>,
+                composeForwardTitle: <?php echo xlj('Forward Message'); ?>,
                 composeReplyTitle: <?php echo xlj('Compose Reply Message'); ?>,
                 composeNewTitle: <?php echo xlj('Compose New Message'); ?>
             }

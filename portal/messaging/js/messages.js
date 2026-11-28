@@ -614,7 +614,7 @@
         }
 
         if (mode === 'forward') {
-            $('#modalCompose .modal-header .modal-title').html("Forward Message");
+            $('#modalCompose .modal-header .modal-title').text(config.strings.composeForwardTitle);
             const recipId = $(relatedTarget).attr('data-whoto');
             const title = $(relatedTarget).attr('data-mtitle');
             const uname = $(relatedTarget).attr('data-username');
