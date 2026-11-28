@@ -146,7 +146,8 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                     $dosageText = $fhirDosage->getText();
                     if ($dosageText !== null) {
                         $dosageText = 'Dose: ';
-                        $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
+                        $doseAndRate = $fhirDosage->getDoseAndRate();
+                        $doseQuantity = $doseAndRate !== [] ? $doseAndRate[0]->getDoseQuantity() : null;
                         if ($doseQuantity) {
                             $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
                         }
@@ -156,10 +157,13 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                         }
                         $route = $fhirDosage->getRoute();
                         if ($route) {
-                            $dosageText .= ' via ' . $route->getCoding()[0]->getDisplay() . ' ';
+                            $routeCoding = $route->getCoding();
+                            if ($routeCoding !== []) {
+                                $dosageText .= ' via ' . $routeCoding[0]->getDisplay() . ' ';
+                            }
                         }
                         $additionalInstructions = $fhirDosage->getAdditionalInstruction();
-                        if ($additionalInstructions) {
+                        if ($additionalInstructions !== []) {
                             $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
                         }
                     }

@@ -18,6 +18,8 @@
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -106,6 +108,16 @@ class C_Prescription extends Controller
             }
 
             $this->assign("dispenseEnabled", true);
+            // Warehouse policy as it applies to the current user, so the
+            // dispense card can show its status before any lots are loaded.
+            $policyService = new DrugSalesService();
+            $policyUserRaw = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser');
+            $policyUserDefault = $policyService->getUserDefaultWarehouse(is_string($policyUserRaw) ? $policyUserRaw : '');
+            $this->assign("warehousePolicyRestrict", DrugSalesService::restrictSalesToDefaultWarehouse());
+            $this->assign(
+                "warehouseDefaultTitle",
+                $policyUserDefault !== '' ? ($policyService->getWarehouseTitle($policyUserDefault) ?: $policyUserDefault) : ''
+            );
             $this->assign("defaultPharmacySupplyType", "FF");
             $this->assign("DRUG_ARRAY_VALUES", $drug_array_values);
             $this->assign("DRUG_ARRAY_OUTPUT", $drug_array_output);
@@ -374,15 +386,28 @@ class C_Prescription extends Controller
      */
     private function dispenseAfterSave(): void
     {
+        // Creating a sale mutates inventory: require the CSRF token and write
+        // permission, as the former dispense_drug.php create-sale path did
+        // after #14679. The prescription form carries the token in its
+        // dispense section.
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        if (!AclMain::aclCheckCore('admin', 'drugs', '', 'write')) {
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs write: Dispense Drug", xl("Dispense Drug"));
+        }
+
         $prescription = $this->prescriptions[0];
         $drugId = (int)($_POST['dispense_drug_id'] ?? $_POST['drug_id'] ?? 0);
         $quantity = (float)($_POST['disp_quantity'] ?? 0);
         $fee = (float)($_POST['disp_fee'] ?? 0);
         $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
-        $patientId = $prescription->get_patient_id();
+        $inventoryIdRaw = filter_input(INPUT_POST, 'dispense_inventory_id');
+        $inventoryId = is_numeric($inventoryIdRaw) && (int)$inventoryIdRaw > 0 ? (int)$inventoryIdRaw : null;
+        $patientIdRaw = $prescription->get_patient_id();
+        $patientId = is_numeric($patientIdRaw) ? (int)$patientIdRaw : 0;
         $prescriptionId = $prescription->id;
 
         $dispenseError = null;
+        $saleId = 0;
 
         if ($drugId <= 0) {
             $dispenseError = xl('No in-house drug selected for dispensing');
@@ -393,17 +418,42 @@ class C_Prescription extends Controller
         } else {
             try {
                 $drugSalesService = new DrugSalesService();
-                $saleId = $drugSalesService->sellDrug(
+                $expiredLots = false;
+                $saleResult = $drugSalesService->sellDrug(
                     $drugId,
                     $quantity,
                     $fee,
                     $patientId,
                     $encounterId,
-                    $prescriptionId
+                    $prescriptionId,
+                    '',
+                    '',
+                    '',
+                    false,
+                    $expiredLots,
+                    '',
+                    '',
+                    $inventoryId
                 );
+                $saleId = is_numeric($saleResult) ? (int)$saleResult : 0;
 
-                if (!$saleId) {
+                if ($saleId <= 0) {
                     $dispenseError = xl('Inventory is not available for this order');
+                    if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse()) {
+                        // Strict policy is on and the picker submitted a lot.
+                        // When that lot sits outside the user's default
+                        // warehouse, say so instead of the generic "no
+                        // inventory" message — the lot does exist, the clinic
+                        // just bars it. An on-site lot that fails is simply
+                        // short on stock, so the generic message stands.
+                        $authUserRaw = SessionWrapperFactory::getInstance()->getActiveSession()->get('authUser');
+                        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
+                        $defaultWarehouse = $drugSalesService->getUserDefaultWarehouse($authUser);
+                        $lotWarehouse = $drugSalesService->getLotWarehouseId($inventoryId);
+                        if ($defaultWarehouse !== '' && $lotWarehouse !== null && $lotWarehouse !== $defaultWarehouse) {
+                            $dispenseError = xl('Your clinic only allows dispensing from your default warehouse. Either change the lot’s warehouse to your default, or transfer the lot to your default warehouse first via Inventory → Management → Edit Lot.');
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 $dispenseError = $e->getMessage();
@@ -413,12 +463,17 @@ class C_Prescription extends Controller
         if ($dispenseError) {
             // Show error and return to prescription list
             echo "<script>alert(" . js_escape($dispenseError) . "); ";
-            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url($patientId) . "';</script>";
+            echo "window.location.href = 'controller.php?prescription&list&id=" . attr_url((string)$patientId) . "';</script>";
             exit;
         }
 
-        // Success - redirect to prescription list
-        $this->list_action($patientId);
+        // Success - open the bottle-label popup, then redirect to the list.
+        $labelUrl = OEGlobalsBag::getInstance()->getString('webroot') . '/interface/drugs/print_drug_label.php?sale_id=' . urlencode((string)$saleId);
+        $listUrl  = 'controller.php?prescription&list&id=' . urlencode((string)$patientId);
+        echo "<script>";
+        echo "window.open(" . js_escape($labelUrl) . ", '_blank');";
+        echo "window.location.href = " . js_escape($listUrl) . ";";
+        echo "</script>";
         exit;
     }
 

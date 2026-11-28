@@ -15,7 +15,7 @@
 
 require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once("../drugs/drugs.inc.php");
+require_once("../drugs/inventory_acl.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -321,7 +321,7 @@ if (!empty($_POST['form_refresh'])) {
             <?php echo text($reactions); ?>
   </td>
   <td>
-     <a href='../drugs/dispense_drug.php?sale_id=<?php echo attr_url($row['sale_id']); ?>'
+     <a href='../drugs/print_drug_label.php?sale_id=<?php echo attr_url($row['sale_id']); ?>'
     style='color:#0000ff' target='_blank'>
             <?php echo text(oeFormatShortDate($row['sale_date'])); ?>
    </a>

@@ -11,7 +11,7 @@
  */
 
 require_once("../globals.php");
-require_once("drugs.inc.php");
+require_once("inventory_acl.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\HcpcsDrugDefaults;
