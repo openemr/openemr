@@ -398,6 +398,8 @@ npm run dev               # Dev theme build, static CSS sync, then webpack watch
 
 ## Coding Standards
 
+- Keep new inline style attributes out of Twig templates; `TwigInlineStyleTest` enforces the shrinking baseline and explicit email/print exemptions.
+
 ### Legacy Code Is Not the Standard
 
 OpenEMR's codebase predates modern PHP and contains many antipatterns: global
