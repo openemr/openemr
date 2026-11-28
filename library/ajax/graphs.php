@@ -41,7 +41,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 // Conversion functions/constants
 function convertFtoC($a): float
 {
-    return ($a - 32) * 0.5556;
+    return ($a - 32) * 5 / 9;
 }
 function getLbstoKgMultiplier(): float
 {
