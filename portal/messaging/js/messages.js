@@ -449,7 +449,7 @@
             const dateStr = item.date || '';
             html += `<tr role="button">
                 <td class="message-row">
-                    <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" data-item-idx="${idx}" class="item-checkbox"></span>
+                    <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" data-item-idx="${idx}" class="item-checkbox"${item._deleted ? ' checked' : ''}></span>
                     <span class="col-sm-1 px-1 msg-click" data-idx="${idx}"><span style="${strong}">${escapeHtml(item.message_status)}</span></span>
                     <span class="col-sm-2 px-1 msg-click" data-idx="${idx}"><span style="${strong}">${escapeHtml(dateStr)}</span></span>
                     <span class="col-sm-3 px-1 msg-click" data-idx="${idx}">
@@ -852,7 +852,7 @@
         initData();
     });
 
-    // Test seam: exposes pure helpers for unit tests. Not part of the public
+    // Test seam: exposes helpers plus the list renderer and state for unit tests. Not part of the public
     // surface — production code never reads from here.
     if (typeof window !== 'undefined') {
         window.__OE_MESSAGES_TEST__ = {
@@ -863,7 +863,9 @@
             renderMessageBody,
             paginate,
             groupChain,
-            lockReplyRecipient
+            lockReplyRecipient,
+            renderMessageList,
+            state
         };
     }
 })();
